@@ -140,7 +140,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	var/e_colour = "#000000"			//Eye color
 	var/alt_head = "None"				//Alt head style.
 	var/species = "Human"
-	var/language = "None"				//Secondary language
+	var/language = "None"		//Secondary language for choise.
 	var/autohiss_mode = AUTOHISS_FULL	//Species autohiss level. OFF, BASIC, FULL.
 
 	var/tts_seed = null
@@ -196,6 +196,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	var/med_record = ""
 	var/sec_record = ""
 	var/gen_record = ""
+	var/exploit_record = ""
 	var/disabilities = 0
 
 	var/nanotrasen_relation = "Neutral"
@@ -245,6 +246,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	var/list/keybindings_overrides = null
 	/// View range preference for this client
 	var/viewrange = DEFAULT_CLIENT_VIEWSIZE
+	/// How dark things are if client is a ghost, 0-255
+	var/ghost_darkness_level = LIGHTING_PLANE_ALPHA_VISIBLE
 
 	/// Minigames notification about their end, start and etc.
 	var/minigames_notifications = TRUE
@@ -253,7 +256,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 /datum/preferences/New(client/C)
 	parent = C
 	b_type = pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+")
-	parent?.set_macros()
 	max_gear_slots = CONFIG_GET(number/max_loadout_points)
 	var/loaded_preferences_successfully = FALSE
 	if(istype(C))
@@ -307,7 +309,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				species = initial(species)
 				S = GLOB.all_species[species]
 				random_character()
-
 			dat += "<div class='statusDisplay' style='max-width: 128px; position: absolute; left: 150px; top: 150px'><img src=previewicon.png class='charPreview'><img src=previewicon2.png class='charPreview'></div>"
 			dat += "<table width='100%'><tr><td width='405px' height='25px' valign='top'>"
 			dat += "<b>Name: </b>"
@@ -923,6 +924,15 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	parent?.update_active_keybindings()
 	return keybindings
 
+/datum/preferences/proc/null_longtextfix(raw)
+	var/text
+	if(raw)
+		try
+			text = raw
+		catch
+			text = ""
+	return text
+
 /datum/preferences/proc/capture_keybinding(mob/user, datum/keybinding/KB, old)
 	var/HTML = {"
 	<div id='focus' style="outline: 0;" tabindex=0>Keybinding: [KB.name]<br><br><b>Press any key to change<br>Press ESC to clear</b></div>
@@ -1106,11 +1116,18 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	HTML += "<br><a href=\"byond://?_src_=prefs;preference=records;task=sec_record\">Security Records</a><br>"
 
 	if(length(sec_record) <= 40)
-		HTML += "[sec_record]<br>"
+		HTML += "[sec_record]"
 	else
-		HTML += "[copytext_char(sec_record, 1, 37)]...<br>"
+		HTML += "[copytext_char(sec_record, 1, 37)]..."
 
-	HTML += "<a href=\"byond://?_src_=prefs;preference=records;records=-1\">\[Done\]</a>"
+	HTML += "<br><a href=\"byond://?_src_=prefs;preference=records;task=exploit_record\">Exploitable Records</a><br>"
+
+	if(length(exploit_record) <= 40)
+		HTML += "[exploit_record]"
+	else
+		HTML += "[copytext_char(exploit_record, 1, 37)]..."
+
+	HTML += "<br><br><a href=\"byond://?_src_=prefs;preference=records;records=-1\">\[Done\]</a>"
 	HTML += "</center></tt>"
 
 	var/datum/browser/popup = new(user, "records", "<div align='center'>Character Records</div>", 350, 300)
@@ -1367,6 +1384,15 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 				gen_record = genmsg
 				SetRecords(user)
+		if(href_list["task"] == "exploit_record")
+			var/expmsg = input(usr,"Set your exploitable notes here. This info is available to traitors only.","Exploitable Records",html_decode(exploit_record)) as message
+
+			if(expmsg != null)
+				expmsg = copytext(expmsg, 1, MAX_PAPER_MESSAGE_LEN)
+				expmsg = html_encode(expmsg)
+
+				exploit_record = expmsg
+				SetRecords(user)
 
 	if(href_list["preference"] == "gear")
 		if(href_list["toggle_gear"])
@@ -1520,6 +1546,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 					species = tgui_input_list(user, "Please select a species", "Character Generation", sortTim(new_species, cmp = /proc/cmp_text_asc))
 					if(!species)
+						species = prev_species
 						return
 					var/datum/species/NS = GLOB.all_species[species]
 					if(!istype(NS)) //The species was invalid. Notify the user and fail out.
@@ -1587,7 +1614,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 						alt_head = "None" //No alt heads on species that don't have them.
 						speciesprefs = 0 //My Vox tank shouldn't change how my future Grey talks.
-
+						language = LANGUAGE_NONE
 						body_accessory = null //no vulptail on humans damnit
 						body_accessory = random_body_accessory(NS.name, NS.optional_body_accessory)
 
@@ -1614,14 +1641,18 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 							alert(user, "There are not currently any available secondary languages.")
 					else
 */
-					for(var/L in GLOB.all_languages)
-						var/datum/language/lang = GLOB.all_languages[L]
-						if(!(lang.flags & RESTRICTED))
-							new_languages += lang.name
+					for(var/language_name in GLOB.all_languages)
+						var/datum/language/lang = GLOB.all_languages[language_name]
+						if(lang.flags & UNIQUE)
+							if(language_name in S.secondary_langs)
+								new_languages += language_name
+						else if(!(lang.flags & RESTRICTED))
+							new_languages += language_name
 
-					language = tgui_input_list(user, "Please select a secondary language", "Character Generation", sortTim(new_languages, cmp = /proc/cmp_text_asc))
-					if(!language)
+					var/new_language = tgui_input_list(user, "Please select a secondary language", "Character Generation", sortTim(new_languages, cmp = /proc/cmp_text_asc))
+					if(!new_language)
 						return
+					language = new_language
 
 				if("autohiss_mode")
 					if(S.autohiss_basic_map)
@@ -2587,6 +2618,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 		else if(firstspace == name_length)
 			real_name += "[character.gender==FEMALE ? pick(GLOB.last_names_female) : pick(GLOB.last_names)]"
 
+
 	character.add_language(language)
 
 
@@ -2598,6 +2630,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	character.med_record = med_record
 	character.sec_record = sec_record
 	character.gen_record = gen_record
+	character.exploit_record = exploit_record
 
 	character.change_gender(gender)
 	character.age = age
