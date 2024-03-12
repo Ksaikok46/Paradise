@@ -1038,9 +1038,13 @@
 
 	item_slot = TRUE
 	vend_delay = 34
-	products = list(/obj/item/reagent_containers/food/drinks/coffee = 25,/obj/item/reagent_containers/food/drinks/tea = 25,/obj/item/reagent_containers/food/drinks/h_chocolate = 25,
-					/obj/item/reagent_containers/food/drinks/chocolate = 10, /obj/item/reagent_containers/food/drinks/chicken_soup = 10,/obj/item/reagent_containers/food/drinks/weightloss = 10,
-					/obj/item/reagent_containers/food/drinks/mug = 15)
+	products = list(/obj/item/reagent_containers/food/drinks/coffee = 25,
+		/obj/item/reagent_containers/food/drinks/tea = 25,
+		/obj/item/reagent_containers/food/drinks/h_chocolate = 25,
+		/obj/item/reagent_containers/food/drinks/chocolate = 10,
+		/obj/item/reagent_containers/food/drinks/chicken_soup = 10,
+		/obj/item/reagent_containers/food/drinks/weightloss = 10,
+		/obj/item/reagent_containers/food/drinks/mug = 15)
 	contraband = list(/obj/item/reagent_containers/food/drinks/ice = 10)
 	premium = list(/obj/item/reagent_containers/food/drinks/mug/novelty = 5)
 	prices = list(/obj/item/reagent_containers/food/drinks/coffee = 25, /obj/item/reagent_containers/food/drinks/tea = 25, /obj/item/reagent_containers/food/drinks/h_chocolate = 25, /obj/item/reagent_containers/food/drinks/chocolate = 25,
@@ -1149,14 +1153,30 @@
 
 	slogan_list = list("Роб+аст с+офтдринкс: крепче, чем тулбоксом по голове!")
 	ads_list = list("Освежает!","Надеюсь, вас одолела жажда!","Продано больше миллиона бутылок!","Хотите пить? Почему бы не взять колы?","Пожалуйста, купите напиток","Выпьем!","Лучшие напитки во всём космосе")
-	products = list(/obj/item/reagent_containers/food/drinks/cans/cola = 10,/obj/item/reagent_containers/food/drinks/cans/space_mountain_wind = 10,
-					/obj/item/reagent_containers/food/drinks/cans/dr_gibb = 10,/obj/item/reagent_containers/food/drinks/cans/starkist = 10,
-					/obj/item/reagent_containers/food/drinks/cans/space_up = 10,/obj/item/reagent_containers/food/drinks/cans/grape_juice = 10)
+	products = list(
+		/obj/item/reagent_containers/food/drinks/cans/cola = 10,
+		/obj/item/reagent_containers/food/drinks/cans/space_mountain_wind = 10,
+		/obj/item/reagent_containers/food/drinks/cans/dr_gibb = 10,
+		/obj/item/reagent_containers/food/drinks/cans/starkist = 10,
+		/obj/item/reagent_containers/food/drinks/cans/space_up = 10,
+		/obj/item/reagent_containers/food/drinks/cans/grape_juice = 10,
+		/obj/item/reagent_containers/food/drinks/cans/energy = 10,
+		/obj/item/reagent_containers/food/drinks/cans/energy/trop = 10,
+		/obj/item/reagent_containers/food/drinks/cans/energy/milk = 10,
+		/obj/item/reagent_containers/food/drinks/cans/energy/grey = 10)
 	contraband = list(/obj/item/reagent_containers/food/drinks/cans/thirteenloko = 5, /obj/item/reagent_containers/food/drinks/zaza = 1)
-	prices = list(/obj/item/reagent_containers/food/drinks/cans/cola = 20,/obj/item/reagent_containers/food/drinks/cans/space_mountain_wind = 20,
-					/obj/item/reagent_containers/food/drinks/cans/dr_gibb = 20,/obj/item/reagent_containers/food/drinks/cans/starkist = 20,
-					/obj/item/reagent_containers/food/drinks/cans/space_up = 20,/obj/item/reagent_containers/food/drinks/cans/grape_juice = 20,
-					/obj/item/reagent_containers/food/drinks/zaza = 200)
+	prices = list(
+		/obj/item/reagent_containers/food/drinks/cans/cola = 20,
+		/obj/item/reagent_containers/food/drinks/cans/space_mountain_wind = 20,
+		/obj/item/reagent_containers/food/drinks/cans/dr_gibb = 20,
+		/obj/item/reagent_containers/food/drinks/cans/starkist = 20,
+		/obj/item/reagent_containers/food/drinks/cans/space_up = 20,
+		/obj/item/reagent_containers/food/drinks/cans/grape_juice = 20,
+		/obj/item/reagent_containers/food/drinks/cans/energy = 40,
+		/obj/item/reagent_containers/food/drinks/cans/energy/trop = 40,
+		/obj/item/reagent_containers/food/drinks/cans/energy/milk = 40,
+		/obj/item/reagent_containers/food/drinks/cans/energy/grey = 40,
+		/obj/item/reagent_containers/food/drinks/zaza = 200)
 	refill_canister = /obj/item/vending_refill/cola
 
 /obj/machinery/vending/cola/free
@@ -2196,11 +2216,23 @@
 	broken_overlay = "artvend_broken"
 	broken_lightmask_overlay = "artvend_broken_lightmask"
 
-	products = list(/obj/item/toy/crayon/spraycan = 2,/obj/item/stack/cable_coil/random = 10,/obj/item/camera = 4,/obj/item/camera_film = 6,
-	/obj/item/storage/photo_album = 2,/obj/item/stack/wrapping_paper = 4,/obj/item/stack/tape_roll = 5,/obj/item/stack/packageWrap = 4,
-	/obj/item/storage/fancy/crayons = 4,/obj/item/hand_labeler = 4,/obj/item/paper = 10,
-	/obj/item/c_tube = 10,/obj/item/pen = 5,/obj/item/pen/blue = 5,
-	/obj/item/pen/red = 5)
+	products = list(
+		/obj/item/toy/crayon/spraycan = 2,
+		/obj/item/stack/cable_coil/random = 10,
+		/obj/item/camera = 4,
+		/obj/item/camera_film = 6,
+		/obj/item/storage/photo_album = 2,
+		/obj/item/stack/wrapping_paper = 4,
+		/obj/item/stack/tape_roll = 5,
+		/obj/item/stack/packageWrap = 4,
+		/obj/item/storage/fancy/crayons = 4,
+		/obj/item/storage/fancy/glowsticks_box = 3,
+		/obj/item/hand_labeler = 4,
+		/obj/item/paper = 10,
+		/obj/item/c_tube = 10,
+		/obj/item/pen = 5,
+		/obj/item/pen/blue = 5,
+		/obj/item/pen/red = 5)
 	contraband = list(/obj/item/toy/crayon/mime = 1,/obj/item/toy/crayon/rainbow = 1)
 	premium = list(/obj/item/poster/random_contraband = 5)
 
@@ -2280,6 +2312,7 @@
 		/obj/item/clothing/head/officer		 	= 10,
 		/obj/item/clothing/head/beret/brigphys  = 5,
 		/obj/item/clothing/head/soft/brigphys   = 5,
+		/obj/item/clothing/head/helmet/lightweighthelmet = 10,
 
 		/obj/item/clothing/under/rank/security			= 10,
 		/obj/item/clothing/under/rank/security/skirt 	= 10,
@@ -2307,6 +2340,8 @@
 		/obj/item/clothing/shoes/jackboots/cross 		= 10,
 
 		/obj/item/radio/headset/headset_sec		= 10, //No EARBANGPROTECT. Hehe...
+
+		/obj/item/clothing/glasses/hud/security/sunglasses/tacticool = 5,
 
 		/obj/item/clothing/accessory/scarf/black 	= 10,
 		/obj/item/clothing/accessory/scarf/red 		= 10,
