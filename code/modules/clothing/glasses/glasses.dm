@@ -168,7 +168,7 @@
 	actions_types = list(/datum/action/item_action/toggle_research_scanner)
 
 /obj/item/clothing/glasses/science/item_action_slot_check(slot)
-	if(slot == slot_glasses)
+	if(slot == SLOT_HUD_GLASSES)
 		return TRUE
 
 /obj/item/clothing/glasses/science/night
@@ -400,7 +400,7 @@
 	toggle_noir(user)
 
 /obj/item/clothing/glasses/sunglasses/noir/item_action_slot_check(slot)
-	if(slot == slot_glasses)
+	if(slot == SLOT_HUD_GLASSES)
 		return TRUE
 
 /obj/item/clothing/glasses/sunglasses/noir/proc/toggle_noir(mob/user)
@@ -456,7 +456,7 @@
 	flags = NODROP
 
 /obj/item/clothing/glasses/sunglasses/lasers/equipped(mob/user, slot, initial) //grant them laser eyes upon equipping it.
-	if(slot == slot_glasses)
+	if(slot == SLOT_HUD_GLASSES)
 		ADD_TRAIT(user, TRAIT_LASEREYES, "admin_zapglasses")
 		user.regenerate_icons()
 	. = ..(user, slot)
@@ -718,3 +718,22 @@
 	icon_state = "cucumbermask"
 	item_state = "cucumbermask"
 
+/obj/item/clothing/glasses/heart
+	name = "heart-shaped glasses"
+	desc = "Cheap plastic glasses with a fancy shape."
+	icon_state = "heart"
+	item_state = "heart"
+	sprite_sheets = list(
+		"Monkey" = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		"Farwa" = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		"Wolpin" = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		"Neara" = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		"Stok" = 'icons/mob/clothing/species/monkey/eyes.dmi',
+		"Vox" = 'icons/mob/clothing/species/vox/eyes.dmi',
+		"Drask" = 'icons/mob/clothing/species/drask/eyes.dmi',
+		"Grey" = 'icons/mob/clothing/species/grey/eyes.dmi',
+		)
+
+/obj/item/clothing/glasses/heart/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/spraycan_paintable)
