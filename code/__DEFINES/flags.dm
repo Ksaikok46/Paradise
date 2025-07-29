@@ -21,6 +21,8 @@
 #define HOLOGRAM (1<<5)
 /// Was this spawned by an admin? used for stat tracking stuff.
 #define ADMIN_SPAWNED (1<<6)
+/// Whether /atom/Initialize() has already run for the object
+#define INITIALIZED (1<<7)
 
 
 // Update flags for [/atom/proc/update_appearance]
@@ -35,6 +37,10 @@
 /// Update the atom's icon
 #define UPDATE_ICON (UPDATE_ICON_STATE|UPDATE_OVERLAYS)
 
+/// If the thing can reflect light (lasers/energy)
+#define RICOCHET_SHINY (1<<0)
+/// If the thing can reflect matter (bullets/bomb shrapnel)
+#define RICOCHET_HARD (1<<1)
 
 //Reagent flags
 #define REAGENT_NOREACT			1
@@ -120,10 +126,33 @@
 #define DF_VAR_EDITED (1<<1)
 #define DF_ISPROCESSING (1<<2)
 
-//turf-only flags
-#define NOJAUNT		1
-#define NO_LAVA_GEN	2 //Blocks lava rivers being generated on the turf
-#define NO_RUINS 	4
+//TURF FLAGS
+/// If a turf cant be jaunted through.
+#define NOJAUNT (1<<0)
+/// If a turf is an usused reservation turf awaiting assignment
+#define UNUSED_RESERVATION_TURF (1<<1)
+/// If a turf is a reserved turf
+#define RESERVATION_TURF (1<<2)
+/// Blocks lava rivers being generated on the turf.
+#define NO_LAVA_GEN	(1<<3)
+/// Blocks ruins spawning on the turf.
+#define NO_RUINS (1<<4)
+
+//AREA FLAGS
+/// If false, loading multiple maps with this area type will create multiple instances.
+#define UNIQUE_AREA (1<<0)
+/// If mining tunnel generation is allowed in this area
+#define CAVES_ALLOWED (1<<1)
+/// If flora are allowed to spawn in this area randomly through tunnel generation
+#define FLORA_ALLOWED (1<<2)
+/// If mobs can be spawned by natural random generation
+#define MOB_SPAWN_ALLOWED (1<<3)
+/// If megafauna can be spawned by natural random generation
+#define MEGAFAUNA_SPAWN_ALLOWED (1<<4)
+/// If blobs can spawn there and if it counts towards their score.
+#define BLOBS_ALLOWED (1<<5)
+/// If blobs can spawn there and if it counts towards their score.
+#define MORTAR_ALLOWED (1<<6)
 
 //ORGAN TYPE FLAGS
 #define AFFECT_ROBOTIC_ORGAN	1
@@ -184,17 +213,6 @@ GLOBAL_LIST_INIT(bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 204
 #define MOBILITY_FLAGS_REST_CAPABLE_DEFAULT (MOBILITY_MOVE|MOBILITY_STAND|MOBILITY_PICKUP|MOBILITY_USE|MOBILITY_UI|MOBILITY_STORAGE|MOBILITY_PULL|MOBILITY_REST|MOBILITY_LIEDOWN)
 
 
-//MINING AREA FLAGS
-/// If mining tunnel generation is allowed in this area
-#define CAVES_ALLOWED (1<<1)
-/// If flora are allowed to spawn in this area randomly through tunnel generation
-#define FLORA_ALLOWED (1<<2)
-/// If mobs can be spawned by natural random generation
-#define MOB_SPAWN_ALLOWED (1<<3)
-/// If megafauna can be spawned by natural random generation
-#define MEGAFAUNA_SPAWN_ALLOWED (1<<4)
-
-
 // timed_action_flags parameter for [/proc/do_after()]
 /// Can do the action even if mob moves location.
 #define DA_IGNORE_USER_LOC_CHANGE (1<<0)
@@ -214,14 +232,11 @@ GLOBAL_LIST_INIT(bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 204
 #define DA_IGNORE_HELD_ITEM (1<<7)
 /// If actively held item is cyborg gripper we will not check whether its empty during the process.
 #define DA_IGNORE_EMPTY_GRIPPER (1<<8)
+/// Used to prevent important slowdowns to be modified by mob's actions slowdown
+#define DA_IGNORE_SLOWDOWNS (1<<9)
 
 /// All ignore flags considered as default old do_after behavior.
 #define DEFAULT_DOAFTER_IGNORE (DA_IGNORE_LYING|DA_IGNORE_RESTRAINED)
 
 
-//Incapacitated ignore flags for [/proc/incapacitated()]
-/// If the incapacitated will ignore a mob in restraints
-#define INC_IGNORE_RESTRAINED (1<<0)
-/// If the incapacitated will ignore a mob being agressively grabbed
-#define INC_IGNORE_GRABBED (1<<1)
 

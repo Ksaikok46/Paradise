@@ -2,7 +2,15 @@
 
 /obj/item/reagent_containers/food/drinks/drinkingglass
 	name = "glass"
-	desc = "Your standard drinking glass."
+	desc = "Стеклянный стакан, из таких обычно пьют. Постарайтесь не разбить его."
+	ru_names = list(
+        NOMINATIVE = "стакан",
+        GENITIVE = "стакана",
+        DATIVE = "стакану",
+        ACCUSATIVE = "стакан",
+        INSTRUMENTAL = "стаканом",
+        PREPOSITIONAL = "стакане"
+	)
 	icon_state = "glass_empty"
 	item_state = "drinking_glass"
 	amount_per_transfer_from_this = 10
@@ -12,8 +20,8 @@
 	materials = list(MAT_GLASS=500)
 	max_integrity = 20
 	resistance_flags = ACID_PROOF
-	drop_sound = 'sound/items/handling/drinkglass_drop.ogg'
-	pickup_sound =  'sound/items/handling/drinkglass_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/drinkglass_drop.ogg'
+	pickup_sound =  'sound/items/handling/pickup/drinkglass_pickup.ogg'
 
 /obj/item/reagent_containers/food/drinks/set_APTFT()
 	set hidden = FALSE
@@ -23,19 +31,23 @@
 	set hidden = FALSE
 	..()
 
+
 /obj/item/reagent_containers/food/drinks/drinkingglass/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/food/snacks/egg)) //breaking eggs
-		var/obj/item/reagent_containers/food/snacks/egg/E = I
-		if(reagents)
-			if(reagents.total_volume >= reagents.maximum_volume)
-				to_chat(user, "<span class='notice'>[src] is full.</span>")
-			else
-				to_chat(user, "<span class='notice'>You break [E] in [src].</span>")
-				E.reagents.trans_to(src, E.reagents.total_volume)
-				qdel(E)
-			return
-	else
-		..()
+		add_fingerprint(user)
+		if(!reagents)
+			balloon_alert(user, "яйцо пустое!")
+			return ATTACK_CHAIN_PROCEED
+		if(reagents.total_volume >= reagents.maximum_volume)
+			balloon_alert(user, "нет места!")
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, span_notice("Вы разбиваете [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."))
+		I.reagents.trans_to(src, I.reagents.total_volume)
+		qdel(I)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	if(!reagents.total_volume)

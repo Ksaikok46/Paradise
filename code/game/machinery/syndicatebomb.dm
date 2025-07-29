@@ -112,22 +112,32 @@
 	else
 		. = timer_set
 
+
 /obj/machinery/syndicatebomb/attackby(obj/item/I, mob/user, params)
-	if(issignaler(I))
-		if(open_panel)
-			add_fingerprint(user)
-			wires.Interact(user)
-	else if(istype(I, /obj/item/bombcore))
-		if(!payload)
-			if(!user.drop_transfer_item_to_loc(I, src))
-				return
-			add_fingerprint(user)
-			payload = I
-			to_chat(user, span_notice("You place [payload] into [src]."))
-		else
-			to_chat(user, span_notice("[payload] is already loaded into [src], you'll have to remove it first."))
-	else
+	if(user.a_intent == INTENT_HARM)
 		return ..()
+
+	if(issignaler(I))
+		add_fingerprint(user)
+		if(!open_panel)
+			to_chat(user, span_warning("Open the panel first!"))
+			return ATTACK_CHAIN_PROCEED
+		wires.Interact(user)
+		return ATTACK_CHAIN_PROCEED
+
+	if(istype(I, /obj/item/bombcore))
+		add_fingerprint(user)
+		if(payload)
+			to_chat(user, span_warning("The [payload.name] is already loaded into [src], you'll have to remove it first."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		payload = I
+		to_chat(user, span_notice("You place [payload] into [src]."))
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/machinery/syndicatebomb/wrench_act(mob/user, obj/item/I)
 	if(!can_unanchor)
@@ -249,11 +259,11 @@
 	playsound(loc, 'sound/machines/click.ogg', 30, 1)
 
 /obj/machinery/syndicatebomb/proc/settings(mob/user)
-	var/new_timer = input(user, "Please set the timer.", "Timer", "[timer_set]") as num
+	var/new_timer = tgui_input_number(user, "Please set the timer.", "Timer", "[timer_set]")
 	if(can_interact(user)) //No running off and setting bombs from across the station
 		timer_set = clamp(new_timer, minimum_timer, maximum_timer)
 		loc.visible_message(span_notice("[bicon(src)] timer set for [timer_set] seconds."))
-	if(alert(user,"Would you like to start the countdown now?",,"Yes","No") == "Yes" && can_interact(user))
+	if(tgui_alert(user, "Would you like to start the countdown now?", "Countdown", list("Yes", "No")) == "Yes" && can_interact(user))
 		if(defused || active)
 			if(defused)
 				loc.visible_message(span_notice("[bicon(src)] Device error: User intervention required."))
@@ -539,7 +549,7 @@
 				reactants += S.reagents
 
 	if(!chem_splash(get_turf(src), spread_range, reactants, temp_boost))
-		playsound(loc, 'sound/items/screwdriver2.ogg', 50, 1)
+		playsound(loc, 'sound/items/screwdriver2.ogg', 50, TRUE)
 		return // The Explosion didn't do anything. No need to log, or disappear.
 
 	if(adminlog)
@@ -552,18 +562,24 @@
 		qdel(loc)
 	qdel(src)
 
+
 /obj/item/bombcore/chemical/attackby(obj/item/I, mob/user, params)
-	if(istype(I, /obj/item/reagent_containers/glass/beaker) || istype(I, /obj/item/reagent_containers/glass/bottle))
-		if(beakers.len < max_beakers)
-			if(!user.drop_transfer_item_to_loc(I, src))
-				return
-			beakers += I
-			to_chat(user, span_notice("You load [src] with [I]."))
-		else
-			to_chat(user, span_warning("The [I] wont fit! The [src] can only hold up to [max_beakers] containers."))
-			return
-	else
+	if(user.a_intent == INTENT_HARM)
 		return ..()
+
+	if(istype(I, /obj/item/reagent_containers/glass/beaker) || istype(I, /obj/item/reagent_containers/glass/bottle))
+		add_fingerprint(user)
+		if(length(beakers) >= max_beakers)
+			to_chat(user, span_warning("The [I.name] wont fit! The [name] can only hold up to [max_beakers] containers."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		beakers += I
+		to_chat(user, span_notice("You load [src] with [I]."))
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/item/bombcore/chemical/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
@@ -622,19 +638,27 @@
 	icon_state = "chemcore"
 	var/obj/item/transfer_valve/ttv = null
 
-/obj/item/bombcore/toxins/attackby(obj/item/I, mob/user)
-	if(istype(I, /obj/item/transfer_valve))
-		if(!ttv && !check_attached(I))
-			if(!user.drop_transfer_item_to_loc(I, src))
-				return
-			to_chat(user, span_notice("You load [src] with [I]."))
-			ttv = I
-		else if (ttv)
-			to_chat(user, span_warning("Another tank transfer valve is already loaded."))
-		else
-			to_chat(user, span_warning("Remove the attached assembly component first."))
-	else
+
+/obj/item/bombcore/toxins/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
 		return ..()
+
+	if(istype(I, /obj/item/transfer_valve))
+		add_fingerprint(user)
+		if(ttv)
+			to_chat(user, span_warning("Another tank transfer valve is already loaded."))
+			return ATTACK_CHAIN_PROCEED
+		if(check_attached(I))
+			to_chat(user, span_warning("Remove the attached assembly component first."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		to_chat(user, span_notice("You load [src] with [I]."))
+		ttv = I
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/item/bombcore/toxins/crowbar_act(mob/user, obj/item/I)
 	if(!ttv)
@@ -648,10 +672,10 @@
 
 
 /obj/item/bombcore/toxins/proc/check_attached(obj/item/transfer_valve/ttv)
-	if (ttv.attached_device)
+	if(ttv?.attached_device)
 		return TRUE
-	else
-		return FALSE
+	return FALSE
+
 
 /obj/item/bombcore/toxins/ex_act(severity) //No chain reactions, the explosion only occurs when gas mixes
 	return
@@ -679,7 +703,7 @@
 
 /obj/item/syndicatedetonator/attack_self(mob/user)
 	if(timer < world.time)
-		for(var/obj/machinery/syndicatebomb/B in GLOB.machines)
+		for(var/obj/machinery/syndicatebomb/B in SSmachines.get_by_type(/obj/machinery/syndicatebomb))
 			if(B.active)
 				B.detonation_timer = world.time + BUTTON_DELAY
 				detonated++

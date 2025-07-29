@@ -62,10 +62,6 @@
 	return FALSE
 
 // check area for all of these, then do AI actions
-/mob/living/simple_animal/demon/pulse_demon/MiddleShiftClickOn(atom/A)
-	if(get_area(A) == controlling_area)
-		A.AIMiddleShiftClick(src)
-
 /mob/living/simple_animal/demon/pulse_demon/ShiftClickOn(atom/A)
 	if(get_area(A) == controlling_area)
 		A.AIShiftClick(src)
@@ -74,9 +70,9 @@
 
 /mob/living/simple_animal/demon/pulse_demon/AltClickOn(atom/A)
 	if(get_area(A) == controlling_area)
-		A.AIAltClick(src)
+		ai_click_alt(A)
 	else
-		AltClickNoInteract(src, A)
+		base_click_alt(A)
 
 /mob/living/simple_animal/demon/pulse_demon/CtrlClickOn(atom/A)
 	if(get_area(A) == controlling_area)
@@ -124,7 +120,7 @@
 		var/mob/living/simple_animal/demon/pulse_demon/demon = user
 		if(demon.bot_movedelay <= world.time && dir)
 			Move(get_step(get_turf(src), dir))
-			demon.bot_movedelay = world.time + (BOT_STEP_DELAY * (base_speed - 1)) * ((dir in GLOB.diagonals) ? SQRT_2 : 1)
+			demon.bot_movedelay = world.time + (BOT_STEP_DELAY * (base_speed - 1)) * ((dir in GLOB.diagonals) ? sqrt(2) : 1)
 
 /obj/machinery/recharger/attack_pulsedemon(mob/living/simple_animal/demon/pulse_demon/user)
 	user.forceMove(src)

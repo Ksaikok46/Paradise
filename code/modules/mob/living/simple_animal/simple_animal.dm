@@ -3,124 +3,177 @@
 	icon = 'icons/mob/animal.dmi'
 	health = 20
 	maxHealth = 20
-	gender = PLURAL //placeholder
+	gender = MALE // Placeholder.
 
 	universal_understand = 1
 	universal_speak = 0
 	status_flags = CANPUSH
 
+	hud_type = /datum/hud/simple_animal
+
 	var/icon_living = ""
 	var/icon_dead = ""
 	var/icon_resting = ""
-	var/icon_gib = null	//We only try to show a gibbing animation if this exists.
-	var/flip_on_death = FALSE //Flip the sprite upside down on death. Mostly here for things lacking custom dead sprites.
+	/// We only try to show a gibbing animation if this exists.
+	var/icon_gib = null
+	/// Flip the sprite upside down on death. Mostly here for things lacking custom dead sprites.
+	var/flip_on_death = FALSE
 
+	/// Whether we can apply unconscious effects on this mob (Sleeping, Paralyse etc.)
+	var/allows_unconscious = FALSE
+
+	/// List of phrases randomly spoken (e.g. list("Beep!", "Status update?"))
 	var/list/speak = list()
 	var/speak_chance = 0
-	var/list/emote_hear = list()	//Hearable emotes
-	var/list/emote_see = list()		//Unlike speak_emote, the list of things in this variable only show by themselves with no spoken text. IE: Ian barks, Ian yaps
+	/// List of audible emotes/sounds (e.g. list("growls", "hisses")). Heard by nearby players.
+	var/list/emote_hear = list()
+	/// Unlike speak_emote, the list of things in this variable only show by themselves with no spoken text. IE: Ian barks, Ian yaps.
+	var/list/emote_see = list()
 	tts_seed = "Kleiner"
-	var/list/talk_sound = null //The sound played when talk
+	/// The sound played when talk.
+	var/list/talk_sound = null
 
 	var/turns_per_move = 1
 	var/turns_since_move = 0
-	var/stop_automated_movement = 0 //Use this to temporarely stop random movement or to if you write special movement code for animals.
-	var/wander = 1	// Does the mob wander around when idle?
-	var/stop_automated_movement_when_pulled = 1 //When set to 1 this stops the animal from moving when someone is pulling it.
+	/// Use this to temporarely stop random movement or to if you write special movement code for animals.
+	var/stop_automated_movement = 0
+	/// Does the mob wander around when idle?
+	var/wander = 1
+	/// When set to 1 this stops the animal from moving when someone is pulling it.
+	var/stop_automated_movement_when_pulled = 1
 
-	//Interaction
-	var/response_help   = "pokes"
-	var/response_disarm = "shoves"
-	var/response_harm   = "hits"
+	// Interactions
+	var/response_help   = "тычет"
+	var/response_disarm = "толкает"
+	var/response_harm   = "бъёт"
 	var/harm_intent_damage = 3
-	var/force_threshold = 0 //Minimum force required to deal any damage
+	/// Minimum force required to deal any damage.
+	var/force_threshold = 0
 
-	/// Was this mob spawned by xenobiology magic? Used for mobcapping.
-	var/xenobiology_spawned = FALSE
 
-	//Temperature effect
-	var/minbodytemp = 250
-	var/maxbodytemp = 350
-	/// Amount of damage applied if animal's body temperature is higher than maxbodytemp
-	var/heat_damage_per_tick = 2
-	/// Same as heat_damage_per_tick, only if the bodytemperature it's lower than minbodytemp
-	var/cold_damage_per_tick = 2
 	/// If the mob can catch fire
 	var/can_be_on_fire = FALSE
 	/// Damage the mob will take if it is on fire
 	var/fire_damage = 2
 
-	//Healable by medical stacks? Defaults to yes.
+	/// Healable by medical stacks? Defaults to yes.
 	var/healable = 1
 
-	//Atmos effect - Yes, you can make creatures that require plasma or co2 to survive. N2O is a trace gas and handled separately, hence why it isn't here. It'd be hard to add it. Hard and me don't mix (Yes, yes make all the dick jokes you want with that.) - Errorage
-	var/list/atmos_requirements = list("min_oxy" = 5, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 1, "min_co2" = 0, "max_co2" = 5, "min_n2" = 0, "max_n2" = 0) //Leaving something at 0 means it's off - has no maximum
-	var/unsuitable_atmos_damage = 2	//This damage is taken when atmos doesn't fit all the requirements above
+	/// Atmos effect - Yes, you can make creatures that require plasma or co2 to survive. N2O is a trace gas and handled separately, hence why it isn't here. It'd be hard to add it. Hard and me don't mix (Yes, yes make all the dick jokes you want with that.) - Errorage
+	var/list/atmos_requirements = list("min_oxy" = 5, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 1, "min_co2" = 0, "max_co2" = 5, "min_n2" = 0, "max_n2" = 0) // Leaving something at 0 means it's off - has no maximum.
+	/// This damage is taken when atmos doesn't fit all the requirements above.
+	var/unsuitable_atmos_damage = 2
 
-	//LETTING SIMPLE ANIMALS ATTACK? WHAT COULD GO WRONG. Defaults to zero so Ian can still be cuddly
+	/// LETTING SIMPLE ANIMALS ATTACK? WHAT COULD GO WRONG. Defaults to zero so Ian can still be cuddly.
 	var/melee_damage_lower = 0
 	var/melee_damage_upper = 0
-	var/obj_damage = 0 //how much damage this simple animal does to objects, if any
-	var/armour_penetration = 0 //How much armour they ignore, as a flat reduction from the targets armour value
-	var/melee_damage_type = BRUTE //Damage type of a simple mob's melee attack, should it do damage.
-	var/list/damage_coeff = list(BRUTE = 1, BURN = 1, TOX = 1, CLONE = 1, STAMINA = 0, OXY = 1) // 1 for full damage , 0 for none , -1 for 1:1 heal from that source
+	/// How much damage this simple animal does to objects, if any.
+	var/obj_damage = 0
+	/// How much armour they ignore, as a flat reduction from the targets armour value.
+	var/armour_penetration = 0
+	/// Damage type of a simple mob's melee attack, should it do damage.
+	var/melee_damage_type = BRUTE
+	/// 1 for full damage , 0 for none , -1 for 1:1 heal from that source
+	var/list/damage_coeff = list(BRUTE = 1, BURN = 1, TOX = 1, CLONE = 1, STAMINA = 0, OXY = 1)
 	var/attacktext = "атакует"
 	var/attack_sound = null
-	var/friendly = "утыкается носом в" //If the mob does no damage with it's attack
-	var/environment_smash = ENVIRONMENT_SMASH_NONE //Set to 1 to allow breaking of crates,lockers,racks,tables; 2 for walls; 3 for Rwalls
+	/// If the mob does no damage with it's attack
+	var/friendly = "утыкается носом в"
+	/// Set to 1 to allow breaking of crates,lockers,racks,tables; 2 for walls; 3 for Rwalls
+	var/environment_smash = ENVIRONMENT_SMASH_NONE
 
-	var/speed = 1 //LETS SEE IF I CAN SET SPEEDS FOR SIMPLE MOBS WITHOUT DESTROYING EVERYTHING. Higher speed is slower, negative speed is faster
+	/// Higher speed is slower, negative speed is faster.
+	var/speed = 1 //LETS SEE IF item CAN SET SPEEDS FOR SIMPLE MOBS WITHOUT DESTROYING EVERYTHING.
 	var/can_hide = FALSE
+	var/hidden = FALSE
+
 	/// Allows a mob to pass unbolted doors while hidden
 	var/pass_door_while_hidden = FALSE
 
 	var/obj/item/clothing/accessory/petcollar/pcollar = null
-	var/collar_type //if the mob has collar sprites, define them.
-	var/unique_pet = FALSE // if the mob can be renamed
-	var/can_collar = FALSE // can add collar to mob or not
+	/// If the mob has collar sprites, define them.
+	var/collar_type
+	/// If the mob can be renamed.
+	var/unique_pet = FALSE
+	/// Can add collar to mob or not, use the set_can_collar if you want to change this on runtime.
+	var/can_collar = FALSE
 
-	//Hot simple_animal baby making vars
+	/// Hot simple_animal baby making vars.
 	var/list/childtype = null
 	var/next_scan_time = 0
-	var/animal_species //Sorry, no spider+corgi buttbabies.
+	/// Sorry, no spider+corgi buttbabies.
+	var/animal_species
 
-	var/buffed = 0 //In the event that you want to have a buffing effect on the mob, but don't want it to stack with other effects, any outside force that applies a buff to a simple mob should at least set this to 1, so we have something to check against
-	var/gold_core_spawnable = NO_SPAWN //If the mob can be spawned with a gold slime core. HOSTILE_SPAWN are spawned with plasma, FRIENDLY_SPAWN are spawned with blood
+	/// In the event that you want to have a buffing effect on the mob, but don't want it to stack with other effects, any outside force that applies a buff to a simple mob should at least set this to 1, so we have something to check against.
+	var/buffed = 0
+	/// If the mob can be spawned with a gold slime core. HOSTILE_SPAWN are spawned with plasma, FRIENDLY_SPAWN are spawned with blood.
+	var/gold_core_spawnable = NO_SPAWN
 
-	var/mob/living/carbon/human/master_commander = null //holding var for determining who own/controls a sentient simple animal (for sentience potions).
+	/// Holding var for determining who own/controls a sentient simple animal (for sentience potions).
+	var/mob/living/carbon/human/master_commander = null
 
 	var/datum/component/spawner/nest
 
-	var/sentience_type = SENTIENCE_ORGANIC // Sentience type, for slime potions
+	/// Sentience type, for slime potions.
+	var/sentience_type = SENTIENCE_ORGANIC
 
-	var/list/loot = list() //list of things spawned at mob's loc when it dies
-	var/del_on_death = 0 //causes mob to be deleted on death, useful for mobs that spawn lootable corpses
+	/// List of things spawned at mob's loc when it dies.
+	var/list/loot = list()
+	/// Causes mob to be deleted on death, useful for mobs that spawn lootable corpses.
+	var/del_on_death = 0
 	/// See [/proc/genderize_decode] for more info.
 	var/deathmessage = ""
-	var/death_sound = null //The sound played on death
+	/// The sound played on death.
+	var/death_sound = null
 	var/list/damaged_sound = null
 
 	var/allow_movement_on_non_turfs = FALSE
 
 	var/attacked_sound = "punch"
 
-	var/AIStatus = AI_ON //The Status of our AI, can be set to AI_ON (On, usual processing), AI_IDLE (Will not process, but will return to AI_ON if an enemy comes near), AI_OFF (Off, Not processing ever)
-	var/can_have_ai = TRUE //once we have become sentient, we can never go back
+	/// The Status of our AI, can be set to AI_ON (On, usual processing), AI_IDLE (Will not process, but will return to AI_ON if an enemy comes near), AI_OFF (Off, Not processing ever).
+	var/AIStatus = AI_ON
+	/// Once we have become sentient, we can never go back.
+	var/can_have_ai = TRUE
+	/// Convenience var for forcibly waking up an idling AI on next check.
+	var/shouldwakeup = FALSE
+	/// SSnpcpool will add random delay to the next mob's move or action, taking this var's value into account.
+	/// Lower the delay faster the mob can response.
+	/// Set this to zero for critical mobs, like megafauna.
+	var/AI_delay_max = 3 SECONDS
+	/// Current delay for the next mob's move/action. Used by SSnpcpool and SSidlenpcpool.
+	var/AI_delay_current
 
-	var/shouldwakeup = FALSE //convenience var for forcibly waking up an idling AI on next check.
-
-	///Domestication.
+	/// Domestication.
 	var/tame = FALSE
-	///What the mob eats, typically used for taming or animal husbandry.
+	/// What the mob eats, typically used for taming or animal husbandry.
 	var/list/food_type
-	///Starting success chance for taming.
+	/// Starting success chance for taming.
 	var/tame_chance
-	///Added success chance after every failed tame attempt.
+	/// Added success chance after every failed tame attempt.
 	var/bonus_tame_chance
 
-	var/my_z // I don't want to confuse this with client registered_z
-	///What kind of footstep this mob should have. Null if it shouldn't have any.
+	/// Item don't want to confuse this with client registered_z.
+	var/my_z
+	/// What kind of footstep this mob should have. Null if it shouldn't have any.
 	var/footstep_type
+
+	/// Determines if the AI loop is activated.
+	var/AIproc = 0
+	/// Attack cooldown.
+	var/Atkcool = 0
+	/// Temporary temperature stuns.
+	var/Tempstun = 0
+	/// If a slime has been hit with a freeze gun, or wrestled/attacked off a human, they become disciplined and don't attack anymore for a while.
+	var/Discipline = 0
+	/// Stun variable.
+	var/SStun = 0
+
+	var/list/low_priority_targets = list()
+
+	/// Autodust on a big distance.
+	var/atom/leash
+	var/leash_radius = 10
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
@@ -132,7 +185,6 @@
 	if(!loc)
 		stack_trace("Simple animal being instantiated in nullspace")
 	update_simplemob_varspeed()
-	verbs -= /mob/verb/observe
 	if(can_hide)
 		var/datum/action/innate/hide/hide = new()
 		hide.Grant(src)
@@ -140,39 +192,28 @@
 		pcollar = new(src)
 		regenerate_icons()
 	if(footstep_type)
-		AddComponent(/datum/component/footstep, footstep_type)
+		AddElement(/datum/element/footstep, footstep_type)
+	add_strippable_element()
 
 /mob/living/simple_animal/Destroy()
 	QDEL_NULL(pcollar)
 	master_commander = null
 	GLOB.simple_animals[AIStatus] -= src
-	if(SSnpcpool.state == SS_PAUSED && LAZYLEN(SSnpcpool.currentrun))
-		SSnpcpool.currentrun -= src
+	SSnpcpool.currentrun -= src
 
 	if(nest)
 		nest.spawned_mobs -= src
 		nest = null
 
-	var/turf/T = get_turf(src)
-	if (T && AIStatus == AI_Z_OFF)
-		SSidlenpcpool.idle_mobs_by_zlevel[T.z] -= src
+	var/turf/our_turf = get_turf(src)
+	if(our_turf && AIStatus == AI_Z_OFF)
+		SSidlenpcpool.idle_mobs_by_zlevel[our_turf.z] -= src
 
 	return ..()
 
-/mob/living/simple_animal/attackby(obj/item/O, mob/user, params)
-	if(!is_type_in_list(O, food_type))
-		..()
-		return
-	else
-		user.visible_message("<span class='notice'>[user] hand-feeds [O] to [src].</span>", "<span class='notice'>You hand-feed [O] to [src].</span>")
-		qdel(O)
-		if(tame)
-			return
-		if(prob(tame_chance)) //note: lack of feedback message is deliberate, keep them guessing!
-			tame = TRUE
-			tamed(user)
-		else
-			tame_chance += bonus_tame_chance
+/mob/living/simple_animal/ComponentInitialize()
+	AddComponent(/datum/component/animal_temperature)
+
 
 ///Extra effects to add when the mob is tamed, such as adding a riding or whatever.
 /mob/living/simple_animal/proc/tamed(whomst)
@@ -186,67 +227,89 @@
 /mob/living/simple_animal/examine(mob/user)
 	. = ..()
 	if(stat == DEAD)
-		. += "<span class='deadsay'>Upon closer examination, [p_they()] appear[p_s()] to be dead.</span>"
+		. += span_deadsay("При ближайшем рассмотрении, [genderize_ru(user.gender,"он","она","оно","они")] выгляд[pluralize_ru(user.gender,"ит","ят")] мёртв[genderize_ru(user.gender,"ым","ой","ым","ыми")].")
 		return
 	if(IsSleeping())
-		. += "<span class='notice'>Upon closer examination, [p_they()] appear[p_s()] to be asleep.</span>"
+		. += span_notice("При ближайшем рассмотрении, [genderize_ru(user.gender,"он","она","оно","они")] выгляд[pluralize_ru(user.gender,"ит","ят")] спящ[genderize_ru(user.gender,"им","ей","им","ими")].")
+
 
 /mob/living/simple_animal/updatehealth(reason = "none given", should_log = FALSE)
-	..()
-	health = clamp(health, 0, maxHealth)
+	. = ..()
+	set_health(clamp(health, 0, maxHealth))
 	med_hud_set_health()
 
 
-/mob/living/simple_animal/post_lying_on_rest()
-	if(stat == DEAD)
-		return
+/mob/living/simple_animal/on_lying_down(new_lying_angle)
+	. = ..()
 	ADD_TRAIT(src, TRAIT_IMMOBILIZED, RESTING_TRAIT)
-	if(!icon_resting)
-		return
-	icon_state = icon_resting
-	if(collar_type)
-		collar_type = "[initial(collar_type)]_rest"
-		regenerate_icons()
+	update_icons()
 
 
-/mob/living/simple_animal/post_get_up()
-	if(stat == DEAD)
-		return
+/mob/living/simple_animal/on_standing_up()
+	. = ..()
 	REMOVE_TRAIT(src, TRAIT_IMMOBILIZED, RESTING_TRAIT)
-	if(!icon_resting)
-		return
-	icon_state = icon_living
-	if(collar_type)
-		collar_type = initial(collar_type)
+	update_icons()
+
+
+/mob/living/simple_animal/update_icons()
+	if(stat == DEAD)
+		icon_state = icon_dead || initial(icon_state)
 		regenerate_icons()
+		return
+	if(resting || body_position == LYING_DOWN)
+		icon_state = icon_resting || initial(icon_state)
+		if(collar_type)
+			collar_type = "[initial(collar_type)]_rest"
+	else
+		icon_state = icon_living || initial(icon_state)
+		if(collar_type)
+			collar_type = initial(collar_type)
+	regenerate_icons()
 
 
 /mob/living/simple_animal/update_stat(reason = "none given", should_log = FALSE)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return ..()
 	if(stat != DEAD)
 		if(health <= 0)
 			death()
+		else if(allows_unconscious && HAS_TRAIT(src, TRAIT_KNOCKEDOUT))
+			set_stat(UNCONSCIOUS)
 		else
 			set_stat(CONSCIOUS)
-	..()
+	return ..()
+
+/mob/living/simple_animal/update_layer()
+	if(pulledby && loc == pulledby.loc)
+		layer = (pulledby.dir & NORTH) ? pulledby.layer - 0.001 : pulledby.layer + 0.001
+		return
+	layer = hidden? (/datum/action/innate/hide::layer_to_change_to) : (body_position == LYING_DOWN) ? LYING_MOB_LAYER : initial(layer)
 
 /mob/living/simple_animal/proc/handle_automated_action()
 	set waitfor = FALSE
 	return
 
+
 /mob/living/simple_animal/proc/handle_automated_movement()
 	set waitfor = FALSE
-	if(!stop_automated_movement && wander)
-		if((isturf(loc) || allow_movement_on_non_turfs) && !resting && !buckled && (mobility_flags & MOBILITY_MOVE))		//This is so it only moves if it's not inside a closet, gentics machine, etc.
-			turns_since_move++
-			if(turns_since_move >= turns_per_move)
-				if(!(stop_automated_movement_when_pulled && pulledby)) //Soma animals don't move when pulled
-					var/anydir = pick(GLOB.cardinal)
-					if(Process_Spacemove(anydir))
-						Move(get_step(src,anydir), anydir, cached_multiplicative_slowdown)
-						turns_since_move = 0
-			return 1
+	if(stop_automated_movement || !wander)
+		return
+	if(!isturf(loc) && !allow_movement_on_non_turfs)
+		return
+	if(!(mobility_flags & MOBILITY_MOVE))
+		return TRUE
+
+	turns_since_move++
+	if(turns_since_move < turns_per_move)
+		return TRUE
+	if(stop_automated_movement_when_pulled && pulledby) //Some animals don't move when pulled
+		return TRUE
+	var/anydir = pick(GLOB.cardinal)
+	if(Process_Spacemove(anydir))
+		step_with_glide(direction = anydir)
+		turns_since_move = 0
+	return TRUE
+
 
 /mob/living/simple_animal/proc/handle_automated_speech(override)
 	set waitfor = FALSE
@@ -285,62 +348,54 @@
 
 
 /mob/living/simple_animal/handle_environment(datum/gas_mixture/environment)
+	if (leash)
+		var/dist = get_dist(src, leash)
+		if (dist > leash_radius)
+			src.dust()
+			return
+
 	var/atmos_suitable = TRUE
 
-	var/areatemp = get_temperature(environment)
+	if(!HAS_TRAIT(src, TRAIT_NO_BREATH))
+		var/tox = environment.toxins
+		var/oxy = environment.oxygen
+		var/n2 = environment.nitrogen
+		var/co2 = environment.carbon_dioxide
 
-	if(abs(areatemp - bodytemperature) > 5 && !(BREATHLESS in mutations))
-		var/diff = areatemp - bodytemperature
-		diff = diff / 5
-		adjust_bodytemperature(diff)
+		if(atmos_requirements["min_oxy"] && oxy < atmos_requirements["min_oxy"])
+			atmos_suitable = FALSE
+			throw_alert(ALERT_NOT_ENOUGH_OXYGEN, /atom/movable/screen/alert/not_enough_oxy)
+		else if(atmos_requirements["max_oxy"] && oxy > atmos_requirements["max_oxy"])
+			atmos_suitable = FALSE
+			throw_alert(ALERT_TOO_MUCH_OXYGEN, /atom/movable/screen/alert/too_much_oxy)
+		else
+			clear_alert(ALERT_NOT_ENOUGH_OXYGEN)
+			clear_alert(ALERT_TOO_MUCH_OXYGEN)
 
-	var/tox = environment.toxins
-	var/oxy = environment.oxygen
-	var/n2 = environment.nitrogen
-	var/co2 = environment.carbon_dioxide
+		if(atmos_requirements["min_tox"] && tox < atmos_requirements["min_tox"])
+			atmos_suitable = FALSE
+			throw_alert(ALERT_NOT_ENOUGH_TOX, /atom/movable/screen/alert/not_enough_tox)
+		else if(atmos_requirements["max_tox"] && tox > atmos_requirements["max_tox"])
+			atmos_suitable = FALSE
+			throw_alert(ALERT_TOO_MUCH_TOX, /atom/movable/screen/alert/too_much_tox)
+		else
+			clear_alert(ALERT_TOO_MUCH_TOX)
+			clear_alert(ALERT_NOT_ENOUGH_TOX)
 
-	if(atmos_requirements["min_oxy"] && oxy < atmos_requirements["min_oxy"])
-		atmos_suitable = FALSE
-		throw_alert("not_enough_oxy", /atom/movable/screen/alert/not_enough_oxy)
-	else if(atmos_requirements["max_oxy"] && oxy > atmos_requirements["max_oxy"])
-		atmos_suitable = FALSE
-		throw_alert("too_much_oxy", /atom/movable/screen/alert/too_much_oxy)
-	else
-		clear_alert("not_enough_oxy")
-		clear_alert("too_much_oxy")
+		if(atmos_requirements["min_n2"] && n2 < atmos_requirements["min_n2"])
+			atmos_suitable = FALSE
+		else if(atmos_requirements["max_n2"] && n2 > atmos_requirements["max_n2"])
+			atmos_suitable = FALSE
 
-	if(atmos_requirements["min_tox"] && tox < atmos_requirements["min_tox"])
-		atmos_suitable = FALSE
-		throw_alert("not_enough_tox", /atom/movable/screen/alert/not_enough_tox)
-	else if(atmos_requirements["max_tox"] && tox > atmos_requirements["max_tox"])
-		atmos_suitable = FALSE
-		throw_alert("too_much_tox", /atom/movable/screen/alert/too_much_tox)
-	else
-		clear_alert("too_much_tox")
-		clear_alert("not_enough_tox")
+		if(atmos_requirements["min_co2"] && co2 < atmos_requirements["min_co2"])
+			atmos_suitable = FALSE
+		else if(atmos_requirements["max_co2"] && co2 > atmos_requirements["max_co2"])
+			atmos_suitable = FALSE
 
-	if(atmos_requirements["min_n2"] && n2 < atmos_requirements["min_n2"])
-		atmos_suitable = FALSE
-	else if(atmos_requirements["max_n2"] && n2 > atmos_requirements["max_n2"])
-		atmos_suitable = FALSE
+		if(!atmos_suitable)
+			adjustHealth(unsuitable_atmos_damage)
 
-	if(atmos_requirements["min_co2"] && co2 < atmos_requirements["min_co2"])
-		atmos_suitable = FALSE
-	else if(atmos_requirements["max_co2"] && co2 > atmos_requirements["max_co2"])
-		atmos_suitable = FALSE
-
-	if(!atmos_suitable)
-		adjustHealth(unsuitable_atmos_damage)
-
-	handle_temperature_damage()
-
-
-/mob/living/simple_animal/proc/handle_temperature_damage()
-	if(bodytemperature < minbodytemp)
-		adjustHealth(cold_damage_per_tick)
-	else if(bodytemperature > maxbodytemp)
-		adjustHealth(heat_damage_per_tick)
-
+	SEND_SIGNAL(src, COMSIG_ANIMAL_HANDLE_ENVIRONMENT, environment)
 
 /mob/living/simple_animal/gib()
 	if(icon_gib)
@@ -357,12 +412,9 @@
 
 
 /mob/living/simple_animal/say_quote(message)
-	var/verb = "says"
-
-	if(speak_emote.len)
-		verb = pick(speak_emote)
-
-	return verb
+	if(speak_emote?.len)
+		return get_verb(speak_emote)
+	return ..()
 
 
 /mob/living/simple_animal/proc/set_varspeed(var_value)
@@ -377,11 +429,10 @@
 
 
 
-/mob/living/simple_animal/Stat()
-	..()
-	if(statpanel("Status"))
-		stat(null, "Health: [round((health / maxHealth) * 100)]%")
-		return TRUE
+/mob/living/simple_animal/get_status_tab_items()
+	var/list/status_tab_data = ..()
+	. = status_tab_data
+	status_tab_data[++status_tab_data.len] = list("Здоровье:", "[round((health / maxHealth) * 100)]%")
 
 /mob/living/simple_animal/proc/drop_loot()
 	if(loot.len)
@@ -400,13 +451,11 @@
 	drop_loot()
 	if(!gibbed)
 		if(death_sound)
-			playsound(get_turf(src),death_sound, 200, 1)
+			playsound(get_turf(src),death_sound, 200, TRUE)
 		if(deathmessage)
-			visible_message(span_danger("\The [src] [genderize_decode(src, deathmessage)]"))
+			visible_message(span_danger("[capitalize(src.declent_ru(NOMINATIVE))] [genderize_decode(src, deathmessage)]"))
 		else if(!del_on_death)
-			visible_message(span_danger("\The [src] stops moving..."))
-	if(xenobiology_spawned)
-		SSmobs.xenobiology_mobs--
+			visible_message(span_danger("[capitalize(src.declent_ru(NOMINATIVE))] перестаёт двигаться..."))
 	if(del_on_death)
 		//Prevent infinite loops if the mob Destroy() is overridden in such
 		//a manner as to cause a call to death() again
@@ -414,21 +463,19 @@
 		ghostize()
 		qdel(src)
 	else
-		health = 0
-		icon_state = icon_dead
+		set_health(0)
+		update_icons()
 		if(flip_on_death)
 			transform = transform.Turn(180)
 		ADD_TRAIT(src, TRAIT_UNDENSE, SIMPLE_MOB_DEATH_TRAIT)
-		if(collar_type)
-			collar_type = "[initial(collar_type)]_dead"
-		regenerate_icons()
+
 
 /mob/living/simple_animal/proc/CanAttack(atom/the_target)
 	if(see_invisible < the_target.invisibility)
 		return FALSE
 	if(ismob(the_target))
-		var/mob/M = the_target
-		if(M.status_flags & GODMODE)
+		var/mob/mob = the_target
+		if(HAS_TRAIT(mob, TRAIT_GODMODE))
 			return FALSE
 	if(isliving(the_target))
 		var/mob/living/L = the_target
@@ -478,11 +525,9 @@
 	..()
 	health = maxHealth
 	icon = initial(icon)
-	icon_state = icon_living
+	update_icons()
 	REMOVE_TRAIT(src, TRAIT_UNDENSE, SIMPLE_MOB_DEATH_TRAIT)
-	if(collar_type)
-		collar_type = "[initial(collar_type)]"
-		regenerate_icons()
+
 
 /mob/living/simple_animal/proc/check_if_child(mob/possible_child)
 	for(var/childpath in childtype)
@@ -521,25 +566,13 @@
 		if(target)
 			return new childspawn(target)
 
-/mob/living/simple_animal/show_inv(mob/user)
-	if(!can_collar)
-		return
-
-	user.set_machine(src)
-	var/dat = {"<meta charset="UTF-8"><table><tr><td><B>Collar:</B></td><td><A href='?src=[UID()];item=[ITEM_SLOT_NECK]'>[(pcollar && !(pcollar.item_flags & ABSTRACT)) ? pcollar : "<font color=grey>Empty</font>"]</A></td></tr></table>"}
-	dat += "<A href='?src=[user.UID()];mach_close=mob\ref[src]'>Close</A>"
-
-	var/datum/browser/popup = new(user, "mob\ref[src]", "[src]", 440, 250)
-	popup.set_content(dat)
-	popup.open()
-
 /mob/living/simple_animal/get_item_by_slot(slot_id)
 	switch(slot_id)
 		if(ITEM_SLOT_NECK)
 			return pcollar
 	. = ..()
 
-/mob/living/simple_animal/can_equip(obj/item/I, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE, bypass_obscured = FALSE, bypass_incapacitated = FALSE)
+/mob/living/simple_animal/can_equip(obj/item/item, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE, bypass_obscured = FALSE, bypass_incapacitated = FALSE)
 	// . = ..() // Do not call parent. We do not want animals using their hand slots.
 	switch(slot)
 		if(ITEM_SLOT_NECK)
@@ -547,13 +580,13 @@
 				return FALSE
 			if(!can_collar)
 				return FALSE
-			if(!istype(I, /obj/item/clothing/accessory/petcollar))
+			if(!istype(item, /obj/item/clothing/accessory/petcollar))
 				return FALSE
 			return TRUE
 
 
-/mob/living/simple_animal/equip_to_slot(obj/item/I, slot, initial)
-	if(!istype(I))
+/mob/living/simple_animal/equip_to_slot(obj/item/item, slot, initial)
+	if(!istype(item))
 		return FALSE
 
 	if(!slot)
@@ -561,23 +594,23 @@
 
 	. = TRUE
 
-	I.pixel_x = initial(I.pixel_x)
-	I.pixel_y = initial(I.pixel_y)
-	I.layer = ABOVE_HUD_LAYER
-	SET_PLANE_EXPLICIT(I, ABOVE_HUD_PLANE, src)
-	I.forceMove(src)
+	item.pixel_x = initial(item.pixel_x)
+	item.pixel_y = initial(item.pixel_y)
+	item.layer = ABOVE_HUD_LAYER
+	SET_PLANE_EXPLICIT(item, ABOVE_HUD_PLANE, src)
+	item.forceMove(src)
 
 	switch(slot)
 		if(ITEM_SLOT_NECK)
-			add_collar(I)
+			add_collar(item)
 
 
-/mob/living/simple_animal/do_unEquip(obj/item/I, force = FALSE, atom/newloc, no_move = FALSE, invdrop = TRUE, silent = FALSE)
+/mob/living/simple_animal/do_unEquip(obj/item/item, force = FALSE, atom/newloc, no_move = FALSE, invdrop = TRUE, silent = FALSE)
 	. = ..()
-	if(!. || !I)
+	if(!. || !item)
 		return .
 
-	if(I == pcollar)
+	if(item == pcollar)
 		pcollar = null
 		if(!QDELETED(src))
 			regenerate_icons()
@@ -620,22 +653,33 @@
 	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
 	sync_lighting_plane_alpha()
 
+
 /mob/living/simple_animal/proc/toggle_ai(togglestatus)
+	if(AIStatus == togglestatus)
+		return
 	if(!can_have_ai && (togglestatus != AI_OFF))
 		return
-	if(AIStatus != togglestatus)
-		if(togglestatus > 0 && togglestatus < 5)
-			if(togglestatus == AI_Z_OFF || AIStatus == AI_Z_OFF)
-				var/turf/T = get_turf(src)
-				if(AIStatus == AI_Z_OFF)
-					SSidlenpcpool.idle_mobs_by_zlevel[T.z] -= src
-				else
-					SSidlenpcpool.idle_mobs_by_zlevel[T.z] += src
-			GLOB.simple_animals[AIStatus] -= src
-			GLOB.simple_animals[togglestatus] += src
-			AIStatus = togglestatus
+	if(HAS_TRAIT(src, TRAIT_AI_PAUSED))
+		AIStatus = AI_OFF
+		return
+	var/turf/our_turf = get_turf(src)
+	if(QDELETED(src) || !our_turf)
+		return
+	if(togglestatus < AI_ON || togglestatus > AI_Z_OFF)
+		stack_trace("Something attempted to set simple animals AI to an invalid state: [togglestatus]")
+		return
+	if(togglestatus == AI_Z_OFF || AIStatus == AI_Z_OFF)
+		if(AIStatus == AI_Z_OFF)
+			SSidlenpcpool.idle_mobs_by_zlevel[our_turf.z] -= src
 		else
-			stack_trace("Something attempted to set simple animals AI to an invalid state: [togglestatus]")
+			SSidlenpcpool.idle_mobs_by_zlevel[our_turf.z] += src
+	GLOB.simple_animals[AIStatus] -= src
+	GLOB.simple_animals[togglestatus] += src
+	AIStatus = togglestatus
+	AI_delay_current = world.time
+
+/mob/living/simple_animal/proc/lose_target()
+	return
 
 /mob/living/simple_animal/proc/consider_wakeup()
 	if(pulledby || shouldwakeup)
@@ -644,9 +688,8 @@
 
 /mob/living/simple_animal/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents = TRUE)
 	..()
-	if(AIStatus == AI_Z_OFF && old_turf?.z)
+	if(old_turf && AIStatus == AI_Z_OFF)
 		SSidlenpcpool.idle_mobs_by_zlevel[old_turf.z] -= src
-	if(!QDELETED(src))
 		toggle_ai(initial(AIStatus))
 
 
@@ -658,12 +701,29 @@
 	pcollar = P
 	regenerate_icons()
 	if(user)
-		to_chat(user, span_notice("You put [P] around [src]'s neck."))
+		visible_message(
+			span_warning(span_notice("Вы надеваете [P.declent_ru(ACCUSATIVE)] на шею [src.declent_ru(GENITIVE)].")),
+			span_warning(span_notice("[user.declent_ru(NOMINATIVE)] надева[pluralize_ru(user.gender,"ет","ют")] [P.declent_ru(ACCUSATIVE)] вам на шею [src.declent_ru(GENITIVE)]."))
+		)
 	if(P.tagname && !unique_pet)
 		name = P.tagname
 		real_name = P.tagname
 	P.equipped(src)
 	return TRUE
+
+/mob/living/simple_animal/proc/remove_collar(atom/new_loc, mob/user)
+	if(!pcollar)
+		return
+
+	var/obj/old_collar = pcollar
+
+	if(!drop_item_ground(pcollar))
+		return
+
+	if(user)
+		user.put_in_hands(old_collar)
+
+	return old_collar
 
 
 /mob/living/simple_animal/regenerate_icons()
@@ -672,24 +732,41 @@
 		add_overlay("[collar_type]collar")
 		add_overlay("[collar_type]tag")
 
+	update_fire()
+
 	if(blocks_emissive)
 		add_overlay(get_emissive_block())
 
 /mob/living/simple_animal/Login()
 	..()
-	walk(src, 0) // if mob is moving under ai control, then stop AI movement
+	SSmove_manager.stop_looping(src) // if mob is moving under ai control, then stop AI movement
+	toggle_ai(AI_OFF)
+
+/mob/living/simple_animal/Logout()
+	. = ..()
+	toggle_ai(AI_ON)
 
 
-/mob/living/simple_animal/say(message, verb = "says", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
+/mob/living/simple_animal/say(message, verb = "говор%(ит,ят)%", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
 	. = ..()
 	if(. && length(talk_sound))
 		playsound(src, pick(talk_sound), 75, TRUE)
 
 
-/mob/living/simple_animal/attacked_by(obj/item/I, mob/living/user)
+/mob/living/simple_animal/proceed_attack_results(obj/item/item, mob/living/user, params, def_zone)
+	if(item.force && (item.get_final_force(user) < force_threshold || item.damtype == STAMINA))
+		visible_message(
+			span_warning("[user.declent_ru(NOMINATIVE)] пытается ударить [src.declent_ru(ACCUSATIVE)] [item.declent_ru(INSTRUMENTAL)], но удар безвредно отскакивает!"),
+			span_warning("[user.declent_ru(NOMINATIVE)] пытается ударить вас [item.declent_ru(INSTRUMENTAL)], но удар безвредно отскакивает!"),
+			ignored_mobs = user,
+		)
+		to_chat(user, span_danger("Это оружие неэффективно - оно не наносит урона!"))
+		return ATTACK_CHAIN_BLOCKED
+
 	. = ..()
-	if(. && length(src.damaged_sound))
-		playsound(src, pick(src.damaged_sound), 40, 1)
+	if(ATTACK_CHAIN_SUCCESS_CHECK(.) && item.force && length(damaged_sound))
+		playsound(loc, pick(damaged_sound), 40, TRUE)
+
 
 /mob/living/simple_animal/attack_hand(mob/living/carbon/human/M)
 	. = ..()
@@ -721,9 +798,70 @@
 	if(. && length(src.damaged_sound))
 		playsound(src, pick(src.damaged_sound), 40, 1)
 
-/mob/living/simple_animal/start_pulling(atom/movable/AM, force = pull_force, show_message = FALSE)
-	if(pull_constraint(AM, show_message))
+/mob/living/simple_animal/start_pulling(atom/movable/pulled_atom, state, force = pull_force, supress_message = FALSE)
+	if(pull_constraint(pulled_atom, state, supress_message))
 		return ..()
+	return FALSE
 
-/mob/living/simple_animal/proc/pull_constraint(atom/movable/AM, show_message = FALSE)
+/mob/living/simple_animal/proc/pull_constraint(atom/movable/pulled_atom, state, supress_message = FALSE)
 	return TRUE
+
+
+/mob/living/simple_animal/update_movespeed()
+	. = ..()
+	if(cached_multiplicative_slowdown > END_GLIDE_SPEED)
+		ADD_TRAIT(src, TRAIT_NO_GLIDE, SPEED_TRAIT)
+	else
+		REMOVE_TRAIT(src, TRAIT_NO_GLIDE, SPEED_TRAIT)
+
+
+/mob/living/simple_animal/proc/step_with_glide(atom/newloc, direction, speed_override)
+	if(client)
+		return FALSE
+	if(!direction && !newloc)
+		return FALSE
+	if(!direction)
+		direction = get_dir(src, newloc)
+	else if(!newloc)
+		newloc = get_step(src, direction)
+		if(!newloc)
+			return FALSE
+	var/adjusted_delay = isnull(speed_override) ? cached_multiplicative_slowdown : speed_override
+	if(ISDIAGONALDIR(direction))
+		adjusted_delay *= sqrt(2)
+	. = Move(newloc, direction)
+	if(adjusted_delay <= END_GLIDE_SPEED)
+		set_glide_size(DELAY_TO_GLIDE_SIZE(adjusted_delay))
+	else if(glide_size != DEFAULT_GLIDE_SIZE)
+		set_glide_size(DEFAULT_GLIDE_SIZE)
+
+/mob/living/simple_animal/proc/set_can_collar(new_value)
+	can_collar = (new_value ? TRUE : FALSE)
+	if(can_collar)
+		add_strippable_element()
+		return
+	remove_collar(drop_location())
+	RemoveElement(/datum/element/strippable)
+
+/mob/living/simple_animal/proc/add_strippable_element()
+	if(!can_collar)
+		return
+	AddElement(/datum/element/strippable, create_strippable_list(list(/datum/strippable_item/pet_collar)))
+
+/mob/living/simple_animal/proc/set_leash(atom/A, radius)
+	leash = A
+	leash_radius = radius
+
+/mob/living/simple_animal/deadchat_plays(mode = DEADCHAT_ANARCHY_MODE, cooldown = 12 SECONDS)
+	. = AddComponent(/datum/component/deadchat_control/cardinal_movement, mode, list(), cooldown, CALLBACK(src, PROC_REF(end_dchat_plays)))
+
+	if(. == COMPONENT_INCOMPATIBLE)
+		return
+
+	stop_automated_movement = TRUE
+
+/mob/living/simple_animal/proc/end_dchat_plays()
+	stop_automated_movement = FALSE
+
+/mob/living/simple_animal/can_use_machinery(obj/machinery/mach)
+	return

@@ -1,5 +1,9 @@
+#define REAGENT_UNITS_1 1
+#define REAGENT_UNITS_5 5
+#define REAGENT_UNITS_10 10
+
 /datum/reagent
-	var/name = "Reagent"
+	var/name = "Реагент"
 	var/id = "reagent"
 	var/description = ""
 	var/datum/reagents/holder = null
@@ -13,6 +17,8 @@
 	var/heart_rate_decrease = 0
 	var/heart_rate_stop = 0
 	var/penetrates_skin = FALSE //Whether or not a reagent penetrates the skin
+	/// Shows how the reagent penetrates the protection from clothing in TOUCH reactions. Should be [0-1]. 0 by default, 1 - full penetration.
+	var/clothing_penetration = 0
 	//Processing flags, defines the type of mobs the reagent will affect
 	//By default, all reagents will ONLY affect organics, not synthetics. Re-define in the reagent's definition if the reagent is meant to affect synths
 	var/process_flags = ORGANIC
@@ -28,11 +34,29 @@
 	var/overdosed = FALSE // You fucked up and this is now triggering it's overdose effects, purge that shit quick.
 	var/current_cycle = 1
 	var/drink_icon = null
-	var/drink_name = "Glass of ..what?"
-	var/drink_desc = "You can't really tell what this is."
+	var/drink_name = "стакан... чего?"
+	var/drink_desc = "Вы понятия не имеете, чем это может быть."
 	var/taste_mult = 1 //how easy it is to taste - the more the easier
-	var/taste_description = "metaphorical salt"
+	var/taste_description = "метафорической соли"
 	var/addict_supertype = /datum/reagent
+	var/devil_regen_ignored = FALSE
+
+	// For chemical fire
+	var/chemfiresupp = FALSE
+	var/intensitymod = 0
+	var/durationmod = 0
+	var/radiusmod = 0
+	// For chemical fire from flamethrowers
+	var/intensityfire = 0
+	var/durationfire = 0
+	var/rangefire = 0 // Set to -1 if you want an infinite range
+	var/flameshape = FLAMESHAPE_LINE
+	var/fire_penetrating = FALSE // Whether it can damage fire-immune xenos
+	// For both chemical fires
+	var/burn_sprite = "dynamic"
+	var/burncolor = "#f88818"
+	var/burncolormod = 1
+	var/fire_type = FIRE_VARIANT_DEFAULT //Unique types of fire not modeled by chemfire (1 = Armor Shredding Greenfire). Effects in flamer.dm
 
 /datum/reagent/New()
 	addict_supertype = type
@@ -47,20 +71,17 @@
 /datum/reagent/proc/reaction_temperature(exposed_temperature, exposed_volume) //By default we do nothing.
 	return
 
-/datum/reagent/proc/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume, show_message = TRUE) //Some reagents transfer on touch, others don't; dependent on if they penetrate the skin or not.
-	if(holder)  //for catching rare runtimes
-		if(method == REAGENT_TOUCH && penetrates_skin)
-			var/block  = M.get_permeability_protection()
-			var/amount = round(volume * (1 - block), 0.1)
-			if(M.reagents)
-				if(amount >= 1)
-					M.reagents.add_reagent(id, amount)
+/datum/reagent/proc/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume, show_message = TRUE) // Some reagents transfer on touch, others don't; dependent on if they penetrate the skin or not.
+	if(holder)  // for catching rare runtimes
+		if(method == REAGENT_TOUCH && penetrates_skin && M.reagents && volume >= 1)
+			M.reagents.add_reagent(id, volume)
 
 		if(method == REAGENT_INGEST) //Yes, even Xenos can get addicted to drugs.
 			var/can_become_addicted = M.reagents.reaction_check(M, src)
 			if(can_become_addicted)
 				if(count_by_type(M.reagents.addiction_list, addict_supertype) > 0)
-					to_chat(M, "<span class='notice'>You feel slightly better, but for how long?</span>") //sate_addiction handles this now, but kept this for the feed back.
+					to_chat(M, span_notice("Вы чувствуете себя немногим лучше, но надолго ли?")) // sate_addiction handles this now, but kept this for the feed back.
+
 		return TRUE
 
 /datum/reagent/proc/reaction_obj(obj/O, volume)
@@ -70,6 +91,8 @@
 	return
 
 /datum/reagent/proc/on_mob_life(mob/living/M)
+	if(current_cycle == 1)
+		on_mob_start_metabolize(M)
 	current_cycle++
 	var/total_depletion_rate = metabolization_rate * M.metabolism_efficiency * M.digestion_ratio // Cache it
 
@@ -77,7 +100,15 @@
 	sate_addiction(M)
 
 	holder.remove_reagent(id, total_depletion_rate) //By default it slowly disappears.
+	if(volume <= 0)
+		on_mob_end_metabolize(M)
 	return STATUS_UPDATE_NONE
+
+/datum/reagent/proc/on_mob_start_metabolize(mob/living/metabolizer)
+	return
+
+/datum/reagent/proc/on_mob_end_metabolize(mob/living/metabolizer)
+	return
 
 /datum/reagent/proc/handle_addiction(mob/living/M, consumption_rate)
 	if(addiction_chance && count_by_type(M.reagents.addiction_list, addict_supertype) < 1)
@@ -86,7 +117,7 @@
 		var/current_threshold_accumulated = M.reagents.addiction_threshold_accumulated[new_reagent.id]
 
 		if(addiction_threshold < current_threshold_accumulated && prob(addiction_chance) && prob(addiction_chance_additional))
-			to_chat(M, "<span class='danger'>You suddenly feel invigorated and guilty...</span>")
+			to_chat(M, span_danger("Вы чувствуете сильную эйфорию с лёгким оттенком вины..."))
 			new_reagent.last_addiction_dose = world.timeofday
 			M.reagents.addiction_list.Add(new_reagent)
 
@@ -200,13 +231,16 @@
 /datum/reagent/proc/overdose_start(mob/living/M)
 	return
 
+/datum/reagent/proc/overdose_end(mob/living/M)
+	return
+
 /datum/reagent/proc/addiction_act_stage1(mob/living/M)
 	return STATUS_UPDATE_NONE
 
 /datum/reagent/proc/addiction_act_stage2(mob/living/M)
 	if(minor_addiction)
 		if(prob(4))
-			to_chat(M, "<span class='notice'>You briefly think about getting some more [name].</span>")
+			to_chat(M, span_notice("[pluralize_ru(M.gender,"Тебе", "Вам")] ненадолго приходит мысль о том, чтобы принять ещё немного [name]."))
 	else
 		if(prob(8))
 			M.emote("shiver")
@@ -214,13 +248,13 @@
 		if(prob(8))
 			M.emote("sneeze")
 		if(prob(4))
-			to_chat(M, "<span class='notice'>You feel a dull headache.</span>")
+			to_chat(M, span_notice("[pluralize_ru(M.gender,"Ты чувствуешь", "Вы чувствуете")] тупую головную боль."))
 	return STATUS_UPDATE_NONE
 
 /datum/reagent/proc/addiction_act_stage3(mob/living/M)
 	if(minor_addiction)
 		if(prob(4))
-			to_chat(M, "<span class='notice'>You could really go for some [name] right now.</span>")
+			to_chat(M, span_notice("[pluralize_ru(M.gender,"Тебе", "Вам")] бы сейчас не помешало немного [name]."))
 	else
 		if(prob(8))
 			M.emote("twitch_s")
@@ -229,15 +263,15 @@
 			M.emote("shiver")
 			M.Jitter(120 SECONDS)
 		if(prob(4))
-			to_chat(M, "<span class='warning'>Your head hurts.</span>")
+			to_chat(M, span_warning("У [pluralize_ru(M.gender,"тебя", "вас")] болит голова."))
 		if(prob(4))
-			to_chat(M, "<span class='warning'>You begin craving [name]!</span>")
+			to_chat(M, span_warning("[pluralize_ru(M.gender,"Тебе", "Вам")] хочется [name]!"))
 	return STATUS_UPDATE_NONE
 
 /datum/reagent/proc/addiction_act_stage4(mob/living/M)
 	if(minor_addiction)
 		if(prob(8))
-			to_chat(M, "<span class='notice'>You could really go for some [name] right now.</span>")
+			to_chat(M, span_notice("[pluralize_ru(M.gender,"Тебя", "Вам")] ОЧЕНЬ хочется [name]. <b>Прямо сейчас!</b>"))
 		if(prob(4))
 			M.emote("twitch")
 			M.Jitter(160 SECONDS)
@@ -246,35 +280,35 @@
 			M.emote("twitch")
 			M.Jitter(160 SECONDS)
 		if(prob(4))
-			to_chat(M, "<span class='warning'>You have a pounding headache.</span>")
+			to_chat(M, span_warning("У [pluralize_ru(M.gender,"тебя", "вас")] пульсирующая головная боль!"))
 		if(prob(4))
-			to_chat(M, "<span class='warning'>You have the strong urge for some [name]!</span>")
+			to_chat(M, span_warning("[pluralize_ru(M.gender,"Ты чувствуешь", "Вы чувствуете")] сильное желание принять [name]!"))
 		else if(prob(4))
-			to_chat(M, "<span class='warning'>You REALLY crave some [name]!</span>")
+			to_chat(M, span_warning("[pluralize_ru(M.gender,"Тебе", "Вам")] РЕАЛЬНО НУЖЕН [name]!"))
 	return STATUS_UPDATE_NONE
 
 /datum/reagent/proc/addiction_act_stage5(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
 	if(minor_addiction)
 		if(prob(8))
-			to_chat(M, "<span class='notice'>You can't stop thinking about [name]...</span>")
+			to_chat(M, span_notice("[pluralize_ru(M.gender,"Ты не можешь", "Вы не можете")] перестать думать о [name]..."))
 		if(prob(4))
 			M.emote(pick("twitch", "twitch_s", "shiver"))
 			M.Jitter(160 SECONDS)
 	else
 		if(prob(6))
-			to_chat(M, "<span class='warning'>Your stomach lurches painfully!</span>")
-			M.visible_message("<span class='warning'>[M] gags and retches!</span>")
+			to_chat(M, span_warning("[pluralize_ru(M.gender,"У тебя", "У вас")] болезненно сводит желудок!"))
+			M.visible_message(span_warning("[M] давится и блюёт!"))
 			M.Weaken(rand(4 SECONDS, 8 SECONDS))
 		if(prob(8))
 			M.emote(pick("twitch", "twitch_s", "shiver"))
 			M.Jitter(160 SECONDS)
 		if(prob(4))
-			to_chat(M, "<span class='warning'>Your head is killing you!</span>")
+			to_chat(M, span_warning("Голова раскалывается от боли..."))
 		if(prob(5))
-			to_chat(M, "<span class='warning'>You feel like you can't live without [name]!</span>")
+			to_chat(M, span_warning("[pluralize_ru(M.gender,"Ты чувствуешь", "Вы чувствуете")], что не можете жить без [name]!"))
 		else if(prob(5))
-			to_chat(M, "<span class='warning'>You would DIE for some [name] right now!</span>")
+			to_chat(M, span_warning("Вы готовы СДОХНУТЬ ради одной дозы [name]!"))
 	return update_flags
 
 

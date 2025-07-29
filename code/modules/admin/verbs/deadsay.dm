@@ -1,5 +1,5 @@
 /client/proc/dsay(msg as text)
-	set category = "Admin"
+	set category = STATPANEL_ADMIN_ADMIN
 	set name = "Dsay" //Gave this shit a shorter name so you only have to time out "dsay" rather than "dead say" to use it --NeoFite
 
 	if(!check_rights(R_ADMIN|R_MOD))
@@ -8,7 +8,7 @@
 	if(!src.mob)
 		return
 
-	if(prefs.muted & MUTE_DEADCHAT)
+	if(check_mute(ckey, MUTE_DEADCHAT))
 		to_chat(src, "<span class='warning'>You cannot send DSAY messages (muted).</span>")
 		return
 
@@ -48,5 +48,5 @@
 /client/proc/get_dead_say()
 	if(!check_rights(R_ADMIN|R_MOD))
 		return
-	var/msg = input(src, null, "dsay \"text\"") as text | null
+	var/msg = tgui_input_text(src, null, "dsay \"text\"", encode = FALSE)
 	dsay(msg)

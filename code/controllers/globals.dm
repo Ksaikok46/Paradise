@@ -22,7 +22,6 @@ GLOBAL_REAL(GLOB, /datum/controller/global_vars)
 	if(!force)
 		return QDEL_HINT_LETMELIVE
 
-	QDEL_NULL(statclick)
 	gvars_datum_protected_varlist.Cut()
 	gvars_datum_in_built_vars.Cut()
 
@@ -30,13 +29,18 @@ GLOBAL_REAL(GLOB, /datum/controller/global_vars)
 
 	return ..()
 
-/datum/controller/global_vars/stat_entry()
-	if(!statclick)
-		statclick = new/obj/effect/statclick/debug(null, "Initializing...", src)
-
-	stat("Globals:", statclick.update("Edit"))
+/datum/controller/global_vars/stat_entry(msg)
+	msg += "Edit"
+	return ..()
 
 /datum/controller/global_vars/can_vv_get(var_name)
+	var/static/list/protected_vars = list(
+		"asays", "admin_log", "logging", "open_logging_views"
+	)
+
+	if(!check_rights(R_ADMIN, FALSE) && (var_name in protected_vars))
+		return FALSE
+
 	if(gvars_datum_protected_varlist[var_name])
 		return FALSE
 	return ..()
@@ -45,6 +49,12 @@ GLOBAL_REAL(GLOB, /datum/controller/global_vars)
 	if(gvars_datum_protected_varlist[var_name])
 		return FALSE
 	return ..()
+
+/datum/controller/global_vars/vv_get_var(var_name)
+	switch(var_name)
+		if(NAMEOF(src, vars))
+			return debug_variable(var_name, list(), 0, src)
+	return debug_variable(var_name, vars[var_name], 0, src, display_flags = VV_ALWAYS_CONTRACT_LIST)
 
 /datum/controller/global_vars/Initialize()
 	gvars_datum_init_order = list()

@@ -1,7 +1,3 @@
-#define NUKE_INTACT 0
-#define NUKE_CORE_MISSING 1
-#define NUKE_MISSING 2
-
 /*
  * GAMEMODES (by Rastaf0)
  *
@@ -47,15 +43,24 @@
 	/// Upper bound on time before intercept arrives.
 	var/const/waittime_h = 180 SECONDS
 	var/list/player_draft_log = list()
-	var/list/datum/mind/xenos = list()
 	var/list/datum/mind/eventmiscs = list()
+	var/list/datum/mind/traders = list()
+	var/list/datum/mind/morphs = list()
+	var/list/datum/mind/swarmers = list()
+	var/list/datum/mind/guardians = list()
+	var/list/datum/mind/revenants = list()
+	var/list/datum/mind/headslugs = list()
+	var/list/datum/mind/deathsquad = list()
+	var/list/datum/mind/honksquad = list()
+	var/list/datum/mind/sst = list()
+	var/list/datum/mind/sit = list()
 	var/list/datum/mind/victims = list()	//Свободные жертвы PREVENT/ASSASINATE целей для PROTECT (или не повтора целей)
 	/// A list of all station goals for this game mode
 	var/list/datum/station_goal/station_goals = list()
 
 
 /datum/game_mode/proc/announce() //to be calles when round starts
-	to_chat(world, "<B>Notice</B>: [src] did not define announce()")
+	to_chat(world, "<b>Notice</b>: [src] did not define announce()")
 
 
 /datum/game_mode/proc/generate_report() //Generates a small text blurb for the gamemode in centcom report
@@ -176,7 +181,7 @@
  * Check to be called by ticker
  */
 /datum/game_mode/proc/check_finished()
-	if((SSshuttle.emergency && SSshuttle.emergency.mode >= SHUTTLE_ENDGAME) || station_was_nuked)
+	if((SSshuttle.emergency && SSshuttle.emergency.mode == SHUTTLE_ENDGAME) || station_was_nuked)
 		return TRUE
 
 	return FALSE
@@ -204,7 +209,7 @@
 
 	var/list/area/escape_locations = list(/area/shuttle/escape, /area/shuttle/escape_pod1/centcom, /area/shuttle/escape_pod2/centcom, /area/shuttle/escape_pod3/centcom, /area/shuttle/escape_pod5/centcom)
 
-	if(SSshuttle.emergency.mode < SHUTTLE_ENDGAME) //shuttle didn't get to centcom
+	if(SSshuttle.emergency.mode != SHUTTLE_ENDGAME) //shuttle didn't get to centcom
 		escape_locations -= /area/shuttle/escape
 
 	for(var/mob/player in GLOB.player_list)
@@ -225,7 +230,7 @@
 				if(player_area?.type in escape_locations)
 					escaped_total++
 
-				if(player_area?.type == SSshuttle.emergency.areaInstance.type && SSshuttle.emergency.mode >= SHUTTLE_ENDGAME)
+				if(player_area?.type == SSshuttle.emergency.areaInstance.type && SSshuttle.emergency.mode == SHUTTLE_ENDGAME)
 					escaped_on_shuttle++
 
 				if(player_area?.type == /area/shuttle/escape_pod1/centcom)
@@ -271,13 +276,6 @@
 
 
 /**
- * Universal trigger to be called at mob death, nuke explosion, etc. To be called from everywhere.
- */
-/datum/game_mode/proc/check_win()
-	return FALSE
-
-
-/**
  * Returns a list of player minds who had the antagonist role set to yes, regardless of recomended_enemies.
  * Jobbans and restricted jobs are checked. Species lock and prefered species are checked. List is already shuffled.
  */
@@ -288,7 +286,7 @@
 	// Assemble a list of active players without jobbans and role enabled
 	for(var/mob/new_player/player in GLOB.player_list)
 		if(!player.client || !player.ready || !player.has_valid_preferences() \
-			|| jobban_isbanned(player, "Syndicate") || jobban_isbanned(player, role) \
+			|| jobban_isbanned(player, ROLE_SYNDICATE) || jobban_isbanned(player, role) \
 			|| !player_old_enough_antag(player.client, role, req_job_rank) || player.client.prefs?.skip_antag \
 			|| !(role in player.client.prefs.be_special))
 			continue
@@ -324,12 +322,9 @@
 	// Assemble a list of active players without jobbans and role enabled
 	for(var/mob/living/carbon/human/player in GLOB.alive_mob_list)
 		if(!player.client \
-			|| jobban_isbanned(player, "Syndicate") || jobban_isbanned(player, role) \
+			|| jobban_isbanned(player, ROLE_SYNDICATE) || jobban_isbanned(player, role) \
 			|| !player_old_enough_antag(player.client, role, req_job_rank) || player.client.prefs?.skip_antag \
-			|| !(role in player.client.prefs.be_special))
-			continue
-
-		if(player.mind.has_antag_datum(/datum/antagonist) || player.mind.offstation_role || player.mind.special_role)
+			|| !(role in player.client.prefs.be_special) || !is_player_station_relevant(player))
 			continue
 
 		players += player
@@ -356,34 +351,67 @@
 
 	return candidates
 
+
+/datum/game_mode/proc/get_alive_AIs_for_role(role)
+	. = list()
+	for(var/mob/living/silicon/ai/AI in GLOB.alive_mob_list)
+		if(!AI.client || !AI.mind \
+			|| jobban_isbanned(AI, ROLE_SYNDICATE) || jobban_isbanned(AI, role) \
+			|| !player_old_enough_antag(AI.client, role, JOB_TITLE_AI) || AI.client.prefs?.skip_antag \
+			|| !(role in AI.client.prefs.be_special) || AI.stat == DEAD || AI.control_disabled \
+			|| AI.mind.offstation_role || AI.mind.special_role)
+			continue
+		. += AI.mind
+
+
+/// All the checks required to find baseline human being
+/proc/is_player_station_relevant(mob/living/carbon/human/player)
+	if(QDELING(player))
+		return FALSE
+	if(!player.client)
+		return FALSE
+	if(!player.mind)
+		return FALSE
+	if(player.mind.special_role)	// already "special"
+		return FALSE
+	if(player.mind.offstation_role)	// spawned mobs
+		return FALSE
+	if(player.stat == DEAD)	// no zombies
+		return FALSE
+	var/turf/player_turf = get_turf(player)
+	if(!player_turf)	// nullspace, eh?
+		return FALSE
+	if(!is_level_reachable(player_turf.z) && !is_away_level(player_turf.z))	// taipan is not available, mkay?
+		return FALSE
+	if(is_monkeybasic(player))	// no monkas
+		return FALSE
+	if(isgolem(player))	// get out of here
+		return FALSE
+	if(is_evolvedslime(player))	// no evolved slimes please
+		return FALSE
+	return TRUE	// congratulations, you are normal!
+
+
 /datum/game_mode/proc/latespawn(mob/player)
 
 
 /datum/game_mode/proc/num_players()
 	. = 0
-
 	for(var/mob/new_player/player in GLOB.player_list)
-
 		if(player.client && player.ready)
 			.++
+
 
 /proc/num_station_players()
 	. = 0
 	for(var/mob/living/carbon/human/player in GLOB.player_list)
-		if(!player)
-			continue
-
-		if(player.client && player.mind && !player.mind.offstation_role && !player.mind.special_role)
+		if(is_player_station_relevant(player))
 			.++
 
 
 /datum/game_mode/proc/num_players_started()
 	. = 0
-
 	for(var/mob/living/carbon/human/player in GLOB.player_list)
-		if(!player)
-			continue
-
 		if(player.client)
 			.++
 
@@ -537,25 +565,21 @@
 	var/obj_count = 1
 	to_chat(player.current, span_notice("Your current objectives:"))
 	for(var/datum/objective/objective in player.get_all_objectives())
-		to_chat(player.current, "<B>Objective #[obj_count]</B>: [objective.explanation_text]")
+		to_chat(player.current, "<b>Objective #[obj_count]</b>: [objective.explanation_text]")
 		obj_count++
 
 
 /proc/get_nuke_code()
-	var/nukecode = "ERROR"
-	for(var/obj/machinery/nuclearbomb/bomb in GLOB.machines)
-		if(bomb?.r_code && is_station_level(bomb.z))
-			nukecode = bomb.r_code
-	return nukecode
+	return GLOB.nuke_codes[/obj/machinery/nuclearbomb]
 
 
 /proc/get_nuke_status()
 	var/nuke_status = NUKE_MISSING
-	for(var/obj/machinery/nuclearbomb/bomb in GLOB.machines)
+	for(var/obj/machinery/nuclearbomb/bomb in SSmachines.get_by_type(/obj/machinery/nuclearbomb))
 		if(is_station_level(bomb.z))
 			nuke_status = NUKE_CORE_MISSING
 			if(bomb.core)
-				nuke_status = NUKE_INTACT
+				nuke_status = NUKE_STATUS_INTACT
 	return nuke_status
 
 
@@ -572,7 +596,7 @@
 	else
 		log_game("[player] ([player.key] has been converted into [role_type] with an active antagonist jobban for said role since no ghost has volunteered to take player's place.")
 		message_admins("[player] ([player.key] has been converted into [role_type] with an active antagonist jobban for said role since no ghost has volunteered to take [player.p_their()] place.")
-		to_chat(player, span_dangerbigger("You have been converted into [role_type] with an active jobban. Any further violations of the rules on your part are likely to result in a permanent ban."))
+		to_chat(player, span_biggerdanger("You have been converted into [role_type] with an active jobban. Any further violations of the rules on your part are likely to result in a permanent ban."))
 
 /proc/printplayer(datum/mind/player, flee_check)
 	var/jobtext = ""
@@ -625,9 +649,9 @@
 	var/count = 1
 	for(var/datum/objective/objective in player.get_all_objectives())
 		if(objective.check_completion())
-			objective_parts += "<b>Objective #[count]</b>: [objective.explanation_text] <span class='greentext'>Success!</span>"
+			objective_parts += "<b>Objective #[count]</b>: [objective.explanation_text] [span_greentext("Success!")]"
 		else
-			objective_parts += "<b>Objective #[count]</b>: [objective.explanation_text] <span class='redtext'>Fail.</span>"
+			objective_parts += "<b>Objective #[count]</b>: [objective.explanation_text] [span_redtext("Fail")]"
 		count++
 
 	return objective_parts.Join("<br>")
@@ -639,6 +663,9 @@
 	for(var/T in subtypesof(/datum/station_goal))
 		var/datum/station_goal/goal = new T
 		if(config_tag in goal.gamemode_blacklist)
+			continue
+
+		if(!goal.can_gain())
 			continue
 
 		possible += goal
@@ -688,32 +715,100 @@
 	antaghud.leave_hud(mob_mind.current)
 	set_antag_hud(mob_mind.current, null)
 
+/// Gets the value of all end of round stats through auto_declare and returns them
+/datum/game_mode/proc/get_end_of_round_antagonist_statistics()
+	. = list()
+	. += auto_declare_completion_traitor()
+	. += auto_declare_completion_vampire()
+	. += auto_declare_completion_enthralled()
+	. += auto_declare_completion_changeling()
+	. += auto_declare_completion_wizard()
+	. += auto_declare_completion_revolution()
+	. += auto_declare_completion_abduction()
+	. += auto_declare_completion_morph()
+	. += auto_declare_completion_revenant()
+	. += auto_declare_completion_honksquad()
+	. += auto_declare_completion_deathsquad()
+	. += auto_declare_completion_sst()
+	. += auto_declare_completion_sit()
+	. += auto_declare_completion_blob()
+	. += auto_declare_completion_heist()
+	. += auto_declare_completion_ninja()
+	. += auto_declare_completion_thief()
+	. += auto_declare_completion_goon_vampire()
+	. += auto_declare_completion_goon_enthralled()
+	. += auto_declare_completion_devil()
+	. += auto_declare_completion_sintouched()
+	listclearnulls(.)
+
+/datum/game_mode/proc/apocalypse_cinema(obj/singularity/god/god, inevitable = FALSE)
+	if(istype(god, /obj/singularity/god/narsie))
+		return SSticker.cultdat.apocalypse_cinema
+
+	if(istype(god, /obj/singularity/god/ratvar))
+		return /datum/cinematic/cult_arm_ratvar
+
+	return FALSE
+
 /datum/game_mode/proc/apocalypse()
-	set_security_level(SEC_LEVEL_DELTA)
-	GLOB.priority_announcement.Announce("Обнаружена угроза класса 'Разрушитель миров'. Самостоятельное решение задачи маловероятно. Моделирование пути решения начато, ожидайте.", "Отдел Центрального Командования по делам высших измерений", 'sound/AI/commandreport.ogg')
+	SSsecurity_level.set_level(SEC_LEVEL_DELTA)
+	GLOB.major_announcement.announce("Обнаружена угроза класса \"Разрушитель миров\". Моделирование пути противостояния угрозе начато, ожидайте.",
+									ANNOUNCE_CCPARANORMAL_RU,
+									'sound/AI/commandreport.ogg'
+	)
 	sleep(50 SECONDS)
-	GLOB.priority_announcement.Announce("Моделирование завершено. Меры будут приняты в ближайшем времени. Всему живому персоналу: не допустите усиления угрозы любой ценой.", "Отдел Центрального Командования по делам высших измерений", 'sound/AI/commandreport.ogg')
+	GLOB.major_announcement.announce("Моделирование завершено. Всему живому персоналу: не допустите усиления угрозы любой ценой. Меры будут приняты в ближайшее время.",
+									ANNOUNCE_CCPARANORMAL_RU,
+									'sound/AI/commandreport.ogg'
+	)
 	sleep(30 SECONDS)
-	var/obj/singularity/narsie/N = locate(/obj/singularity/narsie) in GLOB.poi_list
-	var/obj/singularity/ratvar/R = locate(/obj/singularity/ratvar) in GLOB.poi_list
-	if(!N && !R)
-		GLOB.priority_announcement.Announce("Угроза пропала с наших сенсоров. Нам требуется срочный отчет о вашей ситуации. Но, мгм, пока что мы санкционировали вам экстренную эвакуацию.", 'sound/AI/commandreport.ogg')
+
+	var/obj/singularity/god/god = locate(/obj/singularity/god) in GLOB.poi_list
+
+	if(!god)
+		GLOB.minor_announcement.announce("Угроза пропала с наших сенсоров. Санкционирована экстренная эвакуация.",
+										ANNOUNCE_CCPARANORMAL_RU,
+										'sound/AI/commandreport.ogg'
+		)
 		SSshuttle.emergency.request(null, 0.3)
 		SSshuttle.emergency.canRecall = FALSE
 		return
-	if(SSticker.cultdat.name == "Cult of Nar'Sie")
-		if(N.soul_devoured > 20)
-			play_cinematic(/datum/cinematic/cult_arm, world)
-			sleep(15 SECONDS)
-			SSticker.force_ending = TRUE
+
+	var/datum/cinematic/cinema = apocalypse_cinema(god, FALSE)
+
+	if(!cinema)
+		var/obj/machinery/nuclearbomb/bomb
+		for(var/obj/machinery/nuclearbomb/bomb_to_find in GLOB.poi_list)
+			if(is_station_level(bomb_to_find.z) && bomb_to_find.core)
+				bomb = bomb_to_find
+				break
+
+		if(bomb)
+			bomb.safety = FALSE
+			bomb.explode()
+			qdel(god)
 			return
-	play_cinematic(/datum/cinematic/nuke/self_destruct, world)
-	sleep(8 SECONDS)
+
+		cinema = apocalypse_cinema(god, TRUE)
+
+	play_cinematic(cinema, world)
+	sleep(15 SECONDS)
 	SSticker.force_ending = TRUE
-	qdel(R)
-	qdel(N)
+	return
 
-
-#undef NUKE_INTACT
-#undef NUKE_CORE_MISSING
-#undef NUKE_MISSING
+/datum/game_mode/proc/special_directive(custom_text = null, custom_name = null)
+	var/intercepttext = custom_text ? custom_text : ""
+	var/interceptname = custom_name ? custom_name : ""
+	if(!custom_name)
+		interceptname = "Директива 7-10"
+	if(!custom_text)
+		intercepttext += span_fontsize3("<b>Постановление Nanotrasen</b>: Особая директива.<hr>")
+		intercepttext += "Nanotrasen выпустила директиву 7-10 для [station_name()]. Станцию следует считать закрытой на карантин.<br>"
+		intercepttext += "Приказы для всего персонала [station_name()] следующие:<br>"
+		intercepttext += " 1. Не покидать карантинную зону.<br>"
+		intercepttext += " 2. Обнаружить все очаги угрозы на станции.<br>"
+		intercepttext += " 3. При обнаружении использовать любые необходимые средства для сдерживания организмов.<br>"
+		intercepttext += " 4. Предотвратить повреждения критической инфраструктуры станции.<br>"
+		intercepttext += "<br>Примечание. в случае нарушения карантина или неконтролируемого распространения биологической угрозы директива 7-10 может быть дополнена директивой 7-12.<br>"
+		intercepttext += "Конец сообщения."
+	print_command_report(intercepttext, interceptname, FALSE)

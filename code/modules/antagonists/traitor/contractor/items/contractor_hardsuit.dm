@@ -34,10 +34,10 @@
 	. = ..()
 	QDEL_NULL(scorpion)
 
-/obj/item/clothing/suit/space/hardsuit/contractor/ui_action_click(user, action)
-	switch(action)
+/obj/item/clothing/suit/space/hardsuit/contractor/ui_action_click(mob/user, datum/action/action, leftclick)
+	switch(action.type)
 		if(/datum/action/item_action/toggle_helmet)
-			ToggleHelmet(user)
+			ToggleHelmet()
 			return TRUE
 		if(/datum/action/item_action/advanced/hook_upgrade)
 			toggle_hook()
@@ -99,7 +99,7 @@
 			hook.toggle_button_on_off()
 			break
 		usr.put_in_hands(scorpion)
-		playsound(src.loc, 'sound/mecha/mechmove03.ogg', 50, 1)
+		playsound(loc, 'sound/mecha/mechmove03.ogg', 50, TRUE)
 		to_chat(usr, "<span class='notice'>You engage the [scorpion].</span>")
 
 /datum/action/item_action/advanced/hook_upgrade/toggle_button_on_off()
@@ -149,12 +149,12 @@
 /obj/item/ammo_casing/magic/contractor_hook
 	name = "Hardlight hook"
 	desc = "a hardlight hook."
-	projectile_type = /obj/item/projectile/contractor_hook
+	projectile_type = /obj/projectile/contractor_hook
 	caliber = "hardlight_hook"
 	icon_state = "hard_hook"
 	muzzle_flash_effect = null
 
-/obj/item/projectile/contractor_hook
+/obj/projectile/contractor_hook
 	name = "Hardlight hook"
 	icon_state = "hard_hook"
 	icon = 'icons/obj/weapons/projectiles.dmi'
@@ -166,12 +166,12 @@
 	ricochet_chance = 0
 	range = 7
 
-/obj/item/projectile/contractor_hook/fire(setAngle)
+/obj/projectile/contractor_hook/fire(setAngle)
 	if(firer)
-		chain = firer.Beam(src, icon_state = "hard_chain", time = INFINITY, maxdistance = INFINITY, beam_sleep_time = 1)
+		chain = firer.Beam(src, icon_state = "hard_chain", time = INFINITY, maxdistance = INFINITY)
 	..()
 
-/obj/item/projectile/contractor_hook/on_hit(atom/target, blocked = 0)
+/obj/projectile/contractor_hook/on_hit(atom/target, blocked = 0)
 	. = ..()
 	if(blocked >= 100)
 		return 0
@@ -187,7 +187,7 @@
 
 
 
-/obj/item/projectile/contractor_hook/Destroy()
+/obj/projectile/contractor_hook/Destroy()
 	QDEL_NULL(chain)
 	return ..()
 /*
@@ -264,13 +264,13 @@
 	to_chat(usr, "<span class='notice'>Turning on the disguise..</span>")
 	sleep(25)
 	usr.visible_message("<span class='warning'>[usr] changes the look of his hardsuit!</span>", "<span class='notice'>[selected_chameleon] selected.</span>")
-	playsound(loc, 'sound/items/screwdriver2.ogg', 50, 1)
+	playsound(loc, 'sound/items/screwdriver2.ogg', 50, TRUE)
 	update_suit()
 	disguise = TRUE
 
 
 /obj/item/clothing/suit/space/hardsuit/contractor/proc/disable_chameleon()
-	src.name = initial(src.name)
+	src = initial(src)
 	src.icon_state = initial(src.icon_state)
 	src.desc = initial(src.desc)
 	helmet.name = initial(helmet.name)

@@ -2,7 +2,9 @@
 	name = "atmoalter"
 	use_power = NO_POWER_USE
 	max_integrity = 250
+	pull_push_slowdown = 1.3
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 100, "bomb" = 0, "bio" = 100, "rad" = 100, "fire" = 60, "acid" = 30)
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING | ALLOW_SILICON_REACH
 	var/datum/gas_mixture/air_contents = new
 
 	var/obj/machinery/atmospherics/unary/portables_connector/connected_port
@@ -91,17 +93,12 @@
 /obj/machinery/portable_atmospherics/portableConnectorReturnAir()
 	return air_contents
 
-/obj/machinery/portable_atmospherics/AltClick(mob/living/user)
-	if(!ishuman(user) && !issilicon(user))
-		return
-	if(!Adjacent(user))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, span_warning("You can't do that right now!"))
-		return
-	if(holding)
-		to_chat(user, span_notice("You remove [holding] from [src]."))
-		replace_tank(user, TRUE)
+/obj/machinery/portable_atmospherics/click_alt(mob/living/user)
+	if(!holding)
+		return NONE
+	to_chat(user, span_notice("You remove [holding] from [src]."))
+	replace_tank(user, TRUE)
+	return CLICK_ACTION_SUCCESS
 
 /obj/machinery/portable_atmospherics/examine(mob/user)
 	. = ..()
@@ -123,24 +120,32 @@
 	update_icon()
 	return TRUE
 
-/obj/machinery/portable_atmospherics/attackby(obj/item/W, mob/user, params)
-	var/obj/item/tank/T = W
-	if(istype(T) && T.fillable)
-		if(!(stat & BROKEN))
-			if(!user.drop_transfer_item_to_loc(T, src))
-				return
-			add_fingerprint(user)
-			if(holding)
-				to_chat(user, span_notice("[holding ? "In one smooth motion you pop [holding] out of [src]'s connector and replace it with [T]" : "You insert [T] into [src]"]."))
-				replace_tank(user, FALSE)
-			holding = T
-			update_icon()
-		return
+
+/obj/machinery/portable_atmospherics/attackby(obj/item/item, mob/user, params)
+	if((stat & BROKEN) || user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(item, /obj/item/tank))
+		add_fingerprint(user)
+		var/obj/item/tank/new_tank = item
+		if(!new_tank.fillable)
+			to_chat(user, span_warning("The [new_tank.name] is incompatible with [src]."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(new_tank, src))
+			return ..()
+		if(holding)
+			to_chat(user, span_notice("In one smooth motion you pop [holding] out of [src]'s connector and replace it with [new_tank]"))
+		else
+			to_chat(user, span_notice("You insert [new_tank] into [src]"))
+		replace_tank(user, FALSE, new_tank)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
 	return ..()
 
-/obj/machinery/portable_atmospherics/wrench_act(mob/user, obj/item/I)
+
+/obj/machinery/portable_atmospherics/wrench_act(mob/user, obj/item/item)
 	. = TRUE
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
+	if(!item.use_tool(src, user, 0, volume = item.tool_volume))
 		return
 	if(connected_port)
 		disconnect()
@@ -159,9 +164,14 @@
 		else
 			to_chat(user, span_notice("Nothing happens."))
 
-/obj/machinery/portable_atmospherics/attacked_by(obj/item/I, mob/user)
-	if(I.force < 10 && !(stat & BROKEN))
-		take_damage(0)
-	else
-		add_fingerprint(user)
-		..()
+
+/obj/machinery/portable_atmospherics/proceed_attack_results(obj/item/item, mob/living/user, params, def_zone)
+	if(item.get_final_force(user) < 10 && !(stat & BROKEN))
+		user.visible_message(
+			span_warning("[user] gently pokes [src] with [item]."),
+			span_warning("You gently poke [src] with [item]."),
+		)
+		return ATTACK_CHAIN_BLOCKED
+
+	return ..()
+

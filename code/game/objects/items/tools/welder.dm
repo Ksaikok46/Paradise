@@ -5,6 +5,8 @@
 	desc = "A standard edition welder provided by Nanotrasen."
 	icon = 'icons/obj/tools.dmi'
 	icon_state = "welder"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	item_state = "welder"
 	belt_icon = "welding_tool"
 	flags = CONDUCT
@@ -24,8 +26,8 @@
 	toolspeed = 1
 	tool_enabled = FALSE
 	usesound = 'sound/items/welder.ogg'
-	drop_sound = 'sound/items/handling/weldingtool_drop.ogg'
-	pickup_sound =  'sound/items/handling/weldingtool_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/weldingtool_drop.ogg'
+	pickup_sound =  'sound/items/handling/pickup/weldingtool_pickup.ogg'
 	var/maximum_fuel = 20
 	var/requires_fuel = TRUE //Set to FALSE if it doesn't need fuel, but serves equally well as a cost modifier
 	var/refills_over_time = FALSE //Do we regenerate fuel?
@@ -41,7 +43,7 @@
 	light_on = FALSE
 
 /obj/item/weldingtool/Initialize(mapload)
-	..()
+	. = ..()
 	create_reagents(maximum_fuel)
 	reagents.add_reagent("fuel", maximum_fuel)
 	update_icon()
@@ -87,15 +89,23 @@
 	remove_fuel(maximum_fuel)
 
 /obj/item/weldingtool/attack_self(mob/user)
+	if(try_toggle_welder(user))
+		return ..()
+
+/obj/item/weldingtool/proc/try_toggle_welder(mob/user, manual_toggle = TRUE)
 	if(tool_enabled) //Turn off the welder if it's on
-		to_chat(user, "<span class='notice'>You switch off [src].</span>")
-		toggle_welder()
-		return
+		balloon_alert(user, "выключено")
+		if(manual_toggle)
+			toggle_welder()
+		return TRUE
 	else if(GET_FUEL) //The welder is off, but we need to check if there is fuel in the tank
-		to_chat(user, "<span class='notice'>You switch on [src].</span>")
-		toggle_welder()
+		balloon_alert(user, "включено")
+		if(manual_toggle)
+			toggle_welder()
+		return TRUE
 	else //The welder is off and unfuelled
-		to_chat(user, "<span class='notice'>[src] is out of fuel!</span>")
+		balloon_alert(user, "нет топлива!")
+		return FALSE
 
 /obj/item/weldingtool/proc/toggle_welder(turn_off = FALSE) //Turn it on or off, forces it to deactivate
 	tool_enabled = turn_off ? FALSE : !tool_enabled
@@ -104,7 +114,7 @@
 		damtype = BURN
 		force = force_enabled
 		hitsound = 'sound/items/welder.ogg'
-		playsound(loc, activation_sound, 50, 1)
+		playsound(loc, activation_sound, 50, TRUE)
 		set_light_on(TRUE)
 	else
 		if(!refills_over_time)
@@ -112,7 +122,7 @@
 		damtype = BRUTE
 		force = initial(force)
 		hitsound = "swing_hit"
-		playsound(loc, deactivation_sound, 50, 1)
+		playsound(loc, deactivation_sound, 50, TRUE)
 		set_light_on(FALSE)
 	update_icon()
 	if(ismob(loc))
@@ -157,7 +167,7 @@
 	. = ..()
 	if(. && user)
 		if(progress_flash_divisor == 0)
-			user.flash_eyes(min(light_intensity, 1))
+			user.flash_eyes(min(light_intensity, TRUE))
 			progress_flash_divisor = initial(progress_flash_divisor)
 		else
 			progress_flash_divisor--
@@ -176,7 +186,7 @@
 	var/amount_transferred = A.reagents.trans_id_to(src, "fuel", amount)
 	if(amount_transferred)
 		to_chat(user, "<span class='notice'>You refuel [src] by [amount_transferred] unit\s.</span>")
-		playsound(src, 'sound/effects/refill.ogg', 50, 1)
+		playsound(src, 'sound/effects/refill.ogg', 50, TRUE)
 		update_icon()
 		return amount_transferred
 	else
@@ -202,6 +212,8 @@
 	if(tool_enabled)
 		. += "[initial(icon_state)]-on"
 
+/obj/item/weldingtool/get_heat()
+	return tool_enabled * 2500
 
 /obj/item/weldingtool/largetank
 	name = "industrial welding tool"
@@ -231,7 +243,7 @@
 	desc = "An alien welding tool. Whatever fuel it uses, it never runs out."
 	icon = 'icons/obj/abductor.dmi'
 	icon_state = "welder"
-	item_state = "alien_welder"
+	item_state = "alienwelder"
 	belt_icon = "alien_welding_tool"
 	toolspeed = 0.1
 	light_intensity = 0

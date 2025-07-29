@@ -30,14 +30,14 @@
 		user.visible_message("<span class='warning'>[user] pulls [src]'s lever with a glint in [user.p_their()] eyes!</span>", "<span class='warning'>You feel a draining as you pull the lever, but you \
 		know it'll be worth it.</span>")
 	icon_state = "slots-on"
-	playsound(src, 'sound/lavaland/cursed_slot_machine.ogg', 50, 0)
+	playsound(src, 'sound/lavaland/cursed_slot_machine.ogg', 50, FALSE)
 	addtimer(CALLBACK(src, PROC_REF(determine_victor), user), 50)
 
 /obj/structure/cursed_slot_machine/proc/determine_victor(mob/living/user)
 	icon_state = "slots-off"
 	in_use = FALSE
 	if(prob(win_prob))
-		playsound(src, 'sound/lavaland/cursed_slot_machine_jackpot.ogg', 50, 0)
+		playsound(src, 'sound/lavaland/cursed_slot_machine_jackpot.ogg', 50, FALSE)
 		new/obj/structure/cursed_money(get_turf(src))
 		if(user)
 			to_chat(user, "<span class='boldwarning'>You've hit jackpot. Laughter echoes around you as your reward appears in the machine's place.</span>")
@@ -93,7 +93,7 @@
 	. = ..()
 	if(ishuman(mover))
 		var/mob/living/carbon/human/human_mover = mover
-		if(human_mover.nutrition >= NUTRITION_LEVEL_FAT || (FAT in human_mover.mutations))
+		if(human_mover.nutrition >= NUTRITION_LEVEL_FAT || HAS_TRAIT(human_mover, TRAIT_FAT))
 			human_mover.visible_message(
 				span_warning("[human_mover] pushes through [src]!"),
 				span_notice("You've seen and eaten worse than this."),
@@ -112,29 +112,27 @@
 	desc = "Pride cometh before the..."
 	icon_state = "magic_mirror"
 
-/obj/structure/mirror/magic/pride/curse(mob/user)
-	user.visible_message("<span class='danger'><B>The ground splits beneath [user] as [user.p_their()] hand leaves the mirror!</B></span>", \
-	"<span class='notice'>Perfect. Much better! Now <i>nobody</i> will be able to resist yo-</span>")
 
-	var/turf/T = get_turf(user)
+/obj/structure/mirror/magic/pride/curse(mob/user)
+	user.visible_message(
+		span_bolddanger("The ground splits beneath [user] as [user.p_their()] hand leaves the mirror!"),
+		span_notice("Perfect. Much better! Now <i>nobody</i> will be able to resist yo-"),
+	)
+
+	var/turf/user_turf = get_turf(user)
 	var/list/levels = GLOB.space_manager.z_list.Copy()
 	for(var/level in levels)
-		if(!is_teleport_allowed(level))
+		if(!is_teleport_allowed(level) || is_taipan(level) || text2num(level) == user_turf.z)
 			levels -= level
-			continue
-		if(is_taipan(level))
-			levels -= level
-			continue
-		if(text2num(level) == T.z)
-			levels -= level
-			continue
 
-	T.ChangeTurf(/turf/simulated/floor/chasm)
-	var/turf/simulated/floor/chasm/C = T
-	C.drop_x = T.x
-	C.drop_y = T.y
-	C.drop_z = text2num(pick(levels))
-	C.drop(user)
+	var/turf/dest
+	if(length(levels))
+		dest = locate(user_turf.x, user_turf.y, pick(levels))
+
+	user_turf.ChangeTurf(/turf/simulated/floor/chasm)
+	var/turf/simulated/floor/chasm/new_chasm = user_turf
+	new_chasm.set_target(dest)
+
 
 // Envy
 /obj/item/kitchen/knife/envy //Envy's knife: Found in the Envy ruin. Attackers take on the appearance of whoever they strike.
@@ -148,7 +146,7 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	hitsound = 'sound/weapons/bladeslice.ogg'
 
-/obj/item/kitchen/knife/envy/afterattack(atom/movable/AM, mob/living/carbon/human/user, proximity)
+/obj/item/kitchen/knife/envy/afterattack(atom/movable/AM, mob/living/carbon/human/user, proximity, params)
 	. = ..()
 	if(!proximity)
 		return
@@ -160,7 +158,7 @@
 			user.real_name = H.dna.real_name
 			H.dna.transfer_identity(user)
 			user.visible_message("<span class='warning'>[user]'s appearance shifts into [H]'s!</span>", \
-			"<span class='boldannounce'>[H.p_they(TRUE)] think[H.p_s()] [H.p_theyre()] <i>sooo</i> much better than you. Not anymore, [H.p_they()] won't.</span>")
+			span_boldannounceic("[H.p_they(TRUE)] think[H.p_s()] [H.p_theyre()] <i>sooo</i> much better than you. Not anymore, [H.p_they()] won't."))
 
 // Sloth
 /obj/item/paper/fluff/stations/lavaland/sloth/note

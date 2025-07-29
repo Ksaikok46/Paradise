@@ -1,7 +1,3 @@
-/obj/effect/ebeam/chain
-	name = "lightning chain"
-	layer = LYING_MOB_LAYER
-
 /mob/living/simple_animal/hostile/guardian/beam
 	melee_damage_lower = 15
 	melee_damage_upper = 15
@@ -30,13 +26,13 @@
 	..()
 	AddSpell(new /obj/effect/proc_holder/spell/charge_up/bounce/lightning/guardian)
 
-/mob/living/simple_animal/hostile/guardian/beam/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, safety = FALSE, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE)
+/mob/living/simple_animal/hostile/guardian/beam/electrocute_act(shock_damage, source, siemens_coeff = 1, flags = NONE, jitter_time = 10 SECONDS, stutter_time = 6 SECONDS, stun_duration = 4 SECONDS)
 	return FALSE //You are lightning, you should not be hurt by such things.
 
 /mob/living/simple_animal/hostile/guardian/beam/Manifest()
 	..()
 	if(summoner)
-		summonerchain = Beam(summoner, "lightning[rand(1,12)]", 'icons/effects/effects.dmi', time=INFINITY, maxdistance=INFINITY, beam_type=/obj/effect/ebeam/chain)
+		summonerchain = Beam(summoner, "lightning[rand(1,12)]", 'icons/effects/effects.dmi', time = INFINITY, maxdistance = INFINITY, beam_type = /obj/effect/ebeam/chain, layer = LYING_MOB_LAYER)
 	while(loc != summoner)
 		if(successfulshocks > 5)
 			successfulshocks = 0
@@ -63,7 +59,7 @@
 	cleardeletedchains()
 	if(summoner)
 		if(!summonerchain)
-			summonerchain = Beam(summoner, "lightning[rand(1,12)]", 'icons/effects/effects.dmi', time=INFINITY, maxdistance=INFINITY, beam_type=/obj/effect/ebeam/chain)
+			summonerchain = Beam(summoner, "lightning[rand(1,12)]", 'icons/effects/effects.dmi', time = INFINITY, maxdistance = INFINITY, beam_type = /obj/effect/ebeam/chain, layer = LYING_MOB_LAYER)
 		. += chainshock(summonerchain)
 	if(enemychains.len)
 		for(var/chain in enemychains)
@@ -97,9 +93,9 @@
 					continue
 				if(successfulshocks > 4)
 					L.visible_message(
-						"<span class='danger'>[L] was shocked by the lightning chain!</span>", \
-						"<span class='userdanger'>You are shocked by the lightning chain!</span>", \
-						"<span class='italics'>You hear a heavy electrical crack.</span>" \
+						span_danger("[L] был[genderize_ru(L.gender,"","а","о","и")] пораж[genderize_ru(L.gender,"ён","ена","ено","ены")] цепью молний!"), \
+						span_userdanger("Вас ударила цепь молний!"), \
+						span_italics("Вы слышите громкий электрический треск.") \
 					)
 				L.adjustFireLoss(3)
 				. = 1

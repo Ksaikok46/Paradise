@@ -25,6 +25,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	russian_wiki_name = "Генокрад"
 	clown_gain_text = "You have evolved beyond your clownish nature, allowing you to wield weapons without harming yourself."
 	clown_removal_text = "As your changeling nature fades, you return to your own clumsy, clownish self."
+	antag_menu_name = "Генокрад"
 	/// List of [/datum/dna] which have been absorbed through the DNA sting or absorb power.
 	var/list/absorbed_dna
 	/// DNA that is not lost when capacity is otherwise full.
@@ -119,7 +120,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 /datum/antagonist/changeling/greet()
 	..()
-	SEND_SOUND(owner.current, 'sound/ambience/antag/ling_aler.ogg')
+	SEND_SOUND(owner.current, sound('sound/ambience/antag/ling_aler.ogg'))
 	//to_chat(owner.current, span_changeling("Remember: you get all of the absorbed DNA points from other changelings if you absorb them."))
 
 
@@ -128,7 +129,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		to_chat(owner.current, span_userdanger("You have been robotized!"))
 		to_chat(owner.current, span_danger("You must obey your silicon laws and master AI above all else. Your objectives will consider you to be dead."))
 	else
-		to_chat(owner.current, "<FONT color='red' size = 3><B>You lose your powers! You are no longer a changeling and are stuck in your current form!</B></FONT>")
+		to_chat(owner.current, span_fontsize3("<span style='color: red;'><b>You lose your powers! You are no longer a changeling and are stuck in your current form!</b></span>"))
 
 
 /datum/antagonist/changeling/apply_innate_effects(mob/living/mob_override)
@@ -151,6 +152,8 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 			give_power(new power_type, user)
 
 	RegisterSignal(user, COMSIG_MOB_DEATH, PROC_REF(on_death))
+	RegisterSignal(user, COMSIG_MOB_ALTCLICKON, PROC_REF(on_click_sting))
+	//COMSIG_MOB_MIDDLECLICKON not yet implemented, please remove all MiddleClick fuckery after adding here.
 
 	var/mob/living/carbon/carbon_user = user
 	if(!istype(carbon_user))
@@ -160,6 +163,17 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	var/obj/item/organ/internal/brain/ling_brain = carbon_user.get_organ_slot(INTERNAL_ORGAN_BRAIN)
 	ling_brain?.decoy_brain = TRUE
 
+	user.AddElement( \
+		/datum/element/pref_viewer, \
+		list(/datum/preference_info/take_out_of_the_round_without_obj), \
+	)
+
+/datum/antagonist/changeling/on_body_transfer(mob/living/old_body, mob/living/new_body)
+	. = ..()
+	old_body.RemoveElement(/datum/element/pref_viewer)
+
+/datum/antagonist/changeling/handle_last_instance_removal()
+	owner.current.RemoveElement(/datum/element/pref_viewer)
 
 /datum/antagonist/changeling/remove_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
@@ -205,6 +219,9 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 	absorb.owner = owner
 	objectives += absorb
 
+	forge_single_objective()
+	forge_single_objective()
+
 	if(prob(60))
 		add_objective(/datum/objective/steal)
 	else
@@ -217,7 +234,7 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		var/datum/objective/maroon/maroon_objective = add_objective(/datum/objective/maroon)
 		var/mob/living/carbon/human/maroon_target = maroon_objective.target?.current
 
-		if(!(locate(/datum/objective/escape) in owner.get_all_objectives()) && maroon_target && !has_no_DNA(maroon_target))
+		if(!(locate(/datum/objective/escape) in owner.get_all_objectives()) && maroon_target && !HAS_TRAIT(maroon_target, TRAIT_NO_DNA))
 			var/datum/objective/escape/escape_with_identity/identity_theft = new(_special_objective = maroon_objective)
 			identity_theft.owner = owner
 			objectives += identity_theft
@@ -247,13 +264,34 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		chem_charges = clamp(0, chem_charges + chem_recharge_rate - chem_recharge_slowdown, chem_storage)
 		genetic_damage = max(0, genetic_damage - 1)
 
+/**
+ * Signal proc for [COMSIG_MOB_MIDDLECLICKON](not yet) and [COMSIG_MOB_ALTCLICKON].
+ * Allows the changeling to sting people with a click.
+ */
+/datum/antagonist/changeling/proc/on_click_sting(mob/living/ling, atom/clicked)
+	SIGNAL_HANDLER
+
+	// nothing to handle
+	if(!chosen_sting)
+		return
+	if(!isliving(ling) || clicked == ling || ling.stat != CONSCIOUS)
+		return
+	// actual ling stings do pathfinding to determine whether the target's "in range".
+	// however, this is "close enough" preliminary checks to not block click
+	if(!isliving(clicked) || !in_range(ling, clicked))
+		return
+
+	INVOKE_ASYNC(chosen_sting, TYPE_PROC_REF(/datum/action/changeling, try_to_sting), ling, clicked)
+
+	return COMSIG_MOB_CANCEL_CLICKON
+
 
 /**
  * Respec the changeling's powers after first checking if they're able to respec.
  */
 /datum/antagonist/changeling/proc/try_respec()
 	var/mob/living/carbon/human/user = owner.current
-	if(!istype(user) || issmall(user))
+	if(!istype(user) || is_monkeybasic(user))
 		to_chat(user, span_danger("We can't readapt our evolutions in this form!"))
 		return FALSE
 	if(can_respec)
@@ -490,15 +528,15 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 		return FALSE
 
 	var/mob/living/carbon/human/human_target = target
-	if(!istype(human_target) || issmall(human_target))
+	if(!istype(human_target) || is_monkeybasic(human_target))
 		to_chat(user, span_warning("[human_target] is not compatible with our biology."))
 		return FALSE
 
-	if((NOCLONE || SKELETON || HUSK) in human_target.mutations)
+	if(HAS_TRAIT(human_target, TRAIT_HUSK) || HAS_TRAIT(human_target, TRAIT_SKELETON) || HAS_TRAIT(human_target, TRAIT_NO_CLONE))
 		to_chat(user, span_warning("DNA of [target] is ruined beyond usability!"))
 		return FALSE
 
-	if(has_no_DNA(human_target))
+	if(HAS_TRAIT(human_target, TRAIT_NO_DNA))
 		to_chat(user, span_warning("This creature does not have DNA!"))
 		return FALSE
 
@@ -613,8 +651,3 @@ GLOBAL_LIST_INIT(possible_changeling_IDs, list("Alpha","Beta","Gamma","Delta","E
 
 	return mind_holder.mind.has_antag_datum(/datum/antagonist/changeling)
 
-
-/proc/has_no_DNA(mob/living/carbon/user)
-	if(!istype(user) || !user.dna)
-		return TRUE
-	return NO_DNA in user.dna.species.species_traits

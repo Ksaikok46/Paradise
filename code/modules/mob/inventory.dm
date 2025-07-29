@@ -41,10 +41,16 @@
 /mob/proc/run_quick_equip()
 	var/obj/item/I = get_active_hand()
 	if(!I)
+		if(pulling && isliving(src))
+			var/mob/living/grabber = src
+			if(!isnull(grabber.pull_hand) && grabber.pull_hand != PULL_WITHOUT_HANDS)
+				if(next_move <= world.time && grabber.hand == grabber.pull_hand && grabber.on_grab_quick_equip(pulling, grabber.pull_hand))
+					grabber.changeNext_move(grabber.grab_state > GRAB_PASSIVE ? CLICK_CD_GRABBING : CLICK_CD_PULLING)
+				return
 		to_chat(src, span_warning("Вы ничего не держите в руке!"))
 		return
 
-	if(!QDELETED(I))
+	if(!QDELETED(I) && I.user_can_equip(src))
 		I.equip_to_best_slot(src)
 
 
@@ -223,6 +229,19 @@
 		return r_hand
 	return null
 
+/mob/proc/is_in_hands_to_flag(obj/item/I)
+	if(I == l_hand)
+		return ITEM_SLOT_HAND_LEFT
+	if(I == r_hand)
+		return ITEM_SLOT_HAND_RIGHT
+	return NONE
+
+/**
+ * Returns `TRUE` if mob's hands free
+ */
+/mob/proc/is_hands_free()
+	return !l_hand && !r_hand
+
 
 /**
  * Returns `TRUE` if item is in mob's active hand
@@ -241,7 +260,6 @@
 
 	return item_to_test && item_to_test.is_equivalent(I)
 
-
 /**
  * Check used for telekinesis grabs
  */
@@ -258,6 +276,11 @@
 	else
 		return r_hand
 
+//Returns the flag of the selected hand
+/mob/proc/get_active_item_slot_gand()
+	if(hand)
+		return ITEM_SLOT_HAND_LEFT
+	return ITEM_SLOT_HAND_RIGHT
 
 /**
  * Returns the thing in our inactive hand
@@ -305,7 +328,7 @@
 	if(QDELING(I))
 		return FALSE
 
-	if(!force && !put_in_hand_check(I, hand_id))
+	if(!put_in_hand_check(I, hand_id) && !force)
 		return FALSE
 
 	if(!ignore_anim)
@@ -463,6 +486,7 @@
 
 	I.do_pickup_animation(newloc)
 	I.forceMove(newloc)
+	I.dir = dir
 
 
 /**
@@ -500,6 +524,7 @@
 	I.pixel_x = shift_x
 	I.pixel_y = shift_y
 	I.do_drop_animation(src)
+	I.dir = dir
 
 
 /**
@@ -514,6 +539,7 @@
 /mob/proc/transfer_item_to_loc(obj/item/I, atom/newloc, force = FALSE, invdrop = TRUE, silent = FALSE)
 	. = do_unEquip(I, force, newloc, FALSE, invdrop, silent)
 	I.do_drop_animation(src)
+	I.dir = dir
 
 
 /**
@@ -548,6 +574,8 @@
 		return FALSE
 
 	var/slot = get_slot_by_item(I)
+	//if we actually unequipped an item
+	var/not_handled = FALSE
 
 	if(I == r_hand)
 		r_hand = null
@@ -558,10 +586,18 @@
 	else if(I in tkgrabbed_objects)
 		var/obj/item/tk_grab/tkgrab = tkgrabbed_objects[I]
 		drop_item_ground(tkgrab, force)
+	else
+		not_handled = TRUE
 
 	if(I)
 		if(client)
 			client.screen -= I
+		// For inventory observing
+		for(var/mob/dead/observer/observe as anything in inventory_observers)
+			if(!observe.client)
+				LAZYREMOVE(inventory_observers, observe)
+				continue
+			observe.client.screen -= I
 		I.layer = initial(I.layer)
 		SET_PLANE_EXPLICIT(I, initial(I.plane), newloc)
 		if(!no_move && !(I.item_flags & DROPDEL)) // Item may be moved/qdel'd immedietely, don't bother moving it
@@ -569,8 +605,11 @@
 				I.move_to_null_space()
 			else
 				I.forceMove(newloc)
-		I.dropped(src, slot, silent)
+		I.dropped(src, slot, silent, newloc)
 
+	SEND_SIGNAL(I, COMSIG_ITEM_POST_UNEQUIP, force, newloc, no_move, invdrop, silent)
+	if(!not_handled)
+		update_equipment_speed_mods()
 	return TRUE
 
 
@@ -604,10 +643,13 @@
 
 
 /**
- * Collects all the bitflags from the obscured slots.
- * Works only for humans and checks only suits, headgear and masks currently.
+ * Collects flags_inv bitflags from all equipped items and returns slots considered as obscure.
+ *
+ * Arguments:
+ * * check_transparent - If `TRUE` bitflags from var/flags_inv_transparent will be considered, works like a toggle (^=) for var/flags_inv.
+ * Used in overlay updates to properly cover or uncover certain zones.
  */
-/mob/proc/check_obscured_slots()
+/mob/proc/check_obscured_slots(check_transparent)
 	. = NONE
 
 
@@ -618,6 +660,16 @@
 /mob/proc/is_general_slot(slot)
 	return (slot & (ITEM_SLOT_HANDS|ITEM_SLOT_POCKETS|ITEM_SLOT_BACKPACK|ITEM_SLOT_HANDCUFFED|ITEM_SLOT_LEGCUFFED|ITEM_SLOT_ACCESSORY))
 
+//GetAllContents that is reasonable and not stupid
+/mob/living/proc/get_all_gear(recursive = TRUE)
+	var/list/processing_list = get_equipped_items(TRUE, TRUE)
+	listclearnulls(processing_list) // handles empty hands
+	var/i = 0
+	while(i < length(processing_list))
+		var/obj/item/storage/A = processing_list[++i]
+		if(istype(A) && recursive)
+			processing_list += A.return_inv()
+	return processing_list
 
 /// Collects all items in possibly equipped slots.
 /mob/proc/get_equipped_items(include_pockets = FALSE, include_hands = FALSE)
@@ -722,3 +774,19 @@
 /mob/proc/covered_with_thick_material(check_zone, full_body_check = FALSE)
 	return FALSE
 
+
+/mob/proc/is_type_in_hands(typepath)
+	if(istype(l_hand,typepath))
+		return l_hand
+	if(istype(r_hand,typepath))
+		return r_hand
+	return null
+
+/**
+ * Returns a list of all dropped held items.
+ * If none were dropped, returns an empty list.
+ */
+/mob/proc/drop_all_held_items()
+	. = list()
+	for(var/obj/item/I in (get_item_by_slot(ITEM_SLOT_HAND_LEFT) || get_item_by_slot(ITEM_SLOT_HAND_RIGHT)))
+		. |= drop_item_ground(I)

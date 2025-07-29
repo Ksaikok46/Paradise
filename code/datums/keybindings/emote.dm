@@ -3,13 +3,11 @@
 	var/datum/emote/linked_emote
 
 
-/datum/keybinding/emote/can_use(client/C, mob/M)
-	return ..() //We don't need custom logic here as emotes handle their own useability
-
-
 /datum/keybinding/emote/down(client/user)
 	. = ..()
-	user.mob.emote(initial(linked_emote.key), intentional = TRUE)
+	if(.)
+		return .
+	return user.mob.emote(initial(linked_emote.key), intentional = TRUE)
 
 
 /**
@@ -179,14 +177,18 @@
 	linked_emote = /datum/emote/living/swear
 	name = "Ругаться"
 
+/datum/keybinding/emote/snore
+	linked_emote = /datum/emote/living/snore
+	name = "Храпеть"
+
 /**
  * Carbon
  */
 /datum/keybinding/emote/carbon
 	category = KB_CATEGORY_EMOTE_CARBON
 
-/datum/keybinding/emote/carbon/can_use(client/C, mob/M)
-	return iscarbon(M) && ..()
+/datum/keybinding/emote/carbon/can_use(client/user)
+	return iscarbon(user.mob)
 
 /datum/keybinding/emote/carbon/cross
 	linked_emote = /datum/emote/living/carbon/cross
@@ -275,8 +277,8 @@
 /datum/keybinding/emote/carbon/alien
 	category = KB_CATEGORY_EMOTE_ALIEN
 
-/datum/keybinding/emote/carbon/alien/can_use(client/C, mob/M)
-	return isalien(M) && ..()
+/datum/keybinding/emote/carbon/alien/can_use(client/user)
+	return isalien(user.mob)
 
 /datum/keybinding/emote/carbon/alien/humanoid/hiss
 	linked_emote = /datum/emote/living/carbon/alien/humanoid/hiss
@@ -293,8 +295,8 @@
 /datum/keybinding/emote/carbon/brain
 	category = KB_CATEGORY_EMOTE_BRAIN
 
-/datum/keybinding/emote/carbon/brain/can_use(client/C, mob/M)
-	return isbrain(M) && ..()
+/datum/keybinding/emote/carbon/brain/can_use(client/user)
+	return isbrain(user.mob)
 
 /datum/keybinding/emote/carbon/brain/alarm
 	linked_emote = /datum/emote/living/carbon/brain/alarm
@@ -331,8 +333,8 @@
 /datum/keybinding/emote/carbon/human
 	category = KB_CATEGORY_EMOTE_HUMAN
 
-/datum/keybinding/emote/carbon/human/can_use(client/C, mob/M)
-	return ishuman(M) && ..()
+/datum/keybinding/emote/carbon/human/can_use(client/user)
+	return ishuman(user.mob)
 
 /datum/keybinding/emote/carbon/human/johnny
 	linked_emote = /datum/emote/living/carbon/human/johnny
@@ -446,10 +448,6 @@
 	linked_emote = /datum/emote/living/carbon/human/hem
 	name = "Хмыкнуть"
 
-/datum/keybinding/emote/carbon/human/fart
-	linked_emote = /datum/emote/living/carbon/human/fart
-	name = "Пёрнуть"
-
 /datum/keybinding/emote/carbon/human/scratch
 	linked_emote = /datum/emote/living/carbon/human/scratch
 	name = "Почесаться"
@@ -510,8 +508,8 @@
 /**
  * Vox
  */
-/datum/keybinding/emote/carbon/human/quill
-	linked_emote ="quill"
+/datum/keybinding/emote/carbon/human/vox/quill
+	linked_emote = /datum/emote/living/carbon/human/vox/quill
 	name = "Шуршать перьями (воксы)"
 
 
@@ -606,10 +604,6 @@
 	linked_emote = /datum/emote/living/carbon/human/unathi/threat
 	name = "Угрожать (унати)"
 
-/datum/keybinding/emote/carbon/human/unathi/rumble
-	linked_emote = /datum/emote/living/carbon/human/unathi/rumble
-	name = "Урчать (унати)"
-
 /datum/keybinding/emote/carbon/human/unathi/roar
 	linked_emote = /datum/emote/living/carbon/human/unathi/roar
 	name = "Рычать (унати)"
@@ -681,8 +675,8 @@
 /datum/keybinding/emote/silicon
 	category = KB_CATEGORY_EMOTE_SILICON
 
-/datum/keybinding/emote/silicon/can_use(client/C, mob/M)
-	return (issilicon(M) || isbot(M) || ismachineperson(M)) && ..()
+/datum/keybinding/emote/silicon/can_use(client/user)
+	return issilicon(user.mob) || isbot(user.mob) || ismachineperson(user.mob)
 
 /datum/keybinding/emote/silicon/scream
 	linked_emote = /datum/emote/living/silicon/scream
@@ -731,11 +725,11 @@
 /datum/keybinding/emote/simple_animal
 	category = KB_CATEGORY_EMOTE_ANIMAL
 
-/datum/keybinding/emote/simple_animal/can_use(client/C, mob/M)
-	return isanimal(M) && ..()
+/datum/keybinding/emote/simple_animal/can_use(client/user)
+	return isanimal(user.mob)
 
-/datum/keybinding/emote/simple_animal/pet/dog/can_use(client/C, mob/M)
-	return isdog(M) && ..()
+/datum/keybinding/emote/simple_animal/pet/dog/can_use(client/user)
+	return isdog(user.mob)
 
 /datum/keybinding/emote/simple_animal/pet/dog/bark
 	linked_emote = /datum/emote/living/simple_animal/pet/dog/bark
@@ -750,16 +744,16 @@
 	name = "Рычать (пёс)"
 
 
-/datum/keybinding/emote/simple_animal/mouse/can_use(client/C, mob/M)
-	return ismouse(M) && ..()
+/datum/keybinding/emote/simple_animal/mouse/can_use(client/user)
+	return ismouse(user.mob)
 
 /datum/keybinding/emote/simple_animal/mouse/squeak
 	linked_emote = /datum/emote/living/simple_animal/mouse/squeak
 	name = "Писк (мышь)"
 
 
-/datum/keybinding/emote/simple_animal/pet/cat/can_use(client/C, mob/M)
-	return iscat(M) && ..()
+/datum/keybinding/emote/simple_animal/pet/cat/can_use(client/user)
+	return iscat(user.mob)
 
 /datum/keybinding/emote/simple_animal/pet/cat/meow
 	linked_emote = /datum/emote/living/simple_animal/pet/cat/meow
@@ -787,60 +781,62 @@
 	var/donor_exclusive = FALSE
 
 
-/datum/keybinding/custom/down(client/C)
+/datum/keybinding/custom/down(client/user)
 	. = ..()
-	if(!C.prefs?.custom_emotes) //Checks the current character save for any custom emotes
-		return
+	if(.)
+		return .
+	if(!user.prefs?.custom_emotes) //Checks the current character save for any custom emotes
+		return TRUE
 
-	var/desired_emote = C.prefs.custom_emotes[name] //check the custom emotes list for this keybind name
+	var/desired_emote = user.prefs.custom_emotes[name] //check the custom emotes list for this keybind name
 
 	if(!desired_emote)
-		return
+		return TRUE
 
-	C.mob.me_verb(html_decode(desired_emote)) //do the thing!
+	user.mob.me_verb(html_decode(desired_emote)) //do the thing!
+	return TRUE
 
 
-/datum/keybinding/custom/can_use(client/C, mob/M)
-	if(donor_exclusive && !((C.donator_level >= 2) || C.holder || C.prefs.unlock_content)) //is this keybind restricted to donors/byond members/admins, and are you one or not?
-		return
-
-	return isliving(M) && ..()
+/datum/keybinding/custom/can_use(client/user)
+	if(donor_exclusive && !((user.donator_level >= 2) || user.holder || user.prefs?.unlock_content)) //is this keybind restricted to donors/byond members/admins, and are you one or not?
+		return FALSE
+	return isliving(user.mob)
 
 
 /datum/keybinding/custom/one
-	name = "Custom Emote 1"
+	name = "Пользовательская эмоция №1"
 
 /datum/keybinding/custom/two
-	name = "Custom Emote 2"
+	name = "Пользовательская эмоция №2"
 
 /datum/keybinding/custom/three
-	name = "Custom Emote 3"
+	name = "Пользовательская эмоция №3"
 
 /datum/keybinding/custom/four
-	name = "Custom Emote 4"
+	name = "Пользовательская эмоция №4"
 	donor_exclusive = TRUE
 
 /datum/keybinding/custom/five
-	name = "Custom Emote 5"
+	name = "Пользовательская эмоция №5"
 	donor_exclusive = TRUE
 
 /datum/keybinding/custom/six
-	name = "Custom Emote 6"
+	name = "Пользовательская эмоция №6"
 	donor_exclusive = TRUE
 
 /datum/keybinding/custom/seven
-	name = "Custom Emote 7"
+	name = "Пользовательская эмоция №7"
 	donor_exclusive = TRUE
 
 /datum/keybinding/custom/eight
-	name = "Custom Emote 8"
+	name = "Пользовательская эмоция №8"
 	donor_exclusive = TRUE
 
 /datum/keybinding/custom/nine
-	name = "Custom Emote 9"
+	name = "Пользовательская эмоция №9"
 	donor_exclusive = TRUE
 
 /datum/keybinding/custom/ten
-	name = "Custom Emote 10"
+	name = "Пользовательская эмоция №10"
 	donor_exclusive = TRUE
 

@@ -19,7 +19,7 @@
 	stat_attack = DEAD
 	obj_damage = 0
 	environment_smash = 0
-	speak_emote = list("squeaks")
+	speak_emote = list("попискивает")
 	pass_flags = PASSTABLE | PASSMOB
 	density = FALSE
 	ventcrawler_trait = TRAIT_VENTCRAWLER_ALWAYS
@@ -53,7 +53,7 @@
 
 
 /mob/living/simple_animal/hostile/headslug/AltClickOn(mob/living/carbon/carbon_target)
-	if(egg_layed || !istype(carbon_target) || carbon_target.stat != DEAD || !Adjacent(carbon_target) || issmall(carbon_target))
+	if(egg_layed || !istype(carbon_target) || carbon_target.stat != DEAD || !Adjacent(carbon_target) || is_monkeybasic(carbon_target))
 		return ..()
 
 	changeNext_move(CLICK_CD_MELEE)
@@ -74,6 +74,9 @@
 
 	if(HAS_TRAIT(carbon_target, TRAIT_XENO_HOST))
 		to_chat(src, span_userdanger("A foreign presence repels us from this body. Perhaps we should try to infest another body?"))
+		return
+	if(HAS_TRAIT(carbon_target, TRAIT_LEGION_TUMOUR))
+		to_chat(src, span_userdanger("A disgusting tendrills repels us from this body. Perhaps we should try to infest another body?"))
 		return
 
 	face_atom(carbon_target)
@@ -123,6 +126,7 @@
 		origin.transfer_to(monka)
 		if(evented && !(monka.mind.has_antag_datum(/datum/antagonist/changeling)))
 			monka.mind.add_antag_datum(/datum/antagonist/changeling/evented)
+		SSticker.mode.headslugs -= origin
 		var/datum/antagonist/changeling/cling = monka.mind.has_antag_datum(/datum/antagonist/changeling)
 		if(evented && !(cling.oncepoped))
 			owner.real_name = owner.dna.species.get_random_name(owner.gender) // part of technical task, name must be random

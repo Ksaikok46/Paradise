@@ -18,32 +18,58 @@
 /obj/structure/pit/AllowDrop()
     return TRUE
 
-/obj/structure/pit/attackby(obj/item/W, mob/user)
-	if(istype(W,/obj/item/shovel))
-		visible_message("<span class='notice'>\The [user] starts [open ? "filling" : "digging open"] \the [src]</span>")
-		if(do_after(user, 5 SECONDS * W.toolspeed * gettoolspeedmod(user), src))
-			visible_message("<span class='notice'>\The [user] [open ? "fills" : "digs open"] \the [src]!</span>")
-			if(open)
-				close(user)
-			else
-				open()
+
+/obj/structure/pit/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(I, /obj/item/shovel))
+		add_fingerprint(user)
+		var/prev_state = open
+		user.visible_message(
+			span_notice("[user] starts [prev_state ? "filling" : "digging open"] [src]."),
+			span_notice("You start [prev_state ? "filling" : "digging open"] [src]..."),
+		)
+		I.play_tool_sound(src)
+		if(!do_after(user, 5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL) || open != prev_state)
+			return ATTACK_CHAIN_PROCEED
+		I.play_tool_sound(src)
+		if(open)
+			close(user)
 		else
-			to_chat(user, "<span class='notice'>You stop shoveling.</span>")
-		return
-	if (!open && istype(W,/obj/item/stack/sheet/wood))
-		if(locate(/obj/structure/gravemarker) in src.loc)
-			to_chat(user, "<span class='notice'>There's already a grave marker here.</span>")
-		else
-			visible_message("<span class='notice'>\The [user] starts making a grave marker on top of \the [src]</span>")
-			if(do_after(user, 5 SECONDS * W.toolspeed * gettoolspeedmod(user), src))
-				visible_message("<span class='notice'>\The [user] finishes the grave marker</span>")
-				var/obj/item/stack/sheet/wood/plank = W
-				plank.use(2)
-				new/obj/structure/gravemarker(src.loc)
-			else
-				to_chat(user, "<span class='notice'>You stop making a grave marker.</span>")
-		return
-	..()
+			open()
+		user.visible_message(
+			span_notice("[user] finishes [prev_state ? "filling" : "digging open"] [src]."),
+			span_notice("You have finished [prev_state ? "filling" : "digging open"] [src]."),
+		)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(istype(I, /obj/item/stack/sheet/wood))
+		if(open)
+			to_chat(user, span_warning("You need to fill [src] first."))
+			return ATTACK_CHAIN_PROCEED
+		if(locate(/obj/structure/gravemarker) in loc)
+			to_chat(user, span_warning("There's already the grave marker installed."))
+			return ATTACK_CHAIN_PROCEED
+		var/obj/item/stack/sheet/wood/wood = I
+		if(wood.get_amount() < 2)
+			to_chat(user, span_warning("You need at least two planks of wood to do this."))
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] starts making the grave marker on top of [src]."),
+			span_notice("You start making a grave marker on top of [src]..."),
+		)
+		if(!do_after(user, 5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL) || open || (locate(/obj/structure/gravemarker) in loc) || !wood.use(2))
+			return ATTACK_CHAIN_PROCEED
+		var/obj/structure/gravemarker/gravemarker = new(loc)
+		gravemarker.add_fingerprint(user)
+		user.visible_message(
+			span_notice("[user] finishes construction of the grave marker on top of [src]."),
+			span_notice("You have constructed a grave marker on top of [src]..."),
+		)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
 
 
 /obj/structure/pit/update_icon_state()
@@ -126,24 +152,24 @@
 		return
 
 	escapee.changeNext_click(CLICK_CD_CLICK_ABILITY)
-	to_chat(escapee, "<span class='warning'>You start digging your way out of \the [src] (this will take about [breakout_time] minute\s)</span>")
-	visible_message("<span class='danger'>Something is scratching its way out of \the [src]!</span>")
+	to_chat(escapee, span_warning("You start digging your way out of \the [src] (this will take about [breakout_time] minute\s)"))
+	visible_message(span_danger("Something is scratching its way out of \the [src]!"))
 
 	for(var/i in 1 to (6*breakout_time * 2)) //minutes * 6 * 5seconds * 2
-		playsound(src.loc, 'sound/effects/squelch1.ogg', 100, 1)
+		playsound(src.loc, 'sound/effects/squelch1.ogg', 100, TRUE)
 
 		if(!do_after(escapee, 5 SECONDS))
-			to_chat(escapee, "<span class='warning'>You have stopped digging.</span>")
+			to_chat(escapee, span_warning("You have stopped digging."))
 			return
 		if(open)
 			return
 
 		if(i == 6*breakout_time)
-			to_chat(escapee, "<span class='warning'>Halfway there...</span>")
+			to_chat(escapee, span_warning("Halfway there..."))
 
-	to_chat(escapee, "<span class='warning'>You successfuly dig yourself out!</span>")
-	visible_message("<span class='danger'>\the [escapee] emerges from \the [src]!</span>")
-	playsound(src.loc, 'sound/effects/squelch1.ogg', 100, 1)
+	to_chat(escapee, span_warning("You successfuly dig yourself out!"))
+	visible_message(span_danger("\the [escapee] emerges from \the [src]!"))
+	playsound(src.loc, 'sound/effects/squelch1.ogg', 100, TRUE)
 	open()
 
 /obj/structure/pit/Destroy()
@@ -182,11 +208,15 @@
 	desc = "You're not the first."
 	icon = 'icons/obj/pit.dmi'
 	icon_state = "wood"
-	layer = BELOW_OBJ_LAYER + 0.01
+	layer = BUTTONS_LAYER
 	pixel_x = 5
 	pixel_y = 8
 	anchored = TRUE
 	var/message = "Unknown."
+
+/obj/structure/gravemarker/update_desc(updates = ALL)
+	. = ..()
+	desc = "[message]"
 
 /obj/structure/gravemarker/cross
 	icon_state = "cross"
@@ -194,14 +224,13 @@
 /obj/structure/gravemarker/random/Initialize(mapload)
 	. = ..()
 	generate()
-	desc = "[message]"
 
 /obj/structure/gravemarker/random/proc/generate()
 	var/nam
 	icon_state = pick("wood","cross")
 	var/female = (prob(1) ?  TRUE : FALSE)
 	if(female)
-		name = pick(GLOB.first_names_female)
+		nam = pick(GLOB.first_names_female)
 		nam += " " + pick(GLOB.last_names_female)
 	else
 		nam = pick(GLOB.first_names_male)
@@ -211,16 +240,36 @@
 	var/died = max(cur_year - rand(0,70),born)
 
 	message = "Здесь упокоен [nam], [born] - [died]."
+	update_appearance(UPDATE_DESC)
 
-/obj/structure/gravemarker/attackby(obj/item/W, mob/user)
-	if(istype(W,/obj/item/hatchet))
-		visible_message("<span class = 'warning'>\The [user] starts hacking away at \the [src] with \the [W].</span>")
-		if(do_after(user, 3 SECONDS))
-			visible_message("<span class = 'warning'>\The [user] hacks \the [src] apart.</span>")
-			new /obj/item/stack/sheet/wood(src)
-			new /obj/item/stack/sheet/wood(src)
-			qdel(src)
-	if(is_pen(W))
-		var/msg = sanitize(input(user, "What should it say?", "Grave marker", message) as text|null)
+
+/obj/structure/gravemarker/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(is_pen(I))
+		var/msg = tgui_input_text(user, "What should it say?", "Grave marker", desc)
 		if(msg)
 			message = msg
+			update_appearance(UPDATE_DESC)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(istype(I, /obj/item/hatchet))
+		user.visible_message(
+			span_notice("[user] starts hacking away [src] with [I]."),
+			span_notice("You start hacking away [src] with [I]..."),
+		)
+		I.play_tool_sound(src)
+		if(!do_after(user, 3 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL))
+			return ATTACK_CHAIN_PROCEED
+		I.play_tool_sound(src)
+		user.visible_message(
+			span_notice("[user] hacks [src] apart."),
+			span_notice("You have hacked [src] apart."),
+		)
+		var/obj/item/stack/sheet/wood/wood = new(drop_location(), 2)
+		wood.add_fingerprint(user)
+		qdel(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()

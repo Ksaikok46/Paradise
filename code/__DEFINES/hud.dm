@@ -28,7 +28,7 @@
 #define DIAG_PATH_HUD 		"23"//Bot path indicators
 #define GLAND_HUD 			"24"//Gland indicators for abductors
 #define THOUGHT_HUD			"25"//Telepathy bubbles
-#define KIDAN_PHEROMONES_HUD	"26"//Kidan pheromones hud
+#define KIDAN_PHEROMONES_HUD	"pheromone_hud" // Kidan pheromones hud
 
 //by default everything in the hud_list of an atom is an image
 //a value in hud_list with one of these will change that behavior
@@ -56,12 +56,14 @@
 #define ANTAG_HUD_VAMPIRE 17
 #define ANTAG_HUD_ABDUCTOR 18
 #define DATA_HUD_ABDUCTOR 19
-#define ANTAG_HUD_DEVIL 20
-#define ANTAG_HUD_EVENTMISC 21
-#define ANTAG_HUD_BLOB 22
-#define TAIPAN_HUD 23
-#define ANTAG_HUD_THIEF 24
-#define THOUGHTS_HUD 25
+#define ANTAG_HUD_DEVIL			20
+#define ANTAG_HUD_SINTOUCHED	21
+#define ANTAG_HUD_SOULLESS		22
+#define ANTAG_HUD_EVENTMISC 23
+#define ANTAG_HUD_BLOB 24
+#define TAIPAN_HUD 25
+#define ANTAG_HUD_THIEF 26
+#define THOUGHTS_HUD 27
 //species hud
 #define DATA_HUD_KIDAN_PHEROMONES 26
 
@@ -73,11 +75,13 @@
 
 // The kind of things granted by HUD items in game, that do not manifest as
 // on-screen icons, but rather go to examine text.
+#define EXAMINE_HUD_NONE 					0		//"none"
 #define EXAMINE_HUD_SECURITY_READ			(1<<0)	//"security_read"
 #define EXAMINE_HUD_SECURITY_WRITE			(1<<1)	//"security_write"
 #define EXAMINE_HUD_MEDICAL					(1<<2)	//"medical"
 #define EXAMINE_HUD_SKILLS					(1<<3)	//"skills"
 #define EXAMINE_HUD_BOTANY					(1<<4)	//"botany"
+#define EXAMINE_HUD_SCIENCE					(1<<5)  //"science"
 
 
 // Consider these images/atoms as part of the UI/HUD (apart of the appearance_flags)
@@ -95,3 +99,6 @@
 #define PLANE_GROUP_MAIN "main"
 /// A secondary group, used when a client views a generic window
 #define PLANE_GROUP_POPUP_WINDOW(screen) "popup-[screen.UID()]"
+
+//Blobbernauts
+#define ui_blobbernaut_overmind_health "EAST-1:28,CENTER+0:19"

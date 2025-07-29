@@ -18,9 +18,9 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/plane_master)
 	/// The plane master group we're a member of, our "home"
 	var/datum/plane_master_group/home
 
-	/// If our plane master allows for offsetting
-	/// Mostly used for planes that really don't need to be duplicated, like the hud planes
-	var/allows_offsetting = TRUE
+	/// If our plane master has different offsetting logic
+	/// Possible flags are defined in [_DEFINES/layers.dm]
+	var/offsetting_flags = NONE
 	/// Our offset from our "true" plane, see below
 	var/offset
 	/// When rendering multiz, lower levels get their own set of plane masters
@@ -80,6 +80,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/plane_master)
 		// NOTE! We do not clear ourselves from client screens
 		// We relay on whoever qdel'd us to reset our hud, and properly purge us
 		home.plane_masters -= "[plane]"
+		home.our_hud?.mymob?.client?.screen -= src
 		home = null
 	. = ..()
 	QDEL_LIST(relays)
@@ -140,18 +141,20 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/plane_master)
 		our_client.screen += src
 
 		if(!(critical & PLANE_CRITICAL_NO_EMPTY_RELAY))
-			our_client.screen += relays
+			for(var/atom/movable/render_plane_relay/relay as anything in relays)
+				our_client.register_render_plane_relay(relay)
 			return TRUE
 		for(var/atom/movable/render_plane_relay/relay as anything in relays)
 			if(relay.critical_target)
-				our_client.screen += relay
+				our_client.register_render_plane_relay(relay)
 		return TRUE
 
 	if(!our_client)
 		return TRUE
 
 	our_client.screen += src
-	our_client.screen += relays
+	for(var/atom/movable/render_plane_relay/relay as anything in relays)
+		our_client.register_render_plane_relay(relay)
 	return TRUE
 
 /// Hook to allow planes to work around is_outside_bounds

@@ -49,17 +49,24 @@
 	var/list/internal_log = list()
 	var/mode = 0  // 0 - making pass, 1 - viewing logs
 
+
 /obj/machinery/computer/guestpass/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
 	if(istype(I, /obj/item/card/id))
-		if(!giver)
-			if(user.drop_transfer_item_to_loc(I, src))
-				add_fingerprint(user)
-				giver = I
-				updateUsrDialog()
-		else
+		add_fingerprint(user)
+		if(giver)
 			to_chat(user, span_warning("There is already ID card inside."))
-		return
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		giver = I
+		updateUsrDialog()
+		return ATTACK_CHAIN_BLOCKED_ALL
+
 	return ..()
+
 
 /obj/machinery/computer/guestpass/proc/get_changeable_accesses()
 	return giver.access
@@ -73,29 +80,29 @@
 		return
 
 	user.set_machine(src)
-	var/dat = {"<meta charset="UTF-8">"}
+	var/dat = {"<!DOCTYPE html><meta charset="UTF-8">"}
 
 	if(mode == 1) //Logs
 		dat += "<h3>Activity log</h3><br>"
 		for(var/entry in internal_log)
 			dat += "[entry]<br><hr>"
-		dat += "<a href='?src=[UID()];action=print'>Print</a><br>"
-		dat += "<a href='?src=[UID()];mode=0'>Back</a><br>"
+		dat += "<a href='byond://?src=[UID()];action=print'>Print</a><br>"
+		dat += "<a href='byond://?src=[UID()];mode=0'>Back</a><br>"
 	else
 		dat += "<h3>Guest pass terminal #[uid]</h3><br>"
-		dat += "<a href='?src=[UID()];mode=1'>View activity log</a><br><br>"
-		dat += "Issuing ID: <a href='?src=[UID()];action=id'>[giver]</a><br>"
-		dat += "Issued to: <a href='?src=[UID()];choice=giv_name'>[giv_name]</a><br>"
-		dat += "Reason:  <a href='?src=[UID()];choice=reason'>[reason]</a><br>"
-		dat += "Duration (minutes):  <a href='?src=[UID()];choice=duration'>[duration] m</a><br>"
+		dat += "<a href='byond://?src=[UID()];mode=1'>View activity log</a><br><br>"
+		dat += "Issuing ID: <a href='byond://?src=[UID()];action=id'>[giver]</a><br>"
+		dat += "Issued to: <a href='byond://?src=[UID()];choice=giv_name'>[giv_name]</a><br>"
+		dat += "Reason:  <a href='byond://?src=[UID()];choice=reason'>[reason]</a><br>"
+		dat += "Duration (minutes):  <a href='byond://?src=[UID()];choice=duration'>[duration] m</a><br>"
 		dat += "Access to areas:<br>"
 		if(giver && giver.access)
 			for(var/A in get_changeable_accesses())
 				var/area = get_access_desc(A)
 				if(A in accesses)
 					area = "<b>[area]</b>"
-				dat += "<a href='?src=[UID()];choice=access;access=[A]'>[area]</a><br>"
-		dat += "<br><a href='?src=[UID()];action=issue'>Issue pass</a><br>"
+				dat += "<a href='byond://?src=[UID()];choice=access;access=[A]'>[area]</a><br>"
+		dat += "<br><a href='byond://?src=[UID()];action=issue'>Issue pass</a><br>"
 
 	var/datum/browser/popup = new(user, "guestpass", name, 400, 520)
 	popup.set_content(dat)
@@ -113,15 +120,15 @@
 	if(href_list["choice"])
 		switch(href_list["choice"])
 			if("giv_name")
-				var/nam = strip_html_simple(input("Person pass is issued to", "Name", giv_name) as text|null)
+				var/nam = strip_html_simple(tgui_input_text(usr, "Person pass is issued to", "Name", giv_name))
 				if(nam)
 					giv_name = nam
 			if("reason")
-				var/reas = strip_html_simple(input("Reason why pass is issued", "Reason", reason) as text|null)
+				var/reas = strip_html_simple(tgui_input_text(usr, "Reason why pass is issued", "Reason", reason))
 				if(reas)
 					reason = reas
 			if("duration")
-				var/dur = input("Duration (in minutes) during which pass is valid (up to 30 minutes).", "Duration") as num|null
+				var/dur = tgui_input_number(usr, "Duration (in minutes) during which pass is valid (up to 30 minutes).", "Duration")
 				if(dur)
 					if(dur > 0 && dur <= 30)
 						duration = dur
@@ -154,18 +161,14 @@
 						usr.drop_transfer_item_to_loc(I, src)
 						giver = I
 				updateUsrDialog()
-
 			if("print")
 				var/dat = "<h3>Activity log of guest pass terminal #[uid]</h3><br>"
 				for(var/entry in internal_log)
 					dat += "[entry]<br><hr>"
-//				to_chat(usr, "Printing the log, standby...")
-				//sleep(50)
 				var/obj/item/paper/P = new/obj/item/paper( loc )
-				playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, 1)
+				playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, TRUE)
 				P.name = "activity log"
 				P.info = dat
-
 			if("issue")
 				if(giver)
 					var/number = add_zero("[rand(0,9999)]", 4)
@@ -190,7 +193,7 @@
 	return
 
 /obj/machinery/computer/guestpass/hop
-	name = "\improper HoP guest pass terminal"
+	name = "HoP guest pass terminal"
 
 /obj/machinery/computer/guestpass/hop/get_changeable_accesses()
 	. = ..()
@@ -198,7 +201,7 @@
 		return get_all_accesses()
 
 /obj/machinery/computer/guestpass/syndicate
-	name = "\improper Syndicate guest pass terminal"
+	name = "Syndicate guest pass terminal"
 
 /obj/machinery/computer/guestpass/syndicate/get_changeable_accesses()
 	. = ..()
@@ -210,29 +213,29 @@
 		return
 
 	user.set_machine(src)
-	var/dat = {"<meta charset="UTF-8">"}
+	var/dat = {"<!DOCTYPE html><meta charset="UTF-8">"}
 
 	if(mode == 1) //Logs
 		dat += "<h3>Activity log</h3><br>"
 		for(var/entry in internal_log)
 			dat += "[entry]<br><hr>"
-		dat += "<a href='?src=[UID()];action=print'>Print</a><br>"
-		dat += "<a href='?src=[UID()];mode=0'>Back</a><br>"
+		dat += "<a href='byond://?src=[UID()];action=print'>Print</a><br>"
+		dat += "<a href='byond://?src=[UID()];mode=0'>Back</a><br>"
 	else
 		dat += "<h3>Guest pass terminal #[uid]</h3><br>"
-		dat += "<a href='?src=[UID()];mode=1'>View activity log</a><br><br>"
-		dat += "Issuing ID: <a href='?src=[UID()];action=id'>[giver]</a><br>"
-		dat += "Issued to: <a href='?src=[UID()];choice=giv_name'>[giv_name]</a><br>"
-		dat += "Reason:  <a href='?src=[UID()];choice=reason'>[reason]</a><br>"
-		dat += "Duration (minutes):  <a href='?src=[UID()];choice=duration'>[duration] m</a><br>"
+		dat += "<a href='byond://?src=[UID()];mode=1'>View activity log</a><br><br>"
+		dat += "Issuing ID: <a href='byond://?src=[UID()];action=id'>[giver]</a><br>"
+		dat += "Issued to: <a href='byond://?src=[UID()];choice=giv_name'>[giv_name]</a><br>"
+		dat += "Reason:  <a href='byond://?src=[UID()];choice=reason'>[reason]</a><br>"
+		dat += "Duration (minutes):  <a href='byond://?src=[UID()];choice=duration'>[duration] m</a><br>"
 		dat += "Access to areas:<br>"
 		if(giver && giver.access)
 			for(var/A in get_changeable_accesses())
 				var/area = get_syndicate_access_desc(A)
 				if(A in accesses)
 					area = "<b>[area]</b>"
-				dat += "<a href='?src=[UID()];choice=access;access=[A]'>[area]</a><br>"
-		dat += "<br><a href='?src=[UID()];action=issue'>Issue pass</a><br>"
+				dat += "<a href='byond://?src=[UID()];choice=access;access=[A]'>[area]</a><br>"
+		dat += "<br><a href='byond://?src=[UID()];action=issue'>Issue pass</a><br>"
 
 	var/datum/browser/popup = new(user, "guestpass", name, 400, 520)
 	popup.set_content(dat)

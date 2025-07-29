@@ -1,6 +1,16 @@
 /obj/item/clothing/mask/breath
-	desc = "A close-fitting mask that can be connected to an air supply."
 	name = "breath mask"
+	desc = "Стандартная дыхательная маска с уплотнённым ободком для герметичности. \
+			Предназначена для защиты дыхательных путей от загрязнённого воздуха и обеспечения подачи дыхательной смеси через подключение к баллону с газом. \
+			Обладает средней степенью проницаемости веществ и минимальным коэффициентом проницаемости газов."
+	ru_names = list(
+		NOMINATIVE = "дыхательная маска",
+		GENITIVE = "дыхательной маски",
+		DATIVE = "дыхательной маске",
+		ACCUSATIVE = "дыхательную маску",
+		INSTRUMENTAL = "дыхательной маской",
+		PREPOSITIONAL = "дыхательной маске"
+	)
 	icon_state = "breath"
 	item_state = "breath"
 	clothing_flags = AIRTIGHT
@@ -27,31 +37,49 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/mask.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/mask.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi'
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/mask.dmi',
+		SPECIES_WRYN = 'icons/mob/clothing/species/wryn/mask.dmi'
 	)
 
 /obj/item/clothing/mask/breath/attack_self(mob/user)
 	adjustmask(user)
 
-/obj/item/clothing/mask/breath/AltClick(mob/living/user)
-	if(!istype(user) || !Adjacent(user))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
-		return
+/obj/item/clothing/mask/breath/click_alt(mob/living/user)
 	adjustmask(user)
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/clothing/mask/breath/medical
-	desc = "A close-fitting sterile mask that can be connected to an air supply."
 	name = "medical mask"
+	desc = "Стерильная медицинская маска повышенной герметичности. \
+			Обладает минимальным коэффициентом проницаемости газов и практически не пропускает вредные вещества. \
+			Предназначена для анестезии при проведении хирургических операций путём ввода седативной дыхательной смеси."
+	ru_names = list(
+		NOMINATIVE = "медицинская маска",
+		GENITIVE = "медицинской маски",
+		DATIVE = "медицинской маске",
+		ACCUSATIVE = "медицинскую маску",
+		INSTRUMENTAL = "медицинской маской",
+		PREPOSITIONAL = "медицинской маске"
+	)
 	icon_state = "medical"
 	item_state = "medical"
 	permeability_coefficient = 0.01
 	put_on_delay = 10
 
 /obj/item/clothing/mask/breath/vox
-	desc = "A weirdly-shaped breath mask."
 	name = "vox breath mask"
+	desc = "Специализированная дыхательная маска, созданная с учётом анатомии воксов. \
+			Оборудована уплотнённым ободком для герметичности. \
+			Предназначена для защиты дыхательных путей от загрязнённого воздуха и обеспечения подачи дыхательной смеси через подключение к баллону с газом. \
+			Обладает минимальным коэффициентом проницаемости газов и практически не пропускает вредные вещества."
+	ru_names = list(
+		NOMINATIVE = "дыхательная маска для воксов",
+		GENITIVE = "дыхательной маски для воксов",
+		DATIVE = "дыхательной маске для воксов",
+		ACCUSATIVE = "дыхательную маску для воксов",
+		INSTRUMENTAL = "дыхательной маской для воксов",
+		PREPOSITIONAL = "дыхательной маске для воксов"
+	)
 	icon_state = "voxmask"
 	item_state = "voxmask"
 	permeability_coefficient = 0.01
@@ -61,5 +89,5 @@
 /obj/item/clothing/mask/breath/vox/attack_self(mob/user)
 	return
 
-/obj/item/clothing/mask/breath/vox/AltClick(mob/user)
-	return
+/obj/item/clothing/mask/breath/vox/click_alt(mob/user)
+	return NONE

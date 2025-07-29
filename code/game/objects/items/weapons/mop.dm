@@ -1,6 +1,8 @@
+#define MOP_SOUND_CD 2 SECONDS // How many seconds before the mopping sound triggers again
+
 /obj/item/mop
-	desc = "The world of janitalia wouldn't be complete without a mop."
 	name = "mop"
+	desc = "The world of janitalia wouldn't be complete without a mop."
 	icon = 'icons/obj/janitor.dmi'
 	icon_state = "mop"
 	force = 3
@@ -8,15 +10,17 @@
 	throw_speed = 3
 	throw_range = 7
 	w_class = WEIGHT_CLASS_NORMAL
-	attack_verb = list("mopped", "bashed", "bludgeoned", "whacked")
+	attack_verb = list("ударил", "огрел")
 	resistance_flags = FLAMMABLE
 	var/mopping = 0
 	var/mopcount = 0
 	var/mopcap = 5
 	var/mopspeed = 30
+	/// The cooldown between each mopping sound effect
+	var/mop_sound_cooldown
 
-/obj/item/mop/New()
-	..()
+/obj/item/mop/Initialize(mapload)
+	. = ..()
 	create_reagents(mopcap)
 	GLOB.janitorial_equipment += src
 
@@ -26,16 +30,21 @@
 
 
 /obj/item/mop/proc/wet_mop(obj/target, mob/user)
-	if(target.reagents.total_volume < 1)
-		to_chat(user, "[target] is out of water!</span>")
+	if(user.a_intent == INTENT_GRAB)
+		. = FALSE
 		if(istype(target, /obj/structure/mopbucket))
-			mopbucket_insert(user, target)
-		if(!istype(target, /obj/item/reagent_containers/glass/bucket))
-			janicart_insert(user, target)
-		return
+			. = mopbucket_insert(user, target)
+		else if(istype(target, /obj/structure/janitorialcart))
+			. = janicart_insert(user, target)
+		return .
 
+	if(!target.reagents || target.reagents.total_volume < 1)
+		to_chat(user, span_notice("Looks like [target]'s bucket is empty."))
+		return FALSE
+
+	. = TRUE
 	target.reagents.trans_to(src, 5)
-	to_chat(user, "<span class='notice'>You wet [src] in [target].</span>")
+	to_chat(user, span_notice("You wet [src] in [target]."))
 	playsound(loc, 'sound/effects/slosh.ogg', 25, TRUE)
 
 
@@ -48,11 +57,12 @@
 	reagents.reaction(A, REAGENT_TOUCH, 10)	//10 is the multiplier for the reaction effect. probably needed to wet the floor properly.
 	reagents.remove_any(1)			//reaction() doesn't use up the reagents
 
-/obj/item/mop/afterattack(atom/A, mob/user, proximity)
-	if(!proximity) return
+/obj/item/mop/afterattack(atom/A, mob/user, proximity, params)
+	if(!proximity || iseffect(A))
+		return
 
 	if(reagents.total_volume < 1)
-		to_chat(user, "<span class='warning'>Your mop is dry!</span>")
+		to_chat(user, span_warning("Your mop is dry!"))
 		return
 
 	var/turf/simulated/T = get_turf(A)
@@ -60,34 +70,48 @@
 	if(istype(A, /obj/item/reagent_containers/glass/bucket) || istype(A, /obj/structure/janitorialcart) || istype(A, /obj/structure/mopbucket))
 		return
 
+	if(world.time > mop_sound_cooldown)
+		playsound(loc, pick('sound/weapons/mopping1.ogg', 'sound/weapons/mopping2.ogg'), 30, TRUE, -1)
+		mop_sound_cooldown = world.time + MOP_SOUND_CD
+
 	if(istype(T))
-		user.visible_message("[user] begins to clean [T] with [src].", "<span class='notice'>You begin to clean [T] with [src]...</span>")
+		var/obj/effect/temp_visual/bubbles/E = new /obj/effect/temp_visual/bubbles(T, mopspeed)
+		user.visible_message(
+			"[user] begins to clean [T] with [src].",
+			span_notice("You begin to clean [T] with [src]...")
+		)
 
 		if(do_after(user, mopspeed, T))
-			to_chat(user, "<span class='notice'>You finish mopping.</span>")
+			to_chat(user, span_notice("You finish mopping."))
 			clean(T)
-
-/obj/effect/attackby(obj/item/I, mob/user, params)
-	if(istype(I, /obj/item/mop) || istype(I, /obj/item/soap))
-		return
-	else
-		return ..()
+		qdel(E)
 
 
 /obj/item/mop/proc/janicart_insert(mob/user, obj/structure/janitorialcart/cart)
-	cart.mymop = src
-	cart.put_in_cart(src, user)
+	if(cart.mymop)
+		to_chat(user, span_notice("There is already [cart.mymop] in [cart]."))
+		return FALSE
+	. = cart.put_in_cart(src, user)
+	if(.)
+		cart.mymop = src
+		cart.updateUsrDialog()
+		cart.update_icon(UPDATE_OVERLAYS)
 
 
 /obj/item/mop/proc/mopbucket_insert(mob/user, obj/structure/mopbucket/bucket)
-	bucket.mymop = src
-	bucket.put_in_cart(src, user)
+	if(bucket.mymop)
+		to_chat(user, span_notice("There is already [bucket.mymop] in [bucket]."))
+		return FALSE
+	. = bucket.put_in_cart(src, user)
+	if(.)
+		bucket.mymop = src
+		bucket.update_icon(UPDATE_OVERLAYS)
 
 
 /obj/item/mop/wash(mob/user, atom/source)
 	reagents.add_reagent("water", 5)
 	to_chat(user, "<span class='notice'>You wet [src] in [source].</span>")
-	playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
+	playsound(loc, 'sound/effects/slosh.ogg', 25, TRUE)
 	return 1
 
 /obj/item/mop/advanced
@@ -105,8 +129,8 @@
 	var/refill_rate = 1 //Rate per process() tick mop refills itself
 	var/refill_reagent = "water" //Determins what reagent to use for refilling, just in case someone wanted to make a HOLY MOP OF PURGING
 
-/obj/item/mop/advanced/New()
-	..()
+/obj/item/mop/advanced/Initialize(mapload)
+	. = ..()
 	START_PROCESSING(SSobj, src)
 
 /obj/item/mop/advanced/attack_self(mob/user)
@@ -134,5 +158,4 @@
 
 /obj/item/mop/advanced/cyborg
 
-/obj/item/mop/advanced/cyborg/janicart_insert(mob/user, obj/structure/janitorialcart/J)
-	return
+#undef MOP_SOUND_CD

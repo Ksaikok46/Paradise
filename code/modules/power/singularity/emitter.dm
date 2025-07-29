@@ -21,7 +21,7 @@
 	var/state = 0
 	var/locked = 0
 
-	var/projectile_type = /obj/item/projectile/beam/emitter
+	var/projectile_type = /obj/projectile/beam/emitter
 	var/projectile_sound = 'sound/weapons/emitter.ogg'
 	var/datum/effect_system/spark_spread/sparks
 
@@ -55,12 +55,12 @@
 	active_power_usage = power_usage
 
 /obj/machinery/power/emitter/verb/rotate()
-	set name = "Rotate"
-	set category = "Object"
+	set name = "Повернуть"
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
-		to_chat(usr, "<span class='warning'>You can't do that right now!</span>")
+		to_chat(usr, span_warning("You can't do that right now!"))
 		return FALSE
 
 	if(anchored)
@@ -72,9 +72,9 @@
 	return TRUE
 
 
-/obj/machinery/power/emitter/AltClick(mob/user)
-	if(Adjacent(user))
-		rotate()
+/obj/machinery/power/emitter/click_alt(mob/user)
+	rotate()
+	return CLICK_ACTION_SUCCESS
 
 
 /obj/machinery/power/emitter/Destroy()
@@ -116,9 +116,9 @@
 				investigate_log("turned <font color='green'>on</font> by [key_name_log(usr)]", INVESTIGATE_ENGINE)
 			update_icon(UPDATE_ICON_STATE)
 		else
-			to_chat(user, "<span class='warning'>The controls are locked!</span>")
+			to_chat(user, span_warning("The controls are locked!"))
 	else
-		to_chat(user, "<span class='warning'>The [src] needs to be firmly secured to the floor first.</span>")
+		to_chat(user, span_warning("The [src] needs to be firmly secured to the floor first."))
 		return 1
 
 
@@ -134,7 +134,7 @@
 	if(ismegafauna(M) && anchored)
 		state = 0
 		set_anchored(FALSE)
-		M.visible_message("<span class='warning'>[M] rips [src] free from its moorings!</span>")
+		M.visible_message(span_warning("[M] rips [src] free from its moorings!"))
 	else
 		..()
 	if(!anchored)
@@ -171,7 +171,7 @@
 	return FALSE
 
 /obj/machinery/power/emitter/proc/fire_beam()
-	var/obj/item/projectile/P = new projectile_type(get_turf(src))
+	var/obj/projectile/P = new projectile_type(get_turf(src))
 	playsound(get_turf(src), projectile_sound, 50, TRUE)
 	if(prob(35))
 		sparks.start()
@@ -215,35 +215,40 @@
 	P.fire()
 	return P
 
-/obj/machinery/power/emitter/attackby(obj/item/W, mob/user, params)
 
-	if(W.GetID() || is_pda(W))
-		if(emagged)
-			to_chat(user, "<span class='warning'>The lock seems to be broken</span>")
-			return
-		if(src.allowed(user))
-			add_fingerprint(usr)
-			if(active)
-				src.locked = !src.locked
-				to_chat(user, "The controls are now [src.locked ? "locked." : "unlocked."]")
-			else
-				src.locked = 0 //just in case it somehow gets locked
-				to_chat(user, "<span class='warning'>The controls can only be locked when the [src] is online</span>")
-		else
-			to_chat(user, "<span class='warning'>Access denied.</span>")
-		return
+/obj/machinery/power/emitter/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
 
-	if(default_deconstruction_screwdriver(user, "emitter_open", "emitter", W))
+	if(exchange_parts(user, I))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(I.GetID() || is_pda(I))
 		add_fingerprint(user)
-		return
-
-	if(exchange_parts(user, W))
-		return
-
-	if(default_deconstruction_crowbar(user, W))
-		return
+		if(emagged)
+			to_chat(user, span_warning("The lock seems to be broken."))
+			return ATTACK_CHAIN_PROCEED
+		if(!allowed(user))
+			to_chat(user, span_warning("Access denied."))
+			return ATTACK_CHAIN_PROCEED
+		if(!active)
+			locked = FALSE //just in case it somehow gets locked
+			to_chat(user, span_warning("The controls can only be locked while [src] is online."))
+			return ATTACK_CHAIN_PROCEED
+		locked = !locked
+		to_chat(user, span_notice("The controls are now [locked ? "locked." : "unlocked."]"))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
+
+/obj/machinery/power/emitter/screwdriver_act(mob/living/user, obj/item/I)
+	return default_deconstruction_screwdriver(user, "emitter_open", "emitter", I)
+
+
+/obj/machinery/power/emitter/crowbar_act(mob/living/user, obj/item/I)
+	return default_deconstruction_crowbar(user, I)
+
 
 /obj/machinery/power/emitter/emag_act(mob/user)
 	if(!emagged)
@@ -251,7 +256,7 @@
 		locked = 0
 		emagged = 1
 		if(user)
-			user.visible_message("[user.name] emags the [src.name].","<span class='warning'>You short out the lock.</span>")
+			user.visible_message("[user.name] emags the [src.name].",span_warning("You short out the lock."))
 
 /obj/machinery/power/emitter/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -274,14 +279,14 @@
 				"You hear a ratchet")
 			set_anchored(FALSE)
 		if(2)
-			to_chat(user, "<span class='warning'>The [name] needs to be unwelded from the floor.</span>")
+			to_chat(user, span_warning("The [name] needs to be unwelded from the floor."))
 
 /obj/machinery/power/emitter/welder_act(mob/user, obj/item/I)
 	if(active)
-		to_chat(user, "<span class='notice'>Turn off [src] first.</span>")
+		to_chat(user, span_notice("Turn off [src] first."))
 		return
 	if(state == 0)
-		to_chat(user, "<span class='warning'>[src] needs to be wrenched to the floor.</span>")
+		to_chat(user, span_warning("[src] needs to be wrenched to the floor."))
 		return
 	. = TRUE
 	if(!I.tool_use_check(user, 0))

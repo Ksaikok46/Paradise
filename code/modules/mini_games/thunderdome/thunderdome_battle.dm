@@ -5,11 +5,11 @@
 #define ARENA_COOLDOWN		5 MINUTES //After which time thunderdome will be once again allowed to use
 #define CQC_ARENA_RADIUS	6 //how much tiles away from a center players will spawn
 #define RANGED_ARENA_RADIUS	10
-#define VOTING_POLL_TIME	30 SECONDS
+#define VOTING_POLL_TIME	10 SECONDS
 #define MAX_PLAYERS_COUNT 	16
 #define MIN_PLAYERS_COUNT 	2
 #define SPAWN_COEFFICENT	0.85 //how many (polled * spawn_coefficent) players will go brawling
-#define PICK_PENALTY		30 SECONDS //Prevents fast handed guys from picking polls twice in a row.
+#define PICK_PENALTY		10 SECONDS //Prevents fast handed guys from picking polls twice in a row.
 // Uncomment this if you want to mess up with thunderdome alone
 /*
 #define THUND_TESTING
@@ -106,7 +106,7 @@ GLOBAL_VAR_INIT(tdome_arena_melee, locate(/area/tdome/newtdome/CQC))
 		for(var/obj/machinery/door/poddoor/M in GLOB.airlocks)
 			if(M.id_tag != "TD_CloseCombat")
 				continue
-			M.do_animate("closing")
+			INVOKE_ASYNC(M, TYPE_PROC_REF(/obj/machinery/door, do_animate), "closing")
 			M.set_density(TRUE)
 			M.set_opacity(TRUE)
 			M.layer = M.closingLayer
@@ -117,7 +117,7 @@ GLOBAL_VAR_INIT(tdome_arena_melee, locate(/area/tdome/newtdome/CQC))
 			if(M.id_tag != "TD_CloseCombat")
 				continue
 			if(M.density)
-				M.do_animate("opening")
+				INVOKE_ASYNC(M, TYPE_PROC_REF(/obj/machinery/door, do_animate), "opening")
 				M.set_density(FALSE)
 				M.set_opacity(FALSE)
 				M.update_icon()
@@ -194,7 +194,7 @@ GLOBAL_VAR_INIT(tdome_arena_melee, locate(/area/tdome/newtdome/CQC))
 		mob.melt()
 
 	for(var/obj/A in zone)
-		if(istype(A, /obj/machinery/door/poddoor) || istype(A, /obj/minigame_anchor/thunderdome_poller))
+		if(istype(A, /obj/machinery/door/poddoor) || istype(A, /obj/minigame_anchor/thunderdome_poller) || istype(A, /obj/structure/sink/puddle) || istype(A, /obj/structure/table/reinforced))
 			continue
 		qdel(A)
 

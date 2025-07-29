@@ -22,6 +22,8 @@
 		return FALSE
 	if(isobj(target))
 		var/obj/O = target
+		if(ismecha(O) || isspacepod(O)) //no fun allowed
+			return FALSE
 		if(!O.anchored)
 			if(length(chassis.cargo) < chassis.cargo_capacity)
 				chassis.visible_message("[chassis] lifts [target] and starts to load it into cargo compartment.")
@@ -46,7 +48,7 @@
 			M.take_overall_damage(dam_force)
 			if(!M)
 				return FALSE
-			M.adjustOxyLoss(round(dam_force/2))
+			M.apply_damage(round(dam_force/2), OXY)
 			target.visible_message(span_danger("[chassis] squeezes [target]."), \
 								span_userdanger("[chassis] squeezes [target]."),\
 								span_italics("You hear something crack."))
@@ -85,7 +87,7 @@
 
 //This is pretty much just for the death-ripley
 /obj/item/mecha_parts/mecha_equipment/hydraulic_clamp/kill
-	name = "\improper KILL CLAMP"
+	name = "KILL CLAMP"
 	desc = "They won't know what clamped them!"
 	energy_drain = 0
 
@@ -106,8 +108,8 @@
 							span_userdanger("[chassis] destroys [target] in an unholy fury."))
 		M.gib()
 	/*if(chassis.occupant.a_intent == INTENT_DISARM)
-		target.visible_message("<span class='danger'>[chassis] rips [target]'s arms off.</span>",
-							"<span class='userdanger'>[chassis] rips [target]'s arms off.</span>")*/
+		target.visible_message(span_danger("[chassis] rips [target]'s arms off."),
+							span_userdanger("[chassis] rips [target]'s arms off."))*/
 	else
 		step_away(M,chassis)
 		target.visible_message("[chassis] tosses [target] like a piece of paper.")
@@ -170,7 +172,7 @@
 	if(check_area?.type in rcd_holder.areas_blacklist)
 		to_chat(chassis.occupant, span_warning("Something prevents you from using [rcd_holder] in here..."))
 		return FALSE
-	playsound(chassis, 'sound/machines/click.ogg', 50, 1)
+	playsound(chassis, 'sound/machines/click.ogg', 50, TRUE)
 	chassis.can_move = world.time + 2 SECONDS 	// We don't move while we build
 	var/rcd_act_result = target.rcd_act(chassis.occupant, rcd_holder, rcd_holder.mode)
 	if(rcd_act_result == RCD_NO_ACT) //if our rcd_act was not implemented/impossible to do - we can move again
@@ -212,7 +214,7 @@
 			occupant_message("Switched RCD to Construct Windows.")
 		if(RCD_MODE_FIRELOCK)
 			occupant_message("Switched RCD to Construct Firelock.")
-	playsound(get_turf(chassis), 'sound/effects/pop.ogg', 50, 0)
+	playsound(get_turf(chassis), 'sound/effects/pop.ogg', 50, FALSE)
 
 /obj/item/mecha_parts/mecha_equipment/rcd/Topic(href,href_list)
 	..()
@@ -231,7 +233,7 @@
 				occupant_message("Switched RCD to Construct Firelock.")
 
 /obj/item/mecha_parts/mecha_equipment/rcd/get_module_equip_info()
-	return " \[<a href='?src=[UID()];mode=[RCD_MODE_DECON]'>D</a>|<a href='?src=[UID()];mode=[RCD_MODE_TURF]'>C</a>|<a href='?src=[UID()];mode=[RCD_MODE_AIRLOCK]'>A</a>|<a href='?src=[UID()];mode=[RCD_MODE_WINDOW]'>W</a>|<a href='?src=[UID()];mode=[RCD_MODE_FIRELOCK]'>F</a>\]"
+	return " \[<a href='byond://?src=[UID()];mode=[RCD_MODE_DECON]'>D</a>|<a href='byond://?src=[UID()];mode=[RCD_MODE_TURF]'>C</a>|<a href='byond://?src=[UID()];mode=[RCD_MODE_AIRLOCK]'>A</a>|<a href='byond://?src=[UID()];mode=[RCD_MODE_WINDOW]'>W</a>|<a href='byond://?src=[UID()];mode=[RCD_MODE_FIRELOCK]'>F</a>\]"
 
 /obj/item/mecha_parts/mecha_equipment/mimercd
 	name = "mounted MRCD"
@@ -341,7 +343,7 @@
 		if(module == targeted_module)
 			. += "<dd> [module.name] [module.get_module_equip_info()]</dd>"
 		else
-			. += "<dd><a href='?src=[UID()];module=[module.UID()]'>Select [module.name]</a> [module.get_module_equip_info()]</dd>"
+			. += "<dd><a href='byond://?src=[UID()];module=[module.UID()]'>Select [module.name]</a> [module.get_module_equip_info()]</dd>"
 
 /obj/item/mecha_parts/mecha_equipment/multimodule/Topic(href, href_list)
 	..()
@@ -350,13 +352,16 @@
 		update_equip_info()
 		occupant_message("Switched to [targeted_module]")
 
+
 /obj/item/mecha_parts/mecha_equipment/multimodule/attackby(obj/item/I, mob/user, params)
-	. = ..()
 	if(istype(I, /obj/item/storage/bible))
 		var/obj/item/mecha_parts/mecha_equipment/extinguisher/extinguisher = locate() in src
 		if(extinguisher?.reagents && user.mind?.isholy)
 			var/obj/item/storage/bible/bible = I
 			bible.add_holy_water(user, extinguisher)
+			return ATTACK_CHAIN_PROCEED
+	return ..()
+
 
 /obj/item/mecha_parts/mecha_equipment/multimodule/atmos_module
 	name = "ATMOS module"
@@ -428,7 +433,7 @@
 		return
 	if(href_list["cut"])
 		if(cable && cable.amount)
-			var/m = round(input(chassis.occupant,"Please specify the length of cable to cut","Cut cable",min(cable.amount,30)) as num, 1)
+			var/m = round(tgui_input_number(chassis.occupant, "Please specify the length of cable to cut", "Cut cable", min(cable.amount,30)), 1)
 			m = min(m, cable.amount)
 			if(m)
 				use_cable(m)
@@ -438,7 +443,7 @@
 	return
 
 /obj/item/mecha_parts/mecha_equipment/cable_layer/get_module_equip_info()
-	return " \[Cable: [cable ? cable.amount : 0] m\][(cable && cable.amount) ? "- <a href='?src=[UID()];toggle=1'>[!equip_ready?"Dea":"A"]ctivate</a>|<a href='?src=[UID()];cut=1'>Cut</a>" : null]"
+	return " \[Cable: [cable ? cable.amount : 0] m\][(cable && cable.amount) ? "- <a href='byond://?src=[UID()];toggle=1'>[!equip_ready?"Dea":"A"]ctivate</a>|<a href='byond://?src=[UID()];cut=1'>Cut</a>" : null]"
 
 /obj/item/mecha_parts/mecha_equipment/cable_layer/proc/use_cable(amount)
 	if(!cable || cable.amount<1)
@@ -518,7 +523,7 @@
 		var/obj/structure/reagent_dispensers/watertank/WT = target
 		WT.reagents.trans_to(src, 1000)
 		occupant_message(span_notice("Extinguisher refilled."))
-		playsound(chassis, 'sound/effects/refill.ogg', 50, 1, -6)
+		playsound(chassis, 'sound/effects/refill.ogg', 50, TRUE, -6)
 	else
 		if(reagents.total_volume > 0)
 			playsound(chassis, 'sound/effects/extinguish.ogg', 75, 1, -3)
@@ -619,7 +624,7 @@
 				start_cooldown()
 
 /obj/item/mecha_parts/mecha_equipment/holowall/get_module_equip_info()
-	return " \[Holobarriers left: [max_barriers - length(barriers)]|<a href='?src=[UID()];remove_all=1'>Return all barriers</a>\]"
+	return " \[Holobarriers left: [max_barriers - length(barriers)]|<a href='byond://?src=[UID()];remove_all=1'>Return all barriers</a>\]"
 
 /obj/item/mecha_parts/mecha_equipment/holowall/Topic(href,href_list)
 	..()
@@ -675,7 +680,7 @@
 		if(item == selected_item)
 			. += "|<b>[short_name]</b> "
 		else
-			. += "|<a href='?src=[UID()];select=[item.UID()]'>[short_name]</a>"
+			. += "|<a href='byond://?src=[UID()];select=[item.UID()]'>[short_name]</a>"
 	. += "|"
 
 /obj/item/mecha_parts/mecha_equipment/eng_toolset/Topic(href,href_list)

@@ -158,7 +158,7 @@
 	else
 		UnlockBlastDoors()
 
-/area/vision_change_area/awaymission/evil_santa/end/santa/Entered(mob/living/carbon/naughty)
+/area/vision_change_area/awaymission/evil_santa/end/santa/Entered(mob/living/carbon/naughty, area/old_area)
 	. = ..()
 	if(ismecha(naughty))
 		var/obj/mecha/robot = naughty
@@ -183,9 +183,9 @@
 
 /mob/living/simple_animal/hostile/monkey_shaftminer
 	name = "Monkey shaftminer"
-	speak = list("RAWR!","Rawr!","GRR!","Growl!")
+	speak = list("РЫЫЫ!","Рррр...","ГРРР!!!","РААА!!")
 	speak_chance = 10
-	speak_emote = list("growls","roars")
+	speak_emote = list("рычит", "ревёт")
 	faction = list("hostile", "syndicate", "winter")
 	icon = 'icons/mob/simple_human.dmi'
 	icon_state = "monkey_shaftminer"
@@ -234,15 +234,15 @@
 		/obj/item/clothing/head/helmet/space/eva/pirate/leader,
 		/obj/item/hardsuit_shield/syndi,
 		/obj/item/hardsuit_shield/wizard,
-		/obj/vehicle/space/speedbike/red,
-		/obj/vehicle/space/speedbike/red,
-		/obj/vehicle/space/speedbike,
-		/obj/vehicle/space/speedbike,
-		/obj/vehicle/motorcycle,
-		/obj/vehicle/motorcycle,
-		/obj/vehicle/snowmobile/blue/key,
-		/obj/vehicle/snowmobile/key,
-		/obj/vehicle/car,
+		/obj/vehicle/ridden/speedbike/red,
+		/obj/vehicle/ridden/speedbike/red,
+		/obj/vehicle/ridden/speedbike,
+		/obj/vehicle/ridden/speedbike,
+		/obj/vehicle/ridden/motorcycle,
+		/obj/vehicle/ridden/motorcycle,
+		/obj/vehicle/ridden/snowmobile/blue/key,
+		/obj/vehicle/ridden/snowmobile/key,
+		/obj/vehicle/ridden/car,
 		/obj/item/dnainjector/insulation,
 		/obj/item/dnainjector/nobreath,
 		/obj/item/dnainjector/runfast,
@@ -272,7 +272,7 @@
 /obj/effect/spawner/lootdrop/evil_santa_gift
 	name = "evil santa reward gift spawner 1 to 3"
 	icon_state = "evil_santa_gift"
-	lootdoubles = 0
+	lootdoubles = FALSE
 
 	loot = list(
 				/obj/item/a_gift/evil_santa_reward = 33,

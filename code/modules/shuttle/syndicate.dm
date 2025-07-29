@@ -12,6 +12,7 @@
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	obj_flags = NODECONSTRUCT
 	var/challenge = FALSE
+	var/challenge_start_time
 
 /obj/machinery/computer/shuttle/syndicate/recall
 	name = "syndicate shuttle recall terminal"
@@ -20,7 +21,7 @@
 
 /obj/machinery/computer/shuttle/syndicate/can_call_shuttle(user, action)
 	if(action == "move")
-		if(challenge && (world.time - SSticker.round_start_time) < SYNDICATE_CHALLENGE_TIMER)
+		if(challenge && (world.time - challenge_start_time) < SYNDICATE_CHALLENGE_TIMER)
 			to_chat(user, "<span class='warning'>You've issued a combat challenge to the station! You've got to give them at least [round(((SYNDICATE_CHALLENGE_TIMER - (world.time - SSticker.round_start_time)) / 10) / 60)] more minutes to allow them to prepare.</span>")
 			return FALSE
 	return TRUE
@@ -41,9 +42,31 @@
 			return FALSE
 	return ..()
 
+/obj/machinery/computer/shuttle/nt/drop_pod
+	name = "nanotrasen emergency pod control"
+	icon = 'icons/obj/machines/terminals.dmi'
+	icon_state = "dorm_available"
+	req_access = list(109)
+	circuit = /obj/item/circuitboard/shuttle/nt/drop_pod
+	shuttleId = "shit_rain"
+	possible_destinations = null
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
+
+/obj/machinery/computer/shuttle/nt/drop_pod/recall
+	name = "nanotrasen emergency pod recall"
+	shuttleId = "shit_rain"
+	possible_destinations = "pod_recall"
+
+/obj/machinery/computer/shuttle/syndicate/drop_pod/can_call_shuttle(user, action)
+	if(action == "move")
+		if(z != level_name_to_num(CENTCOMM))
+			to_chat(user, "<span class='warning'>Pods are one way!</span>")
+			return FALSE
+	return ..()
+
 /obj/machinery/computer/shuttle/sst
 	name = "Syndicate Strike Team Shuttle Console"
-	desc = "Used to call and send the SST shuttle."
+	desc = "Используется для вызова и отправки шаттла Ударного Отряда Синдиката."
 	icon_keyboard = "syndie_key"
 	icon_screen = "syndishuttle"
 	req_access = list(ACCESS_SYNDICATE)
@@ -54,7 +77,7 @@
 
 /obj/machinery/computer/shuttle/sit
 	name = "Syndicate Infiltration Team Shuttle Console"
-	desc = "Used to call and send the SIT shuttle."
+	desc = "Используется для вызова и отправки шаттла Диверсионного Отряда Синдиката."
 	icon_keyboard = "syndie_key"
 	icon_screen = "syndishuttle"
 	req_access = list(ACCESS_SYNDICATE)
@@ -65,7 +88,7 @@
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/syndicate
 	name = "syndicate shuttle navigation computer"
-	desc = "Used to designate a precise transit location for the syndicate shuttle."
+	desc = "Используется, чтобы указать точное местоположение для отправки шаттла синдиката."
 	icon_screen = "syndinavigation"
 	icon_keyboard = "syndie_key"
 	shuttleId = "syndicate"
@@ -85,7 +108,7 @@
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/syndicate/sst
 	name = "SST shuttle navigation computer"
-	desc = "Used to designate a precise transit location for the SST shuttle."
+	desc = "Используется, чтобы указать точное местоположение для отправки шаттла Ударного Отряда Синдиката."
 	shuttleId = "sst"
 	shuttlePortId = "sst_custom"
 	bubble_icon = "syndibot"
@@ -96,7 +119,7 @@
 
 /obj/machinery/computer/camera_advanced/shuttle_docker/syndicate/sit
 	name = "SIT shuttle navigation computer"
-	desc = "Used to designate a precise transit location for the SIT shuttle."
+	desc = "Используется, чтобы указать точное местоположение для отправки шаттла Диверсионного Отряда Синдиката."
 	shuttleId = "sit"
 	shuttlePortId = "sit_custom"
 	bubble_icon = "syndibot"

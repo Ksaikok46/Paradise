@@ -14,23 +14,23 @@
 
 /mob/living/simple_animal/hostile/guardian/punch/verb/Battlecry()
 	set name = "Боевой клич"
-	set category = "Guardian"
+	set category = STATPANEL_GUARDIAN
 	set desc = "Выбери крик при ударе"
-	var/input = stripped_input(src,"Какой ты хочешь боевой клич при ударе? максимум 8 символов.", ,"", 8)
+	var/input = tgui_input_text(src, "Какой боевой клич вы бы хотели? Максимальная длина 8 символов.", "Изменить Боевой клич", battlecry, 8)
 	if(input)
 		battlecry = input
 
 /mob/living/simple_animal/hostile/guardian/punch/AttackingTarget()
 	. = ..()
 	if(iscarbon(target) && target != summoner)
-		if(length(battlecry) > 8)//no more then 8 letters in a battle cry.
-			visible_message("<span class='danger'>[src] punches [target]!</span>")
+		if(length_char(battlecry) > 8)//no more then 8 letters in a battle cry.
+			visible_message(span_danger("[src] бьёт [target.declent_ru(ACCUSATIVE )]!"))
 		else
 			say("[battlecry]", TRUE)
-		playsound(loc, attack_sound, 50, 1, 1)
-		playsound(loc, attack_sound, 50, 1, 1)
-		playsound(loc, attack_sound, 50, 1, 1)
-		playsound(loc, attack_sound, 50, 1, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
 
 /mob/living/simple_animal/hostile/guardian/punch/Life(seconds, times_fired)
 	. = ..()
@@ -45,7 +45,7 @@
 	icon_living = "seal"
 	icon_state = "seal"
 	attacktext = "шлёпает"
-	speak_emote = list("barks")
+	speak_emote = list("лает", "рявкает")
 	melee_damage_lower = 0
 	melee_damage_upper = 0
 	melee_damage_type = STAMINA

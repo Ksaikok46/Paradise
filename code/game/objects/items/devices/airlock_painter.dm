@@ -5,6 +5,8 @@
 	desc = "An advanced autopainter preprogrammed with several paintjobs for airlocks. Use it on a completed airlock to change its paintjob."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "airlock_painter"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	item_state = "airlock_painter"
 	flags = CONDUCT
 	item_flags = NOBLUDGEON
@@ -47,7 +49,7 @@
 /obj/item/airlock_painter/suicide_act(mob/user)
 
 	var/obj/item/organ/internal/lungs/L = user.get_organ_slot(INTERNAL_ORGAN_LUNGS)
-	var/lungs_name = "\improper[L.name]"
+	var/lungs_name = "[L.name]"
 
 	if(L)
 		user.visible_message("<span class='suicide'>[user] is inhaling toner from [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")

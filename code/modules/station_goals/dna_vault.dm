@@ -3,17 +3,18 @@
 // DNA vault requires x animals ,y plants, z human dna
 // DNA vaults require high tier stock parts and cold
 // After completion each crewmember can receive single upgrade chosen out of 2 for the mob.
-#define VAULT_TOXIN "Toxin Adaptation"
-#define VAULT_NOBREATH "Lung Enhancement"
-#define VAULT_FIREPROOF "Thermal Regulation"
-#define VAULT_STUNTIME "Neural Repathing"
-#define VAULT_ARMOUR "Hardened Skin"
-#define VAULT_SPEED "Leg Muscle Stimulus"
-#define VAULT_QUICK "Arm Muscle Stimulus"
+#define VAULT_TOXIN "Устойчивость к токсинам"
+#define VAULT_NOBREATH "Улучшение лёгких"
+#define VAULT_FIREPROOF "Терморегуляция"
+#define VAULT_STUNTIME "Нейронное восстановление"
+#define VAULT_ARMOUR "Каменная кожа"
+#define VAULT_SPEED "Стимулятор мышц ног"
+#define VAULT_QUICK "Стимуляция мышц рук"
+
+GLOBAL_LIST_EMPTY(dna_vaults)
 
 /datum/station_goal/dna_vault
 	name = "DNA Vault"
-	gamemode_blacklist = list("extended")
 	var/animal_count
 	var/human_count
 	var/plant_count
@@ -56,14 +57,22 @@
 /datum/station_goal/dna_vault/check_completion()
 	if(..())
 		return TRUE
-	for(var/obj/machinery/dna_vault/V in GLOB.machines)
-		if(V.animals.len >= animal_count && V.plants.len >= plant_count && V.dna.len >= human_count && is_station_contact(V.z))
+	for(var/obj/machinery/dna_vault/V in SSmachines.get_by_type(/obj/machinery/dna_vault))
+		if(length(V.animals) >= animal_count && length(V.plants) >= plant_count && length(V.dna) >= human_count && is_station_contact(V.z))
 			return TRUE
 	return FALSE
 
 /obj/item/dna_probe
 	name = "DNA Sampler"
-	desc = "Can be used to take chemical and genetic samples of pretty much anything."
+	desc = "Может использоваться для взятия химических и генетических образцов практически любого объекта."
+	ru_names = list(
+		NOMINATIVE = "ДНК-семплер",
+		GENITIVE = "ДНК-семплера",
+		DATIVE = "ДНК-семплеру",
+		ACCUSATIVE = "ДНК-семплер",
+		INSTRUMENTAL = "ДНК-семплером",
+		PREPOSITIONAL = "ДНК-семплере"
+	)
 	icon = 'icons/obj/hypo.dmi'
 	item_state = "sampler_hypo"
 	icon_state = "sampler_hypo"
@@ -79,7 +88,7 @@
 
 GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/lesser/monkey,/mob/living/carbon/alien)))
 
-/obj/item/dna_probe/afterattack(atom/target, mob/user, proximity)
+/obj/item/dna_probe/afterattack(atom/target, mob/user, proximity, params)
 	..()
 	if(!proximity || !target)
 		return
@@ -89,38 +98,38 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 		if(!H.myseed)
 			return
 		if(!H.harvest)// So it's bit harder.
-			to_chat(user, "<span clas='warning'>Plants needs to be ready to harvest to perform full data scan.</span>") //Because space dna is actually magic
+			to_chat(user, span_warning("Для полного сканирования растение должно быть готово к сбору.")) //Because space dna is actually magic
 			return
 		if(plants[H.myseed.type])
-			to_chat(user, "<span class='notice'>Plant data already present in local storage.</span>")
+			to_chat(user, span_notice("Данные растения уже присутствуют в локальном хранилище."))
 			return
 		plants[H.myseed.type] = 1
-		to_chat(user, "<span class='notice'>Plant data added to local storage.</span>")
+		to_chat(user, span_notice("Данные растения добавлены в локальное хранилище."))
 
 	//animals
 	if(isanimal(target) || is_type_in_typecache(target, GLOB.non_simple_animals))
 		if(isanimal(target))
 			var/mob/living/simple_animal/A = target
 			if(!A.healable)//simple approximation of being animal not a robot or similar
-				to_chat(user, "<span class='warning'>No compatible DNA detected</span>")
+				to_chat(user, span_warning("Совместимая ДНК не обнаружена"))
 				return
 		if(animals[target.type])
-			to_chat(user, "<span class='notice'>Animal data already present in local storage.</span>")
+			to_chat(user, span_notice("Данные животного уже присутствуют в локальном хранилище."))
 			return
 		animals[target.type] = 1
-		to_chat(user, "<span class='notice'>Animal data added to local storage.</span>")
+		to_chat(user, span_notice("Данные животного добавлены в локальное хранилище."))
 
 	//humans
 	if(ishuman(target))
 		var/mob/living/carbon/human/H = target
-		if(NO_DNA in H.dna.species.species_traits)
-			to_chat(user, "<span class='notice'>This humanoid doesn't have DNA.</span>")
+		if(HAS_TRAIT(H, TRAIT_NO_DNA))
+			to_chat(user, span_notice("У данного гуманоида нет ДНК."))
 			return
 		if(dna[H.dna.uni_identity])
-			to_chat(user, "<span class='notice'>Humanoid data already present in local storage.</span>")
+			to_chat(user, span_notice("Данные гуманоида уже присутствуют в локальном хранилище."))
 			return
 		dna[H.dna.uni_identity] = 1
-		to_chat(user, "<span class='notice'>Humanoid data added to local storage.</span>")
+		to_chat(user, span_notice("Данные гуманоида добавлены в локальное хранилище."))
 
 
 /obj/item/circuitboard/machine/dna_vault
@@ -137,6 +146,7 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 	density = TRUE
 	anchored = TRUE
 	invisibility = INVISIBILITY_ABSTRACT
+	smoothing_groups = SMOOTH_GROUP_FILLER
 	var/obj/machinery/parent
 
 /obj/structure/filler/Destroy()
@@ -148,7 +158,15 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 
 /obj/machinery/dna_vault
 	name = "DNA Vault"
-	desc = "Break glass in case of apocalypse."
+	desc = "Разбейте стекло в случае апокалипсиса."
+	ru_names = list(
+		NOMINATIVE = "ДНК хранилище",
+		GENITIVE = "ДНК хранилища",
+		DATIVE = "ДНК хранилищу",
+		ACCUSATIVE = "ДНК хранилище",
+		INSTRUMENTAL = "ДНК хранилищем",
+		PREPOSITIONAL = "ДНК хранилище"
+	)
 	icon = 'icons/obj/machines/dna_vault.dmi'
 	icon_state = "vault"
 	density = TRUE
@@ -219,11 +237,11 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 		return TRUE
 	ui_interact(user)
 
-/obj/machinery/dna_vault/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/dna_vault/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		roll_powers(user)
-		ui = new(user, src, ui_key, "DnaVault", name, 350, 400, master_ui, state)
+		ui = new(user, src, "DnaVault", name)
 		ui.open()
 
 /obj/machinery/dna_vault/proc/roll_powers(mob/user)
@@ -271,73 +289,87 @@ GLOBAL_LIST_INIT(non_simple_animals, typecacheof(list(/mob/living/carbon/human/l
 	if(plants.len >= plants_max && animals.len >= animals_max && dna.len >= dna_max)
 		completed = TRUE
 
+
 /obj/machinery/dna_vault/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
 	if(istype(I, /obj/item/dna_probe))
 		add_fingerprint(user)
-		var/obj/item/dna_probe/P = I
+		var/obj/item/dna_probe/probe = I
 		var/uploaded = 0
-		for(var/plant in P.plants)
+		for(var/plant in probe.plants)
 			if(!plants[plant])
 				uploaded++
 				plants[plant] = 1
-		for(var/animal in P.animals)
+		for(var/animal in probe.animals)
 			if(!animals[animal])
 				uploaded++
 				animals[animal] = 1
-		for(var/ui in P.dna)
+		for(var/ui in probe.dna)
 			if(!dna[ui])
 				uploaded++
 				dna[ui] = 1
+		if(!uploaded)
+			to_chat(user, span_warning("[capitalize(probe.declent_ru(NOMINATIVE))] не содержит релевантных данных."))
+			return ATTACK_CHAIN_PROCEED
 		check_goal()
-		to_chat(user, "<span class='notice'>[uploaded] new datapoints uploaded.</span>")
-	else
-		return ..()
+		to_chat(user, span_notice("Получены новые данные: <b>[uploaded]</b> [declension_ru(uploaded,"запись","записи","записей")]!"))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
 
 /obj/machinery/dna_vault/proc/upgrade(mob/living/carbon/human/H, upgrade_type)
+	if(!istype(H))
+		return
+
 	if(!(upgrade_type in power_lottery[H]))
 		return
+
 	if(!completed)
 		return
-	var/datum/species/S = H.dna.species
-	if(NO_DNA in S.species_traits)
-		to_chat(H, "<span class='warning'>Error, no DNA detected.</span>")
+
+	if(HAS_TRAIT(H, TRAIT_NO_DNA))
+		balloon_alert(H, "ДНК не обнаружена")
 		return
+
 	switch(upgrade_type)
 		if(VAULT_TOXIN)
-			to_chat(H, "<span class='notice'>You feel resistant to airborne toxins.</span>")
+			to_chat(H, span_notice("Вы ощущаете устойчивость к инфекциям, передающимся воздушно-капельным путём."))
 			var/obj/item/organ/internal/lungs/L = H.get_int_organ(/obj/item/organ/internal/lungs)
 			if(L)
 				L.tox_breath_dam_min = 0
 				L.tox_breath_dam_max = 0
-			S.species_traits |= VIRUSIMMUNE
+			ADD_TRAIT(H, TRAIT_VIRUSIMMUNE, name)
 		if(VAULT_NOBREATH)
-			to_chat(H, "<span class='notice'>Your lungs feel great.</span>")
-			S.species_traits |= NO_BREATHE
+			to_chat(H, span_notice("Вы чувствуете, что ваши лёгкие работают лучше."))
+			ADD_TRAIT(H, TRAIT_NO_BREATH, name)
 		if(VAULT_FIREPROOF)
-			to_chat(H, "<span class='notice'>You feel fireproof.</span>")
-			S.burn_mod *= 0.5
-			S.species_traits |= RESISTHOT
+			to_chat(H, span_notice("Вы ощущаете себя невосприимчивым к огню."))
+			H.physiology.burn_mod *= 0.5
+			ADD_TRAIT(H, TRAIT_RESIST_HEAT, name)
 		if(VAULT_STUNTIME)
-			to_chat(H, "<span class='notice'>Nothing can keep you down for long.</span>")
-			S.stun_mod *= 0.5
-			S.stamina_mod *= 0.5
+			to_chat(H, span_notice("Вы ощущаете, что ничто не способно надолго вас сломить."))
+			H.physiology.stun_mod *= 0.5
+			H.physiology.stamina_mod *= 0.5
 			H.stam_regen_start_modifier *= 0.5
 		if(VAULT_ARMOUR)
-			to_chat(H, "<span class='notice'>You feel tough.</span>")
-			S.brute_mod *= 0.7
-			S.burn_mod *= 0.7
-			S.tox_mod *= 0.7
-			S.oxy_mod *= 0.7
-			S.clone_mod *= 0.7
-			S.brain_mod *= 0.7
-			S.stamina_mod *= 0.7
-			S.species_traits |= PIERCEIMMUNE
+			to_chat(H, span_notice("Вы чувствуете себя уверенно."))
+			H.physiology.brute_mod *= 0.7
+			H.physiology.burn_mod *= 0.7
+			H.physiology.tox_mod *= 0.7
+			H.physiology.oxy_mod *= 0.7
+			H.physiology.clone_mod *= 0.7
+			H.physiology.brain_mod *= 0.7
+			H.physiology.stamina_mod *= 0.7
+			ADD_TRAIT(H, TRAIT_PIERCEIMMUNE, name)
 		if(VAULT_SPEED)
-			to_chat(H, "<span class='notice'>You feel very fast and agile.</span>")
+			to_chat(H, span_notice("Вы ощущаете невероятную скорость и лёгкость."))
 			H.add_movespeed_modifier(/datum/movespeed_modifier/dna_vault_speedup)
 		if(VAULT_QUICK)
-			to_chat(H, "<span class='notice'>Your arms move as fast as lightning.</span>")
-			H.next_move_modifier = 0.5
+			to_chat(H, span_notice("Ваши руки двигаются с молниеносной скоростью."))
+			H.next_move_modifier *= 0.5
 	power_lottery[H] = list()
 
 #undef VAULT_TOXIN

@@ -18,13 +18,13 @@
 	var/dummy_active = FALSE
 	var/dummy_timer
 
-/obj/item/chameleon_counterfeiter/afterattack(obj/item/target, mob/user, proximity)
+/obj/item/chameleon_counterfeiter/afterattack(obj/item/target, mob/user, proximity, params)
 	if(!proximity || !check_sprite(target) || target.alpha < 255 || target.invisibility != 0)
 		return
 	if(dummy_active || !isitem(target))
 		return
-	playsound(get_turf(src), 'sound/weapons/flash.ogg', 100, 1, -6)
-	to_chat(user, "<span class='notice'>Scanned [target].</span>")
+	playsound(get_turf(src), 'sound/weapons/flash.ogg', 100, TRUE, -6)
+	to_chat(user, span_notice("Scanned [target]."))
 	saved_name = target.name
 	saved_desc = target.desc
 	saved_icon = target.icon
@@ -34,17 +34,17 @@
 	saved_underlays = target.underlays
 
 /obj/item/chameleon_counterfeiter/proc/check_sprite(atom/target)
-	return (target.icon_state in icon_states(target.icon))
+	return icon_exists(target.icon, target.icon_state)
 
 /obj/item/chameleon_counterfeiter/proc/matter_toggle(mob/living/user)
 	if(!can_use || !saved_name)
 		return
-	playsound(get_turf(src), 'sound/effects/pop.ogg', 100, 1, -6)
+	playsound(get_turf(src), 'sound/effects/pop.ogg', 100, TRUE, -6)
 	if(dummy_active)
 		matter_deactivate()
-		to_chat(user, "<span class='notice'>You deactivate [src].</span>")
+		to_chat(user, span_notice("You deactivate [src]."))
 	else
-		to_chat(user, "<span class='notice'>You activate [src].</span>")
+		to_chat(user, span_notice("You activate [src]."))
 		matter_activate()
 
 /obj/item/chameleon_counterfeiter/proc/matter_activate()
@@ -76,6 +76,6 @@
 	matter_toggle(user)
 
 /obj/item/chameleon_counterfeiter/proc/buzz()
-	visible_message("<span class='danger'> The [name] is buzzing weirdly!</span>")
-	playsound(get_turf(src), 'sound/effects/pop.ogg', 100, 1, -6)
+	visible_message(span_danger(" The [name] is buzzing weirdly!"))
+	playsound(get_turf(src), 'sound/effects/pop.ogg', 100, TRUE, -6)
 	matter_deactivate()

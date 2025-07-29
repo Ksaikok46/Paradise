@@ -10,9 +10,18 @@
 	icon_state = "unknown"
 	layer = AREA_LAYER
 	plane = AREA_PLANE //Keeping this on the default plane, GAME_PLANE, will make area overlays fail to render on FLOOR_PLANE.
-	luminosity = 0
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	invisibility = INVISIBILITY_LIGHTING
+
+	/// List of all turfs currently inside this area. Acts as a filtered bersion of area.contents
+	/// For faster lookup (area.contents is actually a filtered loop over world)
+	/// Semi fragile, but it prevents stupid so I think it's worth it
+	var/list/turf/contained_turfs = list()
+	/// Contained turfs is a MASSIVE list, so rather then adding/removing from it each time we have a problem turf
+	/// We should instead store a list of turfs to REMOVE from it, then hook into a getter for it
+	/// There is a risk of this and contained_turfs leaking, so a subsystem will run it down to 0 incrementally if it gets too large
+	var/list/turf/turfs_to_uncontain = list()
+
 	var/valid_territory = TRUE //used for cult summoning areas on station zlevel
 	var/map_name // Set in New(); preserves the name set by the map maker, even if renamed by the Blueprints.
 	var/lightswitch = TRUE
@@ -48,12 +57,6 @@
 	var/xenobiology_compatible = FALSE //Can the Xenobio management console transverse this area by default?
 	var/nad_allowed = FALSE //is the station NAD allowed on this area?
 
-	// This var is used with the maploader (modules/awaymissions/maploader/reader.dm)
-	// if this is 1, when used in a map snippet, this will instantiate a unique
-	// area from any other instances already present (meaning you can have
-	// separate APCs, and so on)
-	var/there_can_be_many = FALSE
-
 	var/global/global_uid = 0
 	var/uid
 
@@ -75,7 +78,9 @@
 	var/can_get_auto_cryod = TRUE
 	var/hide_attacklogs = FALSE // For areas such as thunderdome, lavaland syndiebase, etc which generate a lot of spammy attacklogs. Reduces log priority.
 
+	///Used by shuttle to move space visually. It is set by docking_port/mobile.preferred_direction
 	var/parallax_movedir = 0
+	///Sets if area/shuttle is in move or not
 	var/moving = FALSE
 	/// "Haunted" areas such as the morgue and chapel are easier to boo. Because flavor.
 	var/is_haunted = FALSE
@@ -90,15 +95,25 @@
 	///This datum, if set, allows terrain generation behavior to be ran on Initialize() // This is unfinished, used in Lavaland
 	var/datum/map_generator/cave_generator/map_generator
 
-	var/area_flags = 0
+	var/area_flags = BLOBS_ALLOWED
+
+	/// Color of this area on holomaps.
+	var/holomap_color = null
+	/// Whether the turfs in the area should be drawn onto the "base" holomap.
+	var/holomap_should_draw = TRUE
 
 /area/New(loc, ...)
-	if(!there_can_be_many) // Has to be done in New else the maploader will fuck up and find subtypes for the parent
-		GLOB.all_unique_areas[type] = src
-	GLOB.all_areas += src
+	// This interacts with the map loader, so it needs to be set immediately
+	// rather than waiting for atoms to initialize.
+	if (area_flags & UNIQUE_AREA)
+		GLOB.areas_by_type[type] = src
+	GLOB.areas += src
 	..()
 
 /area/Initialize(mapload)
+	if(is_station_level(z))
+		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
+
 	icon_state = ""
 	layer = AREA_LAYER
 	uid = ++global_uid
@@ -111,16 +126,10 @@
 		base_lighting_color = null
 		static_lighting = TRUE
 
-
-	if(requires_power)
-		luminosity = 0
-	else
+	if(!requires_power)
 		power_light = TRUE
 		power_equip = TRUE
 		power_environ = TRUE
-
-		if(static_lighting)
-			luminosity = 0
 
 	. = ..()
 
@@ -133,26 +142,30 @@
 
 	return INITIALIZE_HINT_LATELOAD
 
+/area/proc/on_security_level_update(datum/source, previous_level_number, new_level_number)
+	SIGNAL_HANDLER
+
+	area_emergency_mode = (new_level_number >= SEC_LEVEL_EPSILON)
+
 /area/LateInitialize()
 	. = ..()
 	power_change()		// all machines set to current power level, also updates lighting icon
 
+/**
+ * Register this area as belonging to a z level
+ *
+ * Ensures the item is added to the SSmapping.areas_in_z list for this z
+ */
 /area/proc/reg_in_areas_in_z()
-	if(contents.len)
-		var/list/areas_in_z = GLOB.space_manager.areas_in_z
-		var/z
-		for(var/i in 1 to contents.len)
-			var/atom/thing = contents[i]
-			if(!thing)
-				continue
-			z = thing.z
-			break
-		if(!z)
-			WARNING("No z found for [src]")
-			return
-		if(!areas_in_z["[z]"])
-			areas_in_z["[z]"] = list()
-		areas_in_z["[z]"] += src
+	if(!has_contained_turfs())
+		return
+	var/list/areas_in_z = SSmapping.areas_in_z
+	if(!z)
+		WARNING("No z found for [src]")
+		return
+	if(!areas_in_z["[z]"])
+		areas_in_z["[z]"] = list()
+	areas_in_z["[z]"] += src
 
 /area/proc/get_cameras()
 	var/list/cameras = list()
@@ -215,8 +228,29 @@
 		else if(firedoor.density)
 			INVOKE_ASYNC(firedoor, TYPE_PROC_REF(/obj/machinery/door/firedoor, open))
 
+/area/proc/get_contained_turfs()
+	if(length(turfs_to_uncontain))
+		cannonize_contained_turfs()
+	return contained_turfs
+
+/// Ensures that the contained_turfs list properly represents the turfs actually inside us
+/area/proc/cannonize_contained_turfs()
+	// This is massively suboptimal for LARGE removal lists
+	// Try and keep the mass removal as low as you can. We'll do this by ensuring
+	// We only actually add to contained turfs after large changes (Also the management subsystem)
+	// Do your damndest to keep turfs out of /area/space as a stepping stone
+	// That sucker gets HUGE and will make this take actual tens of seconds if you stuff turfs_to_uncontain
+	contained_turfs -= turfs_to_uncontain
+	turfs_to_uncontain = list()
+
+/// Returns TRUE if we have contained turfs, FALSE otherwise
+/area/proc/has_contained_turfs()
+	return length(contained_turfs) - length(turfs_to_uncontain) > 0
 
 /area/Destroy()
+	if(GLOB.areas_by_type[type] == src)
+		GLOB.areas_by_type[type] = null
+	GLOB.areas -= src
 	STOP_PROCESSING(SSobj, src)
 	return ..()
 
@@ -521,49 +555,19 @@
 			used_environ += amount
 
 
-/area/Entered(atom/movable/arrived)
+/area/Entered(atom/movable/arrived, area/old_area)
 
-	SEND_SIGNAL(src, COMSIG_AREA_ENTERED, arrived)
-	SEND_SIGNAL(arrived, COMSIG_ATOM_ENTERED_AREA, src)
-
-	var/area/newarea
-	var/area/oldarea
+	SEND_SIGNAL(src, COMSIG_AREA_ENTERED, arrived, old_area)
+	SEND_SIGNAL(arrived, COMSIG_ATOM_ENTERED_AREA, src, old_area)
 
 	if(ismob(arrived))
 		var/mob/arrived_mob = arrived
+		if(!arrived_mob.lastarea || old_area != src)
+			arrived_mob.lastarea = src
 
-		if(!arrived_mob.lastarea)
-			arrived_mob.lastarea = get_area(arrived_mob)
-		newarea = get_area(arrived_mob)
-		oldarea = arrived_mob.lastarea
-
-		if(newarea == oldarea)
-			return
-
-		arrived_mob.lastarea = src
-
-	if(!isliving(arrived))
-		return
-
-	var/mob/living/arrived_living = arrived
-	if(!arrived_living.client)
-		return
-
-	var/client/our_client = arrived_living.client
-
-	//Ship ambience just loops if turned on.
-	if(!our_client.ambience_playing && (our_client.prefs.sound & SOUND_BUZZ))
-		our_client.ambience_playing = TRUE
-		var/amb_volume = 35 * our_client.prefs.get_channel_volume(CHANNEL_BUZZ)
-		SEND_SOUND(arrived_living, sound('sound/ambience/shipambience.ogg', repeat = TRUE, wait = FALSE, volume = amb_volume, channel = CHANNEL_BUZZ))
-
-	else if(!(our_client.prefs.sound & SOUND_BUZZ))
-		our_client.ambience_playing = FALSE
-
-/area/Exited(atom/movable/departed)
-	SEND_SIGNAL(src, COMSIG_AREA_EXITED, departed)
-	SEND_SIGNAL(departed, COMSIG_ATOM_EXITED_AREA, src)
-
+/area/Exited(atom/movable/departed, area/new_area)
+	SEND_SIGNAL(src, COMSIG_AREA_EXITED, departed, new_area)
+	SEND_SIGNAL(departed, COMSIG_ATOM_EXITED_AREA, src, new_area)
 
 /area/proc/gravitychange()
 	for(var/mob/living/carbon/human/user in src)
@@ -571,7 +575,6 @@
 		user.refresh_gravity()
 		if(!prev_gravity && user.gravity_state)
 			user.thunk()
-
 
 /area/proc/prison_break()
 	for(var/obj/machinery/power/apc/temp_apc in machinery_cache)
@@ -589,3 +592,26 @@
 /area/drop_location()
 	CRASH("Bad op: area/drop_location() called")
 
+// Calculate area center turf, center = (x=minx+(maxx - minx), y=miny+(maxy-miny), z = firstz)
+// Warning: for multi-z area can be return random z
+/area/proc/get_center_turf()
+	var/list/area_turfs = get_area_turfs(src)
+	var/min_x = 1000
+	var/max_x = -1
+	var/min_y = 1000
+	var/max_y = -1
+	var/center_z = -1
+	for(var/turf/area_turf in area_turfs)
+		if (center_z == -1)
+			center_z = area_turf.z
+		if (area_turf.x < min_x)
+			min_x = area_turf.x
+		if (area_turf.y < min_y)
+			min_y = area_turf.y
+		if (area_turf.x > max_x)
+			max_x = area_turf.x
+		if (area_turf.y > max_y)
+			max_y = area_turf.y
+	var/center_x = min_x + round((max_x - min_x) / 2)
+	var/center_y = min_y + round((max_y - min_y) / 2)
+	return locate(center_x, center_y, center_z)

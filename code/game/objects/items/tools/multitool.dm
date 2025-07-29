@@ -11,6 +11,8 @@
 	desc = "Used for pulsing wires to test which to cut. Not recommended by doctors."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "multitool"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	belt_icon = "multitool"
 	flags = CONDUCT
 	force = 5.0
@@ -18,8 +20,8 @@
 	throwforce = 0
 	throw_range = 7
 	throw_speed = 3
-	drop_sound = 'sound/items/handling/multitool_drop.ogg'
-	pickup_sound =  'sound/items/handling/multitool_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/multitool_drop.ogg'
+	pickup_sound =  'sound/items/handling/pickup/multitool_pickup.ogg'
 	materials = list(MAT_METAL=50, MAT_GLASS=20)
 	origin_tech = "magnets=1;engineering=2"
 	toolspeed = 1

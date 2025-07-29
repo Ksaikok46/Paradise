@@ -4,29 +4,25 @@
  * @license MIT
  */
 
-import glob from 'glob';
-import { resolve as resolvePath } from 'path';
-import fs from 'fs';
-import { promisify } from 'util';
+import fs, { globSync } from 'node:fs';
+import path from 'node:path';
 
-export { resolvePath };
+export const resolvePath = path.resolve;
 
-/**
- * Combines path.resolve with glob patterns.
- */
-export const resolveGlob = async (...sections) => {
-  const unsafePaths = await promisify(glob)(
-    resolvePath(...sections), {
-      strict: false,
-      silent: true,
-    });
+/** Combines path.resolve with glob patterns. */
+export const resolveGlob = (...sections) => {
+  /** @type {string[]} */
+  const unsafePaths = globSync(path.resolve(...sections));
+
+  /** @type {string[]} */
   const safePaths = [];
+
   for (let path of unsafePaths) {
     try {
-      await promisify(fs.stat)(path);
+      fs.statSync(path);
       safePaths.push(path);
-    }
-    catch {}
+    } catch {}
   }
+
   return safePaths;
 };

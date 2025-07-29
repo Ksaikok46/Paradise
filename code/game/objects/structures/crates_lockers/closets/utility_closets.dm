@@ -140,7 +140,7 @@
  * Bombsuit closet
  */
 /obj/structure/closet/bombcloset
-	name = "\improper EOD closet"
+	name = "EOD closet"
 	desc = "It's a storage unit for explosion-protective suits."
 	icon_state = "bombsuit"
 
@@ -152,7 +152,7 @@
 
 
 /obj/structure/closet/bombclosetsecurity
-	name = "\improper EOD closet"
+	name = "EOD closet"
 	desc = "It's a storage unit for explosion-protective suits."
 	icon_state = "bombsuitsec"
 
@@ -171,7 +171,7 @@
 	icon_state = "hydrant"
 	anchored = TRUE
 	density = FALSE
-	wall_mounted = 1
+	wall_mounted = TRUE
 
 /obj/structure/closet/hydrant/populate_contents()
 	new /obj/item/clothing/suit/fire/firefighter(src)
@@ -190,5 +190,5 @@
 	icon_state = "medical_wall"
 	anchored = TRUE
 	density = FALSE
-	wall_mounted = 1
+	wall_mounted = TRUE
 

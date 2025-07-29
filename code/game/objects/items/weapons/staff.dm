@@ -9,7 +9,7 @@
 	throw_range = 5
 	w_class = WEIGHT_CLASS_SMALL
 	armour_penetration = 100
-	attack_verb = list("bludgeoned", "whacked", "disciplined")
+	attack_verb = list("огрел", "проучил")
 	resistance_flags = FLAMMABLE
 
 /obj/item/twohanded/staff/broom
@@ -27,7 +27,7 @@
 
 /obj/item/twohanded/staff/broom/wield(obj/item/source, mob/living/carbon/user)
 	force =  5
-	attack_verb = list("rammed into", "charged at")
+	attack_verb = list("огрел", "ударил", "пихнул")
 	if(!user)
 		return
 
@@ -41,21 +41,27 @@
 
 /obj/item/twohanded/staff/broom/unwield(obj/item/source, mob/living/carbon/user)
 	force = 3
-	attack_verb = list("bludgeoned", "whacked", "cleaned")
+	attack_verb = list("огрел", "ударил")
 	if(!user)
 		return
 	update_icon(UPDATE_ICON_STATE)
 	REMOVE_TRAIT(user, TRAIT_MOVE_FLYING, ITEM_BROOM_TRAIT)
 
 
-/obj/item/twohanded/staff/broom/attackby(obj/O, mob/user)
-	if(istype(O, /obj/item/clothing/mask/horsehead))
-		new/obj/item/twohanded/staff/broom/horsebroom(get_turf(src))
-		user.temporarily_remove_item_from_inventory(O)
-		qdel(O)
+/obj/item/twohanded/staff/broom/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/clothing/mask/horsehead))
+		if(loc == user && !user.can_unEquip(src))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		var/obj/item/twohanded/staff/broom/horsebroom/broom = new(drop_location())
+		broom.add_fingerprint(user)
+		qdel(I)
 		qdel(src)
-		return
-	..()
+		user.put_in_hands(broom, ignore_anim = FALSE)
+		return ATTACK_CHAIN_BLOCKED_ALL
+	return ..()
+
 
 /obj/item/twohanded/staff/broom/horsebroom
 	name = "broomstick horse"

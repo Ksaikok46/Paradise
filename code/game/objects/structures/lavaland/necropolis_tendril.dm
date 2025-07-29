@@ -1,7 +1,15 @@
 //Necropolis Tendrils, which spawn lavaland monsters and break into a chasm when killed
 /obj/structure/spawner/lavaland
 	name = "necropolis tendril"
-	desc = "A vile tendril of corruption, originating deep underground. Terrible monsters are pouring out of it."
+	desc = "Мерзкий отросток скверны, проросший из глубин. Из него выползают чудовища."
+	ru_names = list(
+		NOMINATIVE = "щупальце некрополя",
+		GENITIVE = "щупальца некрополя",
+		DATIVE = "щупальцу некрополя",
+		ACCUSATIVE = "щупальце некрополя",
+		INSTRUMENTAL = "щупальцем некрополя",
+		PREPOSITIONAL = "щупальце некрополя"
+	)
 
 	icon = 'icons/mob/nest.dmi'
 	icon_state = "tendril"
@@ -60,7 +68,7 @@
 	max_mobs = 7
 	spawn_time = 150
 
-GLOBAL_LIST_INIT(tendrils, list())
+GLOBAL_LIST_EMPTY(tendrils)
 
 /obj/structure/spawner/lavaland/Initialize(mapload)
 	. = ..()
@@ -72,7 +80,7 @@ GLOBAL_LIST_INIT(tendrils, list())
 	for(var/F in RANGE_TURFS(1, src))
 		if(ismineralturf(F))
 			var/turf/simulated/mineral/M = F
-			M.ChangeTurf(M.turf_type, FALSE, FALSE, TRUE)
+			M.ChangeTurf(M.turf_type, FALSE, FALSE, CHANGETURF_IGNORE_AIR)
 
 /obj/structure/spawner/lavaland/deconstruct(disassembled)
 	new /obj/effect/collapse(loc)
@@ -97,13 +105,21 @@ GLOBAL_LIST_INIT(tendrils, list())
 	return ..()
 
 /obj/effect/light_emitter/tendril
-	set_luminosity = 4
-	set_cap = 2.5
+	light_range = 4
+	light_power = 2.5
 	light_color = LIGHT_COLOR_LAVA
 
 /obj/effect/collapse
 	name = "collapsing necropolis tendril"
-	desc = "Get clear!"
+	desc = "Отойди подальше!"
+	ru_names = list(
+		NOMINATIVE = "разрушающееся щупальце некрополя",
+		GENITIVE = "разрушающегося щупальца некрополя",
+		DATIVE = "разрушающемуся щупальцу некрополя",
+		ACCUSATIVE = "разрушающееся щупальце некрополя",
+		INSTRUMENTAL = "разрушающимся щупальцем некрополя",
+		PREPOSITIONAL = "разрушающемся щупальце некрополя"
+	)
 	layer = TABLE_LAYER
 	icon = 'icons/mob/nest.dmi'
 	icon_state = "tendril"
@@ -114,8 +130,8 @@ GLOBAL_LIST_INIT(tendrils, list())
 /obj/effect/collapse/Initialize(mapload)
 	. = ..()
 	emitted_light = new(loc)
-	visible_message("<span class='boldannounce'>The tendril writhes in fury as the earth around it begins to crack and break apart! Get back!</span>")
-	visible_message("<span class='warning'>Something falls free of the tendril!</span>")
+	visible_message(span_boldannounceic("Щупальце яростно бьётся, а земля под ним рушится! Назад!"))
+	visible_message(span_warning("Что-то отрывается от щупальца!"))
 	playsound(loc, 'sound/effects/tendril_destroyed.ogg', 200, FALSE, 50, TRUE, TRUE)
 	addtimer(CALLBACK(src, PROC_REF(collapse)), 50)
 
@@ -127,8 +143,8 @@ GLOBAL_LIST_INIT(tendrils, list())
 	for(var/mob/M in range(7, src))
 		shake_camera(M, 15, 1)
 	playsound(get_turf(src),'sound/effects/explosionfar.ogg', 200, TRUE)
-	visible_message("<span class='boldannounce'>The tendril falls inward, the ground around it widening into a yawning chasm!</span>")
+	visible_message(span_boldannounceic("Щупальце рушится, и почва обваливается в чёрную пропасть!"))
 	for(var/turf/T in range(2,src))
 		if(!T.density)
-			T.TerraformTurf(/turf/simulated/floor/chasm/straight_down/lava_land_surface)
+			T.ChangeTurf(/turf/simulated/floor/chasm/straight_down/lava_land_surface)
 	qdel(src)

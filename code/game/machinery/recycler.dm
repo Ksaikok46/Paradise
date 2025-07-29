@@ -51,10 +51,14 @@
 		return
 	update_icon(UPDATE_ICON_STATE)
 
+
 /obj/machinery/recycler/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
 	if(exchange_parts(user, I))
-		return
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
+
 
 /obj/machinery/recycler/crowbar_act(mob/user, obj/item/I)
 	if(default_deconstruction_crowbar(user, I))
@@ -88,25 +92,14 @@
 	icon_state = icon_name + "[is_powered]" + "[(blood ? "bld" : "")]" // add the blood tag at the end
 
 
-// This is purely for admin possession !FUN!.
-/obj/machinery/recycler/Bump(atom/movable/AM)
-	..()
-	if(AM)
-		Bumped(AM)
-
 /obj/machinery/recycler/Bumped(atom/movable/moving_atom)
-	..()
-
-	if(stat & (BROKEN|NOPOWER))
-		return
-	if(!anchored)
-		return
-	if(emergency_mode)
-		return
-
+	. = ..()
+	if((stat & (BROKEN|NOPOWER)) || !anchored || emergency_mode)
+		return .
 	var/move_dir = get_dir(loc, moving_atom.loc)
 	if(move_dir == eat_dir)
 		eat(moving_atom)
+
 
 /obj/machinery/recycler/proc/eat(atom/AM0, sound = 1)
 	var/list/to_eat = list(AM0)
@@ -124,14 +117,16 @@
 			else
 				emergency_stop(AM)
 		else if(isitem(AM))
+			if(ismob(AM.loc) || ismob(AM.loc.loc))
+				continue
 			recycle_item(AM)
 			items_recycled++
 		else
-			playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, 0)
+			playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 			AM.forceMove(loc)
 
 	if(items_recycled && sound)
-		playsound(loc, item_recycle_sound, 100, 0)
+		playsound(loc, item_recycle_sound, 100, FALSE)
 
 /obj/machinery/recycler/proc/recycle_item(obj/item/I)
 	I.forceMove(loc)
@@ -147,14 +142,14 @@
 
 
 /obj/machinery/recycler/proc/emergency_stop(mob/living/L)
-	playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, 0)
+	playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 	emergency_mode = TRUE
 	update_icon(UPDATE_ICON_STATE)
 	L.forceMove(loc)
 	addtimer(CALLBACK(src, PROC_REF(reboot)), SAFETY_COOLDOWN)
 
 /obj/machinery/recycler/proc/reboot()
-	playsound(loc, 'sound/machines/ping.ogg', 50, 0)
+	playsound(loc, 'sound/machines/ping.ogg', 50, FALSE)
 	emergency_mode = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
@@ -163,9 +158,9 @@
 	L.forceMove(loc)
 
 	if(issilicon(L))
-		playsound(loc, 'sound/items/welder.ogg', 50, 1)
+		playsound(loc, 'sound/items/welder.ogg', 50, TRUE)
 	else
-		playsound(loc, 'sound/effects/splat.ogg', 50, 1)
+		playsound(loc, 'sound/effects/splat.ogg', 50, TRUE)
 
 	var/gib = 1
 	// By default, the emagged recycler will gib all non-carbons. (human simple animal mobs don't count)
@@ -196,8 +191,8 @@
 
 
 /obj/machinery/recycler/verb/rotate()
-	set name = "Rotate Clockwise"
-	set category = "Object"
+	set name = "Повернуть по часовой"
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	var/mob/living/user = usr
@@ -212,8 +207,8 @@
 	return 1
 
 /obj/machinery/recycler/verb/rotateccw()
-	set name = "Rotate Counter Clockwise"
-	set category = "Object"
+	set name = "Повернуть против часовой"
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	var/mob/living/user = usr

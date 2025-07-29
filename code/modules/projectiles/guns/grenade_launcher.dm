@@ -13,26 +13,29 @@
 
 	materials = list(MAT_METAL=2000)
 
+
 /obj/item/gun/grenadelauncher/examine(mob/user)
 	. = ..()
 	if(get_dist(user, src) <= 2)
-		. += "<span class='notice'>[grenades.len] / [max_grenades] grenades.</span>"
+		. += span_notice("Contains <b>[length(grenades)]/[max_grenades]</b> grenades.")
 
-/obj/item/gun/grenadelauncher/attackby(obj/item/I as obj, mob/user as mob, params)
+
+/obj/item/gun/grenadelauncher/attackby(obj/item/I, mob/user, params)
 	if((istype(I, /obj/item/grenade)))
-		if(grenades.len < max_grenades)
-			if(!user.drop_item_ground(I))
-				return
-			I.loc = src
-			grenades += I
-			to_chat(user, "<span class='notice'>You put the grenade in the [name].</span>")
-			to_chat(user, "<span class='notice'>[grenades.len] / [max_grenades] grenades.</span>")
-		else
-			to_chat(user, "<span class='warning'>The grenade launcher cannot hold more grenades.</span>")
-	else
-		return ..()
+		add_fingerprint(user)
+		if(length(grenades) >= max_grenades)
+			to_chat(user, span_warning("The [name] cannot hold more grenades."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		grenades += I
+		to_chat(user, span_notice("You have put [I] into [src]. In now contains <b>[length(grenades)]/[max_grenades]</b> grenades."))
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/item/gun/grenadelauncher/afterattack(obj/target, mob/user , flag)
+	return ..()
+
+
+/obj/item/gun/grenadelauncher/afterattack(obj/target, mob/user, flag, params)
 	if(target == user)
 		return
 
@@ -42,8 +45,9 @@
 		to_chat(user, "<span class='danger'>The grenade launcher is empty.</span>")
 
 /obj/item/gun/grenadelauncher/proc/fire_grenade(atom/target, mob/user)
-	user.visible_message("<span class='danger'>[user] fired a grenade!</span>", \
-						"<span class='danger'>You fire the grenade launcher!</span>")
+	user.visible_message(span_danger("[user] fired a grenade!"), \
+						span_danger("You fire the grenade launcher!"),
+						projectile_message = TRUE)
 	var/obj/item/grenade/chem_grenade/F = grenades[1] //Now with less copypasta!
 	grenades -= F
 	F.loc = user.loc

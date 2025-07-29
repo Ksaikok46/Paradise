@@ -117,14 +117,30 @@ GLOBAL_LIST_INIT(xeno_recipes, list (
 
 /obj/item/stack/sheet/hairlesshide
 	name = "hairless hide"
-	desc = "This hide was stripped of it's hair, but still needs tanning."
+	desc = "Шкура, освобождённая от наростов, но всё ещё требующая обработки водой."
+	ru_names = list(
+		NOMINATIVE = "очищенная шкура",
+		GENITIVE = "очищенной шкуры",
+		DATIVE = "очищенной шкуре",
+		ACCUSATIVE = "очищенную шкуру",
+		INSTRUMENTAL = "очищенной шкурой",
+		PREPOSITIONAL = "очищенной шкуре"
+	)
 	singular_name = "hairless hide piece"
 	icon_state = "sheet-hairlesshide"
 	origin_tech = ""
 
 /obj/item/stack/sheet/wetleather
 	name = "wet leather"
-	desc = "This leather has been cleaned but still needs to be dried."
+	desc = "Промытая кожа, готовая к сушке. Издаёт характерный мокрый запах."
+	ru_names = list(
+		NOMINATIVE = "мокрая шкура",
+		GENITIVE = "мокрой шкуры",
+		DATIVE = "мокрой шкуре",
+		ACCUSATIVE = "мокрую шкуру",
+		INSTRUMENTAL = "мокрой шкурой",
+		PREPOSITIONAL = "мокрой шкуре"
+	)
 	singular_name = "wet leather piece"
 	icon_state = "sheet-wetleather"
 	origin_tech = ""
@@ -133,7 +149,15 @@ GLOBAL_LIST_INIT(xeno_recipes, list (
 
 /obj/item/stack/sheet/leather
 	name = "leather"
-	desc = "The by-product of mob grinding."
+	desc = "Побочный продукт переработки животных."
+	ru_names = list(
+		NOMINATIVE = "кожа",
+		GENITIVE = "кожи",
+		DATIVE = "коже",
+		ACCUSATIVE = "кожу",
+		INSTRUMENTAL = "кожей",
+		PREPOSITIONAL = "коже"
+	)
 	singular_name = "leather piece"
 	icon_state = "sheet-leather"
 	origin_tech = "materials=2"
@@ -150,7 +174,9 @@ GLOBAL_LIST_INIT(leather_recipes, list (
 	new/datum/stack_recipe("leather overcoat", /obj/item/clothing/suit/jacket/leather/overcoat, 10),
 	new/datum/stack_recipe("FireSuit", /obj/item/clothing/suit/fire/firefighter, 15),
 	new/datum/stack_recipe("hide mantle", /obj/item/clothing/neck/mantle/unathi, 4),
-	new/datum/stack_recipe("gem satchel", /obj/item/storage/bag/gem, 1)))
+	new/datum/stack_recipe("leather bed", /obj/structure/bed/leather, 10, one_per_turf = TRUE, on_floor = TRUE, time = 5 SECONDS),
+	new/datum/stack_recipe("gem satchel", /obj/item/storage/bag/gem, 1),
+	))
 
 /obj/item/stack/sheet/leather/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
@@ -159,7 +185,15 @@ GLOBAL_LIST_INIT(leather_recipes, list (
 /obj/item/stack/sheet/sinew
 	name = "watcher sinew"
 	icon = 'icons/obj/mining.dmi'
-	desc = "Long stringy filaments which presumably came from a watcher's wings."
+	desc = "Длинные нити, предположительно извлечённые из крыльев наблюдателя."
+	ru_names = list(
+		NOMINATIVE = "сухожилия наблюдателя",
+		GENITIVE = "сухожилий наблюдателя",
+		DATIVE = "сухожилиям наблюдателя",
+		ACCUSATIVE = "сухожилия наблюдателя",
+		INSTRUMENTAL = "сухожилиями наблюдателя",
+		PREPOSITIONAL = "сухожилиях наблюдателя"
+	)
 	singular_name = "watcher sinew"
 	icon_state = "sinew"
 	origin_tech = "biotech=4"
@@ -172,15 +206,30 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	. = ..()
 	recipes = GLOB.sinew_recipes
 
+/obj/item/stack/sheet/sinew/five
+	amount = 5
+
 /obj/item/stack/sheet/animalhide/goliath_hide
 	name = "goliath hide plates"
-	desc = "Pieces of a goliath's rocky hide, these might be able to make your suit a bit more durable to attack from the local fauna."
+	desc = "Фрагменты каменистой шкуры голиафа, способные усилить защиту вашего костюма от местной фауны."
+	ru_names = list(
+		NOMINATIVE = "пластина шкуры голиафа",
+		GENITIVE = "пластины шкуры голиафа",
+		DATIVE = "пластине шкуры голиафа",
+		ACCUSATIVE = "пластину шкуры голиафа",
+		INSTRUMENTAL = "пластиной шкуры голиафа",
+		PREPOSITIONAL = "пластине шкуры голиафа"
+	)
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "goliath_hide"
 	singular_name = "hide plate"
 	item_flags = NOBLUDGEON
 	w_class = WEIGHT_CLASS_NORMAL
 	layer = MOB_LAYER
+	var/static/list/override_unplatable_armor_typecache = typecacheof(list(
+			/obj/item/clothing/suit/hooded/explorer/mining,
+			/obj/item/clothing/head/hooded/explorer/mining,
+	))
 	var/static/list/goliath_platable_armor_typecache = typecacheof(list(
 			/obj/item/clothing/suit/hooded/pathfinder,
 			/obj/item/clothing/head/hooded/pathfinder,
@@ -193,8 +242,12 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 			/obj/item/clothing/head/helmet/space/plasmaman/mining,
 	))
 
-/obj/item/stack/sheet/animalhide/goliath_hide/afterattack(atom/target, mob/user, proximity_flag)
+/obj/item/stack/sheet/animalhide/goliath_hide/afterattack(atom/target, mob/user, proximity_flag, params)
 	if(!proximity_flag)
+		return
+	var/uplatable_armor = is_type_in_typecache(target, override_unplatable_armor_typecache)
+	if(uplatable_armor)
+		balloon_alert(user, "нельзя улучшить!")
 		return
 	var/platable_armor_with_icon = is_type_in_typecache(target, goliath_platable_armor_with_icon_typecache)
 	if(is_type_in_typecache(target, goliath_platable_armor_typecache) || platable_armor_with_icon)
@@ -216,10 +269,10 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 					H.update_inv_head()
 					H.update_inv_wear_suit()
 
-			to_chat(user, "<span class='info'>You strengthen [target], improving its resistance against melee attacks.</span>")
+			to_chat(user, span_notice("Вы укрепляете [target.declent_ru(ACCUSATIVE)], повышая его устойчивость к ближним атакам."))
 			use(1)
 		else
-			to_chat(user, "<span class='warning'>You can't improve [C] any further!</span>")
+			to_chat(user, span_warning("Вы не можете улучшить [C.declent_ru(ACCUSATIVE)] еще сильнее!"))
 
 	else if(istype(target, /obj/mecha/working/ripley))
 		var/obj/mecha/working/ripley/D = target
@@ -228,11 +281,14 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 			D.armor = D.armor.setRating(melee_value = min(D.armor.getRating(MELEE) + 10, 70))
 			D.armor = D.armor.setRating(bullet_value = min(D.armor.getRating(BULLET) + 5, 50))
 			D.armor = D.armor.setRating(laser_value = min(D.armor.getRating(LASER) + 5, 50))
-			to_chat(user, "<span class='info'>You strengthen [target], improving its resistance against melee attacks.</span>")
+			to_chat(user, span_notice("Вы укрепляете [target.declent_ru(ACCUSATIVE)], повышая его устойчивость к ближним атакам."))
 			D.update_appearance(UPDATE_DESC|UPDATE_OVERLAYS)
 			use(1)
 		else
-			to_chat(user, "<span class='warning'>You can't improve [D] any further!</span>")
+			to_chat(user, span_warning("Вы не можете улучшить [D.declent_ru(ACCUSATIVE)] еще сильнее!"))
+
+/obj/item/stack/sheet/animalhide/goliath_hide/five
+	amount = 5
 
 /obj/item/stack/sheet/armour_plate
 	name = "укрепленная броневая плита" // тут по причине того же механа что и шкура голиафа
@@ -244,7 +300,7 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	w_class = WEIGHT_CLASS_NORMAL
 	layer = MOB_LAYER
 
-/obj/item/stack/sheet/armour_plate/afterattack(atom/target, mob/user, proximity_flag)
+/obj/item/stack/sheet/armour_plate/afterattack(atom/target, mob/user, proximity_flag, params)
 	if(!proximity_flag)
 		return
 	if(istype(target, /obj/mecha/working/ripley))
@@ -254,16 +310,46 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 			D.armor = D.armor.setRating(melee_value = min(D.armor.getRating("melee") + 10, 70))
 			D.armor = D.armor.setRating(bullet_value = min(D.armor.getRating("bullet") + 5, 50))
 			D.armor = D.armor.setRating(laser_value = min(D.armor.getRating("laser") + 5, 50))
-			to_chat(user, "<span class='info'>Вы нашли куда суется [name] и пихнули её на экзокостюм, усиливая защиту против атак.</span>")
+			to_chat(user, span_notice("Вы нашли куда суется [name] и пихнули её на экзокостюм, усиливая защиту против атак."))
 			D.update_appearance(UPDATE_DESC|UPDATE_OVERLAYS)
 			use(1)
 		else
 			to_chat(user, "<span class='warning'>Вы больше не можете найти куда [name] пристраивается!</span>")
 
+/obj/item/stack/sheet/cartilage_plate
+	name = "thick cartilage plate"
+	desc = "Хрящевая пластина, снятая с тела лавового панцирника. Судя по всему, пластина начала терять свой характерный кроваво-красный цвет, однако она остаётся такой же крепкой, как и до этого."
+
+	ru_names = list(
+		NOMINATIVE = "толстая хрящевая пластина",
+		GENITIVE = "толстой хрящевой пластины",
+		DATIVE = "толстой хрящевой пластине",
+		ACCUSATIVE = "толстую хрящевую пластину",
+		INSTRUMENTAL = "толстой хрящевой пластиной",
+		PREPOSITIONAL = "толстой хрящевой пластине"
+	)
+	gender = FEMALE
+	icon = 'icons/obj/lavaland/lava_fishing.dmi'
+	icon_state = "thick_cartilage_plate"
+	lefthand_file = 'icons/mob/inhands/lavaland/fish_items_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/lavaland/fish_items_righthand.dmi'
+	item_state = "thick_cartilage_plate"
+	singular_name = "cartilage plate"
+	item_flags = NOBLUDGEON
+	w_class = WEIGHT_CLASS_NORMAL
+	layer = MOB_LAYER
 
 /obj/item/stack/sheet/animalhide/ashdrake
 	name = "ash drake hide"
-	desc = "The strong, scaled hide of an ash drake."
+	desc = "Прочная чешуйчатая шкура пепельного дрейка."
+	ru_names = list(
+		NOMINATIVE = "шкура пепельного дрейка",
+		GENITIVE = "шкуры пепельного дрейка",
+		DATIVE = "шкуре пепельного дрейка",
+		ACCUSATIVE = "шкуру пепельного дрейка",
+		INSTRUMENTAL = "шкурой пепельного дрейка",
+		PREPOSITIONAL = "шкуре пепельного дрейка"
+	)
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "dragon_hide"
 	singular_name = "drake plate"
@@ -273,22 +359,26 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 
 //Step one - dehairing.
 
-/obj/item/stack/sheet/animalhide/attackby(obj/item/W as obj, mob/user as mob, params)
-	if(W.sharp)
-		user.visible_message("[user] starts cutting hair off \the [src].", "<span class='notice'>You start cutting the hair off \the [src]...</span>", "<span class='italics'>You hear the sound of a knife rubbing against flesh.</span>")
-		if(do_after(user, 5 SECONDS * W.toolspeed * gettoolspeedmod(user), src))
-			to_chat(user, "<span class='notice'>You cut the hair from this [src.singular_name].</span>")
-			//Try locating an exisitng stack on the tile and add to there if possible
-			for(var/obj/item/stack/sheet/hairlesshide/HS in usr.loc)
-				if(HS.amount < 50)
-					HS.amount++
-					src.use(1)
-					break
-			//If it gets to here it means it did not find a suitable stack on the tile.
-			new /obj/item/stack/sheet/hairlesshide(usr.loc, 1)
-			src.use(1)
-	else
-		..()
+/obj/item/stack/sheet/animalhide/attackby(obj/item/I, mob/user, params)
+	if(is_sharp(I))
+		add_fingerprint(user)
+		if(loc == user && !user.can_unEquip(src))
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] очищать бронированные сегменты [declent_ru(GENITIVE)]."),
+			span_notice("Вы начинаете очищать бронированные сегменты [declent_ru(GENITIVE)]..."),
+			span_italics("Слышен звук трения ножа о плоть."),
+		)
+		if(!do_after(user, 5 SECONDS * I.toolspeed, src, category = DA_CAT_TOOL))
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, span_notice("Вы очистили [declent_ru(ACCUSATIVE)] от бронированных сегментов."))
+		var/obj/item/stack/sheet/hairlesshide/hide = new(drop_location(), 3 * amount)
+		hide.add_fingerprint(user)
+		qdel(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 //Step two - washing (also handled by water reagent code and washing machine code)
 /obj/item/stack/sheet/hairlesshide/water_act(volume, temperature, source, method = REAGENT_TOUCH)

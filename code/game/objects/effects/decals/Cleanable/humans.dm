@@ -3,8 +3,16 @@
 /obj/effect/decal/cleanable/blood
 	name = "blood"
 	var/dryname = "dried blood"
-	desc = "It's thick and gooey. Perhaps it's the chef's cooking?"
-	var/drydesc = "It's dry and crusty. Someone is not doing their job."
+	desc = "Оно густое и липкое. Возможно, это шедевр местного повара?"
+	var/drydesc = "Оно сухое и засохшее. Кто-то явно халтурит."
+	ru_names = list(
+		NOMINATIVE = "кровь",
+		GENITIVE = "крови",
+		DATIVE = "крови",
+		ACCUSATIVE = "кровь",
+		INSTRUMENTAL = "кровью",
+		PREPOSITIONAL = "крови"
+	)
 	gender = PLURAL
 	density = FALSE
 	anchored = TRUE
@@ -40,6 +48,14 @@
 	if(!.)
 		dry_timer = addtimer(CALLBACK(src, PROC_REF(dry)), DRYING_TIME * (amount+1), TIMER_STOPPABLE)
 
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+		COMSIG_ATOM_EXITED = PROC_REF(on_exited),
+	)
+	if(!QDELING(src))
+		AddElement(/datum/element/connect_loc, loc_connections)
+
+
 /obj/effect/decal/cleanable/blood/Destroy()
 	if(dry_timer)
 		deltimer(dry_timer)
@@ -56,6 +72,14 @@
 /obj/effect/decal/cleanable/blood/proc/dry()
 	name = dryname
 	desc = drydesc
+	ru_names = list(
+		NOMINATIVE = "засохшая кровь",
+		GENITIVE = "засохшей крови",
+		DATIVE = "засохшей крови",
+		ACCUSATIVE = "засохшую кровь",
+		INSTRUMENTAL = "засохшей кровью",
+		PREPOSITIONAL = "засохшей крови"
+	)
 	color = adjust_brightness(color, -50)
 	amount = 0
 
@@ -67,17 +91,76 @@
 			return
 		var/taken = rand(1,amount)
 		amount -= taken
-		to_chat(user, "<span class='notice'>You get some of \the [src] on your hands.</span>")
+		to_chat(user, span_notice("Вы взяли немного [src.declent_ru(GENITIVE)] в руки."))
 		if(!user.blood_DNA)
 			user.blood_DNA = list()
 		user.blood_DNA |= blood_DNA.Copy()
 		user.bloody_hands += taken
 		user.hand_blood_color = basecolor
 		user.update_inv_gloves()
-		user.verbs += /mob/living/carbon/human/proc/bloody_doodle
+		add_verb(user, /mob/living/carbon/human/proc/bloody_doodle)
+
 
 /obj/effect/decal/cleanable/blood/can_bloodcrawl_in()
 	return TRUE
+
+
+/obj/effect/decal/cleanable/blood/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(off_floor || !ishuman(arrived))
+		return
+
+	blood_decal_crossed(arrived)
+
+
+/obj/effect/decal/cleanable/blood/proc/on_exited(datum/source, atom/movable/departed, atom/newLoc)
+	SIGNAL_HANDLER
+
+	if(off_floor || !ishuman(departed))
+		return
+
+	blood_decal_uncrossed(departed)
+
+
+/obj/effect/decal/cleanable/blood/proc/blood_decal_crossed(mob/living/carbon/human/arrived)
+	if(istype(arrived.shoes, /obj/item/clothing/shoes) && blood_state && bloodiness)
+		var/obj/item/clothing/shoes/shoes = arrived.shoes
+		var/add_blood = 0
+		if(bloodiness >= BLOOD_GAIN_PER_STEP)
+			add_blood = BLOOD_GAIN_PER_STEP
+		else
+			add_blood = bloodiness
+		bloodiness -= add_blood
+		shoes.bloody_shoes[blood_state] = min(MAX_SHOE_BLOODINESS, shoes.bloody_shoes[blood_state] + add_blood)
+		if(length(blood_DNA))
+			shoes.add_blood(blood_DNA, basecolor)
+		shoes.blood_state = blood_state
+		shoes.blood_color = basecolor
+		update_icon()
+		shoes.update_icon()
+		arrived.update_inv_shoes()
+
+	else if(!arrived.shoes && arrived.num_legs > 0 && blood_state && bloodiness)//Or feet
+		var/add_blood = 0
+		if(bloodiness >= BLOOD_GAIN_PER_STEP)
+			add_blood = BLOOD_GAIN_PER_STEP
+		else
+			add_blood = bloodiness
+		bloodiness -= add_blood
+		arrived.bloody_feet[blood_state] = min(MAX_SHOE_BLOODINESS, arrived.bloody_feet[blood_state] + add_blood)
+		if(!arrived.feet_blood_DNA)
+			arrived.feet_blood_DNA = list()
+		arrived.blood_state = blood_state
+		arrived.feet_blood_DNA |= blood_DNA.Copy()
+		arrived.feet_blood_color = basecolor
+		update_icon()
+		arrived.update_inv_shoes()
+
+
+/obj/effect/decal/cleanable/blood/proc/blood_decal_uncrossed(mob/living/carbon/human/departed)
+	return
+
 
 /obj/effect/decal/cleanable/blood/splatter
 	random_icon_states = list("mgibbl1", "mgibbl2", "mgibbl3", "mgibbl4", "mgibbl5")
@@ -85,7 +168,15 @@
 
 /obj/effect/decal/cleanable/blood/drip
 	name = "drips of blood"
-	desc = "It's red."
+	desc = "Оно красное."
+	ru_names = list(
+		NOMINATIVE = "капли крови",
+		GENITIVE = "капель крови",
+		DATIVE = "каплям крови",
+		ACCUSATIVE = "капли крови",
+		INSTRUMENTAL = "каплями крови",
+		PREPOSITIONAL = "каплях крови"
+	)
 	gender = PLURAL
 	icon = 'icons/effects/drip.dmi'
 	icon_state = "1"
@@ -101,7 +192,15 @@
 	name = "blood"
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "nothing"
-	desc = "Your instincts say you shouldn't be following these."
+	desc = "Ваши инстинкты подсказывают, что не стоит идти этим путём."
+	ru_names = list(
+		NOMINATIVE = "кровь",
+		GENITIVE = "крови",
+		DATIVE = "крови",
+		ACCUSATIVE = "кровь",
+		INSTRUMENTAL = "кровью",
+		PREPOSITIONAL = "крови"
+	)
 	gender = PLURAL
 	density = FALSE
 	layer = TURF_LAYER
@@ -114,7 +213,7 @@
 
 /obj/effect/decal/cleanable/blood/writing
 	icon_state = "tracks"
-	desc = "It looks like a writing in blood."
+	desc = "Это похоже на надпись кровью."
 	gender = NEUTER
 	random_icon_states = list("writing1", "writing2", "writing3", "writing4", "writing5")
 	amount = 0
@@ -131,11 +230,19 @@
 
 /obj/effect/decal/cleanable/blood/writing/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>It reads: <font color='[basecolor]'>\"[message]\"<font></span>"
+	. += span_notice("Надпись гласит: <font color='[basecolor]'>\"[message]\"<font>")
 
 /obj/effect/decal/cleanable/blood/gibs
 	name = "gibs"
-	desc = "They look bloody and gruesome."
+	desc = "Кто-то или что-то явно было разорвано на части."
+	ru_names = list(
+		NOMINATIVE = "кровавое месиво",
+		GENITIVE = "кровавого месива",
+		DATIVE = "кровавому месиву",
+		ACCUSATIVE = "кровавое месиво",
+		INSTRUMENTAL = "кровавым месивом",
+		PREPOSITIONAL = "кровавом месиве"
+	)
 	gender = PLURAL
 	density = FALSE
 	anchored = TRUE
@@ -144,9 +251,27 @@
 	icon_state = "gib2"
 	random_icon_states = list("gib1", "gib2", "gib3", "gib4", "gib5", "gib6")
 	no_clear = TRUE
+	scoop_reagents = list("liquidgibs" = 5)
 	mergeable_decal = FALSE
 	var/image/giblets
 	var/fleshcolor = "#FFFFFF"
+
+
+/obj/effect/decal/cleanable/blood/gibs/Initialize(mapload)
+	. = ..()
+	RegisterSignal(src, COMSIG_MOVABLE_PIPE_EJECTING, PROC_REF(on_pipe_eject))
+
+
+/obj/effect/decal/cleanable/blood/gibs/proc/on_pipe_eject(datum/source, direction)
+	SIGNAL_HANDLER
+
+	var/list/dirs
+	if(direction)
+		dirs = list(direction, turn(direction, -45), turn(direction, 45))
+	else
+		dirs = GLOB.alldirs.Copy()
+
+	INVOKE_ASYNC(src, PROC_REF(streak), dirs)
 
 
 /obj/effect/decal/cleanable/blood/gibs/update_icon(updates = ALL)
@@ -183,13 +308,13 @@
 
 /obj/effect/decal/cleanable/blood/gibs/core
 	random_icon_states = list("gibmid1", "gibmid2", "gibmid3")
-	scoop_reagents = list("liquidgibs" = 5)
+	scoop_reagents = list("liquidgibs" = 15)
 
 
 /obj/effect/decal/cleanable/blood/gibs/cleangibs //most ironic name ever...
 	scoop_reagents = null
 
-/obj/effect/decal/cleanable/blood/gibs/proc/streak(var/list/directions)
+/obj/effect/decal/cleanable/blood/gibs/proc/streak(list/directions)
 	set waitfor = 0
 	var/direction = pick(directions)
 	for(var/i = 0, i < pick(1, 200; 2, 150; 3, 50; 4), i++)

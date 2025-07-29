@@ -1,10 +1,10 @@
 /// Returns the src and all recursive contents as a list.
-/atom/proc/get_all_contents()
+/atom/proc/get_all_contents(ignore_flags)
 	. = list(src)
 	var/idx = 0
 	while(idx < length(.))
 		var/atom/checked_atom = .[++idx]
-		if(checked_atom.flags)
+		if(checked_atom.flags & ignore_flags)
 			continue
 		. += checked_atom.contents
 
@@ -19,6 +19,16 @@
 		if(istype(checked_atom, type))
 			. += checked_atom
 
+
+///Returns true if the src countain the atom target
+/atom/proc/contains(atom/target)
+	if(!target)
+		return FALSE
+	for(var/atom/location = target.loc, location, location = location.loc)
+		if(location == src)
+			return TRUE
+
+
 /// Forces atom to drop all the important items while dereferencing them from their
 /// containers both ways. To be used to preserve important items before mob gib/self-gib.
 /// Returns a list with all saved items.
@@ -29,7 +39,7 @@
 	for(var/atom/movable/I in contents)
 		if(!is_type_in_list(I, GLOB.ungibbable_items_types))
 			if(length(I.contents))
-				I.drop_ungibbable_items(new_loc)
+				. += I.drop_ungibbable_items(new_loc)
 			continue
 
 		. += I
@@ -122,3 +132,14 @@
 		return FALSE
 	return (mover.pass_flags & passflag)
 
+
+///Returns a list of all locations (except the area) the movable is within.
+/proc/get_nested_locs(atom/movable/atom_on_location, include_turf = FALSE)
+	. = list()
+	var/atom/location = atom_on_location.loc
+	var/turf/our_turf = get_turf(atom_on_location)
+	while(location && location != our_turf)
+		. += location
+		location = location.loc
+	if(our_turf && include_turf) //At this point, only the turf is left, provided it exists.
+		. += our_turf

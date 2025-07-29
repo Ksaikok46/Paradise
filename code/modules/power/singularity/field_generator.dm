@@ -79,35 +79,37 @@ field_generator power level display
 		to_chat(user, "<span class='warning'>[src] needs to be firmly secured to the floor first!</span>")
 
 
-/obj/machinery/field/generator/attackby(obj/item/W, mob/user, params)
+/obj/machinery/field/generator/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
 	if(active)
 		add_fingerprint(user)
-		to_chat(user, "<span class='warning'>[src] needs to be off!</span>")
-		return
-	else if(W.tool_behaviour == TOOL_WRENCH)
-		switch(state)
-			if(FG_UNSECURED)
-				if(isinspace())
-					return
-				add_fingerprint(user)
-				state = FG_SECURED
-				playsound(loc, W.usesound, 75, 1)
-				user.visible_message("[user.name] secures [name] to the floor.", \
-					"<span class='notice'>You secure the external reinforcing bolts to the floor.</span>", \
-					"<span class='italics'>You hear ratchet.</span>")
-				set_anchored(TRUE)
-			if(FG_SECURED)
-				add_fingerprint(user)
-				state = FG_UNSECURED
-				playsound(loc, W.usesound, 75, 1)
-				user.visible_message("[user.name] unsecures [name] reinforcing bolts from the floor.", \
-					"<span class='notice'>You undo the external reinforcing bolts.</span>", \
-					"<span class='italics'>You hear ratchet.</span>")
-				set_anchored(FALSE)
-			if(FG_WELDED)
-				to_chat(user, "<span class='warning'>The [name] needs to be unwelded from the floor!</span>")
-	else
-		return ..()
+		to_chat(user, span_warning("The [name] needs to be off."))
+		return .
+	if(state == FG_UNSECURED && isinspace())
+		to_chat(user, span_warning("That was dumb idea."))
+		return .
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	switch(state)
+		if(FG_UNSECURED)
+			state = FG_SECURED
+			set_anchored(TRUE)
+			user.visible_message(
+				span_notice("[user] has secured [src] to the floor."),
+				span_notice("You have secured the external reinforcing bolts to the floor."),
+				span_italics("You hear a ratchet"),
+			)
+		if(FG_SECURED)
+			state = FG_UNSECURED
+			set_anchored(FALSE)
+			user.visible_message(
+				span_notice("[user] has unsecured [src] from the floor."),
+				span_notice("You have unsecured the external reinforcing bolts from the floor."),
+				span_italics("You hear a ratchet"),
+			)
+
+		if(FG_WELDED)
+			to_chat(user, span_warning("The [name] should be unwelded from the floor."))
 
 
 /obj/machinery/field/generator/welder_act(mob/user, obj/item/I)
@@ -144,11 +146,11 @@ field_generator power level display
 
 /obj/machinery/field/generator/blob_act(obj/structure/blob/B)
 	if(active)
-		return 0
+		return FALSE
 	else
 		..()
 
-/obj/machinery/field/generator/bullet_act(obj/item/projectile/Proj)
+/obj/machinery/field/generator/bullet_act(obj/projectile/Proj)
 	if(Proj.flag != "bullet" && !Proj.nodamage)
 		power = min(power + Proj.damage, field_generator_max_power)
 		check_power_level()
@@ -291,7 +293,7 @@ field_generator power level display
 			fields += CF
 			G.fields += CF
 			for(var/mob/living/L in T)
-				CF.Crossed(L, null)
+				CF.shock_field(L)
 
 	connected_gens |= G
 	G.connected_gens |= src
@@ -321,7 +323,7 @@ field_generator power level display
 	var/temp = TRUE //stops spam
 	for(var/thing in GLOB.singularities)
 		var/obj/singularity/O = thing
-		if(O.last_warning && temp && atoms_share_level(O, src))
+		if(O.last_warning && temp && are_zs_connected(O, src))
 			if((world.time - O.last_warning) > 50) //to stop message-spam
 				temp = FALSE
 				// Здесь был коммент от affected в 7 строк про то что get_area_name тупой и юзал for(x in world) и типа дорого и глупо.

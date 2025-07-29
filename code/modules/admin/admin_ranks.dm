@@ -18,10 +18,11 @@ GLOBAL_PROTECT(admin_ranks) // this shit is being protected for obvious reasons
 		var/list/List = splittext(line,"+")
 		if(!List.len)					continue
 
-		var/rank = List[1]
+		var/rank = trim(List[1])
 		switch(rank)
 			if(null,"")		continue
 			if("Removed")	continue				//Reserved
+			if("Удален")	continue				//Reserved
 
 		var/rights = 0
 		for(var/i=2, i<=List.len, i++)
@@ -58,13 +59,13 @@ GLOBAL_PROTECT(admin_ranks) // this shit is being protected for obvious reasons
 
 /proc/load_admins(run_async = FALSE)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, "<span class='boldannounce'>Admin reload blocked: Advanced ProcCall detected.</span>")
+		to_chat(usr, span_boldannounceooc("Admin reload blocked: Advanced ProcCall detected."), confidential=TRUE)
 		log_and_message_admins("attempted to reload admins via advanced proc-call")
 		return
 	//clear the datums references
 	GLOB.admin_datums.Cut()
 	for(var/client/C in GLOB.admins)
-		C.remove_admin_verbs()
+		C.hide_verbs()
 		C.holder = null
 	GLOB.admins.Cut()
 
@@ -128,6 +129,8 @@ GLOBAL_PROTECT(admin_ranks) // this shit is being protected for obvious reasons
 			var/rights = query.item[4]
 			if(istext(rights))	rights = text2num(rights)
 			var/datum/admins/D = new /datum/admins(rank, rights, ckey)
+			GLOB.de_admins -= ckey
+			GLOB.de_mentors -= ckey
 
 			if(D.rights & R_DEBUG || D.rights & R_VIEWRUNTIMES) // Grants profiler access to anyone with R_DEBUG or R_VIEWRUNTIMES
 				world.SetConfig("APP/admin", ckey, "role=admin")

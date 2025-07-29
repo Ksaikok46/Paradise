@@ -47,7 +47,11 @@ GLOBAL_LIST_INIT(restricted_camera_networks, list(
 	"Bunker1"
 	)) //Those networks can only be accessed by preexisting terminals. AIs and new terminals can't use them.
 
-GLOBAL_LIST_INIT(ruin_landmarks, list())
+GLOBAL_LIST_EMPTY(ruin_landmarks)
+
+/// List of all the maps that have been cached for /proc/load_map
+GLOBAL_LIST_EMPTY(cached_maps)
+
 
 GLOBAL_LIST_INIT(round_end_sounds, list(
 		'sound/AI/newroundsexy.ogg' = 2.3 SECONDS,
@@ -62,11 +66,12 @@ GLOBAL_LIST_INIT(cooking_recipe_types, list(
 	RECIPE_MICROWAVE = /datum/recipe/microwave,
 	RECIPE_OVEN = /datum/recipe/oven,
 	RECIPE_GRILL = /datum/recipe/grill,
-	RECIPE_CANDY = /datum/recipe/candy
+	RECIPE_CANDY = /datum/recipe/candy,
+	RECIPE_TRIBAL_OVEN = /datum/recipe/tribal_oven
 	))
-GLOBAL_LIST_INIT(cooking_recipes, list(RECIPE_MICROWAVE = list(), RECIPE_OVEN = list(), RECIPE_GRILL = list(), RECIPE_CANDY = list()))
-GLOBAL_LIST_INIT(cooking_ingredients, list(RECIPE_MICROWAVE = list(), RECIPE_OVEN = list(), RECIPE_GRILL = list(), RECIPE_CANDY = list()))
-GLOBAL_LIST_INIT(cooking_reagents, list(RECIPE_MICROWAVE = list(), RECIPE_OVEN = list(), RECIPE_GRILL = list(), RECIPE_CANDY = list()))
+GLOBAL_LIST_INIT(cooking_recipes, list(RECIPE_MICROWAVE = list(), RECIPE_OVEN = list(), RECIPE_GRILL = list(), RECIPE_CANDY = list(), RECIPE_TRIBAL_OVEN = list()))
+GLOBAL_LIST_INIT(cooking_ingredients, list(RECIPE_MICROWAVE = list(), RECIPE_OVEN = list(), RECIPE_GRILL = list(), RECIPE_CANDY = list(), RECIPE_TRIBAL_OVEN = list()))
+GLOBAL_LIST_INIT(cooking_reagents, list(RECIPE_MICROWAVE = list(), RECIPE_OVEN = list(), RECIPE_GRILL = list(), RECIPE_CANDY = list(), RECIPE_TRIBAL_OVEN = list()))
 
 #define EGG_LAYING_MESSAGES list("lays an egg.", "squats down and croons.", "begins making a huge racket.", "begins clucking raucously.")
 
@@ -83,3 +88,8 @@ GLOBAL_LIST_EMPTY(blurb_witnesses)
 
 /// List of cargo consoles that print reports on completed/expired orders
 GLOBAL_LIST_EMPTY(cargo_announcers)
+
+
+GLOBAL_LIST_EMPTY(devil_contracts)
+
+GLOBAL_LIST_EMPTY(nuke_codes)

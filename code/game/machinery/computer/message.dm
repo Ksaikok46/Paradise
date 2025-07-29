@@ -1,12 +1,7 @@
-
 // Allows you to monitor messages that passes the server.
-
-
-
-
 /obj/machinery/computer/message_monitor
 	name = "message monitoring console"
-	desc = "Used to monitor the crew's messages that are sent via PDA. It can also be used to view Request Console messages."
+	desc = "Используется для отслеживания сообщений экипажа, отправляемых через КПК. Его также можно использовать для просмотра сообщений Консоли Запросов."
 	icon_screen = "comm_logs"
 	light_color = LIGHT_COLOR_GREEN
 	var/hack_icon = "tcboss"
@@ -34,6 +29,13 @@
 
 	light_color = LIGHT_COLOR_DARKGREEN
 
+/obj/machinery/computer/message_monitor/laptop
+	name = "message monitor laptop"
+	icon_state = "laptop"
+	icon_keyboard = "seclaptop_key"
+	icon_screen = "seclaptop"
+	normal_icon = "seclaptop"
+	density = FALSE
 
 /obj/machinery/computer/message_monitor/screwdriver_act(mob/user, obj/item/I)
 	if(emag) //Stops people from just unscrewing the monitor and putting it back to get the console working again.
@@ -52,9 +54,9 @@
 			do_sparks(5, 0, src)
 			var/obj/item/paper/monitorkey/MK = new/obj/item/paper/monitorkey
 			MK.loc = src.loc
-			playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, 1)
+			playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, TRUE)
 			// Will help make emagging the console not so easy to get away with.
-			MK.info += "<br><br><font color='red'>�%@%(*$%&(�&?*(%&�/{}</font>"
+			MK.info += "<br><br><span style='color: red;'>�%@%(*$%&(�&?*(%&�/{}</span>"
 			update_icon()
 			spawn(100*length(src.linkedServer.decryptkey))
 				UnmagConsole()
@@ -73,7 +75,7 @@
 
 
 /obj/machinery/computer/message_monitor/Initialize()
-	..()
+	. = ..()
 	//Is the server isn't linked to a server, and there's a server available, default it to the first one in the list.
 	if(!linkedServer)
 		if(GLOB.message_servers && GLOB.message_servers.len > 0)
@@ -88,16 +90,18 @@
 	//If the computer is being hacked or is emagged, display the reboot message.
 	if(hacking || emag)
 		message = rebootmsg
-	var/dat = {"<meta charset="UTF-8"><head><title>Message Monitor Console</title></head><body>"}
+	var/dat = "<title>Message Monitor Console</title>"
+	dat += "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"
+	dat += "<body>"
 	dat += "<center><h2>Message Monitor Console</h2></center><hr>"
-	dat += "<center><h4><font color='blue'[message]</h5></center>"
+	dat += "<center><h4><span style='color: blue;'>[message]</span></h4></center>"
 
 	if(auth)
-		dat += "<h4><dd><A href='?src=[UID()];auth=1'>&#09;<font color='green'>\[Authenticated\]</font></a>&#09;/"
-		dat += " Server Power: <A href='?src=[UID()];active=1'>[src.linkedServer && src.linkedServer.active ? "<font color='green'>\[On\]</font>":"<font color='red'>\[Off\]</font>"]</a></h4>"
+		dat += "<h4><a href='byond://?src=[UID()];auth=1'><span style='color: green;'>\[Authenticated\]</span></a>/"
+		dat += " Server Power: <a href='byond://?src=[UID()];active=1'>[src.linkedServer && src.linkedServer.active ? "<span style='color: green;'>\[On\]</span>":"<span style='color: red;'>\[Off\]</span>"]</a></h4>"
 	else
-		dat += "<h4><dd><A href='?src=[UID()];auth=1'>&#09;<font color='red'>\[Unauthenticated\]</font></a>&#09;/"
-		dat += " Server Power: <u>[src.linkedServer && src.linkedServer.active ? "<font color='green'>\[On\]</font>":"<font color='red'>\[Off\]</font>"]</u></h4>"
+		dat += "<h4><a href='byond://?src=[UID()];auth=1'><span style='color: red;'>\[Unauthenticated\]</span></a>/"
+		dat += " Server Power: <u>[src.linkedServer && src.linkedServer.active ? "<span style='color: green;'>\[On\]</span>":"<span style='color: green;'>\[Off\]</span>"]</u></h4>"
 
 	if(hacking || emag)
 		screen = 2
@@ -108,33 +112,33 @@
 	switch(screen)
 		//Main menu
 		if(0)
-			//&#09; = TAB
+			// = TAB
 			var/i = 0
-			dat += "<dd><A href='?src=[UID()];find=1'>&#09;[++i]. Link To A Server</a></dd>"
+			dat += "<dd><a href='byond://?src=[UID()];find=1'>[++i]. Link To A Server</a></dd>"
 			if(auth)
 				if(!linkedServer || (linkedServer.stat & (NOPOWER|BROKEN)))
-					dat += "<dd><A>&#09;ERROR: Server not found!</A><br></dd>"
+					dat += "<dd><a>ERROR: Server not found!</a><br></dd>"
 				else
-					dat += "<dd><A href='?src=[UID()];view=1'>&#09;[++i]. View Message Logs </a><br></dd>"
-					dat += "<dd><A href='?src=[UID()];viewr=1'>&#09;[++i]. View Request Console Logs </a></br></dd>"
-					dat += "<dd><A href='?src=[UID()];clear=1'>&#09;[++i]. Clear Message Logs</a><br></dd>"
-					dat += "<dd><A href='?src=[UID()];clearr=1'>&#09;[++i]. Clear Request Console Logs</a><br></dd>"
-					dat += "<dd><A href='?src=[UID()];pass=1'>&#09;[++i]. Set Custom Key</a><br></dd>"
-					dat += "<dd><A href='?src=[UID()];msg=1'>&#09;[++i]. Send Admin Message</a><br></dd>"
+					dat += "<dd><a href='byond://?src=[UID()];view=1'>[++i]. View Message Logs </a><br></dd>"
+					dat += "<dd><a href='byond://?src=[UID()];viewr=1'>[++i]. View Request Console Logs </a></br></dd>"
+					dat += "<dd><a href='byond://?src=[UID()];clear=1'>[++i]. Clear Message Logs</a><br></dd>"
+					dat += "<dd><a href='byond://?src=[UID()];clearr=1'>[++i]. Clear Request Console Logs</a><br></dd>"
+					dat += "<dd><a href='byond://?src=[UID()];pass=1'>[++i]. Set Custom Key</a><br></dd>"
+					dat += "<dd><a href='byond://?src=[UID()];msg=1'>[++i]. Send Admin Message</a><br></dd>"
 			else
 				for(var/n = ++i; n <= optioncount; n++)
-					dat += "<dd><font color='blue'>&#09;[n]. ---------------</font><br></dd>"
+					dat += "<dd><span style='color: blue;'>[n]. ---------------</span><br></dd>"
 			if((isAI(user) || isrobot(user)) && (user.mind.special_role && user.mind.is_original_mob(user)))
 				//Malf/Traitor AIs can bruteforce into the system to gain the Key.
-				dat += "<dd><A href='?src=[UID()];hack=1'><i><font color='Red'>*&@#. Bruteforce Key</font></i></font></a><br></dd>"
+				dat += "<dd><a href='byond://?src=[UID()];hack=1'><i><span style='color: red;'>*&@#. Bruteforce Key</span></i></a><br></dd>"
 			else
 				dat += "<br>"
 
 			//Bottom message
 			if(!auth)
-				dat += "<br><hr><dd>[span_notice("Please authenticate with the server in order to show additional options.")]"
+				dat += "<br><hr><dd>[span_notice("Please authenticate with the server in order to show additional options.")]</dd>"
 			else
-				dat += "<br><hr><dd>[span_warning("Reg, #514 forbids sending messages containing Erotic Rendering Properties.")]"
+				dat += "<br><hr><dd>[span_warning("Reg, #514 forbids sending messages containing Erotic Rendering Properties.")]</dd>"
 
 		//Message Logs
 		if(1)
@@ -142,15 +146,15 @@
 			//var/recipient = "Unspecified" //name of the person
 			//var/sender = "Unspecified" //name of the sender
 			//var/message = "Blank" //transferred message
-			dat += "<center><A href='?src=[UID()];back=1'>Back</a> - <A href='?src=[UID()];refresh=1'>Refresh</center><hr>"
-			dat += "<table border='1' width='100%'><tr><th width = '5%'>X</th><th width='15%'>Sender</th><th width='15%'>Recipient</th><th width='300px' word-wrap: break-word>Message</th></tr>"
+			dat += "<center><a href='byond://?src=[UID()];back=1'>Back</a> - <a href='byond://?src=[UID()];refresh=1'>Refresh</a></center><hr>"
+			dat += "<table border='1' width='100%'><tr><th width = '5%'>X</th><th width='15%'>Sender</th><th width='15%'>Recipient</th><th width='300px' style='word-wrap: break-word;'>Message</th></tr>"
 			for(var/datum/data_pda_msg/pda in src.linkedServer.pda_msgs)
 				index++
 				if(index > 3000)
 					break
 				// Del - Sender   - Recepient - Message
 				// X   - Al Green - Your Mom  - WHAT UP!?
-				dat += "<tr><td width = '5%'><center><A href='?src=[UID()];delete=\ref[pda]' style='color: rgb(255,0,0)'>X</a></center></td><td width='15%'>[pda.sender]</td><td width='15%'>[pda.recipient]</td><td width='300px'>[pda.message]</td></tr>"
+				dat += "<tr><td width = '5%'><center><a href='byond://?src=[UID()];delete=\ref[pda]' style='color: rgb(255,0,0)'>X</a></center></td><td width='15%'>[pda.sender]</td><td width='15%'>[pda.recipient]</td><td width='300px'>[pda.message]</td></tr>"
 			dat += "</table>"
 		//Hacking screen.
 		if(2)
@@ -197,13 +201,13 @@
 
 		//Fake messages
 		if(3)
-			dat += "<center><A href='?src=[UID()];back=1'>Back</a> - <A href='?src=[UID()];Reset=1'>Reset</a></center><hr>"
+			dat += "<center><a href='byond://?src=[UID()];back=1'>Back</a> - <a href='byond://?src=[UID()];Reset=1'>Reset</a></center><hr>"
 
 			dat += {"<table border='1' width='100%'>
-					<tr><td width='20%'><A href='?src=[UID()];select=Sender'>Sender</a></td>
-					<td width='20%'><A href='?src=[UID()];select=RecJob'>Sender's Job</a></td>
-					<td width='20%'><A href='?src=[UID()];select=Recepient'>Recipient</a></td>
-					<td width='300px' word-wrap: break-word><A href='?src=[UID()];select=Message'>Message</a></td></tr>"}
+					<tr><td width='20%'><a href='byond://?src=[UID()];select=Sender'>Sender</a></td>
+					<td width='20%'><a href='byond://?src=[UID()];select=RecJob'>Sender's Job</a></td>
+					<td width='20%'><a href='byond://?src=[UID()];select=Recepient'>Recipient</a></td>
+					<td width='300px' word-wrap: break-word><a href='byond://?src=[UID()];select=Message'>Message</a></td></tr>"}
 				//Sender  - Sender's Job  - Recepient - Message
 				//Al Green- Your Dad	  - Your Mom  - WHAT UP!?
 
@@ -211,7 +215,7 @@
 			<td width='20%'>[customjob]</td>
 			<td width='20%'>[customrecepient ? customrecepient.owner : "NONE"]</td>
 			<td width='300px'>[custommessage]</td></tr>"}
-			dat += "</table><br><center><A href='?src=[UID()];select=Send'>Send</a>"
+			dat += "</table><br><center><a href='byond://?src=[UID()];select=Send'>Send</a>"
 
 		//Request Console Logs
 		if(4)
@@ -226,21 +230,22 @@
 				var/id_auth = "Unauthenticated"					 - 15%
 				var/priority = "Normal"							 - 10%
 			*/
-			dat += "<center><A href='?src=[UID()];back=1'>Back</a> - <A href='?src=[UID()];refresh=1'>Refresh</center><hr>"
+			dat += "<center><a href='byond://?src=[UID()];back=1'>Back</a> - <a href='byond://?src=[UID()];refresh=1'>Refresh</a></center><hr>"
 			dat += {"<table border='1' width='100%'><tr><th width = '5%'>X</th><th width='15%'>Sending Dep.</th><th width='15%'>Receiving Dep.</th>
-			<th width='300px' word-wrap: break-word>Message</th><th width='15%'>Stamp</th><th width='15%'>ID Auth.</th><th width='15%'>Priority.</th></tr>"}
+			<th width='300px' style='word-wrap: break-word;'>Message</th><th width='15%'>Stamp</th><th width='15%'>ID Auth.</th><th width='15%'>Priority.</th></tr>"}
 			for(var/datum/data_rc_msg/rc in src.linkedServer.rc_msgs)
 				index++
 				if(index > 3000)
 					break
 				// Del - Sender   - Recepient - Message
 				// X   - Al Green - Your Mom  - WHAT UP!?
-				dat += {"<tr><td width = '5%'><center><A href='?src=[UID()];deleter=\ref[rc]' style='color: rgb(255,0,0)'>X</a></center></td><td width='15%'>[rc.send_dpt]</td>
+				dat += {"<tr><td width = '5%'><center><a href='byond://?src=[UID()];deleter=\ref[rc]' style='color: rgb(255,0,0)'>X</a></center></td><td width='15%'>[rc.send_dpt]</td>
 				<td width='15%'>[rc.rec_dpt]</td><td width='300px'>[rc.message]</td><td width='15%'>[rc.stamp]</td><td width='15%'>[rc.id_auth]</td><td width='15%'>[rc.priority]</td></tr>"}
 			dat += "</table>"
-	dat += "</body>"
 	message = defaultmsg
-	user << browse(dat, "window=message;size=700x700")
+	var/datum/browser/popup = new(user, "message", "Message Monitor Console", 700, 700)
+	popup.set_content(dat)
+	popup.open(TRUE)
 	onclose(user, "message")
 	return
 
@@ -277,7 +282,7 @@
 				auth = 0
 				screen = 0
 			else
-				var/dkey = trim(clean_input("Please enter the decryption key."))
+				var/dkey = tgui_input_text(usr, "Please enter the decryption key.")
 				if(dkey && dkey != "")
 					if(src.linkedServer.decryptkey == dkey)
 						auth = 1
@@ -290,7 +295,7 @@
 		//Find a server
 		if(href_list["find"])
 			if(GLOB.message_servers && GLOB.message_servers.len > 1)
-				src.linkedServer = input(usr,"Please select a server.", "Select a server.", null) as null|anything in GLOB.message_servers
+				src.linkedServer = tgui_input_list(usr, "Please select a server.", "Select a server.", GLOB.message_servers, null)
 				message = span_alert("NOTICE: Server selected.")
 			else if(GLOB.message_servers && GLOB.message_servers.len > 0)
 				linkedServer = GLOB.message_servers[1]
@@ -328,10 +333,10 @@
 				message = noserver
 			else
 				if(auth)
-					var/dkey = trim(clean_input("Please enter the decryption key."))
+					var/dkey = tgui_input_text(usr, "Please enter the decryption key.")
 					if(dkey && dkey != "")
 						if(src.linkedServer.decryptkey == dkey)
-							var/newkey = trim(input(usr,"Please enter the new key (3 - 16 characters max):"))
+							var/newkey = tgui_input_text(usr, "Please enter the new key (3 - 16 characters max):", max_length = 16)
 							if(length(newkey) <= 3)
 								message = span_notice("NOTICE: Decryption key too short!")
 							else if(length(newkey) > 16)
@@ -391,7 +396,7 @@
 
 					//Select Your Name
 					if("Sender")
-						customsender 	= clean_input("Please enter the sender's name.")
+						customsender 	= tgui_input_text(usr, "Please enter the sender's name.")
 
 					//Select Receiver
 					if("Recepient")
@@ -404,17 +409,17 @@
 								continue
 							sendPDAs += P
 						if(GLOB.PDAs && GLOB.PDAs.len > 0)
-							customrecepient = input(usr, "Select a PDA from the list.") as null|anything in sortAtom(sendPDAs)
+							customrecepient = tgui_input_list(usr, "Select a PDA from the list.", items = sortAtom(sendPDAs))
 						else
 							customrecepient = null
 
 					//Enter custom job
 					if("RecJob")
-						customjob	 	= clean_input("Please enter the sender's job.")
+						customjob	 	= tgui_input_text(usr, "Please enter the sender's job.")
 
 					//Enter message
 					if("Message")
-						custommessage	= clean_input("Please enter your message.")
+						custommessage	= tgui_input_text(usr, "Please enter your message.")
 						custommessage	= sanitize(copytext_char(custommessage, 1, MAX_MESSAGE_LEN))
 
 					//Send message
@@ -448,7 +453,7 @@
 						//Sender isn't faking as someone who exists
 						if(isnull(PDARec))
 							src.linkedServer.send_pda_message("[customrecepient.owner]", "[customsender]","[custommessage]")
-							recipient_messenger.notify("<b>Message from [customsender] ([customjob]), </b>\"[custommessage]\" (<a href='?src=[UID()];choice=Message;target=\ref[src]'>Reply</a>)")
+							recipient_messenger.notify("<b>Message from [customsender] ([customjob]), </b>\"[custommessage]\" (<a href='byond://?src=[UID()];choice=Message;target=\ref[src]'>Reply</a>)")
 							log_pda("(PDA: [customsender]) sent \"[custommessage]\" to [customrecepient.owner]", usr)
 						//Sender is faking as someone who exists
 						else
@@ -458,7 +463,7 @@
 							if(!recipient_messenger.conversations.Find("\ref[PDARec]"))
 								recipient_messenger.conversations.Add("\ref[PDARec]")
 
-							recipient_messenger.notify("<b>Message from [PDARec.owner] ([customjob]), </b>\"[custommessage]\" (<a href='?src=[recipient_messenger.UID()];choice=Message;target=\ref[PDARec]'>Reply</a>)")
+							recipient_messenger.notify("<b>Message from [PDARec.owner] ([customjob]), </b>\"[custommessage]\" (<a href='byond://?src=[recipient_messenger.UID()];choice=Message;target=\ref[PDARec]'>Reply</a>)")
 							log_pda("(PDA: [PDARec.owner]) sent \"[custommessage]\" to [customrecepient.owner]", usr)
 						var/log_message = "sent PDA message \"[custommessage]\" using [src] as [customsender] ([customjob])"
 						var/receiver
@@ -513,7 +518,7 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/item/paper/rnd_logs_key/LateInitialize()
-	var/obj/machinery/r_n_d/server/located_server = locate() in GLOB.machines
+	var/obj/machinery/r_n_d/server/located_server = locate() in SSmachines.get_by_type(/obj/machinery/r_n_d/server)
 	if(!located_server)
 		return
 	var/decryption_key = located_server.logs_decryption_key

@@ -101,7 +101,7 @@ GLOBAL_LIST_EMPTY(limb_icon_cache)
 			mob_icon.Blend(eyes_icon, ICON_OVERLAY) //This is required since update_icons.dm relies on this proc to render non-shining eyes.
 			add_overlay(eyes_icon)
 
-	if(owner.lip_style && (LIPS in dna.species.species_traits))
+	if(owner.lip_style && HAS_TRAIT(owner, TRAIT_HAS_LIPS))
 		var/icon/lips_icon = new('icons/mob/human_face.dmi', "lips_[owner.lip_style]_s")
 		lips_icon.Blend(owner.lip_color, ICON_MULTIPLY)
 		mob_icon.Blend(lips_icon, ICON_OVERLAY)
@@ -149,39 +149,53 @@ GLOBAL_LIST_EMPTY(limb_icon_cache)
 
 	return mob_icon //Don't need to blend the above into this as it's handled in human/update_icons(). The overlays are for rendering stuff on disembodied heads.
 
+
+/obj/item/organ/external/proc/get_normal_icon_state()
+	var/new_icon_state = "[icon_name][(!dna || !gendered_icon) ? "" : (dna.GetUITriState(DNA_UI_GENDER) == DNA_GENDER_MALE ? "_m" : "_f")]"
+	var/list/icon_state_additions = list()
+	if(owner)
+		SEND_SIGNAL(owner, COMSIG_GET_ORGAN_ICON_STATE, src, icon_state_additions)
+
+	for(var/addition in icon_state_additions)
+		new_icon_state += addition
+
+	return list(icobase, new_icon_state)
+
+
 /obj/item/organ/external/proc/get_icon_state(skeletal)
 	var/gender
-	var/icon_file
 	var/new_icon_state
 	if(!dna)
-		icon_file = 'icons/mob/human_races/r_human.dmi'
 		new_icon_state = "[icon_name][gendered_icon ? "_f" : ""]"
-	else
-		if(gendered_icon)
-			switch(dna.GetUITriState(DNA_UI_GENDER))
-				if(DNA_GENDER_FEMALE)
-					gender = "f"
-				if(DNA_GENDER_MALE)
-					gender = "m"
-				else
-					gender = "f"	//Default to "f" (per line 162). Using a pick("m", "f") will make different body parts different genders for the same character.
-		if(limb_zone == BODY_ZONE_HEAD)
-			var/obj/item/organ/external/head/head_organ = src
-			head_organ.handle_alt_icon()
+		return list('icons/mob/human_races/r_human.dmi', new_icon_state)
 
-		new_icon_state = "[icon_name][gender ? "_[gender]" : ""]"
-
-		if(skeletal)
-			icon_file = 'icons/mob/human_races/r_skeleton.dmi'
-		else if(is_robotic())
-			icon_file = 'icons/mob/human_races/robotic.dmi'
-		else
-			if(is_mutated())
-				icon_file = deform
+	if(gendered_icon)
+		switch(dna.GetUITriState(DNA_UI_GENDER))
+			if(DNA_GENDER_FEMALE)
+				gender = "f"
+			if(DNA_GENDER_MALE)
+				gender = "m"
 			else
-				// Congratulations, you are normal
-				icon_file = icobase
-	return list(icon_file, new_icon_state)
+				gender = "f"	//Default to "f" (per line 162). Using a pick("m", "f") will make different body parts different genders for the same character.
+
+	if(limb_zone == BODY_ZONE_HEAD)
+		var/obj/item/organ/external/head/head_organ = src
+		head_organ.handle_alt_icon()
+
+	new_icon_state = "[icon_name][gender ? "_[gender]" : ""]"
+
+	if(skeletal)
+		return list('icons/mob/human_races/r_skeleton.dmi', new_icon_state)
+
+	if(is_robotic())
+		return list('icons/mob/human_races/robotic.dmi', new_icon_state)
+
+	if(is_mutated())
+		return list(deform, new_icon_state)
+
+	// Congratulations, you are normal
+	return get_normal_icon_state()
+
 
 // new damage icon system
 // adjusted to set damage_state to brute/burn code only (without r_name0 as before)

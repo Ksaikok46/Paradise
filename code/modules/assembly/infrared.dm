@@ -4,9 +4,8 @@
 	icon_state = "infrared"
 	materials = list(MAT_METAL=1000, MAT_GLASS=500)
 	origin_tech = "magnets=2;materials=2"
-
 	bomb_name = "tripwire mine"
-
+	set_dir_on_move = FALSE
 	secured = FALSE // toggle_secure()'ed in Initialize() for correct adding to processing_objects, won't work otherwise
 	dir = EAST
 	var/on = FALSE
@@ -36,7 +35,7 @@
 /obj/item/assembly/infra/examine(mob/user)
 	. = ..()
 	. += span_notice("The assembly is [secured ? "secure" : "not secure"]. The infrared trigger is [on ? "on" : "off"].")
-	. += span_info("<b>Alt-Click</b> to rotate it.")
+	. += span_notice("<b>Alt-Click</b> to rotate it.")
 
 
 /obj/item/assembly/infra/activate()
@@ -111,10 +110,8 @@
 	..()
 
 
-/obj/item/assembly/infra/Move(atom/newloc, direct = 0, movetime)
-	var/prev_dir = dir
+/obj/item/assembly/infra/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
-	dir = prev_dir
 	qdel(first)
 
 
@@ -145,7 +142,8 @@
 		return FALSE
 	cooldown = 2
 	pulse(FALSE, triggered)
-	audible_message("[bicon(src)] *beep* *beep*", hearing_distance = 3)
+	audible_message("[bicon(src)] *beep* *beep* *beep*", hearing_distance = 3)
+	playsound(src, 'sound/machines/triple_beep.ogg', 40, extrarange = SHORT_RANGE_SOUND_EXTRARANGE)
 	if(first)
 		qdel(first)
 	addtimer(CALLBACK(src, PROC_REF(process_cooldown)), 1 SECONDS)
@@ -155,13 +153,13 @@
 	if(!secured)
 		return
 	user.set_machine(src)
-	var/dat = {"<meta charset="UTF-8"><TT><B>Infrared Laser</B>
-				<B>Status</B>: [on ? "<A href='?src=[UID()];state=0'>On</A>" : "<A href='?src=[UID()];state=1'>Off</A>"]<BR>
-				<B>Visibility</B>: [visible ? "<A href='?src=[UID()];visible=0'>Visible</A>" : "<A href='?src=[UID()];visible=1'>Invisible</A>"]<BR>
-				<B>Current Direction</B>: <A href='?src=[UID()];rotate=1'>[capitalize(dir2text(dir))]</A><BR>
-				</TT>
-				<BR><BR><A href='?src=[UID()];refresh=1'>Refresh</A>
-				<BR><BR><A href='?src=[UID()];close=1'>Close</A>"}
+	var/dat = {"<tt><b>Infrared Laser</b>
+				<b>Status</b>: [on ? "<a href='byond://?src=[UID()];state=0'>On</a>" : "<a href='byond://?src=[UID()];state=1'>Off</a>"]<br>
+				<b>Visibility</b>: [visible ? "<a href='byond://?src=[UID()];visible=0'>Visible</a>" : "<a href='byond://?src=[UID()];visible=1'>Invisible</a>"]<br>
+				<b>Current Direction</b>: <a href='byond://?src=[UID()];rotate=1'>[capitalize(dir2text(dir))]</a><br>
+				</tt>
+				<br><br><a href='byond://?src=[UID()];refresh=1'>Refresh</a>
+				<br><br><a href='byond://?src=[UID()];close=1'>Close</a>"}
 	var/datum/browser/popup = new(user, "infra", name, 400, 400, src)
 	popup.set_content(dat)
 	popup.open()
@@ -170,7 +168,7 @@
 /obj/item/assembly/infra/Topic(href, href_list)
 	..()
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) || !in_range(loc, usr))
-		usr << browse(null, "window=infra")
+		close_window(usr, "infra")
 		onclose(usr, "infra")
 		return
 	if(href_list["state"])
@@ -183,21 +181,20 @@
 	if(href_list["rotate"])
 		rotate(usr)
 	if(href_list["close"])
-		usr << browse(null, "window=infra")
+		close_window(usr, "infra")
 		return
 	if(usr)
 		attack_self(usr)
 
 
-/obj/item/assembly/infra/AltClick(mob/user)
-	if(!Adjacent(user))
-		return ..()
+/obj/item/assembly/infra/click_alt(mob/user)
 	rotate(user)
+	return CLICK_ACTION_SUCCESS
 
 
 /obj/item/assembly/infra/verb/rotate_verb()
-	set name = "Rotate Infrared Laser"
-	set category = "Object"
+	set name = "Повернуть"
+	set category = STATPANEL_OBJECT
 	set src in usr
 
 	rotate(usr)
@@ -248,6 +245,14 @@
 	anchored = TRUE
 	pass_flags_self = LETPASSTHROW
 	pass_flags = PASSTABLE|PASSGLASS|PASSGRILLE|PASSFENCE
+
+
+/obj/effect/beam/i_beam/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 
 /obj/effect/beam/i_beam/Destroy()
@@ -304,18 +309,23 @@
 			I.process()
 
 
-/obj/effect/beam/i_beam/Bump()
+/obj/effect/beam/i_beam/Bump(atom/bumped_atom)
 	qdel(src)
 
 
 /obj/effect/beam/i_beam/Bumped(atom/movable/moving_atom)
+	. = ..()
 	hit(moving_atom)
 
 
-/obj/effect/beam/i_beam/Crossed(atom/movable/AM, oldloc)
-	if(!isobj(AM) && !isliving(AM))
+/obj/effect/beam/i_beam/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(!isobj(arrived) && !isliving(arrived))
 		return
-	if(iseffect(AM))
+
+	if(iseffect(arrived))
 		return
-	hit(AM)
+
+	INVOKE_ASYNC(src, PROC_REF(hit), arrived)
 

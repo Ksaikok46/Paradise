@@ -3,7 +3,7 @@
 
 /proc/handleDiscordEmojis(msg)
 	var/list/listmsg = splittext_char(msg, " ")
-	var/list/newMsg = new/list(listmsg.len)
+	var/list/newMsg = list()
 	var/list/discordEmojis = CONFIG_GET(keyed_list/emoji)
 	for (var/word in listmsg)
 		var/emoji = discordEmojis[lowertext(word)]
@@ -11,7 +11,7 @@
 			newMsg += DISCORD_EMOJI_IMAGE(emoji, 32, 32)
 		else
 			newMsg += word
-	return copytext_char(jointext(newMsg, " "), 2)
+	return jointext(newMsg, " ")
 
 /proc/generateDiscordEmojiTable()
 	var/const/itemsInRow = 7
@@ -34,9 +34,9 @@
 	return html
 
 /client/verb/show_all_emojis()
-	set name = "Show Emojis"
+	set name = "Эмодзи"
 	set desc = "Shows all the emojis available in OOC/LOOC/DSAY"
-	set category = "OOC"
+	set category = STATPANEL_OOC
 
 	var/datum/browser/popup = new(usr, "discord_emoji", "Discord emojis", 800, 460)
 	popup.set_content(generateDiscordEmojiTable())

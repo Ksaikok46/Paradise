@@ -9,7 +9,7 @@
 		return
 
 	if(!new_type)
-		new_type = clean_input("Mob type path:", "Mob type")
+		new_type = tgui_input_text(usr, "Mob type path:", "Mob type")
 
 	if(istext(new_type))
 		new_type = text2path(new_type)
@@ -47,7 +47,9 @@
 		mind.transfer_to(M)
 	else
 		M.key = key
-
+		
+	SEND_SIGNAL(src, COMSIG_MOB_CHANGED_TYPE, M)
+	
 	if(delete_old_mob)
 		spawn(1)
 			qdel(src)

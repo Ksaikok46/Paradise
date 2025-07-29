@@ -48,14 +48,14 @@
 
 /datum/multitool_menu_host/proc/notify_if_no_access(mob/user)
 	if(!multitool.allowed(user))
-		to_chat(user, "<span class='warning'>Access denied.</span>")
+		user.balloon_alert(user, "доступ запрещён")
 		return TRUE
 	return FALSE
 
-/datum/multitool_menu_host/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/datum/multitool_menu_host/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "Multitool", multitool.name, 510, 420, master_ui, state)
+		ui = new(user, src, "Multitool", multitool.name)
 		ui.set_autoupdate(TRUE)
 		ui.open()
 
@@ -142,7 +142,7 @@
 		return
 	holder.add_fingerprint(user)
 	if(inoperable())
-		to_chat(user, "<span class='warning'>You attach [multitool] to [holder], but nothing happens. [holder] seems to be inoperable.</span>")
+		to_chat(user,  span_warning("You attach [multitool] to [holder], but nothing happens. [holder] seems to be inoperable."))
 		return
 	src.multitool = multitool
 	src.multitool.menu.interact(user, src)
@@ -161,7 +161,7 @@
 	Used to check if we still need to apply changes (returns true if we don't), e.g. after input() call.
 	*/
 	if(!multitool)
-		to_chat(user, "<span class='warning'>You are unable to reach [holder ? holder : "the thing"].</span>")
+		to_chat(user, span_warning("You are unable to reach [holder ? holder : "the thing"]."))
 		return TRUE
 	return FALSE
 
@@ -204,7 +204,7 @@
 	var/message = "Enter an ID tag"
 	var/current_tag = get_tag()
 	var/default = current_tag ? current_tag : ""
-	return reject_bad_text(stripped_input(user=user, message=message, title=title, default=default))
+	return reject_bad_text(tgui_input_text(user, message, title, default))
 
 ////////////////////////////////
 //	Mass driver
@@ -609,7 +609,7 @@
 			if(!length(sensors))
 				service_message("No sensors on this frequency.")
 				return FALSE
-			var/sensor_tag = input(user, "Select a sensor", "Sensors on the frequency") as null|anything in sensors
+			var/sensor_tag = tgui_input_list(user, "Select a sensor", "Sensors on the frequency", sensors)
 			if(!sensor_tag || notify_if_cannot_apply(user))
 				return FALSE
 			add_sensor(sensor_tag)
@@ -639,7 +639,7 @@
 	var/title = "Sensor label"
 	var/message = "Choose a sensor label"
 	var/default = my_holder.sensors[sensor_tag]
-	return reject_bad_text(stripped_input(user=user, message=message, title=title, default=default))
+	return reject_bad_text(tgui_input_text(user, message, title, default))
 
 /datum/multitool_menu/idtag/freq/general_air_control/get_frequency()
 	var/obj/machinery/computer/general_air_control/my_holder = holder

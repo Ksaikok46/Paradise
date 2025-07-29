@@ -4,6 +4,7 @@
 	special_role = SPECIAL_ROLE_SPACE_NINJA
 	antag_hud_name = "hudninja"
 	antag_hud_type = ANTAG_HUD_NINJA
+	antag_menu_name = "Космический ниндзя"
 	/// Abilities bicons used for the end game info.
 	var/purchased_abilities
 	/// If `FALSE` ninja will not get default items.
@@ -65,7 +66,7 @@
 	return TRUE
 
 
-/datum/antagonist/ninja/Destroy(force, ...)
+/datum/antagonist/ninja/Destroy(force)
 	owner.offstation_role = FALSE
 	human_ninja = null
 	creeping_widow = null
@@ -98,8 +99,8 @@
 
 
 /datum/antagonist/ninja/greet()
-	SEND_SOUND(owner.current, 'sound/ambience/antag/ninja_greeting.ogg')
-	to_chat(owner.current, "Я элитный наёмник в составе могущественного Клана Паука! <font color='red'><B>Космический Ниндзя!</B></font>")
+	SEND_SOUND(owner.current, sound('sound/ambience/antag/ninja_greeting.ogg'))
+	to_chat(owner.current, "Я элитный наёмник в составе могущественного Клана Паука! <font color='red'><b>Космический Ниндзя!</b></font>")
 	to_chat(owner.current, "Моё оружие внезапность. Моя броня Тень. Без них, я ничто.")
 
 
@@ -113,7 +114,21 @@
 /datum/antagonist/ninja/apply_innate_effects(mob/living/mob_override)
 	var/mob/living/user = ..()
 	user.faction = list(ROLE_NINJA)
-	human_ninja = ishuman(user) ? user : null
+
+	user.AddElement( \
+		/datum/element/pref_viewer, \
+		list(/datum/preference_info/take_out_of_the_round_without_obj), \
+	)
+
+/datum/antagonist/ninja/handle_last_instance_removal()
+	owner.current.RemoveElement(/datum/element/pref_viewer)
+
+/datum/antagonist/ninja/on_body_transfer(mob/living/old_body, mob/living/new_body)
+	. = ..()
+	old_body.RemoveElement(/datum/element/pref_viewer)
+
+/datum/antagonist/ninja/proc/change_species(mob/living/mob_to_change = null) // This should be used to fully to remove robo-limbs & change species for lack of sprites
+	human_ninja = ishuman(mob_to_change) ? mob_to_change : null
 	if(human_ninja)
 		human_ninja.set_species(/datum/species/human)	// only human ninjas for now
 		human_ninja.revive()
@@ -142,7 +157,7 @@
 /datum/antagonist/ninja/proc/finalize_antag_paradise_mode()
 	give_objectives()
 	announce_objectives()
-	SEND_SOUND(owner.current, 'sound/ambience/alarm4.ogg')
+	SEND_SOUND(owner.current, sound('sound/ambience/alarm4.ogg'))
 
 
 /datum/antagonist/ninja/proc/name_ninja()
@@ -150,7 +165,7 @@
 	var/ninja_name_second = pick(GLOB.ninja_names)
 	var/newname = "[ninja_name_first] [ninja_name_second]"
 	if(allow_rename)
-		newname = sanitize(copytext_char(input(human_ninja, "Вы космический Ниндзя, гордый член клана Паука. Как вы хотите себя называть?", "Смена имени", newname) as null|text, 1, MAX_NAME_LEN))
+		newname = tgui_input_text(human_ninja, "Вы космический Ниндзя, гордый член клана Паука. Как вы хотите себя называть?", "Смена имени", newname, max_length = MAX_NAME_LEN)
 
 	human_ninja.real_name = newname
 	human_ninja.name = newname
@@ -356,8 +371,7 @@
 	for(var/datum/mind/traitor in pre_antags)
 		var/datum/antagonist/traitor/traitor_datum = new
 		traitor_datum.give_objectives = FALSE
-		if(prob(10))
-			traitor_datum.is_contractor = TRUE
+		traitor_datum.contractor_pending = new(traitor)
 		traitor.add_antag_datum(traitor_datum)
 
 		var/objective_amount = protect_objective ? CONFIG_GET(number/traitor_objectives_amount) - 1 : CONFIG_GET(number/traitor_objectives_amount)
@@ -368,7 +382,7 @@
 			protect_objective.killers_objectives |= killer_objective
 
 		for(var/i in 1 to objective_amount)
-			traitor_datum.forge_single_human_objective()
+			traitor_datum.forge_single_objective()
 
 		var/list/all_objectives = traitor.get_all_objectives()
 		var/martyr_compatibility = TRUE
@@ -390,7 +404,7 @@
 
 /datum/antagonist/ninja/proc/generate_vampires()
 	for(var/datum/mind/vampire in pre_antags)
-		vampire.add_antag_datum(/datum/antagonist/vampire)
+		vampire.add_antag_datum(/datum/antagonist/vampire/new_vampire)
 
 
 /datum/antagonist/ninja/proc/generate_changelings()
@@ -440,40 +454,32 @@
 			// RnD Hack: Flag set to complete in the DrainAct in ninjaDrainAct.dm
 			add_objective(/datum/objective/research_corrupt)
 
-	var/pick_chance = rand(0, 100)
-	if(pick_chance <= 25)
+	if(prob(50))
 		var/datum/objective/plant_explosive/bomb_objective = add_objective(/datum/objective/plant_explosive)
 		bomb_objective.give_bomb(delayed = 0)
 
-	else if(pick_chance <= 50)
+	else
 		var/datum/objective/set_up/set_up_objective = add_objective(/datum/objective/set_up)
 		if(!set_up_objective.target)
 			qdel(set_up_objective)
 
+	if(prob(50))
+		add_objective(/datum/objective/get_money)
+
 	else
-		var/datum/objective/pain_hunter/pain_hunter_objective = add_objective(/datum/objective/pain_hunter)
-		if(!pain_hunter_objective.target)
-			qdel(pain_hunter_objective)
+		add_objective(/datum/objective/find_and_scan)
 
-	switch(pick(1,2))
-		if(1)
-			add_objective(/datum/objective/get_money)
+	if(prob(50))
+		for(var/i in 1 to 2)
+			var/datum/objective/assassinate/assassinate_objective = add_objective(/datum/objective/assassinate)
+			if(!assassinate_objective.target)
+				qdel(assassinate_objective)
 
-		if(2)
-			add_objective(/datum/objective/find_and_scan)
-
-	switch(pick(1,2))
-		if(1)
-			for(var/i in 1 to 2)
-				var/datum/objective/assassinate/assassinate_objective = add_objective(/datum/objective/assassinate)
-				if(!assassinate_objective.target)
-					qdel(assassinate_objective)
-
-		if(2)
-			for(var/i in 1 to 2)
-				var/datum/objective/steal/steal_objective = add_objective(/datum/objective/steal)
-				if(!steal_objective.steal_target)
-					qdel(steal_objective)
+	else
+		for(var/i in 1 to 2)
+			var/datum/objective/steal/steal_objective = add_objective(/datum/objective/steal)
+			if(!steal_objective.steal_target)
+				qdel(steal_objective)
 
 	var/list/all_objectives = owner.get_all_objectives()
 	if(!(locate(/datum/objective/escape) in all_objectives) && !(locate(/datum/objective/survive) in all_objectives))

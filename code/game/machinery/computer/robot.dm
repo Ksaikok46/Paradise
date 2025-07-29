@@ -1,6 +1,6 @@
 /obj/machinery/computer/robotics
 	name = "robotics control console"
-	desc = "Used to remotely lockdown or detonate linked Cyborgs."
+	desc = "Используется для дистанционной блокировки или подрыва привязанных киборгов."
 	icon = 'icons/obj/machines/computer.dmi'
 	icon_keyboard = "tech_key"
 	icon_screen = "robot"
@@ -50,7 +50,7 @@
 		return FALSE
 	if(R.scrambledcodes)
 		return FALSE
-	if(!atoms_share_level(get_turf(src), get_turf(R)))
+	if(!are_zs_connected(src, R))
 		return FALSE
 	return TRUE
 
@@ -137,10 +137,10 @@
 	return TRUE
 
 
-/obj/machinery/computer/robotics/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/computer/robotics/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "RoboticsControlConsole",  name, 500, 460, master_ui, state)
+		ui = new(user, src, "RoboticsControlConsole", name)
 		ui.open()
 
 /obj/machinery/computer/robotics/ui_data(mob/user)
@@ -242,13 +242,13 @@
 			R.SetLockdown(!R.lockcharge)
 			to_chat(R, "[!R.lockcharge ? span_notice("Your lockdown has been lifted!") : span_alert("You have been locked down!")]")
 			if(R.connected_ai)
-				to_chat(R.connected_ai, "[!R.lockcharge ? span_notice("NOTICE - Cyborg lockdown lifted") : span_alert("ALERT - Cyborg lockdown detected")]: <a href='?src=[R.connected_ai.UID()];track=[html_encode(R.name)]'>[R.name]</a></span><br>")
+				to_chat(R.connected_ai, "[!R.lockcharge ? span_notice("NOTICE - Cyborg lockdown lifted") : span_alert("ALERT - Cyborg lockdown detected")]: <a href='byond://?src=[R.connected_ai.UID()];track=[html_encode(R.name)]'>[R.name]</a></span><br>")
 			. = TRUE
 		if("hackbot") // AIs hacking/emagging a borg
 			var/mob/living/silicon/robot/R = locateUID(params["uid"])
 			if(!can_hack(usr, R))
 				return
-			var/choice = input("Really hack [R.name]? This cannot be undone.") in list("Yes", "No")
+			var/choice = tgui_alert(usr, "Really hack [R.name]? This cannot be undone.", list("Yes", "No"))
 			if(choice != "Yes")
 				return
 			add_game_logs("emagged [key_name_log(R)] using robotic console!", usr)

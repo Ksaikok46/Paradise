@@ -43,7 +43,39 @@
 	key = "airguitar"
 	message = "дела%(ет,ют)% невероятный запил на воображаемой гитаре!"
 	hands_use_check = TRUE
+	emote_type = EMOTE_AUDIBLE
+	cooldown = 60 SECONDS
+	vary = TRUE
+	sound = list(
+		'sound/misc/guitar_rifs/guitar_riff_1.ogg', // audio file from the suggestion
+		'sound/misc/guitar_rifs/guitar_riff_2.ogg', // found all the rest on the free site samplefocus
+		'sound/misc/guitar_rifs/guitar_riff_3.ogg',
+		'sound/misc/guitar_rifs/guitar_riff_4.ogg',
+		'sound/misc/guitar_rifs/guitar_riff_5.ogg',
+		'sound/misc/guitar_rifs/guitar_riff_6.ogg',
+		'sound/misc/guitar_rifs/guitar_riff_7.ogg',
+		'sound/misc/guitar_rifs/guitar_riff_8.ogg',
+	)
 
+/datum/emote/living/carbon/human/airguitar/run_emote(mob/living/carbon/human/user, params, type_override, intentional)
+	// check hands status
+	var/obj/item/organ/external/left_arm = user.bodyparts_by_name[BODY_ZONE_L_ARM]
+	var/obj/item/organ/external/right_arm = user.bodyparts_by_name[BODY_ZONE_R_ARM]
+	var/can_play = TRUE
+
+	if(!right_arm || right_arm.has_fracture_or_splint() || !left_arm || left_arm.has_fracture_or_splint())
+		can_play = FALSE
+
+	if(!can_play)
+		to_chat(user, span_warning("Я не могу играть! С моими руками что-то не то!"))
+		return TRUE
+
+	. = ..()
+
+	if(!. || !intentional || !istype(user))
+		return
+
+	return TRUE
 
 /datum/emote/living/carbon/human/clap
 	key = "clap"
@@ -527,6 +559,9 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
 	vary = TRUE
+	only_unintentional = TRUE
+	audio_cooldown = 1 MINUTES
+	cooldown = 10 SECONDS
 	species_type_blacklist_typecache = list(/datum/species/machine)
 	// Credits: Ultimate Fart Series
 	// https://freesound.org/people/Jagadamba
@@ -632,6 +667,7 @@
 	message_postfix = ", смотря на %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
+	audio_cooldown = 15 SECONDS
 	vary = TRUE
 	volume = 80
 	sound = 'sound/voice/plas_rattle.ogg'
@@ -927,7 +963,7 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
 	muzzled_noises = list("тихие")
-	audio_cooldown = 3 SECONDS
+	audio_cooldown = 15 SECONDS
 	// Credit to DrMinky (freesound.org) for the sound.
 	sound = 'sound/effects/Kidanclack.ogg'
 
@@ -955,7 +991,7 @@
 	message_postfix = ", смотря на %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
-	audio_cooldown = 3 SECONDS
+	audio_cooldown = 9 SECONDS
 	sound = list(
 		'sound/voice/kidan/wiggles_antennae1.ogg',
 		'sound/voice/kidan/wiggles_antennae2.ogg',
@@ -970,7 +1006,7 @@
 	message_postfix = ", смотря на %t."
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
-	audio_cooldown = 2 SECONDS
+	audio_cooldown = 6 SECONDS
 	sound = list(
 		'sound/voice/kidan/waves_antennae_sharply1.ogg',
 		'sound/voice/kidan/waves_antennae_sharply2.ogg',
@@ -1030,27 +1066,9 @@
 	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
 	muzzled_noises = list("раздражённые", "свистящие", "шипящие")
 	age_based = TRUE
-	audio_cooldown = 3 SECONDS
+	audio_cooldown = 15 SECONDS
 	// Credit to Jamius (freesound.org) for the sound.
 	sound = 'sound/effects/unathihiss.ogg'
-
-
-/datum/emote/living/carbon/human/unathi/rumble
-	key = "rumble"
-	key_third_person = "rumble"
-	message = "урч%(ит,ат)%."
-	message_mime = "тихо урч%(ит,ат)%."
-	message_postfix = " на %t."
-	message_param = EMOTE_PARAM_USE_POSTFIX
-	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
-	muzzled_noises = list("урчащие", "гортанные")
-	audio_cooldown = 6 SECONDS
-	age_based = TRUE
-	volume = 65
-	sound = list(
-		'sound/voice/unathi/rumble.ogg',
-		'sound/voice/unathi/rumble2.ogg',
-	)
 
 
 /datum/emote/living/carbon/human/unathi/roar
@@ -1062,7 +1080,7 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
 	muzzled_noises = list("раздражённые", "утробные", "громкие")
-	audio_cooldown = 6 SECONDS
+	audio_cooldown = 30 SECONDS
 	age_based = TRUE
 	sound = list(
 		'sound/voice/unathi/roar.ogg',
@@ -1080,7 +1098,7 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
 	muzzled_noises = list("очень раздражённые", "громкие")
-	audio_cooldown = 6 SECONDS
+	audio_cooldown = 16 SECONDS
 	age_based = TRUE
 	volume = 80
 	sound = list(
@@ -1099,7 +1117,7 @@
 	emote_type = EMOTE_AUDIBLE
 	tail_required = TRUE
 	volume = 100
-	audio_cooldown = 3 SECONDS
+	audio_cooldown = 15 SECONDS
 	sound = 'sound/voice/unathi/whip_short.ogg'
 
 
@@ -1107,7 +1125,7 @@
 	key = "whip_l"
 	key_third_person = ""
 	message = "хлещ%(ет,ут)% хвостом."
-	audio_cooldown = 6 SECONDS
+	audio_cooldown = 15 SECONDS
 	sound = 'sound/voice/unathi/whip.ogg'
 
 
@@ -1127,6 +1145,7 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
 	age_based = TRUE
+	audio_cooldown = 15 SECONDS
 	//Credit https://www.youtube.com/watch?v=ufnvlRjsOTI [0:13 - 0:16]
 	sound = 'sound/voice/dionatalk1.ogg'
 
@@ -1139,7 +1158,7 @@
 	message_param = EMOTE_PARAM_USE_POSTFIX
 	emote_type = EMOTE_AUDIBLE
 	age_based = TRUE
-	audio_cooldown = 3 SECONDS
+	audio_cooldown = 15 SECONDS
 
 
 /datum/emote/living/carbon/human/slime/can_run_emote(mob/living/carbon/human/user, status_check, intentional)
@@ -1346,3 +1365,21 @@
 	message = "хруст%(ит,ят)% [translated]!"
 	return ..()
 
+
+//fucking rumble
+/datum/emote/living/carbon/human/unathi/rumble
+	key = "rumble"
+	key_third_person = "rumble"
+	message = "урч%(ит,ат)%."
+	message_mime = "тихо урч%(ит,ат)%."
+	message_postfix = " на %t."
+	message_param = EMOTE_PARAM_USE_POSTFIX
+	emote_type = EMOTE_AUDIBLE|EMOTE_MOUTH
+	muzzled_noises = list("урчащие", "гортанные")
+	audio_cooldown = 30 SECONDS
+	age_based = TRUE
+	volume = 65
+	sound = list(
+		'sound/voice/unathi/rumble.ogg',
+		'sound/voice/unathi/rumble2.ogg',
+	)

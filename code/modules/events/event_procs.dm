@@ -1,18 +1,18 @@
 
-/client/proc/forceEvent(var/type in SSevents.allEvents)
+/client/proc/forceEvent()
 	set name = "Trigger Event"
-	set category = "Debug"
+	set category = STATPANEL_ADMIN_EVENT
 
 	if(!check_rights(R_EVENT))
 		return
-
+	var/type = tgui_input_list(src, "Выберите событие для запуска", "Выбор события", SSevents.allEvents)
 	if(ispath(type))
-		new type(new /datum/event_meta(EVENT_LEVEL_MAJOR))
+		new type(new /datum/event_meta(EVENT_LEVEL_MAJOR), forced = TRUE)
 		message_admins("[key_name_admin(usr)] has triggered an event. ([type])")
 
 /client/proc/event_manager_panel()
 	set name = "Event Manager Panel"
-	set category = "Event"
+	set category = STATPANEL_ADMIN_EVENT
 	if(SSevents)
 		SSevents.Interact(usr)
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Event Manager") //If you are copy-pasting this, ensure the 4th parameter is unique to the new proc!
@@ -25,7 +25,7 @@
 		var/list/safe_areas = typecacheof(list(
 			/area/turret_protected/ai,
 			/area/turret_protected/ai_upload,
-			/area/engine,
+			/area/engineering,
 			/area/holodeck,
 			/area/shuttle,
 			/area/maintenance,
@@ -36,16 +36,18 @@
 
 		//These are needed because /area/station/engineering has to be removed from the list, but we still want these areas to get fucked up.
 		var/list/allowed_areas = list(
-			/area/engine/break_room,
-			/area/engine/equipmentstorage,
-			/area/engine/chiefs_office,
-			/area/engine/controlroom,
-			/area/engine/mechanic_workshop
+			/area/engineering/break_room,
+			/area/engineering/equipmentstorage,
+			/area/engineering/chiefs_office,
+			/area/engineering/controlroom,
+			/area/engineering/mechanic_workshop
 		)
 
 		var/list/remove_these_areas = safe_areas - allowed_areas
 		possible_areas = typecache_filter_list_reverse(SSmapping.existing_station_areas, remove_these_areas)
 
+	if(!length(possible_areas))
+		return null
 	return pick(possible_areas)
 
 // Returns how many characters are currently active(not logged out, not AFK for more than 10 minutes)
@@ -80,7 +82,7 @@
 		if(M.mind.assigned_role in list(JOB_TITLE_CHIEF, JOB_TITLE_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE))
 			active_with_role["Engineer"]++
 
-		if(M.mind.assigned_role in list(JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_INTERN))
+		if(M.mind.assigned_role in list(JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_MINING_MEDIC, JOB_TITLE_INTERN))
 			active_with_role["Medical"]++
 
 		if(M.mind.assigned_role in GLOB.security_positions)

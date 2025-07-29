@@ -15,10 +15,17 @@
 	icon_dead = "placeholder"
 
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	minbodytemp = 0
 
 	melee_damage_lower = 3
 	melee_damage_upper = 7
+	weather_immunities = list(TRAIT_SNOWSTORM_IMMUNE)
+	AI_delay_max = 0 SECONDS
+
+/mob/living/simple_animal/hostile/winter/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		minbodytemp = 0, \
+	)
 
 /mob/living/simple_animal/hostile/winter/snowman
 	name = "snowman"
@@ -30,10 +37,15 @@
 	icon_dead = "snowman-dead"
 
 	bodytemperature = 73.0		//it's made of snow and hatred, so it's pretty cold.
-	maxbodytemp = 280.15		//at roughly 7 C, these will start melting (dying) from the warmth. Mind over matter or something.
-	heat_damage_per_tick = 10	//Now With Rapid Thawing Action!
 	gold_core_spawnable = HOSTILE_SPAWN
 
+/mob/living/simple_animal/hostile/winter/snowman/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		maxbodytemp = 280, \
+		minbodytemp = 0, \
+		heat_damage = 10, \
+	)
 
 /mob/living/simple_animal/hostile/winter/snowman/death(gibbed)
 	if(can_die())
@@ -51,7 +63,7 @@
 	ranged = 1
 	retreat_distance = 5
 	minimum_distance = 5
-	projectiletype = /obj/item/projectile/snowball
+	projectiletype = /obj/projectile/snowball
 
 /mob/living/simple_animal/hostile/winter/reindeer
 	name = "reindeer"
@@ -119,7 +131,7 @@
 	maxHealth = 200		//DID YOU REALLY BELIEVE IT WOULD BE THIS EASY!??!!
 	health = 200
 	ranged = 1
-	projectiletype = /obj/item/projectile/ornament
+	projectiletype = /obj/projectile/ornament
 	retreat_distance = 5
 	minimum_distance = 5
 
@@ -132,7 +144,7 @@
 	ranged = 1
 	rapid = 3
 	speed = 0	//he's lost some weight from the fighting
-	projectiletype = /obj/item/projectile/ornament
+	projectiletype = /obj/projectile/ornament
 	retreat_distance = 3
 	minimum_distance = 3
 

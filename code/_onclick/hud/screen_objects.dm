@@ -16,6 +16,7 @@
 	var/obj/master = null	//A reference to the object in the slot. Grabs or items, generally.
 	VAR_PRIVATE/datum/hud/hud = null
 	appearance_flags = NO_CLIENT_COLOR
+	interaction_flags_click = BYPASS_ADJACENCY
 	/**
 	 * Map name assigned to this object.
 	 * Automatically set by /client/proc/add_obj_to_map.
@@ -29,11 +30,14 @@
 	 * But for now, this works.
 	 */
 	var/del_on_map_removal = TRUE
+	/// If FALSE, this will not be cleared when calling /client/clear_screen()
+	var/clear_with_screen = TRUE
 
 /atom/movable/screen/Initialize(mapload, datum/hud/hud_owner)
 	. = ..()
-	if(hud_owner && istype(hud_owner))
-		hud = hud_owner
+	if(isnull(hud_owner)) //some screens set their hud owners on /new, this prevents overriding them with null post atoms init
+		return
+	set_new_hud(hud_owner)
 
 /atom/movable/screen/Destroy()
 	master = null
@@ -42,6 +46,21 @@
 
 /atom/movable/screen/proc/component_click(atom/movable/screen/component_button/component, params)
 	return
+
+///setter used to set our new hud
+/atom/movable/screen/proc/set_new_hud(datum/hud/hud_owner)
+	if(hud)
+		UnregisterSignal(hud, COMSIG_QDELETING)
+	if(isnull(hud_owner))
+		hud = null
+		return
+	hud = hud_owner
+	RegisterSignal(hud, COMSIG_QDELETING, PROC_REF(on_hud_delete))
+
+/atom/movable/screen/proc/on_hud_delete(datum/source)
+	SIGNAL_HANDLER
+
+	set_new_hud(hud_owner = null)
 
 /atom/movable/screen/text
 	icon = null
@@ -74,27 +93,13 @@
 		usr.drop_item_ground(usr.get_active_hand(), ignore_pixel_shift = TRUE)
 
 
-/atom/movable/screen/grab
-	name = "grab"
-
-/atom/movable/screen/grab/Click()
-	var/obj/item/grab/G = master
-	G.s_click(src)
-	return TRUE
-
-/atom/movable/screen/grab/attack_hand()
-	return
-
-/atom/movable/screen/grab/attackby()
-	return
-
 /atom/movable/screen/act_intent
 	name = "intent"
 	icon_state = "help"
 	screen_loc = ui_acti
 
 /atom/movable/screen/act_intent/Click(location, control, params)
-	if(ishuman(usr))
+	if(ishuman(usr) || isdevil(usr))
 		var/_x = text2num(params2list(params)["icon-x"])
 		var/_y = text2num(params2list(params)["icon-y"])
 		if(_x<=16 && _y<=16)
@@ -123,6 +128,14 @@
 	name = "run/walk toggle"
 	icon_state = "running"
 
+
+/atom/movable/screen/mov_intent/update_icon_state()
+	if(hud?.mymob)
+		icon_state = (hud.mymob.m_intent == MOVE_INTENT_RUN) ? "running" : "walking"
+	else
+		icon_state = initial(icon_state)
+
+
 /atom/movable/screen/act_intent/simple_animal
 	icon = 'icons/mob/screen_simplemob.dmi'
 	screen_loc = ui_acti
@@ -134,18 +147,22 @@
 /atom/movable/screen/mov_intent/Click()
 	usr.toggle_move_intent()
 
+
 /atom/movable/screen/pull
 	name = "stop pulling"
 	icon_state = "pull"
+	base_icon_state = "pull"
+
 
 /atom/movable/screen/pull/Click()
+	if(isobserver(usr))
+		return
 	usr.stop_pulling()
 
+
 /atom/movable/screen/pull/update_icon_state()
-	if(hud?.mymob?.pulling)
-		icon_state = "pull"
-	else
-		icon_state = "pull0"
+	icon_state = "[base_icon_state][hud?.mymob?.pulling ? "" : "0"]"
+
 
 /atom/movable/screen/resist
 	name = "resist"
@@ -188,7 +205,7 @@
 	if(master)
 		var/obj/item/I = usr.get_active_hand()
 		if(I)
-			master.attackby(I, usr, params)
+			I.melee_attack_chain(usr, master, params)
 	return TRUE
 
 
@@ -248,8 +265,7 @@
 			S.orient2hud(user)
 			S.show_to(user)
 	else // If it's not in the storage, try putting it inside
-		I.pickup(user) //Do not actually put in hands, but rather make some funny effects out of it
-		S.attackby(I, user)
+		I.melee_attack_chain(user, S, params)
 	return TRUE
 
 
@@ -296,25 +312,26 @@
 		return TRUE
 
 	if(PL["alt"])
-		AltClick(usr, choice)
+		click_alt(usr, choice)
 		return
 
 	return set_selected_zone(choice)
 
-/atom/movable/screen/zone_sel/AltClick(mob/user, choice)
+/atom/movable/screen/zone_sel/click_alt(mob/user, choice)
 
 	if(user.next_click > world.time || user.next_move > world.time)
-		return FALSE
+		return CLICK_ACTION_BLOCKING
 	user.changeNext_click(1)
 
 	var/obj/item/holding_item = user.get_active_hand()
 	var/old_selecting = selecting
 	if(!istype(holding_item))
-		return FALSE
+		return CLICK_ACTION_BLOCKING
 	if(!set_selected_zone(choice, FALSE))
-		return FALSE
+		return CLICK_ACTION_BLOCKING
 	holding_item.melee_attack_chain(user, user)
 	set_selected_zone(old_selecting, FALSE)
+	return CLICK_ACTION_SUCCESS
 
 
 /atom/movable/screen/zone_sel/MouseEntered(location, control, params)
@@ -453,6 +470,9 @@
 	screen_loc = ui_crafting
 
 /atom/movable/screen/craft/Click()
+	if(isobserver(usr))
+		return
+
 	var/mob/living/M = usr
 	M.OpenCraftingMenu()
 
@@ -567,7 +587,7 @@
 				span_notice("[user] начинает снимать [I.name]..."),
 				span_notice("Вы начинаете снимать [I.name]..."),
 			)
-			if(!do_after(user, I.equip_delay_self, user, max_interact_count = 1, cancel_message = span_warning("Снятие [I.name] было прервано!")))
+			if(!do_after(user, I.equip_delay_self, user, max_interact_count = 1, cancel_on_max = TRUE, cancel_message = span_warning("Снятие [I.name] было прервано!")))
 				return FALSE
 
 		if(!user.drop_item_ground(I))
@@ -581,38 +601,87 @@
 
 
 /atom/movable/screen/inventory/hand
-	var/image/active_overlay
-	var/image/handcuff_overlay
-	var/static/mutable_appearance/blocked_overlay = mutable_appearance('icons/mob/screen_gen.dmi', "blocked")
+	/// Previous UI style, used by user. Requires to properly update user's active hand overlay.
+	var/prev_ui_style
+	/// Currently used overlay for active hand. It's icon switches with user's theme.
+	var/mutable_appearance/active_overlay
 
+
+#define HAND_OVERLAY_BLOCKED 1
+#define HAND_OVERLAY_HANDCUFFED_LEFT 2
+#define HAND_OVERLAY_HANDCUFFED_RIGHT 3
+#define HAND_GRAB_PASSIVE 4
+#define HAND_GRAB_AGGRESSIVE 5
+#define HAND_GRAB_NECK 6
+#define HAND_GRAB_KILL 7
 
 /atom/movable/screen/inventory/hand/update_overlays()
 	. = ..()
 
 	if(!hud || !hud.mymob)
-		return
+		return .
+
+	var/mob/user = hud.mymob
+
+	var/static/list/hand_overlays
+	if(isnull(hand_overlays))
+		hand_overlays = list(
+			iconstate2appearance('icons/mob/screen_gen.dmi', "blocked"),
+			iconstate2appearance('icons/mob/screen_gen.dmi', "gabrielle"),
+			iconstate2appearance('icons/mob/screen_gen.dmi', "markus"),
+			iconstate2appearance('icons/mob/screen_gen.dmi', "grab_passive"),
+			iconstate2appearance('icons/mob/screen_gen.dmi', "grab_aggressive"),
+			iconstate2appearance('icons/mob/screen_gen.dmi', "grab_neck"),
+			iconstate2appearance('icons/mob/screen_gen.dmi', "grab_kill"),
+		)
 
 	if(!active_overlay)
-		active_overlay = image("icon" = icon, "icon_state" = "hand_active")
+		active_overlay = mutable_appearance(icon, "hand_active")
+		prev_ui_style = user.client?.prefs?.UI_style
+	else if(user.client?.prefs && user.client.prefs.UI_style != prev_ui_style)
+		active_overlay.icon = ui_style2icon(user.client.prefs.UI_style)
+		prev_ui_style = user.client.prefs.UI_style
 
-	if(!handcuff_overlay)
-		var/state = (slot_id == ITEM_SLOT_HAND_LEFT) ? "gabrielle" : "markus"
-		handcuff_overlay = image("icon" = 'icons/mob/screen_gen.dmi', "icon_state" = state)
+	var/hand_blocked = FALSE
+	var/left_hand = (slot_id == ITEM_SLOT_HAND_LEFT)
+	if(iscarbon(user))
+		var/mob/living/carbon/carbon_user = user
+		var/obj/item/organ/external/limb = user.get_organ(left_hand ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)
+		if(!isalien(carbon_user) && !isdevil(carbon_user) && (!limb || !limb.is_usable()))
+			hand_blocked = TRUE
+			. += hand_overlays[HAND_OVERLAY_BLOCKED]
 
-	if(iscarbon(hud.mymob))
-		var/mob/living/carbon/user = hud.mymob
-		if(user.handcuffed)
-			. += handcuff_overlay
+		else if(carbon_user.handcuffed)
+			hand_blocked = TRUE
+			. += left_hand ? hand_overlays[HAND_OVERLAY_HANDCUFFED_LEFT] : hand_overlays[HAND_OVERLAY_HANDCUFFED_RIGHT]
 
-		var/obj/item/organ/external/limb = user.get_organ((slot_id == ITEM_SLOT_HAND_LEFT) ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)
-		if(!isalien(user) && (!limb || !limb.is_usable()))
-			. += blocked_overlay
+	if(!hand_blocked && user.pulling && isliving(user))
+		var/mob/living/grabber = user
+		if(!isnull(grabber.pull_hand) && grabber.pull_hand != PULL_WITHOUT_HANDS)
+			var/grab_overlay
+			switch(grabber.grab_state)
+				if(GRAB_PASSIVE)
+					grab_overlay = hand_overlays[HAND_GRAB_PASSIVE]
+				if(GRAB_AGGRESSIVE)
+					grab_overlay = hand_overlays[HAND_GRAB_AGGRESSIVE]
+				if(GRAB_NECK)
+					grab_overlay = hand_overlays[HAND_GRAB_NECK]
+				if(GRAB_KILL)
+					grab_overlay = hand_overlays[HAND_GRAB_KILL]
 
-	if(slot_id == ITEM_SLOT_HAND_LEFT && hud.mymob.hand)
+			if((left_hand && grabber.pull_hand == PULL_HAND_LEFT) || (!left_hand && grabber.pull_hand == PULL_HAND_RIGHT))
+				. += grab_overlay
+
+	if((left_hand && user.hand == ACTIVE_HAND_LEFT) || (!left_hand && user.hand == ACTIVE_HAND_RIGHT))
 		. += active_overlay
 
-	else if(slot_id == ITEM_SLOT_HAND_RIGHT && !hud.mymob.hand)
-		. += active_overlay
+#undef HAND_OVERLAY_BLOCKED
+#undef HAND_OVERLAY_HANDCUFFED_LEFT
+#undef HAND_OVERLAY_HANDCUFFED_RIGHT
+#undef HAND_GRAB_PASSIVE
+#undef HAND_GRAB_AGGRESSIVE
+#undef HAND_GRAB_NECK
+#undef HAND_GRAB_KILL
 
 
 /atom/movable/screen/inventory/hand/Click()
@@ -634,13 +703,11 @@
 	if(is_ventcrawling(user)) // stops inventory actions in vents
 		return TRUE
 
-	if(ismob(user))
-		var/mob/M = user
-		switch(name)
-			if("right hand", "r_hand")
-				M.activate_hand("r")
-			if("left hand", "l_hand")
-				M.activate_hand("l")
+	switch(slot_id)
+		if(ITEM_SLOT_HAND_RIGHT)
+			user.activate_hand(ACTIVE_HAND_RIGHT)
+		if(ITEM_SLOT_HAND_LEFT)
+			user.activate_hand(ACTIVE_HAND_LEFT)
 	return TRUE
 
 
@@ -675,6 +742,18 @@
 /atom/movable/screen/healths/alien
 	icon = 'icons/mob/screen_alien.dmi'
 	screen_loc = ui_alien_health
+
+/atom/movable/screen/healths/blob
+	name = "blob health"
+	icon_state = "block"
+	screen_loc = ui_internal
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+
+/atom/movable/screen/healths/blob/overmind
+	name = "overmind health"
+	icon = 'icons/hud/blob.dmi'
+	icon_state = "corehealth"
+	screen_loc = ui_blobbernaut_overmind_health
 
 /atom/movable/screen/healths/bot
 	icon = 'icons/mob/screen_bot.dmi'

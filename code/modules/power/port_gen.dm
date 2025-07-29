@@ -9,6 +9,7 @@
 	density = TRUE
 	anchored = FALSE
 	use_power = NO_POWER_USE
+	var/datum/looping_sound/port_gen/soundloop
 
 	var/active = 0
 	var/power_gen = 5000
@@ -16,6 +17,14 @@
 	var/recent_fault = 0
 	var/power_output = 1
 	var/base_icon = "portgen0"
+
+/obj/machinery/power/port_gen/Initialize(mapload)
+	. = ..()
+	soundloop = new(list(src), active)
+
+/obj/machinery/power/port_gen/Destroy()
+	QDEL_NULL(soundloop)
+	return ..()
 
 /obj/machinery/power/port_gen/proc/IsBroken()
 	return (stat & (BROKEN|EMPED))
@@ -39,10 +48,12 @@
 	if(active && HasFuel() && !IsBroken() && anchored && powernet)
 		add_avail(power_gen * power_output)
 		UseFuel()
+		soundloop.start()
 	else
 		active = 0
 		handleInactive()
 		update_icon(UPDATE_ICON_STATE)
+		soundloop.stop()
 
 /obj/machinery/power/powered()
 	return TRUE //doesn't require an external power source
@@ -88,7 +99,7 @@
 
 //A power generator that runs on solid plasma sheets.
 /obj/machinery/power/port_gen/pacman
-	name = "\improper P.A.C.M.A.N.-type Portable Generator"
+	name = "P.A.C.M.A.N.-type Portable Generator"
 	desc = "A power generator that runs on solid plasma sheets. Rated for 80 kW max safe output."
 
 	var/sheet_name = "Plasma Sheets"
@@ -115,7 +126,7 @@
 	var/overheating = 0		//if this gets high enough the generator explodes
 
 /obj/machinery/power/port_gen/pacman/Initialize()
-	..()
+	. = ..()
 	if(anchored)
 		connect_to_network()
 
@@ -240,7 +251,7 @@
 	if(temperature > cooling_temperature)
 		var/temp_loss = (temperature - cooling_temperature)/TEMPERATURE_DIVISOR
 		temp_loss = between(2, round(temp_loss, 1), TEMPERATURE_CHANGE_MAX)
-		temperature = max(temperature - temp_loss, cooling_temperature)
+		temperature = max(temperature - temp_loss, cooling_temperature, TCMB)
 		SStgui.update_uis(src)
 
 	if(overheating)
@@ -273,63 +284,85 @@
 		emagged = 1
 		return 1
 
-/obj/machinery/power/port_gen/pacman/attackby(obj/item/O, mob/user)
-	if(istype(O, sheet_path))
-		var/obj/item/stack/addstack = O
-		var/amount = min((max_sheets - sheets), addstack.amount)
-		if(amount < 1)
-			to_chat(user, "<span class='notice'>The [src.name] is full!</span>")
-			return
-		add_fingerprint(user)
-		to_chat(user, "<span class='notice'>You add [amount] sheet\s to the [src.name].</span>")
-		sheets += amount
-		addstack.use(amount)
-		SStgui.update_uis(src)
-		return
-	else if(!active)
-		if(O.tool_behaviour == TOOL_WRENCH)
 
-			if(!anchored)
-				connect_to_network()
-				to_chat(user, "<span class='notice'>You secure the generator to the floor.</span>")
-			else
-				disconnect_from_network()
-				to_chat(user, "<span class='notice'>You unsecure the generator from the floor.</span>")
-
-			playsound(src.loc, O.usesound, 50, 1)
-			set_anchored(!anchored)
-
-		else if(O.tool_behaviour == TOOL_SCREWDRIVER)
-			panel_open = !panel_open
-			playsound(src.loc, O.usesound, 50, 1)
-			if(panel_open)
-				to_chat(user, "<span class='notice'>You open the access panel.</span>")
-			else
-				to_chat(user, "<span class='notice'>You close the access panel.</span>")
-		else if(istype(O, /obj/item/storage/part_replacer) && panel_open)
-			exchange_parts(user, O)
-			return
-		else if(O.tool_behaviour == TOOL_CROWBAR && panel_open)
-			default_deconstruction_crowbar(user, O)
-		add_fingerprint(user)
-	else
+/obj/machinery/power/port_gen/pacman/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-/obj/machinery/power/port_gen/pacman/attack_hand(mob/user as mob)
+	if(exchange_parts(user, I))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(istype(I, sheet_path))
+		add_fingerprint(user)
+		var/obj/item/stack/addstack = I
+		var/amount = min((max_sheets - sheets), addstack.get_amount())
+		if(amount < 1)
+			to_chat(user, span_warning("The [name] is full."))
+			return ATTACK_CHAIN_PROCEED
+		var/cached_name = addstack.name
+		if(!addstack.use(amount))
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, span_notice("You have added [amount] sheet\s of the [cached_name] into [src]."))
+		sheets += amount
+		SStgui.update_uis(src)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
+
+/obj/machinery/power/port_gen/pacman/screwdriver_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(active)
+		to_chat(user, span_warning("You cannot [panel_open ? "close" : "open"] the access panel while [src] is working."))
+		return .
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	panel_open = !panel_open
+	to_chat(user, span_notice("You have [panel_open ? "opened" : "closed"] the access panel."))
+
+
+/obj/machinery/power/port_gen/pacman/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(active)
+		to_chat(user, span_warning("You cannot [anchored ? "unsecure" : "secure"] [src] while its working."))
+		return .
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	set_anchored(!anchored)
+	if(anchored)
+		to_chat(user, span_notice("You have secured [src] to the floor."))
+		connect_to_network()
+	else
+		to_chat(user, span_notice("You have unsecured [src] from the floor."))
+		disconnect_from_network()
+
+
+/obj/machinery/power/port_gen/pacman/crowbar_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(active)
+		to_chat(user, span_warning("You cannot disassemble [src] while its working."))
+		return .
+	if(!panel_open)
+		to_chat(user, span_warning("You cannot disassemble [src] while the access panel is closed."))
+		return .
+	return default_deconstruction_crowbar(user, I)
+
+
+/obj/machinery/power/port_gen/pacman/attack_hand(mob/user)
 	..()
 	ui_interact(user)
 
-/obj/machinery/power/port_gen/pacman/attack_ai(var/mob/user as mob)
+/obj/machinery/power/port_gen/pacman/attack_ai(mob/user)
 	add_hiddenprint(user)
 	return attack_hand(user)
 
-/obj/machinery/power/port_gen/pacman/attack_ghost(var/mob/user)
+/obj/machinery/power/port_gen/pacman/attack_ghost(mob/user)
 	return attack_hand(user)
 
-/obj/machinery/power/port_gen/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/power/port_gen/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "Pacman", name, 500, 260)
+		ui = new(user, src, "Pacman", name)
 		ui.open()
 
 /obj/machinery/power/port_gen/pacman/ui_data(mob/user)

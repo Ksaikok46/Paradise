@@ -36,17 +36,25 @@ Difficulty: Hard
 
 /mob/living/simple_animal/hostile/megafauna/hierophant
 	name = "hierophant"
-	desc = "A massive metal club that hangs in the air as though waiting. It'll make you dance to its beat."
+	desc = "Массивный металлический клуб, зависающий в воздухе будто в ожидании. Он заставит вас танцевать под свой ритм."
+	ru_names = list(
+		NOMINATIVE = "Иерофант",
+		GENITIVE = "Иерофанта",
+		DATIVE = "Иерофанту",
+		ACCUSATIVE = "Иерофанта",
+		INSTRUMENTAL = "Иерофантом",
+		PREPOSITIONAL = "Иерофанте"
+	)
 	health = 2500
 	maxHealth = 2500
 	attacktext = "качает"
 	attack_sound = 'sound/weapons/sonic_jackhammer.ogg'
 	icon_state = "hierophant"
 	icon_living = "hierophant"
-	friendly = "stares down"
+	friendly = "пристально смотрит"
 	icon = 'icons/mob/lavaland/hierophant_new.dmi'
 	faction = list("boss") //asteroid mobs? get that shit out of my beautiful square house
-	speak_emote = list("preaches")
+	speak_emote = list("проповедует")
 	armour_penetration = 100 //It does 15 damage / only attacks when enraged
 	melee_damage_lower = 15
 	melee_damage_upper = 15
@@ -94,35 +102,38 @@ Difficulty: Hard
 	AddComponent(/datum/component/boss_music, 'sound/lavaland/hiero_boss.ogg', 145 SECONDS)
 
 /datum/action/innate/megafauna_attack/blink
-	name = "Blink To Target"
+	name = "Прыжок к цели"
 	icon_icon = 'icons/mob/actions/actions.dmi'
 	button_icon_state = "sniper_zoom"
-	chosen_message = "<span class='colossus'>You are now blinking to your target.</span>"
+	chosen_message = span_colossus("Вы мгновенно переместитесь к цели.")
 	chosen_attack_num = 1
 
 /datum/action/innate/megafauna_attack/chaser_swarm
-	name = "Chaser Swarm"
+	name = "Рой преследователей"
 	icon_icon = 'icons/effects/effects.dmi'
 	button_icon_state = "hierophant_squares_indefinite"
-	chosen_message = "<span class='colossus'>You are firing a chaser swarm at your target.</span>"
+	chosen_message = span_colossus("Вы выпустите рой энергетических преследователей в цель.")
 	chosen_attack_num = 2
 
 /datum/action/innate/megafauna_attack/cross_blasts
-	name = "Cross Blasts"
+	name = "Перекрёстные взрывы"
 	icon_icon = 'icons/effects/effects.dmi'
 	button_icon_state = "hierophant_blast_indefinite"
-	chosen_message = "<span class='colossus'>You are now firing cross blasts at your target.</span>"
+	chosen_message = span_colossus("Вы атакуете цель перекрёстными взрывами.")
 	chosen_attack_num = 3
 
 /datum/action/innate/megafauna_attack/blink_spam
-	name = "Blink Chase"
+	name = "Преследующий прыжок"
 	icon_icon = 'icons/obj/lavaland/artefacts.dmi'
 	button_icon_state = "hierophant_club_ready_beacon"
-	chosen_message = "<span class='colossus'>You are now repeatedly blinking at your target.</span>"
+	chosen_message = span_colossus("Вы многократно телепортируетесь к цели.")
 	chosen_attack_num = 4
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/enrage()
 	. = ..()
+	if(!.)
+		return
+
 	move_to_delay = 5
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/unrage()
@@ -216,7 +227,7 @@ Difficulty: Hard
 		if(L.client)
 			enrage()
 			arena_trap(L, TRUE)
-			FindTarget(list(L), 1)
+			FindTarget(list(L))
 			for(var/mob/living/simple_animal/hostile/megafauna/colossus/C in GLOB.mob_list)
 				UnregisterSignal(C, COMSIG_MOB_APPLY_DAMAGE)
 			break
@@ -224,12 +235,12 @@ Difficulty: Hard
 /mob/living/simple_animal/hostile/megafauna/hierophant/proc/blink_spam(var/blink_counter, var/target_slowness, var/cross_counter)
 	ranged_cooldown = world.time + max(5, major_attack_cooldown - anger_modifier * 0.75)
 	if(((health < maxHealth * 0.5) || enraged) && blink_counter > 1)
-		visible_message("<span class='hierophant'>\"Mx ampp rsx iwgeti.\"</span>")
+		visible_message(span_hierophant("\"Mx ampp rsx iwgeti.\""))
 		var/oldcolor = color
 		animate(src, color = "#660099", time = 6)
 		colour_shifting = TRUE
 		remove_filter("rays")
-		SLEEP_CHECK_DEATH(6)
+		SLEEP_CHECK_DEATH(src, 6)
 		while(!QDELETED(target) && blink_counter)
 			if(loc == target.loc || loc == target) //we're on the same tile as them after about a second we can stop now
 				break
@@ -237,47 +248,47 @@ Difficulty: Hard
 			blinking = FALSE
 			blink(target)
 			blinking = TRUE
-			SLEEP_CHECK_DEATH(4 + target_slowness)
+			SLEEP_CHECK_DEATH(src, 4 + target_slowness)
 		animate(src, color = oldcolor, time = 8)
 		colour_shifting = FALSE
 		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 8)
-		SLEEP_CHECK_DEATH(8)
+		SLEEP_CHECK_DEATH(src, 8)
 		blinking = FALSE
 	else
 		blink(target)
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/proc/cross_blast_spam(var/blink_counter, var/target_slowness, var/cross_counter)
 	ranged_cooldown = world.time + max(5, major_attack_cooldown - anger_modifier * 0.75)
-	visible_message("<span class='hierophant'>\"Piezi mx rsalivi xs vyr.\"</span>")
+	visible_message(span_hierophant("\"Piezi mx rsalivi xs vyr.\""))
 	blinking = TRUE
 	var/oldcolor = color
 	animate(src, color = "#660099", time = 6)
 	colour_shifting = TRUE
 	remove_filter("rays")
-	SLEEP_CHECK_DEATH(6)
+	SLEEP_CHECK_DEATH(src, 6)
 	while(!QDELETED(target) && cross_counter)
 		cross_counter--
 		if(prob(60))
 			INVOKE_ASYNC(src, PROC_REF(blasts), target, GLOB.cardinal)
 		else
 			INVOKE_ASYNC(src, PROC_REF(blasts), target, GLOB.diagonals)
-		SLEEP_CHECK_DEATH(6 + target_slowness)
+		SLEEP_CHECK_DEATH(src, 6 + target_slowness)
 	animate(src, color = oldcolor, time = 8)
 	colour_shifting = FALSE
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 8)
-	SLEEP_CHECK_DEATH(8)
+	SLEEP_CHECK_DEATH(src, 8)
 	blinking = FALSE
 
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/proc/chaser_swarm(var/blink_counter, var/target_slowness, var/cross_counter)
 	ranged_cooldown = world.time + max(5, major_attack_cooldown - anger_modifier * 0.75)
-	visible_message("<span class='hierophant'>\"Mx gerrsx lmhi.\"</span>")
+	visible_message(span_hierophant("\"Mx gerrsx lmhi.\""))
 	blinking = TRUE
 	var/oldcolor = color
 	animate(src, color = "#660099", time = 6)
 	colour_shifting = TRUE
 	remove_filter("rays")
-	SLEEP_CHECK_DEATH(6)
+	SLEEP_CHECK_DEATH(src, 6)
 	var/list/targets = ListTargets()
 	var/list/cardinal_copy = GLOB.cardinal.Copy()
 	while(targets.len && cardinal_copy.len)
@@ -291,12 +302,12 @@ Difficulty: Hard
 		var/obj/effect/temp_visual/hierophant/chaser/C = new(loc, src, pickedtarget, chaser_speed, FALSE)
 		C.moving = 3
 		C.moving_dir = pick_n_take(cardinal_copy)
-		SLEEP_CHECK_DEATH(8 + target_slowness)
+		SLEEP_CHECK_DEATH(src, 8 + target_slowness)
 	chaser_cooldown = world.time + initial(chaser_cooldown)
 	animate(src, color = oldcolor, time = 8)
 	colour_shifting = FALSE
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 8)
-	SLEEP_CHECK_DEATH(8)
+	SLEEP_CHECK_DEATH(src, 8)
 	blinking = FALSE
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/proc/blasts(mob/victim, var/list/directions = GLOB.cardinal) //fires cross blasts with a delay
@@ -310,7 +321,7 @@ Difficulty: Hard
 	else
 		new /obj/effect/temp_visual/hierophant/telegraph(T, src)
 	playsound(T,'sound/effects/bin_close.ogg', 75, TRUE)
-	SLEEP_CHECK_DEATH(2)
+	SLEEP_CHECK_DEATH(src, 2)
 	new /obj/effect/temp_visual/hierophant/blast(T, src, FALSE)
 	for(var/d in directions)
 		INVOKE_ASYNC(src, PROC_REF(blast_wall), T, d)
@@ -348,7 +359,7 @@ Difficulty: Hard
 		HS.setDir(set_dir)
 		previousturf = J
 		J = get_step(previousturf, set_dir)
-		SLEEP_CHECK_DEATH(0.5)
+		SLEEP_CHECK_DEATH(src, 0.5)
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/proc/blink(mob/victim) //blink to a target
 	if(blinking || !victim)
@@ -362,7 +373,7 @@ Difficulty: Hard
 	playsound(T,'sound/magic/wand_teleport.ogg', 80, TRUE)
 	playsound(source,'sound/machines/airlock_open.ogg', 80, TRUE)
 	blinking = TRUE
-	SLEEP_CHECK_DEATH(2) //short delay before we start...
+	SLEEP_CHECK_DEATH(src, 2) //short delay before we start...
 	new /obj/effect/temp_visual/hierophant/telegraph/teleport(T, src)
 	new /obj/effect/temp_visual/hierophant/telegraph/teleport(source, src)
 	for(var/t in RANGE_TURFS(1, T))
@@ -372,17 +383,17 @@ Difficulty: Hard
 		var/obj/effect/temp_visual/hierophant/blast/B = new(t, src, FALSE)
 		B.damage = 30
 	animate(src, alpha = 0, time = 2, easing = EASE_OUT) //fade out
-	SLEEP_CHECK_DEATH(1)
-	visible_message("<span class='hierophant_warning'>[src] fades out!</span>")
+	SLEEP_CHECK_DEATH(src, 1)
+	visible_message(span_hierophant_warning("[capitalize(declent_ru(NOMINATIVE))] растворяется в воздухе!"))
 	ADD_TRAIT(src, TRAIT_UNDENSE, UNIQUE_TRAIT_SOURCE(src))
-	SLEEP_CHECK_DEATH(2)
+	SLEEP_CHECK_DEATH(src, 2)
 	forceMove(T)
-	SLEEP_CHECK_DEATH(1)
+	SLEEP_CHECK_DEATH(src, 1)
 	animate(src, alpha = 255, time = 2, easing = EASE_IN) //fade IN
-	SLEEP_CHECK_DEATH(1)
+	SLEEP_CHECK_DEATH(src, 1)
 	REMOVE_TRAIT(src, TRAIT_UNDENSE, UNIQUE_TRAIT_SOURCE(src))
-	visible_message("<span class='hierophant_warning'>[src] fades in!</span>")
-	SLEEP_CHECK_DEATH(1) //at this point the blasts we made detonate
+	visible_message(span_hierophant_warning("[capitalize(declent_ru(NOMINATIVE))] материализуется!"))
+	SLEEP_CHECK_DEATH(src, 1) //at this point the blasts we made detonate
 	blinking = FALSE
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/proc/melee_blast(mob/victim) //make a 3x3 blast around a target
@@ -393,7 +404,7 @@ Difficulty: Hard
 		return
 	new /obj/effect/temp_visual/hierophant/telegraph(T, src)
 	playsound(T,'sound/effects/bin_close.ogg', 75, TRUE)
-	SLEEP_CHECK_DEATH(2)
+	SLEEP_CHECK_DEATH(src, 2)
 	for(var/t in RANGE_TURFS(1, T))
 		new /obj/effect/temp_visual/hierophant/blast(t, src, FALSE)
 
@@ -435,14 +446,14 @@ Difficulty: Hard
 			timeout_time--
 		if(timeout_time <= 0 && !did_reset)
 			did_reset = TRUE
-			visible_message("<span class='hierophant_warning'>\"Vixyvrmrk xs fewi...\"</span>")
+			visible_message(span_hierophant_warning("\"Vixyvrmrk xs fewi...\""))
 			blink(spawned_beacon)
 			adjustHealth(min((health - maxHealth) * 0.5, -250)) //heal for 50% of our missing health, minimum 10% of maximum health
 			wander = FALSE
 			if(health > maxHealth * 0.9)
-				visible_message("<span class='hierophant'>\"Vitemvw gsqtpixi. Stivexmrk ex qebmqyq ijjmgmirgc.\"</span>")
+				visible_message(span_hierophant("\"Vitemvw gsqtpixi. Stivexmrk ex qebmqyq ijjmgmirgc.\""))
 			else
-				visible_message("<span class='hierophant'>\"Vitemvw gsqtpixi. Stivexmsrep ijjmgmirgc gsqtvsqmwih.\"</span>")
+				visible_message(span_hierophant("\"Vitemvw gsqtpixi. Stivexmsrep ijjmgmirgc gsqtvsqmwih.\""))
 
 /mob/living/simple_animal/hostile/megafauna/hierophant/death(gibbed)
 	if(health > 0 || stat == DEAD)
@@ -452,8 +463,8 @@ Difficulty: Hard
 			UnregisterSignal(C, COMSIG_MOB_APPLY_DAMAGE)
 		stat = DEAD
 		blinking = TRUE //we do a fancy animation, release a huge burst(), and leave our staff.
-		visible_message("<span class='hierophant'>\"Mrmxmexmrk wipj-hiwxvygx wiuyirgi...\"</span>")
-		visible_message("<span class='hierophant_warning'>[src] shrinks, releasing a massive burst of energy!</span>")
+		visible_message(span_hierophant("\"Mrmxmexmrk wipj-hiwxvygx wiuyirgi...\""))
+		visible_message(span_hierophant_warning("[declent_ru(NOMINATIVE)] сжимается, высвобождая мощный энергетический взрыв!"))
 		for(var/mob/living/L in view(7, src))
 			stored_nearby += L // store the people to grant the achievements to once we die
 		hierophant_burst(null, get_turf(src), 10)
@@ -468,8 +479,8 @@ Difficulty: Hard
 	for(var/obj/item/W in L)
 		if(!L.drop_item_ground(W))
 			qdel(W)
-	visible_message("<span class='hierophant_warning'>\"[pick(kill_phrases)]\"</span>")
-	visible_message("<span class='hierophant_warning'>[src] annihilates [L]!</span>","<span class='userdanger'>You annihilate [L], restoring your health!</span>")
+	visible_message(span_hierophant_warning("\"[pick(kill_phrases)]\""))
+	visible_message(span_hierophant_warning("[declent_ru(NOMINATIVE)] дезинтегрирует [L.declent_ru(ACCUSATIVE)]!"), span_userdanger("Вы дезинтегрируете [L.declent_ru(ACCUSATIVE)], восстанавливая здоровье!"))
 	adjustHealth(-L.maxHealth*0.5)
 	L.dust()
 
@@ -482,13 +493,19 @@ Difficulty: Hard
 	var/targets_the_same = (new_target == target)
 	. = ..()
 	if(. && target && !targets_the_same)
-		visible_message("<span class='hierophant_warning'>\"[pick(target_phrases)]\"</span>")
+		visible_message(span_hierophant_warning("\"[pick(target_phrases)]\""))
 		if(spawned_beacon && loc == spawned_beacon.loc && did_reset)
 			arena_trap(src)
 
-/mob/living/simple_animal/hostile/megafauna/hierophant/adjustHealth(amount, updating_health = TRUE)
+/mob/living/simple_animal/hostile/megafauna/hierophant/adjustHealth(
+	amount = 0,
+	updating_health = TRUE,
+	blocked = 0,
+	damage_type = BRUTE,
+	forced = FALSE,
+)
 	. = ..()
-	if(src && . && !blinking)
+	if(. && amount > 0 && !blinking && !QDELETED(src))
 		wander = TRUE
 		did_reset = FALSE
 
@@ -519,14 +536,14 @@ Difficulty: Hard
 	if(!blinking)
 		..()
 
-/mob/living/simple_animal/hostile/megafauna/hierophant/Move()
+/mob/living/simple_animal/hostile/megafauna/hierophant/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	if(!blinking)
 		. = ..()
 
-/mob/living/simple_animal/hostile/megafauna/hierophant/Moved(oldLoc, movement_dir)
+/mob/living/simple_animal/hostile/megafauna/hierophant/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
 	. = ..()
 	if(!stat && .)
-		var/obj/effect/temp_visual/hierophant/squares/HS = new(oldLoc)
+		var/obj/effect/temp_visual/hierophant/squares/HS = new(old_loc)
 		HS.setDir(movement_dir)
 		playsound(src, 'sound/mecha/mechmove04.ogg', 65, TRUE, -4)
 		if(target)
@@ -546,6 +563,14 @@ Difficulty: Hard
 //Hierophant overlays
 /obj/effect/temp_visual/hierophant
 	name = "vortex energy"
+	ru_names = list(
+		NOMINATIVE = "энергия вортекса",
+		GENITIVE = "энергии вортекса",
+		DATIVE = "энергии вортекса",
+		ACCUSATIVE = "энергию вортекса",
+		INSTRUMENTAL = "энергией вортекса",
+		PREPOSITIONAL = "энергии вортекса"
+	)
 	layer = BELOW_MOB_LAYER
 	var/mob/living/caster //who made this, anyway
 
@@ -568,11 +593,22 @@ Difficulty: Hard
 
 /obj/effect/temp_visual/hierophant/wall //smoothing and pooling were not friends, but pooling is dead.
 	name = "vortex wall"
+	ru_names = list(
+		NOMINATIVE = "стена вортекса",
+		GENITIVE = "стены вортекса",
+		DATIVE = "стене вортекса",
+		ACCUSATIVE = "стену вортекса",
+		INSTRUMENTAL = "стеной вортекса",
+		PREPOSITIONAL = "стене вортекса"
+	)
 	icon = 'icons/turf/walls/hierophant_wall_temp.dmi'
+	base_icon_state = "hierophant_wall_temp"
+	smoothing_groups = SMOOTH_GROUP_HIERO_VORTEX
+	canSmoothWith = SMOOTH_GROUP_HIERO_VORTEX
+	smooth = SMOOTH_BITMASK
 	icon_state = "wall"
 	light_range = MINIMUM_USEFUL_LIGHT_RANGE
 	duration = 100
-	smooth = SMOOTH_TRUE
 
 /obj/effect/temp_visual/hierophant/wall/Initialize(mapload, new_caster)
 	. = ..()
@@ -593,7 +629,7 @@ Difficulty: Hard
 	if(mover == caster.pulledby)
 		return .
 	if(isprojectile(mover))
-		var/obj/item/projectile/P = mover
+		var/obj/projectile/P = mover
 		if(P.firer == caster)
 			return .
 	if(mover != caster)
@@ -688,15 +724,24 @@ Difficulty: Hard
 /obj/effect/temp_visual/hierophant/blast
 	icon_state = "hierophant_blast"
 	name = "vortex blast"
+	ru_names = list(
+		NOMINATIVE = "взрыв вортекса",
+		GENITIVE = "взрыва вортекса",
+		DATIVE = "взрыву вортекса",
+		ACCUSATIVE = "взрыв вортекса",
+		INSTRUMENTAL = "взрывом вортекса",
+		PREPOSITIONAL = "взрыве вортекса"
+	)
 	light_range = 2
 	light_power = 2
-	desc = "Get out of the way!"
+	desc = "Уйдите с пути!"
 	duration = 9
 	var/damage = 10 //how much damage do we do?
 	var/monster_damage_boost = TRUE //do we deal extra damage to monsters? Used by the boss
 	var/list/hit_things = list() //we hit these already, ignore them
 	var/friendly_fire_check = FALSE
 	var/bursting = FALSE //if we're bursting and need to hit anyone crossing us
+
 
 /obj/effect/temp_visual/hierophant/blast/Initialize(mapload, new_caster, friendly_fire)
 	. = ..()
@@ -707,6 +752,11 @@ Difficulty: Hard
 		var/turf/simulated/mineral/M = loc
 		M.attempt_drill(caster)
 	INVOKE_ASYNC(src, PROC_REF(blast))
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 
 /obj/effect/temp_visual/hierophant/blast/proc/blast()
 	var/turf/T = get_turf(src)
@@ -719,10 +769,13 @@ Difficulty: Hard
 	sleep(1.3) //slightly forgiving; the burst animation is 1.5 deciseconds
 	bursting = FALSE //we no longer damage crossers
 
-/obj/effect/temp_visual/hierophant/blast/Crossed(atom/movable/AM)
-	..()
+
+/obj/effect/temp_visual/hierophant/blast/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
 	if(bursting)
-		do_damage(get_turf(src))
+		INVOKE_ASYNC(src, PROC_REF(do_damage), get_turf(src))
+
 
 /obj/effect/temp_visual/hierophant/blast/proc/do_damage(turf/T)
 	if(!damage)
@@ -734,16 +787,16 @@ Difficulty: Hard
 		if(L.client)
 			flash_color(L.client, "#660099", 1)
 		playsound(L,'sound/weapons/sear.ogg', 50, TRUE, -4)
-		to_chat(L, "<span class='userdanger'>You're struck by a [name]!</span>")
+		to_chat(L, span_userdanger("Вас поражает [declent_ru(ACCUSATIVE)]!"))
 		var/limb_to_hit = L.get_organ(pick(BODY_ZONE_HEAD, BODY_ZONE_CHEST, BODY_ZONE_R_ARM, BODY_ZONE_L_ARM, BODY_ZONE_R_LEG, BODY_ZONE_L_LEG, BODY_ZONE_TAIL, BODY_ZONE_WING))
-		var/armor = L.run_armor_check(limb_to_hit, "melee", "Your armor absorbs [src]!", "Your armor blocks part of [src]!", 50, "Your armor was penetrated by [src]!")
+		var/armor = L.run_armor_check(limb_to_hit, "melee", "Ваша броня поглощает [declent_ru(ACCUSATIVE)]!", "Ваша броня частично блокирует [declent_ru(ACCUSATIVE)]!", 50, "Ваша броня была пробита [declent_ru(INSTRUMENTAL)]!")
 		L.apply_damage(damage, BURN, limb_to_hit, armor)
 		if(ishostile(L))
 			var/mob/living/simple_animal/hostile/H = L //mobs find and damage you...
 			if(H.stat == CONSCIOUS && !H.target && H.AIStatus != AI_OFF && !H.client)
 				if(!QDELETED(caster))
 					if(get_dist(H, caster) <= H.aggro_vision_range)
-						H.FindTarget(list(caster), 1)
+						H.FindTarget(list(caster))
 					else
 						H.Goto(get_turf(caster), H.move_to_delay, 3)
 		if(monster_damage_boost && (ismegafauna(L) || istype(L, /mob/living/simple_animal/hostile/asteroid)))
@@ -755,13 +808,21 @@ Difficulty: Hard
 		if(M.occupant)
 			if(friendly_fire_check && caster && caster.faction_check_mob(M.occupant))
 				continue
-			to_chat(M.occupant, "<span class='userdanger'>Your [M.name] is struck by a [name]!</span>")
+			to_chat(M.occupant, span_userdanger("Ваш  [M.declent_ru(NOMINATIVE)] поражён [declent_ru(ACCUSATIVE)]!"))
 		playsound(M,'sound/weapons/sear.ogg', 50, TRUE, -4)
 		M.take_damage(damage, BURN, 0, 0)
 
 /obj/effect/hierophant
 	name = "hierophant beacon"
-	desc = "A strange beacon, allowing mass teleportation for those able to use it."
+	ru_names = list(
+		NOMINATIVE = "маяк иерофанта",
+		GENITIVE = "маяка иерофанта",
+		DATIVE = "маяку иерофанта",
+		ACCUSATIVE = "маяк иерофанта",
+		INSTRUMENTAL = "маяком иерофанта",
+		PREPOSITIONAL = "маяке иерофанта"
+	)
+	desc = "Странный маяк, позволяющий массовую телепортацию тем, кто умеет им пользоваться."
 	icon = 'icons/obj/lavaland/artefacts.dmi'
 	icon_state = "hierophant_tele_off"
 	light_range = 2
@@ -777,29 +838,38 @@ Difficulty: Hard
 /obj/effect/hierophant/ex_act()
 	return
 
+
+/obj/effect/hierophant/has_prints()
+	return TRUE
+
+
 /obj/effect/hierophant/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/hierophant_club))
-		var/obj/item/hierophant_club/H = I
-		if(H.timer > world.time)
-			return
-		if(H.beacon == src)
-			to_chat(user, "<span class='notice'>You start removing your hierophant beacon...</span>")
-			H.timer = world.time + 51
-			INVOKE_ASYNC(H, TYPE_PROC_REF(/obj/item/hierophant_club, prepare_icon_update))
-			if(do_after(user, 5 SECONDS, src))
-				playsound(src,'sound/magic/blind.ogg', 200, TRUE, -4)
-				new /obj/effect/temp_visual/hierophant/telegraph/teleport(get_turf(src), user)
-				to_chat(user, "<span class='hierophant_warning'>You collect [src], reattaching it to the club!</span>")
-				H.beacon = null
-				user.update_action_buttons_icon()
-				qdel(src)
-			else
-				H.timer = world.time
-				INVOKE_ASYNC(H, TYPE_PROC_REF(/obj/item/hierophant_club, prepare_icon_update))
-		else
-			to_chat(user, "<span class='hierophant_warning'>You touch the beacon with the club, but nothing happens.</span>")
-	else
-		return ..()
+		add_fingerprint(user)
+		var/obj/item/hierophant_club/club = I
+		if(club.timer > world.time)
+			to_chat(user, span_hierophant_warning("Клуб перезаряжается."))
+			return ATTACK_CHAIN_PROCEED
+		if(club.beacon != src)
+			to_chat(user, span_hierophant_warning("Вы касаетесь маяка клубом, но ничего не происходит."))
+			return ATTACK_CHAIN_PROCEED
+		club.timer = world.time + 5.1 SECONDS
+		to_chat(user, span_notice("Вы начинаете извлекать маяк иерофанта..."))
+		INVOKE_ASYNC(club, TYPE_PROC_REF(/obj/item/hierophant_club, prepare_icon_update))
+		if(!do_after(user, 5 SECONDS, src))
+			club.timer = world.time
+			INVOKE_ASYNC(club, TYPE_PROC_REF(/obj/item/hierophant_club, prepare_icon_update))
+			return ATTACK_CHAIN_PROCEED
+		playsound(loc, 'sound/magic/blind.ogg', 200, TRUE, -4)
+		new /obj/effect/temp_visual/hierophant/telegraph/teleport(loc, user)
+		to_chat(user, span_hierophant_warning("Вы собираете [declent_ru(ACCUSATIVE)], возвращая его к клубу!"))
+		club.beacon = null
+		user.update_action_buttons_icon()
+		qdel(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/item/gps/internal/hierophant
 	icon_state = null

@@ -41,15 +41,15 @@
 	if(by_hand)
 		for(var/obj/O in src)
 			if(O.density)
-				var/response = alert(usr, "This crate has been packed with bluespace compression, an item inside won't fit back inside. Are you sure you want to open it?","Bluespace Compression Warning", "Yes", "No")
-				if(response == "No" || !Adjacent(usr))
+				var/response = tgui_alert(usr, "This crate has been packed with bluespace compression, an item inside won't fit back inside. Are you sure you want to open it?", "Bluespace Compression Warning", list("Yes", "No"))
+				if(response != "Yes" || !Adjacent(usr))
 					return FALSE
 				break
 
 	if(rigged && locate(/obj/item/radio/electropack) in src)
 		if(isliving(usr))
 			var/mob/living/L = usr
-			if(L.electrocute_act(17, src))
+			if(L.electrocute_act(17, "электропака в ящике"))
 				do_sparks(5, 1, src)
 				return 2
 
@@ -77,12 +77,8 @@
 	for(var/atom/movable/O in get_turf(src))
 		if(itemcount >= storage_capacity)
 			break
-		if(O.density || O.anchored || istype(O,/obj/structure/closet) || isobserver(O))
+		if(O.density || O.anchored || istype(O,/obj/structure/closet) || isobserver(O) || O.has_buckled_mobs())
 			continue
-		if(istype(O, /obj/structure/bed)) //This is only necessary because of rollerbeds and swivel chairs.
-			var/obj/structure/bed/B = O
-			if(B.has_buckled_mobs())
-				continue
 		O.forceMove(src)
 		itemcount++
 
@@ -91,33 +87,34 @@
 	return TRUE
 
 
-/obj/structure/closet/crate/attackby(obj/item/W, mob/user, params)
-	if(!opened && try_rig(W, user))
-		return
+/obj/structure/closet/crate/attackby(obj/item/I, mob/user, params)
+	if(!opened && try_rig(I, user))
+		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
+
 
 /obj/structure/closet/crate/toggle(mob/user, by_hand = FALSE)
 	if(!(opened ? close() : open(by_hand)))
-		to_chat(user, "<span class='notice'>It won't budge!</span>")
+		to_chat(user, span_notice("It won't budge!"))
 
 /obj/structure/closet/crate/proc/try_rig(obj/item/W, mob/user)
 	if(istype(W, /obj/item/stack/cable_coil))
 		var/obj/item/stack/cable_coil/C = W
 		if(rigged)
-			to_chat(user, "<span class='notice'>[src] is already rigged!</span>")
+			to_chat(user, span_notice("[src] is already rigged!"))
 			return TRUE
 		if(C.use(15))
-			to_chat(user, "<span class='notice'>You rig [src].</span>")
+			to_chat(user, span_notice("You rig [src]."))
 			rigged = TRUE
 		else
-			to_chat(user, "<span class='warning'>You need atleast 15 wires to rig [src]!</span>")
+			to_chat(user, span_warning("You need atleast 15 wires to rig [src]!"))
 		return TRUE
 	if(istype(W, /obj/item/radio/electropack))
 		if(rigged)
 			if(!user.drop_transfer_item_to_loc(W, src))
-				to_chat(user, "<span class='warning'>[W] seems to be stuck to your hand!</span>")
+				to_chat(user, span_warning("[W] seems to be stuck to your hand!"))
 				return TRUE
-			to_chat(user, "<span class='notice'>You attach [W] to [src].</span>")
+			to_chat(user, span_notice("You attach [W] to [src]."))
 		return TRUE
 
 /obj/structure/closet/crate/wirecutter_act(mob/living/user, obj/item/I)
@@ -127,8 +124,8 @@
 		return
 
 	if(I.use_tool(src, user))
-		to_chat(user, "<span class='notice'>You cut away the wiring.</span>")
-		playsound(loc, I.usesound, 100, 1)
+		to_chat(user, span_notice("You cut away the wiring."))
+		playsound(loc, I.usesound, 100, TRUE)
 		rigged = FALSE
 		return TRUE
 
@@ -138,7 +135,7 @@
 /obj/structure/closet/crate/attack_hand(mob/user)
 	if(manifest)
 		add_fingerprint(user)
-		to_chat(user, "<span class='notice'>You tear the manifest off of the crate.</span>")
+		to_chat(user, span_notice("You tear the manifest off of the crate."))
 		playsound(src.loc, 'sound/items/poster_ripped.ogg', 75, 1)
 		manifest.forceMove_turf()
 		if(ishuman(user))
@@ -150,7 +147,7 @@
 		if(rigged && locate(/obj/item/radio/electropack) in src)
 			if(isliving(user))
 				var/mob/living/L = user
-				if(L.electrocute_act(17, src))
+				if(L.electrocute_act(17, "электропака в ящике"))
 					do_sparks(5, 1, src)
 					return
 		add_fingerprint(user)
@@ -200,7 +197,7 @@
 
 /obj/structure/closet/crate/secure/proc/boom(mob/user)
 	if(user)
-		to_chat(user, "<span class='danger'>The crate's anti-tamper system activates!</span>")
+		to_chat(user, span_danger("The crate's anti-tamper system activates!"))
 		investigate_log("[key_name_log(user)] has detonated a [src]", INVESTIGATE_BOMB)
 		add_attack_logs(user, src, "has detonated", ATKLOG_MOST)
 	for(var/atom/movable/AM in src)
@@ -213,48 +210,36 @@
 	return !locked
 
 
-/obj/structure/closet/crate/secure/AltClick(mob/living/user)
-	if(Adjacent(user))
-		togglelock(user)
+/obj/structure/closet/crate/secure/click_alt(mob/living/user)
+	togglelock(user)
+	return CLICK_ACTION_SUCCESS
 
 
 /obj/structure/closet/crate/secure/proc/togglelock(mob/living/user)
 	if(!istype(user))
 		return
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
+		to_chat(user, span_warning("You can't do that right now!"))
 		return
 	if(opened)
-		to_chat(user, "<span class='notice'>Close the crate first.</span>")
+		to_chat(user, span_notice("Close the crate first."))
 		return
 	if(broken)
-		to_chat(user, "<span class='warning'>The crate appears to be broken.</span>")
+		to_chat(user, span_warning("The crate appears to be broken."))
 		return
 	if(allowed(user))
 		locked = !locked
 		playsound(loc, pick(togglelock_sound), 15, TRUE, -3)
-		visible_message("<span class='notice'>The crate has been [locked ? null : "un"]locked by [user].</span>")
+		visible_message(span_notice("The crate has been [locked ? null : "un"]locked by [user]."))
 		update_icon()
 	else
-		to_chat(user, "<span class='notice'>Access Denied</span>")
+		to_chat(user, span_notice("Access Denied"))
 	add_fingerprint(user)
-
-
-/obj/structure/closet/crate/secure/verb/verb_togglelock()
-	set src in oview(1) // One square distance
-	set category = null
-	set name = "Toggle Lock"
-
-	if(ishuman(usr) || isrobot(usr) || istype(usr, /mob/living/simple_animal/hostile/gorilla))
-		togglelock(usr)
-	else
-		to_chat(usr, "<span class='warning'>This mob type can't use this verb.</span>")
-
 
 /obj/structure/closet/crate/secure/attack_hand(mob/user)
 	if(manifest)
 		add_fingerprint(user)
-		to_chat(user, "<span class='notice'>You tear the manifest off of the crate.</span>")
+		to_chat(user, span_notice("You tear the manifest off of the crate."))
 		playsound(src.loc, 'sound/items/poster_ripped.ogg', 75, 1)
 		manifest.forceMove_turf()
 		if(ishuman(user))
@@ -279,8 +264,8 @@
 		locked = FALSE
 		broken = TRUE
 		playsound(loc, "sparks", 50, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
-		flick_overlay_view(image(icon, src, overlay_sparking), 1 SECONDS)
-		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), 1 SECONDS)
+		flick_overlay_view(mutable_appearance(icon, overlay_sparking), sparking_duration)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), sparking_duration)
 		if(user)
 			to_chat(user, span_notice("You unlock [src]."))
 
@@ -295,8 +280,8 @@
 	if(prob(50 / severity))
 		locked = !locked
 		playsound(loc, "sparks", 50, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
-		flick_overlay_view(image(icon, src, overlay_sparking), 1 SECONDS)
-		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), 1 SECONDS)
+		flick_overlay_view(mutable_appearance(icon, overlay_sparking), sparking_duration)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), sparking_duration)
 
 	if(prob(20 / severity))
 		if(locked)
@@ -320,7 +305,9 @@
 	desc = "A heavy, metal trashcart with wheels."
 	name = "trash Cart"
 	icon_state = "trashcart"
-	pull_push_speed_modifier = 1
+
+/obj/structure/closet/crate/trashcart/NTdelivery
+	name = "Special Delivery from Central Command"
 
 /obj/structure/closet/crate/trashcart/gibs
 	desc = "A heavy, metal trashcart with wheels. You better don't ask."
@@ -334,7 +321,7 @@
 
 /obj/structure/closet/crate/rcd
 	desc = "A crate for the storage of the RCD."
-	name = "\improper RCD crate"
+	name = "RCD crate"
 	icon_state = "crate"
 
 /obj/structure/closet/crate/rcd/populate_contents()
@@ -566,6 +553,25 @@
 		if(user)
 			to_chat(user, span_notice("Отличная попытка, но нет!"))
 		playsound(src.loc, "sound/misc/sadtrombone.ogg", 60, 1)
+
+
+/obj/structure/closet/crate/vault
+	desc = "A vault crate."
+	name = "vault crate"
+	icon_state = "vaultcrate"
+
+/obj/structure/closet/crate/wooden //i'm sure hope this won't be used as cheese strat to obtain cargo points
+	name = "wooden crate"
+	desc = "Ящик, сделанный из дерева."
+	ru_names = list(
+		NOMINATIVE = "деревянный ящик",
+		GENITIVE = "деревянного ящика",
+		DATIVE = "деревянному ящику",
+		ACCUSATIVE = "деревянный ящик",
+		INSTRUMENTAL = "деревянным ящиком",
+		PREPOSITIONAL = "деревянном ящике"
+	)
+	icon_state = "wooden_crate"
 
 /obj/structure/closet/crate/secure/screwdriver_act(mob/living/user, obj/item/I)
 	. = ..()

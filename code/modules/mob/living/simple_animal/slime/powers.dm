@@ -27,7 +27,7 @@
 		return 1
 
 /mob/living/simple_animal/slime/verb/Feed()
-	set category = "Slime"
+	set category = STATPANEL_SLIME
 	set desc = "This will let you feed on any valid creature in the surrounding area. This should also be used to halt the feeding process."
 
 	if(stat)
@@ -38,7 +38,7 @@
 		if(C!=src && Adjacent(C))
 			choices += C
 
-	var/mob/living/M = input(src,"Who do you wish to feed on?") in null|choices
+	var/mob/living/M = tgui_input_list(src, "Who do you wish to feed on?", , choices)
 	if(!M)
 		return 0
 	if(CanFeedon(M))
@@ -46,7 +46,7 @@
 		return 1
 
 /datum/action/innate/slime/feed
-	name = "Feed"
+	name = "Поглощать"
 	button_icon_state = "slimeeat"
 
 
@@ -109,7 +109,7 @@
 
 /mob/living/simple_animal/slime/proc/Feedon(mob/living/M)
 	M.unbuckle_all_mobs(force = TRUE) //Slimes rip other mobs (eg: shoulder parrots) off (Slimes Vs Slimes is already handled in CanFeedon())
-	if(M.buckle_mob(src, force = TRUE))
+	if(M.buckle_mob(src, force = TRUE, check_loc = FALSE))
 		layer = M.layer + 0.01 //appear above the target mob
 		M.visible_message("<span class='danger'>[name] has latched onto [M]!</span>", \
 						"<span class='userdanger'>[name] has latched onto [M]!</span>")
@@ -130,7 +130,7 @@
 		buckled.unbuckle_mob(src,force=TRUE)
 
 /mob/living/simple_animal/slime/verb/Evolve()
-	set category = "Slime"
+	set category = STATPANEL_SLIME
 	set desc = "This will let you evolve slime."
 
 	if(stat)
@@ -165,12 +165,14 @@
 			new_slime.update_hair()
 			new_slime.update_body()
 			new_slime.blood_color = new_colour
-			new_slime.dna.species.blood_color = new_slime.blood_color
+			new_slime.dna.species.blood_color = new_slime.dna.species
+			var/datum/species/slime/species = new_slime.dna.species
+			species.evolved_slime = TRUE
 		else
 			to_chat(src, "<i>I am not ready to evolve yet...</i>")
 
 /datum/action/innate/slime/evolve
-	name = "Evolve"
+	name = "Эволюция"
 	button_icon_state = "slimegrow"
 	needs_growth = GROWTH_NEEDED
 
@@ -182,7 +184,7 @@
 		A.Grant(S)
 
 /mob/living/simple_animal/slime/verb/Reproduce()
-	set category = "Slime"
+	set category = STATPANEL_SLIME
 	set desc = "This will make you split into four Slimes."
 
 	if(stat)
@@ -280,7 +282,7 @@
 	SSblackbox.record_feedback("tally", "slime_babies_born", 1, M.colour)
 
 /datum/action/innate/slime/reproduce
-	name = "Reproduce"
+	name = "Размножиться"
 	button_icon_state = "slimesplit"
 	needs_growth = GROWTH_NEEDED
 	needs_split = SPLIT_NEEDED

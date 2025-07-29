@@ -13,6 +13,9 @@
 
 /obj/structure/cable/multiz/Initialize(mapload)
 	. = ..()
+	d1 = 0
+	if(mapload)
+		return
 	mergeConnectedNetworksOnTurf(get_turf(src))
 
 /obj/structure/cable/multiz/deconstruct(disassembled = TRUE)
@@ -22,22 +25,31 @@
 		new/obj/item/stack/cable_coil(get_turf(src), 10, TRUE, color)
 	qdel(src)
 
-/obj/structure/cable/multiz/attackby(obj/item/W, mob/user)
-	var/turf/T = get_turf(src)
-	if((T.transparent_floor == TURF_TRANSPARENT) || T.intact)
-		to_chat(user, span_warning("You can't interact with something that's under the floor!"))
-		return
-	else if(istype(W, /obj/item/stack/cable_coil))
-		var/obj/item/stack/cable_coil/coil = W
-		if(coil.get_amount() < 1)
-			to_chat(user, "<span class='warning'>Not enough cable!</span>")
-			return
-		coil.place_turf(get_turf(src), user)
-	else
-		if(W.flags & CONDUCT)
-			shock(user, 50, 0.7)
 
-	add_fingerprint(user)
+/obj/structure/cable/multiz/attackby(obj/item/I, mob/user, params)
+	var/turf/our_turf = get_turf(src)
+	if(!our_turf)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if((our_turf.transparent_floor == TURF_TRANSPARENT) || our_turf.intact)
+		to_chat(user, span_danger("You cannot interact with something that's under the floor!"))
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(iscoil(I))
+		add_fingerprint(user)
+		var/obj/item/stack/cable_coil/coil = I
+		if(coil.get_amount() < 1)
+			to_chat(user, span_warning("Not enough cable!"))
+			return ATTACK_CHAIN_PROCEED
+		coil.place_turf(our_turf, user)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if((I.flags & CONDUCT) && shock(user, 50, 0.7))
+		add_fingerprint(user)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ATTACK_CHAIN_PROCEED
+
 
 /obj/structure/cable/multiz/wirecutter_act(mob/user, obj/item/I)
 	. = ..()
@@ -55,7 +67,7 @@
 		var/datum/powernet/newPN = new()
 		newPN.add_cable(src)
 
-	//connect to cables that points to center (d1 or d2 to 0)
+	//connect to cables that points to center (d1 to 0)
 	for(var/obj/structure/cable/C in loc)
 		if(C.d1 == 0)
 			if(C.powernet == powernet)
@@ -65,13 +77,14 @@
 			else
 				powernet.add_cable(C) //the cable was powernetless, let's just add it to our powernet
 
-	var/obj/structure/cable/multiz/above = locate(/obj/structure/cable/multiz) in (GET_TURF_ABOVE(loc))
+	var/turf/T = loc
+	var/obj/structure/cable/multiz/above = locate(/obj/structure/cable/multiz) in (GET_TURF_ABOVE(T))
 	if(above && above?.powernet != powernet)
 		if(!above.powernet)
 			powernet.add_cable(above)
 		else
 			merge_powernets(powernet, above.powernet)
-	var/obj/structure/cable/multiz/below = locate(/obj/structure/cable/multiz) in (GET_TURF_BELOW(loc))
+	var/obj/structure/cable/multiz/below = locate(/obj/structure/cable/multiz) in (GET_TURF_BELOW(T))
 	if(below && below?.powernet != powernet)
 		if(!below.powernet)
 			powernet.add_cable(below)

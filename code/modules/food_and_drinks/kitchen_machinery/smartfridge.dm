@@ -4,7 +4,16 @@
   * Stores items of a specified type.
   */
 /obj/machinery/smartfridge
-	name = "\improper SmartFridge"
+	name = "SmartFridge"
+	desc = "Это холодильник. Он умный. Просто удивительно, да?"
+	ru_names = list(
+		NOMINATIVE = "холодильник SmartFridge",
+		GENITIVE = "холодильника SmartFridge",
+		DATIVE = "холодильнику SmartFridge",
+		ACCUSATIVE = "холодильник SmartFridge",
+		INSTRUMENTAL = "холодильником SmartFridge",
+		PREPOSITIONAL = "холодильнике SmartFridge"
+	)
 	icon = 'icons/obj/machines/vending.dmi'
 	icon_state = "smartfridge"
 	layer = 2.9
@@ -77,7 +86,7 @@
 			var/amount = starting_items[typekey] || 1
 			while(amount--)
 				var/obj/item/newitem = new typekey(src)
-				item_quants[newitem.name] += 1
+				item_quants[newitem.declent_ru(NOMINATIVE)] += 1
 	update_icon(UPDATE_OVERLAYS)
 	// Accepted items
 	accepted_items_typecache = typecacheof(list(
@@ -88,8 +97,9 @@
 	))
 
 /obj/machinery/smartfridge/RefreshParts()
+	max_n_of_items = 0
 	for(var/obj/item/stock_parts/matter_bin/B in component_parts)
-		max_n_of_items = 1500 * B.rating
+		max_n_of_items += 1500 * B.rating
 
 /obj/machinery/smartfridge/Destroy()
 	SStgui.close_uis(wires)
@@ -196,42 +206,64 @@
 		return TRUE
 	return ..()
 
-/obj/machinery/smartfridge/attackby(obj/item/O, var/mob/user)
-	if(exchange_parts(user, O))
+
+/obj/machinery/smartfridge/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/card/emag))
+		balloon_alert(user, "невозможно!")
+		return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
+
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(exchange_parts(user, I))
 		SStgui.update_uis(src)
-		return
-	if(stat & (BROKEN|NOPOWER))
-		to_chat(user, "<span class='notice'>\The [src] is unpowered and useless.</span>")
-		return
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	add_fingerprint(user)
-	if(load(O, user))
-		user.visible_message("<span class='notice'>[user] has added \the [O] to \the [src].</span>", "<span class='notice'>You add \the [O] to \the [src].</span>")
+	if(stat & (BROKEN|NOPOWER))
+		balloon_alert(user, "не работает!")
+		return ATTACK_CHAIN_PROCEED
+
+	if(load(I, user))
+		user.visible_message(
+			span_notice("[user] загрузил[pluralize_ru(user.gender, "", "а", "о", "и")] [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
+			span_notice("Вы загрузили [I.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)]."),
+		)
+		balloon_alert(user, "загружено внутрь")
 		SStgui.update_uis(src)
 		update_icon(UPDATE_OVERLAYS)
-	else if(istype(O, /obj/item/storage/bag) || istype(O, /obj/item/storage/box))
-		var/obj/item/storage/bag/P = O
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/storage/bag) || istype(I, /obj/item/storage/box))
+		var/obj/item/storage/storage = I
 		var/items_loaded = 0
-		for(var/obj/G in P.contents)
-			if(load(G, user))
-				G.add_fingerprint(user)
+		for(var/obj/item/thing as anything in storage.contents)
+			if(load(thing, user))
+				thing.add_fingerprint(user)
 				items_loaded++
 		if(items_loaded)
-			user.visible_message("<span class='notice'>[user] loads \the [src] with \the [P].</span>", "<span class='notice'>You load \the [src] with \the [P].</span>")
+			user.visible_message(
+				span_notice("[user] загрузил[pluralize_ru(user.gender, "", "а", "о", "и")] содержимое [storage.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."),
+				span_notice("Вы загрузили содержимое [storage.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."),
+			)
+			balloon_alert(user, "содержимое загружено")
 			SStgui.update_uis(src)
 			update_icon(UPDATE_OVERLAYS)
-		var/failed = length(P.contents)
+		var/failed = length(storage.contents)
 		if(failed)
-			to_chat(user, "<span class='notice'>[failed] item\s [failed == 1 ? "is" : "are"] refused.</span>")
-	else if(!istype(O, /obj/item/card/emag))
-		to_chat(user, "<span class='notice'>\The [src] smartly refuses [O].</span>")
-		return TRUE
+			to_chat(user, span_notice("[failed] предмет[declension_ru(failed, "", "а", "ов")] не был[declension_ru(failed, "", "и", "и")] загружен[declension_ru(failed, "", "ы", "ы")]."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	balloon_alert(user, "не подходит!")
+	return ATTACK_CHAIN_PROCEED
+
 
 /obj/machinery/smartfridge/attack_ghost(mob/user)
 	return attack_hand(user)
 
 /obj/machinery/smartfridge/attack_hand(mob/user)
 	if(stat & (BROKEN|NOPOWER))
+		balloon_alert(user, "не работает!")
 		return
 	wires.Interact(user)
 	ui_interact(user)
@@ -244,12 +276,12 @@
 	if(!istype(over_object, /obj/item/storage/pill_bottle)) //Only pill bottles, please
 		return TRUE
 	if(stat & (BROKEN|NOPOWER))
-		to_chat(user, "<span class='notice'>\The [src] is unpowered and useless.</span>")
+		balloon_alert(user, "не работает!")
 		return TRUE
 
 	var/obj/item/storage/box/pillbottles/P = over_object
 	if(!length(P.contents))
-		to_chat(user, "<span class='notice'>\The [P] is empty.</span>")
+		balloon_alert(user, "нечего выгружать!")
 		return TRUE
 
 	add_fingerprint(user)
@@ -259,19 +291,22 @@
 			G.add_fingerprint(user)
 			items_loaded++
 	if(items_loaded)
-		user.visible_message("<span class='notice'>[user] empties \the [P] into \the [src].</span>", "<span class='notice'>You empty \the [P] into \the [src].</span>")
+		user.visible_message(
+			span_notice("[user] загрузил[pluralize_ru(user.gender, "", "а", "о", "и")] содержимое [P.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."),
+			span_notice("Вы загрузили содержимое [P.declent_ru(GENITIVE)] в [declent_ru(ACCUSATIVE)]."))
+		balloon_alert(user, "содержимое загружено")
 		update_icon(UPDATE_OVERLAYS)
 	var/failed = length(P.contents)
 	if(failed)
-		to_chat(user, "<span class='notice'>[failed] item\s [failed == 1 ? "is" : "are"] refused.</span>")
+		to_chat(user, span_notice("[failed] предмет[declension_ru(failed, "", "а", "ов")] не был[declension_ru(failed, "", "и", "и")] загружен[declension_ru(failed, "", "ы", "ы")]."))
 	return TRUE
 
-/obj/machinery/smartfridge/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
+/obj/machinery/smartfridge/ui_interact(mob/user, datum/tgui/ui = null)
 	user.set_machine(src)
 
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "Smartfridge", name, 500, 500)
+		ui = new(user, src, "Smartfridge", capitalize(declent_ru(NOMINATIVE)))
 		ui.open()
 
 /obj/machinery/smartfridge/ui_data(mob/user)
@@ -307,7 +342,7 @@
 	switch(action)
 		if("vend")
 			if(is_secure && !emagged && scan_id && !allowed(usr)) //secure fridge check
-				to_chat(usr, "<span class='warning'>Access denied.</span>")
+				to_chat(usr, span_warning("Отказано в доступе."))
 				return FALSE
 
 			var/index = text2num(params["index"])
@@ -326,7 +361,7 @@
 				return
 			if(i == 1 && Adjacent(user) && !issilicon(user))
 				for(var/obj/O in contents)
-					if(O.name == K)
+					if(O.declent_ru(NOMINATIVE) == K)
 						O.forceMove(get_turf(src))
 						adjust_item_drop_location(O)
 						user.put_in_hands(O, ignore_anim = FALSE)
@@ -334,7 +369,7 @@
 						break
 			else
 				for(var/obj/O in contents)
-					if(O.name == K)
+					if(O.declent_ru(NOMINATIVE) == K)
 						O.forceMove(loc)
 						adjust_item_drop_location(O)
 						update_icon(UPDATE_OVERLAYS)
@@ -351,34 +386,33 @@
   * * user - The user trying to load the item.
   */
 /obj/machinery/smartfridge/proc/load(obj/item/I, mob/user)
-	if(accept_check(I))
-		if(length(contents) >= max_n_of_items)
-			to_chat(user, "<span class='notice'>\The [src] is full.</span>")
-			return FALSE
+	if(!accept_check(I))
+		return FALSE
+
+	if(length(contents) >= max_n_of_items)
+		balloon_alert(user, "хранилище переполнено!")
+		return FALSE
+
+	if(isstorage(I.loc))
+		var/obj/item/storage/storage = I.loc
+		if(user)
+			storage.remove_from_storage(I, user.drop_location())
+			I.do_pickup_animation(src)
+			I.forceMove(src)
 		else
-			if(isstorage(I.loc))
-				var/obj/item/storage/S = I.loc
-				if(user)
-					S.remove_from_storage(I, user.drop_location())
-					I.do_pickup_animation(src)
-					I.forceMove(src)
-				else
-					S.remove_from_storage(I, src)
+			storage.remove_from_storage(I, src)
 
-			else if(ismob(I.loc))
-				var/mob/M = I.loc
-				if(M.get_active_hand() == I)
-					if(!M.drop_transfer_item_to_loc(I, src))
-						to_chat(user, "<span class='warning'>\The [I] is stuck to you!</span>")
-						return FALSE
-				else
-					M.drop_transfer_item_to_loc(I, src)
-			else
-				I.forceMove(src)
+	else if(ismob(I.loc))
+		var/mob/holder = I.loc
+		if(!holder.drop_transfer_item_to_loc(I, src))
+			return FALSE
 
-			item_quants[I.name] += 1
-			return TRUE
-	return FALSE
+	else
+		I.forceMove(src)
+
+	item_quants[I.declent_ru(NOMINATIVE)] += 1
+	return TRUE
+
 
 /**
   * Tries to shoot a random at a nearby living mob.
@@ -394,7 +428,7 @@
 			continue
 		item_quants[O]--
 		for(var/obj/I in contents)
-			if(I.name == O)
+			if(I.declent_ru(NOMINATIVE) == O)
 				I.forceMove(loc)
 				throw_item = I
 				update_icon(UPDATE_OVERLAYS)
@@ -403,7 +437,7 @@
 		return FALSE
 
 	INVOKE_ASYNC(throw_item, TYPE_PROC_REF(/atom/movable, throw_at), target, 16, 3, src)
-	visible_message("<span class='warning'>[src] launches [throw_item.name] at [target.name]!</span>")
+	visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] кидает [throw_item.declent_ru(ACCUSATIVE)] в [target]!"))
 	return TRUE
 
 /**
@@ -420,7 +454,16 @@
   * # Syndie Fridge
   */
 /obj/machinery/smartfridge/syndie
-	name = "\improper Suspicious SmartFridge"
+	name = "Suspicious SmartFridge"
+	desc = "Это холодильник. Он умный. Подозрительно умный."
+	ru_names = list(
+		NOMINATIVE = "подозрительный холодильник SmartFridge",
+		GENITIVE = "подозрительного холодильника SmartFridge",
+		DATIVE = "подозрительному холодильнику SmartFridge",
+		ACCUSATIVE = "подозрительный холодильник SmartFridge",
+		INSTRUMENTAL = "подозрительным холодильником SmartFridge",
+		PREPOSITIONAL = "подозрительном холодильнике SmartFridge"
+	)
 	icon_state = "smartfridge-syndie"
 	contents_overlay = "smartfridge-syndie"
 
@@ -437,7 +480,7 @@
 /obj/machinery/smartfridge/secure/emag_act(mob/user)
 	emagged = TRUE
 	if(user)
-		to_chat(user, "<span class='notice'>You short out the product lock on \the [src].</span>")
+		balloon_alert(user, "механизм блокировки взломан!")
 
 /obj/machinery/smartfridge/secure/emp_act(severity)
 	if(!emagged && prob(40 / severity))
@@ -451,8 +494,16 @@
   * Formerly known as MegaSeed Servitor, but renamed to avoid confusion with the [vending machine][/obj/machinery/vending/hydroseeds].
   */
 /obj/machinery/smartfridge/seeds
-	name = "\improper Seed Storage"
-	desc = "When you need seeds fast!"
+	name = "Seed Storage"
+	desc = "Это холодильник, предназначенный для растений и их плодов."
+	ru_names = list(
+		NOMINATIVE = "ботанический холодильник",
+		GENITIVE = "ботанического холодильника",
+		DATIVE = "ботаническому холодильнику",
+		ACCUSATIVE = "ботанический холодильник",
+		INSTRUMENTAL = "ботаническим холодильником",
+		PREPOSITIONAL = "ботаническом холодильнике"
+	)
 	icon = 'icons/obj/machines/vending.dmi'
 	icon_state = "seeds_off"
 	base_icon_state = "seeds"
@@ -492,8 +543,16 @@
   * Medical variant of the [Smart Fridge][/obj/machinery/smartfridge].
   */
 /obj/machinery/smartfridge/medbay
-	name = "\improper Refrigerated Medicine Storage"
-	desc = "A refrigerated storage unit for storing medicine and chemicals."
+	name = "Refrigerated Medicine Storage"
+	desc = "Это холодильник, предназначенный для хранения медикаментов и химикатов."
+	ru_names = list(
+		NOMINATIVE = "медицинский холодильник",
+		GENITIVE = "медицинского холодильника",
+		DATIVE = "медицинскому холодильнику",
+		ACCUSATIVE = "медицинский холодильник",
+		INSTRUMENTAL = "медицинским холодильником",
+		PREPOSITIONAL = "медицинском холодильнике"
+	)
 	icon_state = "smartfridge" //To fix the icon in the map editor.
 
 /obj/machinery/smartfridge/medbay/Initialize(mapload)
@@ -517,13 +576,19 @@
   * Secure, Xenobiology variant of the [Smart Fridge][/obj/machinery/smartfridge].
   */
 /obj/machinery/smartfridge/secure/extract
-	name = "\improper Slime Extract Storage"
-	desc = "A refrigerated storage unit for slime extracts"
+	name = "Slime Extract Storage"
+	desc = "Это холодильник, предназначенный для хранения слаймовых экстрактов."
+	ru_names = list(
+		NOMINATIVE = "холодильник для слаймовых экстрактов",
+		GENITIVE = "холодильника для слаймовых экстрактов",
+		DATIVE = "холодильнику для слаймовых экстрактов",
+		ACCUSATIVE = "холодильник для слаймовых экстрактов",
+		INSTRUMENTAL = "холодильником для слаймовых экстрактов",
+		PREPOSITIONAL = "холодильнике для слаймовых экстрактов"
+	)
 	req_access = list(ACCESS_RESEARCH)
 
 /obj/machinery/smartfridge/secure/extract/syndie
-	name = "\improper Suspicious Slime Extract Storage"
-	desc = "A refrigerated storage unit for slime extracts"
 	icon_state = "smartfridge-syndie"
 	contents_overlay = "smartfridge-syndie"
 
@@ -541,8 +606,6 @@
   * Secure, Medical variant of the [Smart Fridge][/obj/machinery/smartfridge].
   */
 /obj/machinery/smartfridge/secure/medbay
-	name = "\improper Secure Refrigerated Medicine Storage"
-	desc = "A refrigerated storage unit for storing medicine and chemicals."
 	icon_state = "smartfridge" //To fix the icon in the map editor.
 	req_access = list(ACCESS_MEDICAL, ACCESS_CHEMISTRY)
 
@@ -567,8 +630,16 @@
   * Secure, Chemistry variant of the [Smart Fridge][/obj/machinery/smartfridge].
   */
 /obj/machinery/smartfridge/secure/chemistry
-	name = "\improper Smart Chemical Storage"
-	desc = "A refrigerated storage unit for medicine and chemical storage."
+	name = "Smart Chemical Storage"
+	desc = "Это холодильник, предназначенный для хранения медикаментов и химикатов."
+	ru_names = list(
+		NOMINATIVE = "химический холодильник",
+		GENITIVE = "химического холодильника",
+		DATIVE = "химическому холодильнику",
+		ACCUSATIVE = "химический холодильник",
+		INSTRUMENTAL = "химическим холодильником",
+		PREPOSITIONAL = "химическом холодильнике"
+	)
 	icon_state = "smartfridge" //To fix the icon in the map editor.
 	req_access = list(ACCESS_CHEMISTRY)
 
@@ -610,9 +681,18 @@
 
 
 /obj/machinery/smartfridge/secure/medbay/organ
+
+	name = "Secure Refrigerated Organ Storage"
+	desc = "Это холодильник, предназначенный для хранения органов, конечностей, имплантов и капельниц."
+	ru_names = list(
+		NOMINATIVE = "холодильник для органов",
+		GENITIVE = "холодильника для органов",
+		DATIVE = "холодильнику для органов",
+		ACCUSATIVE = "холодильник для органов",
+		INSTRUMENTAL = "холодильником для органов",
+		PREPOSITIONAL = "холодильнике для органов"
+	)
 	req_access = list(ACCESS_SURGERY)
-	name = "\improper Secure Refrigerated Organ Storage"
-	desc = "A refrigerated storage unit for storing organs, limbs, implants and IV bags."
 	opacity = TRUE
 	contents_overlay = "smartfridge-organ"
 
@@ -636,7 +716,15 @@
   */
 /obj/machinery/smartfridge/disks
 	name = "disk compartmentalizer"
-	desc = "A machine capable of storing a variety of disks. Denoted by most as the DSU (disk storage unit)."
+	desc = "Машина, предназначенная для хранения различного рода дискет."
+	ru_names = list(
+		NOMINATIVE = "хранилище для дискет",
+		GENITIVE = "хранилища для дискет",
+		DATIVE = "хранилищу для дискет",
+		ACCUSATIVE = "хранилище для дискет",
+		INSTRUMENTAL = "хранилищем для дискет",
+		PREPOSITIONAL = "хранилище для дискет"
+	)
 	icon_state = "disktoaster_off"
 	base_icon_state = "disktoaster"
 	pass_flags = PASSTABLE
@@ -672,8 +760,16 @@
   * Comes with some items.
   */
 /obj/machinery/smartfridge/secure/chemistry/virology
-	name = "\improper Smart Virus Storage"
-	desc = "A refrigerated storage unit for volatile sample storage."
+	name = "Smart Virus Storage"
+	desc = "Это холодильник, предназначенный для хранения образцов вирусов."
+	ru_names = list(
+		NOMINATIVE = "холодильник для вирусных образцов",
+		GENITIVE = "холодильника для вирусных образцов",
+		DATIVE = "холодильнику для вирусных образцов",
+		ACCUSATIVE = "холодильник для вирусных образцов",
+		INSTRUMENTAL = "холодильником для вирусных образцов",
+		PREPOSITIONAL = "холодильнике для вирусных образцов"
+	)
 	icon_state = "smartfridge"
 	req_access = list(ACCESS_VIROLOGY)
 	icon_addon = "smartfridge-viro-overlay"
@@ -725,8 +821,16 @@
   * Drink variant of the [Smart Fridge][/obj/machinery/smartfridge].
   */
 /obj/machinery/smartfridge/drinks
-	name = "\improper Drink Showcase"
-	desc = "A refrigerated storage unit for tasty tasty alcohol."
+	name = "Drink Showcase"
+	desc = "Это холодильник, предназначенный для хранения напитков."
+	ru_names = list(
+		NOMINATIVE = "холодильник для напитков",
+		GENITIVE = "холодильника для напитков",
+		DATIVE = "холодильнику для напитков",
+		ACCUSATIVE = "холодильник для напитков",
+		INSTRUMENTAL = "холодильником для напитков",
+		PREPOSITIONAL = "холодильнике для напитков"
+	)
 
 /obj/machinery/smartfridge/drinks/Initialize(mapload)
 	. = ..()
@@ -742,8 +846,16 @@
   * Dish variant of the [Smart Fridge][/obj/machinery/smartfridge].
   */
 /obj/machinery/smartfridge/dish
-	name = "\improper Dish Showcase"
-	desc = "A refrigerated storage unit for some delicious food."
+	name = "Dish Showcase"
+	desc = "Это холодильник, предназначенный для хранения органов, конечностей, имплантов и капельниц."
+	ru_names = list(
+		NOMINATIVE = "холодильник для еды",
+		GENITIVE = "холодильника для еды",
+		DATIVE = "холодильнику для еды",
+		ACCUSATIVE = "холодильник для еды",
+		INSTRUMENTAL = "холодильником для еды",
+		PREPOSITIONAL = "холодильнике для еды"
+	)
 
 /obj/machinery/smartfridge/dish/Initialize(mapload)
 	. = ..()
@@ -763,6 +875,15 @@
 /obj/machinery/smartfridge/drying_rack
 	name = "drying rack"
 	desc = "A wooden contraption, used to dry plant products, food and leather."
+	desc = "Деревянная стойка, предназначенная для просушки растительных продуктов, еды и кожи."
+	ru_names = list(
+		NOMINATIVE = "сушильная стойка",
+		GENITIVE = "сушильной стойки",
+		DATIVE = "сушильной стойке",
+		ACCUSATIVE = "сушильную стойку",
+		INSTRUMENTAL = "сушильной стойкой",
+		PREPOSITIONAL = "сушильной стойке"
+	)
 	icon = 'icons/obj/hydroponics/equipment.dmi'
 	icon_state = "drying-rack_off"
 	use_power = IDLE_POWER_USE
@@ -770,6 +891,8 @@
 	active_power_usage = 200
 	can_dry = TRUE
 	visible_contents = FALSE
+	var/primitive = FALSE //used for energy consuming stuff
+	var/drying_timer = 0
 	icon_lightmask = null
 
 /obj/machinery/smartfridge/drying_rack/Initialize(mapload)
@@ -791,6 +914,9 @@
 	return
 
 /obj/machinery/smartfridge/drying_rack/power_change(forced = FALSE)
+	if(primitive)
+		return
+
 	if(powered() && anchored)
 		stat &= ~NOPOWER
 	else
@@ -820,9 +946,9 @@
 	switch(action)
 		if("drying")
 			drying = !drying
-			use_power = drying ? ACTIVE_POWER_USE : IDLE_POWER_USE
+			if(!primitive)
+				use_power = drying ? ACTIVE_POWER_USE : IDLE_POWER_USE
 			update_icon(UPDATE_OVERLAYS)
-
 
 /obj/machinery/smartfridge/drying_rack/update_overlays()
 	. = list()
@@ -833,9 +959,17 @@
 
 
 /obj/machinery/smartfridge/drying_rack/process()
-	if(drying && rack_dry())//no need to update unless something got dried
-		update_icon(UPDATE_OVERLAYS)
-
+	if(!drying)//no need to update if we don't dry
+		return
+	if(drying_timer)
+		drying_timer--
+		if(!drying_timer) //if it went to zero, dry and reset
+			drying_timer = initial(drying_timer)
+			if(rack_dry())
+				update_icon(UPDATE_OVERLAYS)
+	else // no timer
+		if(rack_dry())
+			update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/smartfridge/drying_rack/accept_check(obj/item/O)
 	. = ..()
@@ -884,3 +1018,34 @@
 		SStgui.update_uis(src)
 		return TRUE
 	return FALSE
+
+/obj/machinery/smartfridge/drying_rack/ash
+	name = "primitive drying rack"
+	desc = "Примитивная самодельная сушилка, предназначенная для просушки растительных продуктов, еды и кожи."
+	ru_names = list(
+		NOMINATIVE = "примитивная сушилка",
+		GENITIVE = "примитивной сушилки",
+		DATIVE = "примитивной сушилке",
+		ACCUSATIVE = "примитивную сушилку",
+		INSTRUMENTAL = "примитивной сушилкой",
+		PREPOSITIONAL = "примитивной сушилке",
+	)
+	gender = FEMALE
+	icon_state = "primitive-drying-rack"
+	use_power = NO_POWER_USE
+	can_dry = FALSE //trust me
+	drying = TRUE
+	idle_power_usage = 0
+	active_power_usage = 0
+	drying_timer = 8
+	primitive = TRUE
+
+/obj/machinery/smartfridge/drying_rack/ash/update_overlays()
+	overlays.Cut()
+	if(length(contents))
+		overlays += "primitive-drying-rack_leather"
+
+/obj/machinery/smartfridge/drying_rack/ash/on_deconstruction()
+	new /obj/item/stack/sheet/wood(loc, 2)
+	new /obj/item/stack/sheet/sinew(loc, 1)
+	..()

@@ -1,8 +1,9 @@
 /obj/item/organ
 	name = "organ"
+	gender = MALE
 	icon = 'icons/obj/surgery.dmi'
-	pickup_sound = 'sound/items/handling/flesh_pickup.ogg'
-	drop_sound = 'sound/items/handling/flesh_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/flesh_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/flesh_drop.ogg'
 	germ_level = 0
 	var/dead_icon
 	/// Current organ holder
@@ -50,13 +51,14 @@
 	var/hidden_pain = FALSE
 
 
-/obj/item/organ/New(mob/living/carbon/holder)
-	..(holder)
+/obj/item/organ/Initialize(mapload)
+	. = ..()
 
 	if(!max_damage)
 		max_damage = min_broken_damage * 2
 
-	if(iscarbon(holder))
+	if(ishuman(loc))
+		var/mob/living/carbon/human/holder = loc
 		update_DNA(holder.dna)
 		return
 
@@ -65,11 +67,15 @@
 
 /obj/item/organ/Destroy()
 	STOP_PROCESSING(SSobj, src)
+
 	if(owner)
 		remove(owner, ORGAN_MANIPULATION_NOEFFECT)
+
 	QDEL_LIST_ASSOC_VAL(autopsy_data)
+
 	if(dna)
 		QDEL_NULL(dna)
+
 	return ..()
 
 
@@ -86,6 +92,7 @@
 	if(is_robotic() && !species_type)	// no DNA for cybernetics, except IPC parts
 		if(update_blood)
 			update_blood()
+
 		return
 
 	if(!dna)
@@ -115,8 +122,9 @@
 
 
 /obj/item/organ/proc/update_blood()
-	if(!dna || (NO_BLOOD in dna.species.species_traits))
+	if(!dna || (TRAIT_NO_BLOOD in dna.species.inherent_traits))
 		return
+
 	LAZYSET(blood_DNA, dna.unique_enzymes, dna.blood_type)
 
 
@@ -127,13 +135,17 @@
 /obj/item/organ/proc/necrotize(silent = FALSE)
 	if(status & (ORGAN_ROBOT|ORGAN_DEAD))
 		return FALSE
+
 	damage = max_damage
 	status |= ORGAN_DEAD
 	STOP_PROCESSING(SSobj, src)
+
 	if(dead_icon && !is_robotic())
 		icon_state = dead_icon
+
 	if(owner && vital)
 		owner.death()
+
 	return TRUE
 
 
@@ -144,17 +156,28 @@
 /obj/item/organ/proc/unnecrotize()
 	if(!is_dead())
 		return FALSE
+
 	status &= ~ORGAN_DEAD
 	return TRUE
 
 
 /obj/item/organ/attackby(obj/item/I, mob/user, params)
-	if(is_robotic() && istype(I, /obj/item/stack/nanopaste))
-		var/obj/item/stack/nanopaste/nano = I
-		nano.use(1)
+	if(istype(I, /obj/item/stack/nanopaste))
+		add_fingerprint(user)
+		var/obj/item/stack/nanopaste/nanopaste = I
+
+		if(!is_robotic())
+			balloon_alert(user, "не подходит для нанопасты!")
+			return ATTACK_CHAIN_PROCEED
+
+		if(!nanopaste.use(1))
+			balloon_alert(user, "недостаточно нанопасты!")
+			return ATTACK_CHAIN_PROCEED
+
+		to_chat(user, span_notice("Вы устраняете повреждения на [declent_ru(PREPOSITIONAL)] с помощью [nanopaste.declent_ru(GENITIVE)]."))
 		rejuvenate()
-		to_chat(user, span_notice("You repair the damage on [src]."))
-		return
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
 	return ..()
 
 
@@ -168,7 +191,7 @@
 		return
 
 	//Process infections
-	if(is_robotic() || sterile || (owner && (NO_GERMS in owner.dna.species.species_traits)))
+	if(is_robotic() || sterile || (owner && HAS_TRAIT(owner, TRAIT_NO_GERMS)))
 		germ_level = 0
 		return
 
@@ -176,10 +199,13 @@
 		// Maybe scale it down a bit, have it REALLY kick in once past the basic infection threshold
 		// Another mercy for surgeons preparing transplant organs
 		germ_level++
+
 		if(germ_level >= INFECTION_LEVEL_ONE)
 			germ_level += rand(2,6)
+
 		if(germ_level >= INFECTION_LEVEL_TWO)
 			germ_level += rand(2,6)
+
 		if(germ_level >= INFECTION_LEVEL_THREE)
 			necrotize()
 
@@ -203,12 +229,15 @@
 	for(var/typepath in preserved_holders)
 		if(is_found_within(typepath))
 			return TRUE
+
 	if(istype(loc,/obj/item/mmi))	// So a brain can slowly recover from being left out of an MMI
 		germ_level = max(0, germ_level - 1)
 		return TRUE
+
 	if(istype(loc, /mob/living/simple_animal/hostile/headslug) || istype(loc, /obj/item/organ/internal/body_egg/changeling_egg))
 		germ_level = 0 // weird stuff might happen, best to be safe
 		return TRUE
+
 	if(isturf(loc))
 		var/is_in_freezer = FALSE
 		if(world.time - last_freezer_update_time > freezer_update_period)
@@ -230,19 +259,24 @@
 	. = ..()
 	if(is_dead())
 		if(!is_robotic())
-			. += span_notice("The decay has set in.")
+			. += span_notice("В процессе разложения.")
 		else
-			. += span_notice("It looks in need of repairs.")
+			. += span_notice("Серьёзно повреждено.")
 
 
 /obj/item/organ/proc/handle_germs()
 	if(germ_level > 0 && germ_level < INFECTION_LEVEL_ONE / 2 && prob(30))
 		germ_level--
 
+	if(!ishuman(owner))
+		return
+
+	var/germs_amount = 1 * (owner.dna.species.germs_growth_mod * owner.physiology.germs_growth_mod)
+
 	if(germ_level >= INFECTION_LEVEL_ONE / 2)
 		//aiming for germ level to go from ambient to INFECTION_LEVEL_TWO in an average of 15 minutes
 		if(prob(round(germ_level / 6)))
-			germ_level += owner?.dna.species.germs_growth_rate
+			germ_level += germs_amount
 
 	if(germ_level >= INFECTION_LEVEL_ONE)
 		var/fever_temperature = (owner.dna.species.heat_level_1 - owner.dna.species.body_temperature - 5) * min(germ_level / INFECTION_LEVEL_TWO, 1) + owner.dna.species.body_temperature
@@ -252,7 +286,7 @@
 		var/obj/item/organ/external/parent = owner.get_organ(parent_organ_zone)
 		//spread germs
 		if(parent.germ_level < germ_level && ( parent.germ_level < INFECTION_LEVEL_ONE * 2 || prob(30)))
-			parent.germ_level += owner?.dna.species.germs_growth_rate
+			parent.germ_level += germs_amount
 
 
 /obj/item/organ/proc/rejuvenate()
@@ -280,7 +314,7 @@
 
 
 //Adds autopsy data for used_weapon.
-/obj/item/organ/proc/add_autopsy_data(used_weapon = "Unknown", damage)
+/obj/item/organ/proc/add_autopsy_data(used_weapon = "Неизвестно", damage)
 	LAZYINITLIST(autopsy_data)
 
 	var/datum/autopsy_data/weapon_data = autopsy_data[used_weapon]
@@ -294,26 +328,42 @@
 	weapon_data.time_inflicted = world.time
 
 
-//Note: external organs have their own version of this proc
-/obj/item/organ/proc/receive_damage(amount, silent = FALSE)
+/**
+ * Adjusts internal organ damage value.
+ *
+ * Arguments:
+ * * amount - Amount of damage.
+ * * silent - Stops custom pain messaged for organ owner.
+ *
+ * Returns `TRUE` on success
+ */
+/obj/item/organ/proc/internal_receive_damage(amount = 0, silent = FALSE)
+	. = FALSE
+	if(isexternalorgan(src))
+		CRASH("internal_receive_damage() is called for external organ. Use external_receive_damage()")
+
 	if(tough)
-		return
-	damage = between(0, damage + amount, max_damage)
+		return .
+
+	. = TRUE
+
+	damage = clamp(round(damage + amount, DAMAGE_PRECISION), 0, max_damage)
 
 	//only show this if the organ is not robotic
 	if(owner && parent_organ_zone && amount > 0)
 		var/obj/item/organ/external/parent = owner.get_organ(parent_organ_zone)
 		if(parent && !silent)
-			owner.custom_pain("Something inside your [parent.name] hurts a lot.")
+			owner.custom_pain("Что-то внутри ваш[genderize_ru(parent.gender, "его", "ей", "его", "их")] [parent.declent_ru(GENITIVE)] отдаётся резкой болью.")
 
-		//check if we've hit max_damage
+	//check if we've hit max_damage
 	if(damage >= max_damage)
-		necrotize()
+		necrotize(silent)
 
 
 /obj/item/organ/proc/heal_internal_damage(amount, robo_repair = FALSE)
 	if(is_robotic() && !robo_repair)
 		return
+
 	damage = max(damage - amount, 0)
 
 
@@ -331,6 +381,7 @@
 		return
 
 	SEND_SIGNAL(owner, COMSIG_CARBON_LOSE_ORGAN, src)
+	SEND_SIGNAL(src, COMSIG_ORGAN_REMOVED, owner)
 	owner.internal_organs -= src
 
 	var/obj/item/organ/external/affected = owner.get_organ(parent_organ_zone)
@@ -343,12 +394,13 @@
 	if(owner?.stat != DEAD && vital && !special)
 		add_attack_logs(user, owner, "Removed vital organ ([src])")
 		owner.death()
+
 	owner = null
 	return src
 
 
 /obj/item/organ/proc/replaced(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
-	return // Nothing uses this, it is always overridden
+	return
 
 
 // A version of `replaced` that "flattens" the process of insertion, making organs "Plug'n'play"
@@ -367,6 +419,7 @@
 /obj/item/organ/proc/has_damage()
 	if(damage)
 		return TRUE
+
 	return FALSE
 
 /obj/item/organ/proc/is_robotic()
@@ -375,6 +428,7 @@
 
 /obj/item/organ/serialize()
 	var/data = ..()
+
 	if(status != 0)
 		data["status"] = status
 
@@ -382,6 +436,7 @@
 	// the owner
 	if(!(owner && dna.unique_enzymes == owner.dna.unique_enzymes))
 		data["dna"] = dna.serialize()
+
 	return data
 
 

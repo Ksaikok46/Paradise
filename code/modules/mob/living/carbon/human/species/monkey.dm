@@ -10,14 +10,17 @@
 	blood_mask = 'icons/mob/human_races/masks/blood_monkey.dmi'
 	language = LANGUAGE_GALACTIC_COMMON
 	default_language = LANGUAGE_MONKEY_HUMAN
-	species_traits = list(NO_EXAMINE, HAVE_REGENERATION)
+	inherent_traits = list(
+		TRAIT_HAS_REGENERATION,
+		TRAIT_NO_SPECIES_EXAMINE,
+		TRAIT_VENTCRAWLER_NUDE,
+	)
 	skinned_type = /obj/item/stack/sheet/animalhide/monkey
 	greater_form = /datum/species/human
 	no_equip = list(ITEM_SLOT_BELT, ITEM_SLOT_GLOVES)	//Риги и ЕВА тоже нельзя носить, но это размечено отдельно в одежде
 	can_craft = FALSE
-	is_small = 1
+	is_monkeybasic = TRUE
 	has_fine_manipulation = 0
-	ventcrawler_trait = TRAIT_VENTCRAWLER_NUDE
 	show_ssd = 0
 	eyes = "blank_eyes"
 	death_message = "изда%(ёт,ют)% тихий визг, пада%(ет,ют)% и переста%(ёт,ют)% двигаться..."
@@ -57,13 +60,6 @@
 		BODY_ZONE_TAIL = list("path" = /obj/item/organ/external/tail/monkey),
 	)
 
-/datum/species/monkey/handle_npc(mob/living/carbon/human/H)
-	if(H.stat != CONSCIOUS)
-		return
-	if(prob(33) && (H.mobility_flags & MOBILITY_MOVE) && isturf(H.loc) && !H.pulledby) //won't move if being pulled
-		step(H, pick(GLOB.cardinal))
-	if(prob(1))
-		H.emote(pick("scratch","jump","roll","tail"))
 
 /datum/species/monkey/get_random_name()
 	return "[lowertext(name)] ([rand(100,999)])"
@@ -74,6 +70,10 @@
 	H.real_name = "[lowertext(name)] ([rand(100,999)])"
 	H.name = H.real_name
 	H.meatleft = 5
+
+
+/datum/species/monkey/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
+	..(target, STRENGTH_LEVEL_WEAK, max_level, can_become_stronger)
 
 
 /datum/species/monkey/on_species_loss(mob/living/carbon/human/H)
@@ -203,6 +203,12 @@
 	skinned_type = /obj/item/stack/sheet/animalhide/neara
 	reagent_tag = PROCESS_ORG
 	tail = null
+	inherent_traits = list(
+		TRAIT_HAS_REGENERATION,
+		TRAIT_NO_SPECIES_EXAMINE,
+		TRAIT_VENTCRAWLER_NUDE,
+		TRAIT_WATERBREATH,
+	)
 
 	has_organ = list(
 		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart/skrell,
@@ -231,14 +237,6 @@
 		BODY_ZONE_PRECISE_R_FOOT = list("path" = /obj/item/organ/external/foot/right),
 	)
 
-
-/datum/species/monkey/skrell/on_species_gain(mob/living/carbon/human/H)
-	..()
-	ADD_TRAIT(H, TRAIT_WATERBREATH, "species")
-
-/datum/species/monkey/skrell/on_species_loss(mob/living/carbon/human/H)
-	..()
-	REMOVE_TRAIT(H, TRAIT_WATERBREATH, "species")
 
 /datum/species/monkey/skrell/can_understand(mob/other)
 	return

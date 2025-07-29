@@ -23,10 +23,10 @@
 /datum/vampire_passive/New()
 	..()
 	if(!gain_desc)
-		gain_desc = "You can now use [src]."
+		gain_desc = "Вы получили способность «[src]»."
 
 
-/datum/vampire_passive/Destroy(force, ...)
+/datum/vampire_passive/Destroy(force)
 	owner = null
 	return ..()
 
@@ -36,19 +36,20 @@
 
 
 /datum/vampire_passive/regen
-	gain_desc = "Your rejuvenation abilities have improved and will now heal you over time when used."
+	gain_desc = "Ваша способность «Восстановление» улучшена. Теперь она будет постепенно исцелять вас после использования."
 
 
 /datum/vampire_passive/vision
-	gain_desc = "Your vampiric vision has improved."
+	gain_desc = "Ваше вампирское зрение улучшено."
 
 
 /datum/vampire_passive/full
-	gain_desc = "You have reached your full potential. You are no longer weak to the effects of anything holy and your vision has improved greatly."
+	gain_desc = "Вы достигли полной силы и ничто святое больше не может ослабить вас. Ваше зрение значительно улучшилось."
 
 
 /obj/effect/proc_holder/spell/vampire
-	panel = "Vampire"
+	name = "Report Me"
+	desc = "You shouldn't see this!"
 	school = "vampire"
 	action_background_icon_state = "bg_vampire"
 	human_req = TRUE
@@ -88,23 +89,27 @@
 
 
 /obj/effect/proc_holder/spell/vampire/self/rejuvenate
-	name = "Rejuvenate"
-	desc = "Use reserve blood to enliven your body, removing any incapacitating effects."
+	name = "Восстановление"
+	desc = "Наполните своё тело резервной кровью, чтобы снять с себя любые обездвиживающие эффекты."
 	action_icon_state = "vampire_rejuvinate"
 	base_cooldown = 20 SECONDS
 	stat_allowed = UNCONSCIOUS
 
 
 /obj/effect/proc_holder/spell/vampire/self/rejuvenate/cast(list/targets, mob/living/user = usr)
+	// mech supress escape
+	if(HAS_TRAIT_FROM(user, TRAIT_IMMOBILIZED, MECH_SUPRESSED_TRAIT))
+		user.remove_traits(list(TRAIT_IMMOBILIZED, TRAIT_FLOORED), MECH_SUPRESSED_TRAIT)
 	user.SetWeakened(0)
 	user.SetStunned(0)
+	user.SetKnockdown(0)
 	user.SetParalysis(0)
 	user.SetSleeping(0)
 	user.SetConfused(0)
 	user.adjustStaminaLoss(-100)
 	user.set_resting(FALSE, instant = TRUE)
 	user.get_up(instant = TRUE)
-	to_chat(user, span_notice("You instill your body with clean blood and remove any incapacitating effects."))
+	to_chat(user, span_notice("Вы наполняете свое тело чистой кровью и снимаете все обездвиживающие эффекты."))
 	var/datum/antagonist/vampire/V = user.mind.has_antag_datum(/datum/antagonist/vampire)
 	var/rejuv_bonus = V.get_rejuv_bonus()
 	if(rejuv_bonus)
@@ -113,10 +118,11 @@
 
 /obj/effect/proc_holder/spell/vampire/self/rejuvenate/proc/heal(mob/living/user, rejuv_bonus)
 	for(var/i in 1 to 5)
-		user.adjustBruteLoss(-2 * rejuv_bonus)
-		user.adjustOxyLoss(-5 * rejuv_bonus)
-		user.adjustToxLoss(-2 * rejuv_bonus)
-		user.adjustFireLoss(-2 * rejuv_bonus)
+		var/update = NONE
+		update |= user.heal_overall_damage(2 * rejuv_bonus, 2 * rejuv_bonus, updating_health = FALSE, affect_robotic = TRUE)
+		update |= user.heal_damages(tox = 2 * rejuv_bonus, oxy = 5 * rejuv_bonus, updating_health = FALSE)
+		if(update)
+			user.updatehealth()
 		for(var/datum/reagent/R in user.reagents.reagent_list)
 			if(!R.harmless)
 				user.reagents.remove_reagent(R.id, 2 * rejuv_bonus)
@@ -136,9 +142,9 @@
 
 
 /obj/effect/proc_holder/spell/vampire/self/specialize
-	name = "Choose Specialization"
-	desc = "Choose what sub-class of vampire you want to evolve into."
-	gain_desc = "You can now choose what specialization of vampire you want to evolve into."
+	name = "Выбрать специализацию"
+	desc = "Выберите, каким подклассом вампира вы хотите стать."
+	gain_desc = "Теперь вы можете выбрать, в какую специализацию вампира вы хотите эволюционировать."
 	base_cooldown = 2 SECONDS
 	action_icon_state = "select_class"
 
@@ -146,14 +152,25 @@
 /obj/effect/proc_holder/spell/vampire/self/specialize/cast(mob/user)
 	ui_interact(user)
 
+/obj/effect/proc_holder/spell/vampire/self/specialize/ui_state(mob/user)
+	return GLOB.always_state
 
-/obj/effect/proc_holder/spell/vampire/self/specialize/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.always_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/effect/proc_holder/spell/vampire/self/specialize/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "VampireSpecMenu", "Specialisation Menu", 1500, 820, master_ui, state)
+		ui = new(user, src, "VampireSpecMenu", "Меню выбора специализации")
 		ui.set_autoupdate(FALSE)
 		ui.open()
 
+/obj/effect/proc_holder/spell/vampire/self/specialize/ui_static_data(mob/user)
+	var/list/data = list()
+	data["hemomancer"] = list(icon='icons/misc/vampire_tgui.dmi', icon_state="hemomancer")
+	data["umbrae"] = list(icon='icons/misc/vampire_tgui.dmi',  icon_state="umbrae")
+	data["gargantua"] = list(icon='icons/misc/vampire_tgui.dmi', icon_state="gargantua")
+	data["dantalion"] = list(icon='icons/misc/vampire_tgui.dmi', icon_state="dantalion")
+	data["bestia"] = list(icon='icons/misc/vampire_tgui.dmi', icon_state="bestia")
+
+	return data
 
 /obj/effect/proc_holder/spell/vampire/self/specialize/ui_data(mob/user)
 	var/datum/antagonist/vampire/vamp = user.mind.has_antag_datum(/datum/antagonist/vampire)
@@ -205,8 +222,8 @@
 
 
 /obj/effect/proc_holder/spell/vampire/glare
-	name = "Glare"
-	desc = "Your eyes flash, stunning and silencing anyone in front of you. It has lesser effects for those around you."
+	name = "Вспышка"
+	desc = "Ваши глаза вспыхивают, ошеломляя и заставляя замолчать всех, кто находится прямо перед вами. В меньшей степени действует на окружающих вне вашего поля зрения."
 	action_icon_state = "vampire_glare"
 	base_cooldown = 30 SECONDS
 	stat_allowed = UNCONSCIOUS
@@ -242,11 +259,11 @@
 	if(ishuman(user) && istype(user.glasses, /obj/item/clothing/glasses/sunglasses/blindfold))
 		var/obj/item/clothing/glasses/sunglasses/blindfold/blindfold = user.glasses
 		if(blindfold.tint)
-			to_chat(user, span_warning("You're blindfolded!"))
+			balloon_alert(user, "ваши глаза закрыты!")
 			return
 
 	user.mob_light(LIGHT_COLOR_BLOOD_MAGIC, _range = 3, _duration = 0.2 SECONDS)
-	user.visible_message(span_warning("[user]'s eyes emit a blinding flash!"))
+	user.visible_message(span_warning("Глаза [user] испускают ослепительную вспышку!"))
 
 	for(var/mob/living/target as anything in targets)
 		var/deviation
@@ -257,22 +274,22 @@
 
 		if(deviation == DEVIATION_FULL)
 			target.Confused(6 SECONDS)
-			target.adjustStaminaLoss(30)
+			target.apply_damage(30, STAMINA)
 
 		else if(deviation == DEVIATION_PARTIAL)
 			target.Weaken(4 SECONDS)
 			target.Confused(10 SECONDS)
-			target.adjustStaminaLoss(40)
+			target.apply_damage(40, STAMINA)
 
 		else
 			target.Confused(10 SECONDS)
-			target.adjustStaminaLoss(30)
+			target.apply_damage(30, STAMINA)
 			target.Weaken(2 SECONDS)
 			target.apply_status_effect(STATUS_EFFECT_STAMINADOT)
 			target.AdjustSilence(8 SECONDS)
 			target.flash_eyes(1, TRUE, TRUE)
 
-		to_chat(target, span_warning("You are blinded by [user]'s glare."))
+		to_chat(target, span_warning("Вы ослеплены взглядом [user]."))
 		add_attack_logs(user, target, "(Vampire) Glared at")
 
 
@@ -312,8 +329,8 @@
 
 
 /obj/effect/proc_holder/spell/vampire/raise_vampires
-	name = "Raise Vampires"
-	desc = "Summons deadly vampires from bluespace."
+	name = "Возвышение вампиров"
+	desc = "Призывает смертоносных вампиров из блюспейса."
 	school = "transmutation"
 	clothes_req = FALSE
 	human_req = TRUE
@@ -323,7 +340,7 @@
 	cooldown_min = 2 SECONDS
 	action_icon_state = "revive_thrall"
 	sound = 'sound/magic/wandodeath.ogg'
-	gain_desc = "You have gained the ability to Raise Vampires. This extremely powerful AOE ability affects all humans near you. Vampires/thralls are healed. Corpses are raised as vampires. Others are stunned, then brain damaged, then killed."
+	gain_desc = "Вы получили способность «Возвышение вампиров». Эта чрезвычайно мощная АОЕ-способность действует на всех людей рядом с вами. Вампиры/стражи исцеляются. Трупы воскрешаются как вампиры. Другие люди оглушаются, получают повреждения мозга, а затем погибают."
 
 
 /obj/effect/proc_holder/spell/vampire/raise_vampires/create_new_targeting()
@@ -335,7 +352,7 @@
 /obj/effect/proc_holder/spell/vampire/raise_vampires/cast(list/targets, mob/user = usr)
 	new /obj/effect/temp_visual/cult/sparks(user.loc)
 	var/turf/T = get_turf(user)
-	to_chat(user, span_warning("You call out within bluespace, summoning more vampiric spirits to aid you!"))
+	to_chat(user, span_warning("Вы взываете к блюспейсу, призывая на помощь ещё больше вампирических духов!"))
 	for(var/mob/living/carbon/human/H in targets)
 		T.Beam(H, "sendbeam", 'icons/effects/effects.dmi', time = 30, maxdistance = 7, beam_type = /obj/effect/ebeam)
 		new /obj/effect/temp_visual/cult/sparks(H.loc)
@@ -346,15 +363,14 @@
 	if(!istype(M) || !istype(H))
 		return
 	if(!H.mind)
-		visible_message("[H] looks to be too stupid to understand what is going on.")
+		visible_message("Похоже, [H] слишком глуп[genderize_ru(H.gender, "", "а", "о", "ы")], чтобы понять, что происходит.")
 		return
-	if(H.dna && (NO_BLOOD in H.dna.species.species_traits) || H.dna.species.exotic_blood || !H.blood_volume)
-		visible_message("[H] looks unfazed!")
+	if(HAS_TRAIT(H, TRAIT_NO_BLOOD) || HAS_TRAIT(H, TRAIT_EXOTIC_BLOOD) || !H.blood_volume)
+		visible_message("[H] выгляд[pluralize_ru(H.gender, "ит", "ят")] невозмутимым!")
 		return
 	if(H.mind.has_antag_datum(/datum/antagonist/vampire) || H.mind.special_role == SPECIAL_ROLE_VAMPIRE || H.mind.special_role == SPECIAL_ROLE_VAMPIRE_THRALL)
-		visible_message(span_notice("[H] looks refreshed!"))
-		H.adjustBruteLoss(-60)
-		H.adjustFireLoss(-60)
+		visible_message(span_notice("[H] выгляд[pluralize_ru(H.gender, "ит", "ят")] посвежевшим!"))
+		H.heal_overall_damage(60, 60, affect_robotic = TRUE)
 		for(var/obj/item/organ/external/bodypart as anything in H.bodyparts)
 			if(prob(25))
 				bodypart.mend_fracture()
@@ -363,10 +379,10 @@
 		return
 	if(H.stat != DEAD)
 		if(H.IsWeakened())
-			visible_message(span_warning("[H] looks to be in pain!"))
-			H.adjustBrainLoss(60)
+			visible_message(span_warning("[H], похоже, испытыва[pluralize_ru(H.gender, "ет", "ют")] боль!"))
+			H.apply_damage(60, BRAIN)
 		else
-			visible_message(span_warning("[H] looks to be stunned by the energy!"))
+			visible_message(span_warning("Похоже, что [H] ошеломлен[genderize_ru(H.gender, "", "а", "о", "ы")] энергией!"))
 			H.Weaken(40 SECONDS)
 		return
 	for(var/obj/item/implant/mindshield/L in H)
@@ -375,11 +391,11 @@
 	for(var/obj/item/implant/traitor/T in H)
 		if(T && T.implanted)
 			qdel(T)
-	visible_message(span_warning("[H] gets an eerie red glow in their eyes!"))
+	visible_message(span_warning("У [H] появля[pluralize_ru(H.gender, "ет", "ют")]ся жуткое красное свечение в глазах!"))
 	var/datum/objective/protect/protect_objective = new
 	protect_objective.owner = H.mind
 	protect_objective.target = M.mind
-	protect_objective.explanation_text = "Protect [M.real_name]."
+	protect_objective.explanation_text = "Защитите [M.real_name]."
 	H.mind.objectives += protect_objective
 	add_attack_logs(M, H, "Vampire-sired")
 	H.mind.make_vampire()

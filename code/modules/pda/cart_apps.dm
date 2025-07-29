@@ -16,6 +16,9 @@
 	if(..())
 		return
 
+	if(!pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
+
 	. = TRUE
 	switch(action)
 		if("Status")
@@ -25,9 +28,13 @@
 				if("alert")
 					post_status(STATUS_DISPLAY_ALERT, params["alert"])
 				if("setmsg1")
-					message1 = clean_input("Line 1", "Enter Message Text", message1)
+					message1 = tgui_input_text(usr, "Line 1", "Enter Message Text", message1, encode = FALSE)
+					if(isnull(message1))
+						return
 				if("setmsg2")
-					message2 = clean_input("Line 2", "Enter Message Text", message2)
+					message2 = tgui_input_text(usr, "Line 2", "Enter Message Text", message2, encode = FALSE)
+					if(isnull(message2))
+						return
 				else
 					post_status(params["statdisp"])
 
@@ -51,6 +58,9 @@
 		return
 
 	. = TRUE
+
+	if(!pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
 
 	if(pda.cartridge && istype(pda.cartridge.radio, /obj/item/integrated_radio/signal))
 		var/obj/item/integrated_radio/signal/R = pda.cartridge.radio
@@ -84,6 +94,9 @@
 	if(..())
 		return
 
+	if(!pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
+
 	. = TRUE
 	// Observe
 	pm.ui_act(action, params, ui, state)
@@ -112,6 +125,9 @@
 		return
 
 	. = TRUE
+
+	if(pda && !pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
 
 	switch(action)
 		if("Records")
@@ -226,6 +242,9 @@
 	if(..())
 		return
 
+	if(!pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
+
 	. = TRUE
 
 	// Aight listen up. Its time for a comment rant again.
@@ -306,6 +325,9 @@
 /datum/data/pda/app/mule_control/ui_act(action, list/params)
 	if(..())
 		return
+
+	if(!pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
 
 	. = TRUE
 

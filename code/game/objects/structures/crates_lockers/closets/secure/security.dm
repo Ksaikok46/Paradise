@@ -51,7 +51,7 @@
 	new /obj/item/cartridge/hos(src)
 	new /obj/item/radio/headset/heads/hos/alt(src)
 	new /obj/item/clothing/glasses/hud/security/sunglasses(src)
-	new /obj/item/clothing/gloves/combat(src)
+	new /obj/item/clothing/gloves/combat/swat(src)
 	new /obj/item/storage/lockbox/mindshield(src)
 	new /obj/item/storage/box/flashbangs(src)
 	new /obj/item/holosign_creator/security(src)
@@ -69,6 +69,7 @@
 	new /obj/item/megaphone(src)	//added here deleted on maps
 	new /obj/item/reagent_containers/food/drinks/flask(src)
 	new /obj/item/storage/garmentbag/hos(src)
+	new /obj/item/camera_bug/security(src)
 
 /obj/structure/closet/secure_closet/warden
 	name = "warden's locker"
@@ -99,6 +100,16 @@
 	new /obj/item/security_voucher(src)
 	new /obj/item/security_voucher(src)
 	new /obj/item/security_voucher(src)
+	new /obj/item/storage/box/sec_cameras(src)
+	new /obj/item/camera_bug/security(src)
+
+/obj/structure/closet/secure_closet/pilot_sniper
+	name = "sniper gun cabinet"
+	req_access = list(ACCESS_PILOT)
+	icon_state = "sniper"
+
+/obj/structure/closet/secure_closet/pilot_sniper/populate_contents()
+	new /obj/item/gun/energy/sniperrifle/pod_pilot(src)
 
 /obj/structure/closet/secure_closet/security
 	name = "security officer's locker"
@@ -124,7 +135,7 @@
 /obj/structure/closet/secure_closet/brigdoc
 	name = "brig physician's locker"
 	req_access = list(ACCESS_BRIG)
-	icon_state = "med"
+	icon_state = "brigmed"
 
 /obj/structure/closet/secure_closet/brigdoc/populate_contents()
 	if(prob(50))
@@ -155,20 +166,18 @@
 	new	/obj/item/storage/firstaid/adv(src)
 	new /obj/item/pinpointer/crew(src)
 	new /obj/item/storage/belt/security/sec(src)
+	new /obj/item/clothing/gloves/combat/swat(src)
 	new /obj/item/flashlight/seclite(src)
-	new /obj/item/clothing/glasses/sunglasses(src)
-	new /obj/item/clothing/glasses/hud/security/sunglasses/read_only(src)
-	new /obj/item/clothing/glasses/hud/health/sunglasses(src)
-	new /obj/item/clothing/glasses/hud/skills/sunglasses(src)
 	new /obj/item/clothing/accessory/holster(src)
 	new /obj/item/clothing/mask/gas/sechailer/blue(src)
 	new /obj/item/clothing/mask/gas/sechailer(src)
 	new /obj/item/sensor_device/advanced/command(src)
 	new /obj/item/storage/garmentbag/blueshield(src)
 	new /obj/item/storage/belt/security/webbing(src)
+	new /obj/item/reagent_containers/spray/cleaner/tactical(src)
 
 /obj/structure/closet/secure_closet/ntrep
-	name = "\improper Nanotrasen Representative's locker"
+	name = "Nanotrasen Representative's locker"
 	req_access = list(ACCESS_NTREP)
 	icon_state = "nt"
 
@@ -211,19 +220,14 @@
 	new /obj/item/encryptionkey/headset_med(src)
 
 
-/obj/structure/closet/secure_closet/detective
+/obj/structure/closet/secure_closet/cabinet/detective
 	name = "detective's cabinet"
-	req_access = list(ACCESS_FORENSICS_LOCKERS)
 	icon_state = "cabinetdetective"
-	overlay_unlocked = "c_unlocked"
-	overlay_locked = "c_locked"
-	overlay_locker = "c_locker"
-	resistance_flags = FLAMMABLE
-	max_integrity = 70
-	open_sound = 'sound/machines/wooden_closet_open.ogg'
-	close_sound = 'sound/machines/wooden_closet_close.ogg'
+	overlay_locker = "cd_locker"
+	req_access = list(ACCESS_FORENSICS_LOCKERS)
 
-/obj/structure/closet/secure_closet/detective/populate_contents()
+
+/obj/structure/closet/secure_closet/cabinet/detective/populate_contents()
 	new /obj/item/storage/backpack/satchel_detective(src)
 	new /obj/item/storage/backpack/detective(src)
 	new /obj/item/storage/backpack/duffel/detective(src)
@@ -252,8 +256,9 @@
 	var/id = null
 
 /obj/structure/closet/secure_closet/brig/populate_contents()
-	new /obj/item/clothing/under/color/orange/prison(src)
-	new /obj/item/clothing/shoes/orange(src)
+	new /obj/item/clothing/under/prison(src)
+	new /obj/item/clothing/head/prison(src)
+	new /obj/item/clothing/shoes/prison(src)
 	new /obj/item/card/id/prisoner/random(src)
 	new /obj/item/radio/headset(src)
 
@@ -289,7 +294,7 @@
 	large = FALSE
 
 /obj/structure/closet/secure_closet/magistrate
-	name = "\improper Magistrate's locker"
+	name = "Magistrate's locker"
 	req_access = list(ACCESS_MAGISTRATE)
 	icon_state = "magistrate"
 

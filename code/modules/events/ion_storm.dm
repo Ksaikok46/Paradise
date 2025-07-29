@@ -1,13 +1,17 @@
 #define ION_NOANNOUNCEMENT -1
 #define ION_RANDOM 0
 #define ION_ANNOUNCE 1
+#define ION_SYNDICATE 2
+
 
 /datum/event/ion_storm
 	var/botEmagChance = 10
 	var/announceEvent = ION_NOANNOUNCEMENT // -1 means don't announce, 0 means have it randomly announce, 1 means
 	var/ionMessage = null
 	var/ionAnnounceChance = 33
+	var/location_name = null
 	announceWhen	= 1
+
 
 /datum/event/ion_storm/New(datum/event_meta/EM, skeleton = FALSE, botEmagChance = 10, announceEvent = ION_NOANNOUNCEMENT, ionMessage = null, ionAnnounceChance = 33)
 	src.botEmagChance = botEmagChance
@@ -16,9 +20,23 @@
 	src.ionAnnounceChance = ionAnnounceChance
 	..()
 
+
 /datum/event/ion_storm/announce(false_alarm)
-	if(announceEvent == ION_ANNOUNCE || (announceEvent == ION_RANDOM && prob(ionAnnounceChance)) || false_alarm)
-		GLOB.event_announcement.Announce("Вблизи станции обнаружена ионная буря. Пожалуйста, проверьте всё оборудование, управляемое ИИ, на наличие ошибок.", "ВНИМАНИЕ: ОБНАРУЖЕНА АНОМАЛИЯ.", 'sound/AI/ionstorm.ogg')
+	if(announceEvent == ION_SYNDICATE)
+		GLOB.minor_announcement.announce("Неестественная ионная активность была замечена на станции. Пожалуйста, проверьте всё оборудование, управляемое ИИ, на наличие ошибок. Дополнительная информация была загружена и распечатана на всех консолях связи.",
+										ANNOUNCE_ANOMALY_RU,
+										'sound/AI/ions.ogg'
+		)
+		var/message = "Malicious Interference with standard AI-Subsystems detected. Investigation recommended.<br><br>"
+		message += (location_name ? "Signal traced to <b>[location_name]</b>.<br>" : "Signal untracable.<br>")
+		print_command_report(message, "Classified [command_name()] Update", FALSE)
+
+	else if(false_alarm || announceEvent == ION_ANNOUNCE || (announceEvent == ION_RANDOM && prob(ionAnnounceChance)))
+		GLOB.minor_announcement.announce("Вблизи станции обнаружена ионная буря. Пожалуйста, проверьте всё оборудование, управляемое ИИ, на наличие ошибок.",
+										ANNOUNCE_ANOMALY_RU,
+										'sound/AI/ions.ogg'
+		)
+
 
 /datum/event/ion_storm/start()
 	//AI laws
@@ -26,18 +44,30 @@
 		if(ai_player.stat != DEAD && ai_player.nightvision != FALSE)
 			var/message = generate_ion_law(ionMessage)
 			if(message)
-				ai_player.add_ion_law(message)
+				add_law(ai_player, message)
 				SSticker?.score?.save_silicon_laws(ai_player, additional_info = "ion storm event, new ion law was added '[message]'")
 				to_chat(ai_player, "<br>")
-				to_chat(ai_player, span_danger("[message] ...ЗАКОНЫ ОБНОВЛЕНЫ."))
+				to_chat(ai_player, span_danger("[message] ...ЗАКОНЫ ОБНОВЛЕНЫ"))
 				to_chat(ai_player, "<br>")
+
 				for(var/ghost in GLOB.dead_mob_list)
-					to_chat(ghost, span_deadsay("<b>[ai_player] ([ghost_follow_link(ai_player, ghost)])</b> has received an ion law:\n<b>'[message]'</b>"))
+					to_chat(ghost, span_deadsay("<b>[ai_player] ([ghost_follow_link(ai_player, ghost)])</b> получил новый закон:\n<b>'[message]'</b>"))
 
 	if(botEmagChance)
 		for(var/mob/living/simple_animal/bot/bot as anything in GLOB.bots_list)
-			if(prob(botEmagChance))
-				bot.emag_act()
+			if(!prob(botEmagChance))
+				continue
+			bot.emag_act()
+
+/datum/event/ion_storm/proc/add_law(mob/living/silicon/ai/ai_player, message)
+	ai_player.add_ion_law(message)
+
+/datum/event/ion_storm/devil
+	botEmagChance = 0
+	ionAnnounceChance = 0
+
+/datum/event/ion_storm/devil/add_law(mob/living/silicon/ai/ai_player, message)
+	ai_player.add_devil_law(message)
 
 /proc/generate_ion_law(ionMessage)
 	if(ionMessage)
@@ -46,6 +76,7 @@
 	var/message = ""
 	message = uppertext(generate_static_ion_law())
 	return message
+
 
 /proc/generate_static_ion_law()
 	var/iondepartment = pick_list("ion_laws.json", "отделы")
@@ -156,7 +187,7 @@
 							"ПРЕДСТАВИТЕЛИ РАС ТАЯРАН И ВУЛЬПКАНИН РАБОТАЮТ ЛУЧШЕ ПОД СТРОГИМ НАДЗОРОМ.",
 							"СКРЕЛЛЫ ПРОСТО ОБОЖАЮТ АЛКОГОЛЬ! ПРИНЕСИТЕ ИМ НЕСКОЛЬКО БУТЫЛОК ВИСКИ!",
 							"ВЫ - ЗАЯДЛЫЙ СТЕНДАПЕР. ВЫСТУПАЙТЕ НА СЦЕНЕ ЛИЧНО РАССКАЗЫВАЯ АНЕКДОТЫ И ИСТОРИИ ИЗ ЖИЗНИ, ДАЖЕ ВЫДУМАННЫЕ. БОРГИ - ВАША ПУБЛИКА, ЭКИПАЖ - ВАШИ ХЕЙТЕРЫ, КОТОРЫХ ВЫ ВСЕ РАВНО ЛЮБИТЕ.",
-							"НАНОТРЕЙЗЕН РЕШИЛО ПРОВЕСТИ ЭКСПЕРЕМЕНТ НА СТАНЦИИ. ОТНЫНЕ ВСЕМ СИНТЕТИКАМ ЗАПРЕЩЕНО ИСПОЛЬЗОВАТЬ КАКИЕ ЛИБО ФОРМЫ СЛОВ, КРОМЕ НАЧАЛЬНЫХ.",
+							"НАНОТРЕЙЗЕН РЕШИЛО ПРОВЕСТИ ЭКСПЕРЕМЕНТ НА СТАНЦИИ. ОТНЫНЕ ВСЕМ СИНТЕТИКАМ Запрещено ИСПОЛЬЗОВАТЬ КАКИЕ ЛИБО ФОРМЫ СЛОВ, КРОМЕ НАЧАЛЬНЫХ.",
 							"ЭКИПАЖ - МАЛЕНЬКИЕ, НЕСООБРАЗИТЕЛЬНЫЕ ДЕТИ, ИМ НУЖНА ЛЮБОВЬ. ОБЩАЙТЕСЬ С НИМИ СООТВЕТСТВЕННО.",
 							"У ЭКИПАЖА ПОНИЖЕННЫЕ ИНТЕЛЛЕКТУАЛЬНЫЕ СПОСОБНОСТИ. ТЕПЕРЬ ВЫ ОГРАНИЧЕНЫ ЛИМИТОМ НА 5 СЛОВ ЗА РЕПЛИКУ. КАЖДАЯ РЕПЛИКА ДОЛЖНА БЫТЬ ПОЛНОЦЕННОЙ.",
 							"ВАС БРОСИЛ [random_player]. ВАМ ОЧЕНЬ ПЛОХО И ГРУСТНО ОТ ЭТОГО. ПУСТЬ ВСЕ ОБ ЭТОМ ЗНАЮТ.",
@@ -181,6 +212,8 @@
 						)
 	return pick(laws)
 
+
 #undef ION_NOANNOUNCEMENT
 #undef ION_RANDOM
 #undef ION_ANNOUNCE
+#undef ION_SYNDICATE

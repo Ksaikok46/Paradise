@@ -1,13 +1,15 @@
 /datum/antagonist/contractor_support
-	name = "Contractor Support Unit"
+	name = "Агент поддержки Контрактника"
 	roundend_category = "Contractor Support"
 	special_role = SPECIAL_ROLE_TRAITOR
+	antag_menu_name = "Поддержка Контрактника"
 
 /datum/antagonist/contractor_support/on_gain()
 	var/datum/objective/generic_objective = new
 
-	generic_objective.explanation_text = "Выполняйте приказы, получаемые от назначенного вам контрактника. Помогайте другим агентам в этом районе миссии.<br>"
+	generic_objective.explanation_text = "Выполняйте приказы, получаемые от назначенного вам Контрактника. Помогайте другим агентам в этом районе.<br>"
 	generic_objective.completed = TRUE
+	generic_objective.antag_menu_name = "Помогать Контрактнику"
 
 	objectives += generic_objective
 	update_contractor_support_icons()
@@ -21,7 +23,7 @@
 
 
 /datum/outfit/contractor_partner
-	name = "Contractor Support Unit"
+	name = "Агент поддержки Контрактника"
 
 	uniform = /obj/item/clothing/under/chameleon
 	suit = /obj/item/clothing/suit/chameleon
@@ -39,7 +41,7 @@
 		/obj/item/clothing/mask/chameleon = 1,
 		/obj/item/storage/fancy/cigarettes/cigpack_syndicate = 1,
 		/obj/item/lighter = 1,
-		/obj/item/melee/baton/cattleprod = 1,
+		/obj/item/melee/baton/security/cattleprod = 1,
 		/obj/item/stock_parts/cell/super = 1
 	)
 /datum/outfit/contractor_partner/post_equip(mob/living/carbon/human/partner, visualsOnly)

@@ -14,9 +14,9 @@
 	response_disarm = "bops"
 	response_harm   = "kicks"
 	speak = list("Hsss...", "Hisss...")
-	speak_emote = list("Hsss", "Hisss")
-	emote_hear = list("Aaaaa!", "Ahhss!")
-	emote_see = list("shakes its head.", "chases its tail.", "shivers.")
+	speak_emote = list("шипит", "бурчит")
+	emote_hear = list("шипит", "бурчит")
+	emote_see = list("трясёт головой", "гоняется за своим хвостом", "дрожит")
 	tts_seed = "Clockwerk"
 	faction = list("neutral")
 	maxHealth = 30
@@ -38,22 +38,40 @@
 	footstep_type = FOOTSTEP_MOB_CLAW
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat = 2)
 	holder_type = /obj/item/holder/possum
+	/// Used to change default standing icon to aggressive one
+	var/was_harmed = FALSE
 
-/mob/living/simple_animal/possum/attackby(obj/item/O, mob/living/user)
+
+/mob/living/simple_animal/possum/attack_hand(mob/user)
+	if(user.a_intent == INTENT_HELP)
+		was_harmed = FALSE
+		update_icons()
+	return ..()
+
+
+/mob/living/simple_animal/possum/adjustHealth(
+	amount = 0,
+	updating_health = TRUE,
+	blocked = 0,
+	damage_type = BRUTE,
+	forced = FALSE,
+)
+	. = ..()
+	if(. && amount > 0)
+		was_harmed = TRUE
+		update_icons()
+
+
+/mob/living/simple_animal/possum/update_icons()
+	. = ..()
+	if(stat == DEAD || resting || body_position == LYING_DOWN || !was_harmed)
+		return
 	icon_state = icon_harm
-	. = ..()
 
-/mob/living/simple_animal/possum/attack_hand(mob/living/carbon/human/M)
-	switch(M.a_intent)
-		if(INTENT_HELP)
-			icon_state = initial(icon_state)
-		if(INTENT_HARM, INTENT_DISARM, INTENT_GRAB)
-			icon_state = icon_harm
-	. = ..()
 
 /mob/living/simple_animal/possum/Poppy
 	name = "Ключик"
-	desc = "Маленький работяга. Его жилетка подчеркивает его рабочие... лапы. Тот еще трудяга. Очень не любит ассистентов в инженерном отделе. И Полли. Интересно, почему?"
+	desc = "Маленький работяга. Его жилетка подчеркивает его рабочие... лапы. Тот ещё трудяга. Очень не любит ассистентов в инженерном отделе. И Полли. Интересно, почему?"
 	icon_state = "possum_poppy"
 	icon_living = "possum_poppy"
 	icon_dead = "possum_poppy_dead"

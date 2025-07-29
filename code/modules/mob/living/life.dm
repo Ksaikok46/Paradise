@@ -4,21 +4,14 @@
 
 	SEND_SIGNAL(src, COMSIG_LIVING_LIFE, seconds, times_fired)
 
-	if(client || registered_z) // This is a temporary error tracker to make sure we've caught everything
-		var/turf/T = get_turf(src)
-		if(client && registered_z != T.z)
-			message_admins("[src] [ADMIN_FLW(src, "FLW")] has somehow ended up in Z-level [T.z] despite being registered in Z-level [registered_z]. If you could ask them how that happened and notify the coders, it would be appreciated.")
-			add_misc_logs(src, "Z-TRACKING: [src] has somehow ended up in Z-level [T.z] despite being registered in Z-level [registered_z].")
-			update_z(T.z)
-		else if (!client && registered_z)
-			add_misc_logs(src, "Z-TRACKING: [src] of type [src.type] has a Z-registration despite not having a client.")
-			update_z(null)
+	track_z()
 
 	if(HAS_TRAIT(src, TRAIT_NO_TRANSFORM))
 		return FALSE
 
 	if(!loc)
 		return FALSE
+	INVOKE_ASYNC(src, PROC_REF(burst_blob_in_mob))
 
 	if(stat != DEAD)
 		//Chemicals in the body
@@ -35,10 +28,6 @@
 	if(stat != DEAD)
 		//Breathing, if applicable
 		handle_breathing(times_fired)
-
-	if(stat != DEAD)
-		//Random events (vomiting etc)
-		handle_random_events()
 
 	if(LAZYLEN(diseases))
 		handle_diseases()
@@ -61,11 +50,8 @@
 	if(vamp)
 		vamp.handle_vampire()
 
-	if(pulling)
-		update_pulling()
-
-	for(var/obj/item/grab/G in src)
-		G.process()
+	if(pulledby && pulledby.grab_state > GRAB_PASSIVE)
+		pull_on_life()
 
 	if(stat != DEAD)
 		handle_critical_condition()
@@ -83,10 +69,10 @@
 				var/view = client ? client.maxview() : world.view
 				if(get_dist(src, A) > view || !(src in viewers(view, A)))
 					clear_forced_look(TRUE)
-					to_chat(src, span_notice("Your direction target has left your view, you are no longer facing anything."))
+					to_chat(src, span_notice("Цель направления покинула ваше поле зрения, вы больше никуда не направлены."))
 			else
 				clear_forced_look(TRUE)
-				to_chat(src, span_notice("Your direction target has left your view, you are no longer facing anything."))
+				to_chat(src, span_notice("Цель направления покинула ваше поле зрения, вы больше никуда не направлены."))
 		// Make sure it didn't get cleared
 		if(forced_look)
 			setDir()
@@ -95,6 +81,8 @@
 		machine.check_eye(src)
 
 	handle_gravity(seconds, times_fired)
+
+	handle_SSD(seconds)
 
 	if(stat != DEAD)
 		return TRUE
@@ -116,15 +104,9 @@
 		var/datum/disease/D = thing
 		D.stage_act()
 
-/mob/living/proc/handle_random_events()
-	return
-
 /mob/living/proc/handle_environment(datum/gas_mixture/environment)
+	SEND_SIGNAL(src, COMSIG_LIVING_HANDLE_BREATHING, environment)
 	return
-
-/mob/living/proc/update_pulling()
-	if(incapacitated())
-		stop_pulling()
 
 //this updates all special effects: mainly stamina
 /mob/living/proc/handle_status_effects() // We check for the status effect in this proc as opposed to the procs below to avoid excessive proc call overhead
@@ -135,7 +117,7 @@
 
 /mob/living/proc/handle_disabilities()
 	//Eyes
-	if((BLINDNESS in mutations) || stat)	//blindness from disability or unconsciousness doesn't get better on its own
+	if(HAS_TRAIT(src, TRAIT_BLIND) || stat)	//blindness from disability or unconsciousness doesn't get better on its own
 		EyeBlind(2 SECONDS)
 
 // Gives a mob the vision of being dead
@@ -179,6 +161,10 @@
 			overlay_fullscreen("brute", /atom/movable/screen/fullscreen/brute, severity)
 		else
 			clear_fullscreen("brute")
+		if(health <= HEALTH_THRESHOLD_CRIT)
+			throw_alert("succumb", /atom/movable/screen/alert/succumb)
+		else
+			clear_alert("succumb")
 
 
 /mob/living/update_stamina_hud(shown_stamina_loss)
@@ -236,13 +222,13 @@
 				severity = 6
 		livingdoll.icon_state = "living[severity]"
 		if(!livingdoll.filtered)
-			livingdoll.filtered = TRUE
 			var/icon/mob_mask = icon(icon, icon_state)
 			if(mob_mask.Height() > world.icon_size || mob_mask.Width() > world.icon_size)
 				var/health_doll_icon_state = health_doll_icon ? health_doll_icon : "megasprite"
 				mob_mask = icon('icons/mob/screen_gen.dmi', health_doll_icon_state) //swap to something generic if they have no special doll
 			livingdoll.add_filter("mob_shape_mask", 1, alpha_mask_filter(icon = mob_mask))
 			livingdoll.add_filter("inset_drop_shadow", 2, drop_shadow_filter(size = -1))
+			livingdoll.filtered = TRUE
 	if(severity > 0)
 		overlay_fullscreen("brute", /atom/movable/screen/fullscreen/brute, severity)
 	else
@@ -250,21 +236,71 @@
 
 
 /mob/living/proc/handle_gravity(seconds_per_tick, times_fired)
-	if(gravity_state > STANDARD_GRAVITY)
+	if(abs(gravity_state) > STANDARD_GRAVITY)
 		handle_high_gravity(gravity_state, seconds_per_tick, times_fired)
+
+
+/mob/living/carbon/handle_gravity(seconds_per_tick, times_fired)
+	. = ..()
+	if(gravity_state < HIGH_GRAVITY_SLOWDOWN)
+		remove_movespeed_modifier(/datum/movespeed_modifier/high_gravity)
+
+	if(gravity_state < GRAVITY_CANT_STAY)
+		REMOVE_TRAIT(src, TRAIT_FLOORED, GRAVITATION_TRAIT)
+		return
+
+	if(!buckled)
+		ADD_TRAIT(src, TRAIT_FLOORED, GRAVITATION_TRAIT)
 
 
 /mob/living/proc/gravity_animate()
 	if(!get_filter("gravity"))
 		add_filter("gravity",1,list("type"="motion_blur", "x"=0, "y"=0))
+
 	animate(get_filter("gravity"), y = 1, time = 10, loop = -1)
 	animate(y = 0, time = 10)
 
 
 /mob/living/proc/handle_high_gravity(gravity, seconds_per_tick, times_fired)
-	if(gravity < GRAVITY_DAMAGE_THRESHOLD) //Aka gravity values of 3 or more
+	if(abs(gravity) < HIGH_GRAVITY_SLOWDOWN)
 		return
 
-	var/grav_strength = gravity - GRAVITY_DAMAGE_THRESHOLD
+	add_movespeed_modifier(/datum/movespeed_modifier/high_gravity)
+
+	if(abs(gravity) < GRAVITY_DAMAGE_THRESHOLD) //Aka gravity values of 3 or more
+		return
+
+	var/grav_strength = abs(gravity) - GRAVITY_DAMAGE_THRESHOLD
 	adjustBruteLoss(min(GRAVITY_DAMAGE_SCALING * grav_strength, GRAVITY_DAMAGE_MAXIMUM) * seconds_per_tick)
+
+/// Updates grabbed victim status effects.
+/mob/living/proc/pull_on_life()
+	var/mob/grabber = pulledby
+	if(HAS_TRAIT(grabber, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
+		grabber.stop_pulling()
+		return
+
+	if(grabber.grab_state >= GRAB_AGGRESSIVE && grabber.zone_selected == BODY_ZONE_PRECISE_EYES && ishuman(src))
+		AdjustEyeBlind(3 SECONDS, bound_upper = 6 SECONDS)
+
+	var/breathing_tube = get_organ_slot(INTERNAL_ORGAN_BREATHING_TUBE)
+
+	if(grabber.grab_state >= GRAB_NECK && !breathing_tube)
+		adjustOxyLoss(1)
+
+	if(grabber.grab_state >= GRAB_KILL)
+		AdjustStuttering(5 SECONDS, bound_upper = 10 SECONDS)	//It will hamper your voice, being choked and all.
+		if(!breathing_tube)
+			AdjustLoseBreath(3 SECONDS, bound_upper = 6 SECONDS)
+
+
+/// Handles mob SSD status.
+/mob/living/proc/handle_SSD(seconds_per_tick)
+	if(isnull(player_logged))
+		return FALSE
+	if(stat == DEAD)
+		set_SSD(FALSE)
+		return FALSE
+	player_logged += seconds_per_tick SECONDS	// called every 2s. on life
+	return TRUE
 

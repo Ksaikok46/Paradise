@@ -3,7 +3,7 @@
 /mob/camera/aiEye/remote/holo/setLoc(turf/destination, force_update = FALSE)
 	. = ..()
 	var/obj/machinery/hologram/holopad/H = origin
-	H.move_hologram(eye_user, loc)
+	H?.move_hologram(eye_user, loc)
 	ai_detector_visible = FALSE // Holocalls dont trigger the Ai Detector
 
 //this datum manages it's own references
@@ -20,10 +20,10 @@
 
 	var/call_start_time
 
-//creates a holocall made by `caller` from `calling_pad` to `callees`
-/datum/holocall/New(mob/living/caller, obj/machinery/hologram/holopad/calling_pad, list/callees)
+//creates a holocall made by `requester` from `calling_pad` to `callees`
+/datum/holocall/New(mob/living/requester, obj/machinery/hologram/holopad/calling_pad, list/callees)
 	call_start_time = world.time
-	user = caller
+	user = requester
 	calling_pad.outgoing_call = src
 	calling_holopad = calling_pad
 	dialed_holopads = list()
@@ -34,7 +34,7 @@
 			dialed_holopads += H
 			var/area/area = get_area(H)
 			LAZYADD(H.holo_calls, src)
-			H.atom_say("[area] голопад звонит: входящий вызов от [caller]!")
+			H.atom_say("[area] голопад звонит: входящий вызов от [requester]!")
 
 	if(!dialed_holopads.len)
 		calling_holopad.atom_say("Сбой соединения.")
@@ -178,7 +178,7 @@
 		qdel(src)
 
 /datum/action/innate/end_holocall
-	name = "End Holocall"
+	name = "Закончить звонок"
 	button_icon_state = "camera_off"
 	var/datum/holocall/hcall
 

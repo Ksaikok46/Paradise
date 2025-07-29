@@ -5,6 +5,8 @@
 	singular_name = "cable"
 	icon = 'icons/obj/engines_and_power/power.dmi'
 	icon_state = "coil"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	item_state = "coil_red"
 	belt_icon = "cable_coil"
 	amount = MAXCOIL
@@ -12,7 +14,6 @@
 	merge_type = /obj/item/stack/cable_coil // This is here to let its children merge between themselves
 	color = WIRE_COLOR_RED
 	desc = "A coil of power cable."
-	throwforce = 10
 	w_class = WEIGHT_CLASS_SMALL
 	full_w_class = WEIGHT_CLASS_SMALL
 	throw_speed = 2
@@ -20,10 +21,20 @@
 	materials = list(MAT_METAL=10, MAT_GLASS=5)
 	flags = CONDUCT
 	slot_flags = ITEM_SLOT_BELT
-	item_state = "coil"
-	attack_verb = list("whipped", "lashed", "disciplined", "flogged")
+	attack_verb = list("хлестнул", "стегнул", "проучил", "выпорол")
 	usesound = 'sound/items/deconstruct.ogg'
 	toolspeed = 1
+
+	var/static/list/wire_colors = list(
+		WIRE_COLOR_BLUE = "blue",
+		WIRE_COLOR_CYAN = "cyan",
+		WIRE_COLOR_GREEN = "green",
+		WIRE_COLOR_ORANGE = "orange",
+		WIRE_COLOR_PINK = "pink",
+		WIRE_COLOR_RED = "red",
+		WIRE_COLOR_WHITE = "white",
+		WIRE_COLOR_YELLOW = "yellow"
+	)
 
 
 /obj/item/stack/cable_coil/Initialize(mapload, new_amount, merge = TRUE, cable_color = null)
@@ -36,7 +47,7 @@
 	update_weight()
 
 
-/obj/item/stack/cable_coil/split_stack()
+/obj/item/stack/cable_coil/split()
 	var/obj/item/stack/cable_coil/C = ..()
 	C.color = color
 	return C
@@ -59,7 +70,7 @@
 		icon_state = "coil2"
 	else
 		icon_state = "coil"
-
+	item_state = wire_colors[color]
 
 /obj/item/stack/cable_coil/update_weight()
 	if(amount == 1)
@@ -105,7 +116,7 @@
 	switch(choice)
 		if("cable restraints (15)")
 			if(get_amount() < 15)
-				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!</span>"))
+				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
 			if(use(15))
 				var/obj/item/restraints/handcuffs/cable/cablecuff = new(T)
 				var/text_color
@@ -133,13 +144,13 @@
 				to_chat(user, span_warning("You need to remove floor plating."))
 				return
 			if(get_amount() < 10)
-				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!</span>"))
+				to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
 				return
 			if(do_after(user, 2 SECONDS, user))
 				if(!use(10))
-					to_chat(user, span_warning("You don't have enough [src] to make cable restraints!</span>"))
+					to_chat(user, span_warning("You don't have enough [src] to make cable restraints!"))
 					return
-				playsound(T, usesound, 50, 1)
+				playsound(T, usesound, 50, TRUE)
 				to_chat(user, span_notice("You place hub cable onto the floor."))
 				var/obj/structure/cable/multiz/multicable = new(T)
 				multicable.cable_color(color)
@@ -152,7 +163,7 @@
 	return TRUE
 
 //you can use wires to heal robotics
-/obj/item/stack/cable_coil/attack(mob/living/carbon/human/target, mob/user)
+/obj/item/stack/cable_coil/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!ishuman(target))
 		return ..()
 
@@ -160,21 +171,26 @@
 	if(!target_organ || !target_organ.is_robotic() || user.a_intent != INTENT_HELP || target_organ.open == ORGAN_SYNTHETIC_OPEN)
 		return ..()
 
+	. = ATTACK_CHAIN_PROCEED
+
 	if(target_organ.burn_dam > ROBOLIMB_SELF_REPAIR_CAP)
 		to_chat(user, span_danger("The damage is far too severe to patch over externally."))
-		return FALSE
+		return .
 
 	if(!target_organ.burn_dam)
 		to_chat(user, span_notice("Nothing to fix!"))
-		return FALSE
+		return .
 
-	if(target == user)
-		if(!do_after(user, 1 SECONDS, target, NONE))
-			return FALSE
+	if(target == user && !do_after(user, 1 SECONDS, target, NONE))
+		return .
+
+	. |= ATTACK_CHAIN_SUCCESS
 
 	var/cable_used = 0
 	var/list/childlist = LAZYLEN(target_organ.children) ? target_organ.children.Copy() : null
 	var/parenthealed = FALSE
+	var/should_update_health = FALSE
+	var/update_damage_icon = NONE
 	while(cable_used <= MAXCABLEPERHEAL && amount)
 		var/obj/item/organ/external/current_organ
 		if(target_organ.burn_dam)
@@ -190,39 +206,29 @@
 				break
 		else
 			break
+		var/burn_was = current_organ.burn_dam
 		while(cable_used <= MAXCABLEPERHEAL && current_organ.burn_dam && amount)
 			use(1)
 			cable_used++
-			current_organ.heal_damage(0, HEALPERCABLE, FALSE, TRUE, FALSE)
-		target.updatehealth("cable repair")
-		target.UpdateDamageIcon()
+			update_damage_icon |= current_organ.heal_damage(0, HEALPERCABLE, FALSE, TRUE, FALSE)
+		if(current_organ.burn_dam != burn_was)
+			should_update_health = TRUE
 		user.visible_message(span_alert("[user] repairs some burn damage on [target]'s [current_organ.name] with [src]."))
-	return TRUE
+	if(should_update_health)
+		target.updatehealth("cable repair")
+	if(update_damage_icon)
+		target.UpdateDamageIcon()
 
 
-// Items usable on a cable coil :
-//   - Wirecutters : cut them duh !
-//   - Cable coil : merge cables
-/obj/item/stack/cable_coil/attackby(obj/item/W, mob/user)
-	. = ..()
-	if(is_cyborg)
-		return
-	if(istype(W, /obj/item/stack/cable_coil))
-		var/obj/item/stack/cable_coil/C = W
-		// Cable merging is handled by parent proc
-		if(C.amount >= MAXCOIL)
-			to_chat(user, span_warning("The coil is as long as it will get."))
-			return
-		if(C.amount + amount <= MAXCOIL)
-			to_chat(user, span_notice("You join the cable coils together."))
-			return
-		else
-			to_chat(user, span_notice("You transfer cables from one coil to the other."))
-			return
+/obj/item/stack/cable_coil/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/toy/crayon))
+		add_fingerprint(user)
+		var/obj/item/toy/crayon/crayon = I
+		cable_color(crayon.colourName)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(istype(W, /obj/item/toy/crayon))
-		var/obj/item/toy/crayon/C = W
-		cable_color(C.colourName)
+	return ..()
+
 
 ///////////////////////////////////////////////
 // Cable laying procedures
@@ -239,7 +245,7 @@
 	if(!isturf(user.loc))
 		return
 
-	if(!isturf(T) || T.intact || !T.can_have_cabling())
+	if(!isturf(T) || !T.can_lay_cable())
 		to_chat(user, "<span class='warning'>You can only lay cables on catwalks and plating!</span>")
 		return
 
@@ -247,7 +253,7 @@
 		to_chat(user, "<span class='warning'>There is no cable left!</span>")
 		return
 
-	if(get_dist(T,user) > 1) // Too far
+	if(get_dist(T,user.loc) > 1) // Too far
 		to_chat(user, "<span class='warning'>You can't lay cable at a place that far away!</span>")
 		return
 
@@ -458,10 +464,12 @@
 
 /obj/item/stack/cable_coil/cyborg
 	name = "cyborg cable coil"
-	is_cyborg = 1
+	is_cyborg = TRUE
+	energy_type = /datum/robot_energy_storage/wire
+	cost = 1
 
 /obj/item/stack/cable_coil/cyborg/attack_self(mob/user)
-	var/cablecolor = input(user,"Pick a cable color.","Cable Color") in list("red","yellow","green","blue","pink","orange","cyan","white")
+	var/cablecolor = tgui_input_list(user, "Pick a cable color.", "Cable Color", list("red", "yellow", "green", "blue", "pink", "orange", "cyan", "white"))
 	color = cablecolor
 	update_icon()
 

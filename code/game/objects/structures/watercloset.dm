@@ -27,14 +27,18 @@
 	if(swirlie)
 		add_fingerprint(user)
 		user.changeNext_move(CLICK_CD_MELEE)
-		playsound(src.loc, "swing_hit", 25, 1)
-		swirlie.visible_message("<span class='danger'>[user] slams the toilet seat onto [swirlie]'s head!</span>", "<span class='userdanger'>[user] slams the toilet seat onto [swirlie]'s head!</span>", "<span class='italics'>You hear reverberating porcelain.</span>")
+		playsound(src.loc, "swing_hit", 25, TRUE)
+		swirlie.visible_message(
+			span_danger("[user] slams the toilet seat onto [swirlie]'s head!"),
+			span_userdanger("[user] slams the toilet seat onto [swirlie]'s head!"),
+			span_italics("You hear reverberating porcelain.")
+		)
 		swirlie.adjustBruteLoss(5)
 		return
 
 	if(cistern && !open)
 		if(!contents.len)
-			to_chat(user, "<span class='notice'>The cistern is empty.</span>")
+			to_chat(user, span_notice("The cistern is empty."))
 			return
 		else
 			var/obj/item/I = pick(contents)
@@ -44,7 +48,7 @@
 				user.put_in_hands(I, ignore_anim = FALSE)
 			else
 				I.loc = get_turf(src)
-			to_chat(user, "<span class='notice'>You find [I] in the cistern.</span>")
+			to_chat(user, span_notice("You find [I] in the cistern."))
 			w_items -= I.w_class
 			return
 
@@ -68,66 +72,76 @@
 			pixel_y = -8
 			layer = FLY_LAYER
 
-/obj/structure/toilet/attackby(obj/item/I, mob/living/user, params)
-	if(istype(I, /obj/item/reagent_containers))
-		if(!open)
-			return
-		var/obj/item/reagent_containers/RG = I
-		if(RG.is_refillable())
-			if(RG.reagents.holder_full())
-				to_chat(user, "<span class='warning'>[RG] is full.</span>")
-			else
-				add_fingerprint(user)
-				RG.reagents.add_reagent("toiletwater", min(RG.volume - RG.reagents.total_volume, RG.amount_per_transfer_from_this))
-				to_chat(user, "<span class='notice'>You fill [RG] from [src]. Gross.</span>")
-			return
 
-	if(istype(I, /obj/item/grab))
-		user.changeNext_move(CLICK_CD_MELEE)
-		var/obj/item/grab/G = I
-		if(!G.confirm())
-			return
-		if(isliving(G.affecting))
-			var/mob/living/GM = G.affecting
-			if(G.state >= GRAB_AGGRESSIVE)
-				if(GM.loc != get_turf(src))
-					to_chat(user, "<span class='warning'>[GM] needs to be on [src]!</span>")
-					return
-				if(!swirlie)
-					add_fingerprint(user)
-					if(open)
-						GM.visible_message("<span class='danger'>[user] starts to give [GM] a swirlie!</span>", "<span class='userdanger'>[user] starts to give [GM] a swirlie...</span>")
-						swirlie = GM
-						if(do_after(user, 3 SECONDS, src, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM))
-							GM.visible_message("<span class='danger'>[user] gives [GM] a swirlie!</span>", "<span class='userdanger'>[user] gives [GM] a swirlie!</span>", "<span class='italics'>You hear a toilet flushing.</span>")
-							if(iscarbon(GM))
-								var/mob/living/carbon/C = GM
-								if(!C.internal)
-									C.adjustOxyLoss(5)
-							else
-								GM.adjustOxyLoss(5)
-						swirlie = null
-					else
-						playsound(src.loc, 'sound/effects/bang.ogg', 25, 1)
-						GM.visible_message("<span class='danger'>[user] slams [GM.name] into [src]!</span>", "<span class='userdanger'>[user] slams [GM.name] into [src]!</span>")
-						GM.adjustBruteLoss(5)
-			else
-				to_chat(user, "<span class='warning'>You need a tighter grip!</span>")
+/obj/structure/toilet/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
+	. = TRUE
+	if(grabber.grab_state < GRAB_AGGRESSIVE || !isliving(grabbed_thing))
+		return .
+	var/mob/living/victim = grabbed_thing
+	if(victim.loc != get_turf(src))
+		to_chat(grabber, span_warning("[victim] needs to be on [src]!"))
+		return .
+	add_fingerprint(grabber)
+	if(open && !swirlie)
+		victim.visible_message(
+			span_danger("[grabber] starts to give [victim] a swirlie!"),
+			span_userdanger("[grabber] starts to give you a swirlie..."),
+		)
+		swirlie = victim
+		if(do_after(grabber, 3 SECONDS, src, NONE) && grabber.pulling == victim)
+			victim.visible_message(
+				span_danger("[grabber] gives [victim] a swirlie!"),
+				span_userdanger("[grabber] gives [victim] a swirlie!"),
+				span_italics("You hear a toilet flushing."),
+			)
+			if(!victim.internal)
+				victim.adjustOxyLoss(5)
+		swirlie = null
+	else
+		playsound(loc, 'sound/effects/bang.ogg', 25, TRUE)
+		victim.visible_message(
+			span_danger("[grabber] slams [victim.name] into [src]!"),
+			span_userdanger("[grabber] slams you into [src]!"),
+		)
+		victim.adjustBruteLoss(5)
+
+
+/obj/structure/toilet/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(I, /obj/item/reagent_containers))
+		add_fingerprint(user)
+		if(!open)
+			to_chat(user, span_warning("You cannot fill [I] from [src] while its closed."))
+			return ATTACK_CHAIN_PROCEED
+		var/obj/item/reagent_containers/container = I
+		if(!container.is_refillable())
+			to_chat(user, span_warning("The [container.name] is not refillable."))
+			return ATTACK_CHAIN_PROCEED
+		if(container.reagents.holder_full())
+			to_chat(user, span_warning("The [container.name] is full.."))
+			return ATTACK_CHAIN_PROCEED
+		container.reagents.add_reagent("toiletwater", min(container.volume - container.reagents.total_volume, container.amount_per_transfer_from_this))
+		to_chat(user, span_notice("You fill [container] from [src]. Gross."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(cistern)
 		add_fingerprint(user)
 		stash_goods(I, user)
-		return
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
 
 
 /obj/structure/toilet/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return
-	to_chat(user, "<span class='notice'>You start to [cistern ? "replace the lid on the cistern" : "lift the lid off the cistern"]...</span>")
-	playsound(loc, 'sound/effects/stonedoor_openclose.ogg', 50, 1)
+	to_chat(user, span_notice("You start to [cistern ? "replace the lid on the cistern" : "lift the lid off the cistern"]..."))
+	playsound(loc, 'sound/effects/stonedoor_openclose.ogg', 50, TRUE)
 	if(I.use_tool(src, user, 30, volume = I.tool_volume))
-		user.visible_message("[user] [cistern ? "replaces the lid on the cistern" : "lifts the lid off the cistern"]!", "<span class='notice'>You [cistern ? "replace the lid on the cistern" : "lift the lid off the cistern"]!</span>", "<span class='italics'>You hear grinding porcelain.</span>")
+		user.visible_message("[user] [cistern ? "replaces the lid on the cistern" : "lifts the lid off the cistern"]!", span_notice("You [cistern ? "replace the lid on the cistern" : "lift the lid off the cistern"]!"), span_italics("You hear grinding porcelain."))
 		cistern = !cistern
 		update_icon()
 
@@ -152,22 +166,22 @@
 		if("Stash")
 			stash_goods(I, user)
 		if("Disconnect")
-			user.visible_message("<span class='notice'>[user] starts disconnecting [src].</span>", "<span class='notice'>You begin disconnecting [src]...</span>")
+			user.visible_message(span_notice("[user] starts disconnecting [src]."), span_notice("You begin disconnecting [src]..."))
 			if(I.use_tool(src, user, 40, volume = I.tool_volume))
 				if(!loc || !anchored)
 					return
-				user.visible_message("<span class='notice'>[user] disconnects [src]!</span>", "<span class='notice'>You disconnect [src]!</span>")
+				user.visible_message(span_notice("[user] disconnects [src]!"), span_notice("You disconnect [src]!"))
 				set_anchored(FALSE)
 		if("Connect")
-			user.visible_message("<span class='notice'>[user] starts connecting [src].</span>", "<span class='notice'>You begin connecting [src]...</span>")
+			user.visible_message(span_notice("[user] starts connecting [src]."), span_notice("You begin connecting [src]..."))
 			if(I.use_tool(src, user, 40, volume = I.tool_volume))
 				if(!loc || anchored)
 					return
-				user.visible_message("<span class='notice'>[user] connects [src]!</span>", "<span class='notice'>You connect [src]!</span>")
+				user.visible_message(span_notice("[user] connects [src]!"), span_notice("You connect [src]!"))
 				set_anchored(TRUE)
 		if("Rotate")
 			var/list/dir_choices = list("North" = NORTH, "East" = EAST, "South" = SOUTH, "West" = WEST)
-			var/selected = input(user,"Select a direction for the connector.", "Connector Direction") in dir_choices
+			var/selected = tgui_input_list(user, "Select a direction for the connector.", "Connector Direction", dir_choices)
 			dir = dir_choices[selected]
 	update_icon()
 
@@ -175,16 +189,16 @@
 	if(!I)
 		return
 	if(I.w_class > WEIGHT_CLASS_NORMAL) // if item size > 3
-		to_chat(user, "<span class='warning'>[I] does not fit!</span>")
+		to_chat(user, span_warning("[I] does not fit!"))
 		return
 	if(w_items + I.w_class > WEIGHT_CLASS_HUGE) // if item size > 5
-		to_chat(user, "<span class='warning'>The cistern is full!</span>")
+		to_chat(user, span_warning("The cistern is full!"))
 		return
 	if(!user.drop_transfer_item_to_loc(I, src))
-		to_chat(user, "<span class='warning'>[I] is stuck to your hand, you cannot put it in the cistern!</span>")
+		to_chat(user, span_warning("[I] is stuck to your hand, you cannot put it in the cistern!"))
 		return
 	w_items += I.w_class
-	to_chat(user, "<span class='notice'>You carefully place [I] into the cistern.</span>")
+	to_chat(user, span_notice("You carefully place [I] into the cistern."))
 
 /obj/structure/toilet/secret
 	var/secret_type = null
@@ -197,17 +211,21 @@
 		w_items += secret.w_class
 
 
-/obj/structure/toilet/cancollectmapitems // this toilet made specially for map editor, collects objects on same turf at map loading
-	// as well as closets do. regular toilet can't do this. has the same restrictions for objects like regular toilet has.
-	// собирает в себя предметы на своём атоме при загрузки карты, сделано специально для редактора карт, обычный так не может.
-
+// This toilet made specially for map editor, collects objects on same turf at map loading as well as closets do.
+// regular toilet can't do this. has the same restrictions for objects like regular toilet has.
 /obj/structure/toilet/cancollectmapitems/Initialize(mapload)
-	. = ..()
+	..()
+	return INITIALIZE_HINT_LATELOAD
+
+
+/obj/structure/toilet/cancollectmapitems/LateInitialize()
 	for(var/obj/item/I in loc)
 		if(w_items > WEIGHT_CLASS_HUGE) //if items summary size >= 5 , stop collecting
 			break
+
 		if(I.w_class > WEIGHT_CLASS_NORMAL) // if item size > 3 , skip the item, get the next
 			continue
+
 		if(I.w_class + w_items <= WEIGHT_CLASS_HUGE) // if items summary size <= than 5 , add item in contents
 			w_items += I.w_class
 			I.forceMove(src)
@@ -240,44 +258,42 @@
 	anchored = TRUE
 
 
-/obj/structure/urinal/attackby(obj/item/I, mob/user, params)
-	if(istype(I, /obj/item/grab))
-		var/obj/item/grab/G = I
-		if(!G.confirm())
-			return
-		if(isliving(G.affecting))
-			var/mob/living/GM = G.affecting
-			if(G.state >= GRAB_AGGRESSIVE)
-				if(GM.loc != get_turf(src))
-					to_chat(user, "<span class='notice'>[GM.name] needs to be on [src].</span>")
-					return
-				add_fingerprint(user)
-				user.changeNext_move(CLICK_CD_MELEE)
-				playsound(src.loc, 'sound/effects/bang.ogg', 25, 1)
-				user.visible_message("<span class='danger'>[user] slams [GM] into [src]!</span>", "<span class='notice'>You slam [GM] into [src]!</span>")
-				GM.adjustBruteLoss(8)
-			else
-				to_chat(user, "<span class='warning'>You need a tighter grip!</span>")
+/obj/structure/urinal/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
+	. = TRUE
+	if(grabber.grab_state < GRAB_AGGRESSIVE || !isliving(grabbed_thing))
+		return .
+	var/mob/living/victim = grabbed_thing
+	if(victim.loc != get_turf(src))
+		to_chat(grabber, span_warning("[victim] needs to be on [src]!"))
+		return .
+	add_fingerprint(grabber)
+	playsound(loc, 'sound/effects/bang.ogg', 25, TRUE)
+	victim.visible_message(
+		span_danger("[grabber] slams [victim.name] into [src]!"),
+		span_userdanger("[grabber] slams you into [src]!"),
+	)
+	victim.adjustBruteLoss(8)
+
 
 /obj/structure/urinal/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return
 	if(anchored)
-		user.visible_message("<span class='notice'>[user] begins disconnecting [src]...</span>", "<span class='notice'>You begin to disconnect [src]...</span>")
+		user.visible_message(span_notice("[user] begins disconnecting [src]..."), span_notice("You begin to disconnect [src]..."))
 		if(I.use_tool(src, user, 40, volume = I.tool_volume))
 			if(!loc || !anchored)
 				return
-			user.visible_message("<span class='notice'>[user] disconnects [src]!</span>", "<span class='notice'>You disconnect [src]!</span>")
+			user.visible_message(span_notice("[user] disconnects [src]!"), span_notice("You disconnect [src]!"))
 			set_anchored(FALSE)
 			pixel_x = 0
 			pixel_y = 0
 	else
-		user.visible_message("<span class='notice'>[user] begins connecting [src]...</span>", "<span class='notice'>You begin to connect [src]...</span>")
+		user.visible_message(span_notice("[user] begins connecting [src]..."), span_notice("You begin to connect [src]..."))
 		if(I.use_tool(src, user, 40, volume = I.tool_volume))
 			if(!loc || anchored)
 				return
-			user.visible_message("<span class='notice'>[user] connects [src]!</span>", "<span class='notice'>You connect [src]!</span>")
+			user.visible_message(span_notice("[user] connects [src]!"), span_notice("You connect [src]!"))
 			set_anchored(TRUE)
 			pixel_x = 0
 			pixel_y = 32
@@ -299,24 +315,27 @@
 	var/on = FALSE
 	///What temperature the shower reagents are set to.
 	var/current_temperature = SHOWER_NORMAL
-	var/mobpresent = 0		//true if there is a mob on the shower's loc, this is to ease process()
 	///What sound will be played on loop when the shower is on and pouring water.
 	var/datum/looping_sound/showering/soundloop
 
 
-/obj/machinery/shower/New(turf/T, newdir = SOUTH, building = FALSE)
-	..()
+/obj/machinery/shower/Initialize(mapload, newdir = SOUTH, building = FALSE)
+	. = ..()
 	soundloop = new(list(src), FALSE)
 	if(building)
-		dir = newdir
+		setDir(newdir)
 		pixel_x = 0
 		pixel_y = 0
-		switch(newdir)
+		switch(dir)
 			if(SOUTH)
 				pixel_y = 16
 			if(NORTH)
 				pixel_y = -5
 				layer = FLY_LAYER
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 
 /obj/machinery/shower/Destroy()
@@ -353,10 +372,11 @@
 			source_turf.MakeSlippery(TURF_WET_WATER, min_wet_time = 5 SECONDS, wet_time_to_add = 1 SECONDS)
 
 
-/obj/machinery/shower/attackby(obj/item/I as obj, mob/user as mob, params)
-	if(I.type == /obj/item/analyzer)
+/obj/machinery/shower/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/analyzer))
 		add_fingerprint(user)
 		to_chat(user, span_notice("The water temperature seems to be [current_temperature]."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
 
 
@@ -430,10 +450,11 @@
 		qdel(mist)
 
 
-/obj/machinery/shower/Crossed(atom/movable/AM, oldloc)
-	..()
+/obj/machinery/shower/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
 	if(on)
-		wash(AM)
+		wash(arrived)
 
 
 /obj/machinery/shower/proc/convertHeat()
@@ -461,7 +482,7 @@
 		var/mob/living/l_target = target
 		l_target.ExtinguishMob()
 		l_target.adjust_fire_stacks(-20) //Douse ourselves with water to avoid fire more easily
-		to_chat(l_target, span_warning("You've been drenched in water!"))
+		to_chat(l_target, span_warning("Вы насквозь промокли!"))
 
 	target.clean_blood()
 
@@ -492,12 +513,12 @@
 
 		if(current_temperature == SHOWER_FREEZING)
 			//C.bodytemperature = max(80, C.bodytemperature - 80)
-			to_chat(C, "<span class='warning'>The water is freezing!</span>")
+			to_chat(C, span_warning("The water is freezing!"))
 
 		else if(current_temperature == SHOWER_BOILING)
 			//C.bodytemperature = min(500, C.bodytemperature + 35)
 			C.adjustFireLoss(5)
-			to_chat(C, "<span class='danger'>The water is searing!</span>")
+			to_chat(C, span_danger("The water is searing!"))
 
 #undef SHOWER_FREEZING
 #undef SHOWER_NORMAL
@@ -511,7 +532,7 @@
 	icon_state = "rubberducky"
 	item_state = "rubberducky"
 	honk_sounds = list('sound/items/squeaktoy.ogg' = 1)
-	attack_verb = list("quacked", "squeaked")
+	attack_verb = list("квакнул", "пискнул")
 
 /obj/item/bikehorn/rubberducky/captain
 	name = "уточка-капитан"
@@ -538,7 +559,7 @@
 	if(!Adjacent(user))
 		return
 	if(!anchored)
-		to_chat(user, "<span class='warning'>[src] isn't connected, wrench it into position first!</span>")
+		to_chat(user, span_warning("[src] isn't connected, wrench it into position first!"))
 		return
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
@@ -546,18 +567,17 @@
 		if(user.hand)
 			temp = H.bodyparts_by_name[BODY_ZONE_PRECISE_L_HAND]
 		if(temp && !temp.is_usable())
-			to_chat(user, "<span class='notice'>You try to move your [temp.name], but cannot!")
+			to_chat(user, span_notice("You try to move your [temp.name], but cannot!"))
 			return
 
 	if(busy)
-		to_chat(user, "<span class='notice'>Someone's already washing here.</span>")
+		to_chat(user, span_notice("Someone's already washing here."))
 		return
-	var/selected_area = parse_zone(user.zone_selected)
-	var/washing_face = 0
-	if(selected_area in list(BODY_ZONE_HEAD, BODY_ZONE_PRECISE_MOUTH, BODY_ZONE_PRECISE_EYES))
-		washing_face = 1
-	user.visible_message("<span class='notice'>[user] starts washing [user.p_their()] [washing_face ? "face" : "hands"]...</span>", \
-						"<span class='notice'>You start washing your [washing_face ? "face" : "hands"]...</span>")
+	var/washing_face = FALSE
+	if(user.zone_selected in list(BODY_ZONE_HEAD, BODY_ZONE_PRECISE_EYES, BODY_ZONE_PRECISE_MOUTH))
+		washing_face = TRUE
+	user.visible_message(span_notice("[user] начина[pluralize_ru(user.gender, "ет", "ют")] мыть [washing_face ? "своё лицо" : "свои руки"]..."), \
+						span_notice("Вы начинаете мыть [washing_face ? "своё лицо" : "свои руки"]..."))
 	busy = 1
 
 	if(!do_after(user, 4 SECONDS, src))
@@ -568,8 +588,12 @@
 
 	busy = 0
 
-	user.visible_message("<span class='notice'>[user] washes [user.p_their()] [washing_face ? "face" : "hands"] using [src].</span>", \
-						"<span class='notice'>You wash your [washing_face ? "face" : "hands"] using [src].</span>")
+	user.visible_message(span_notice("[user] помыл[genderize_ru(user.gender, "", "а", "о", "и")] [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."), \
+						span_notice("Вы помыли [washing_face ? "своё лицо" : "свои руки"], используя [declent_ru(ACCUSATIVE)]."))
+
+	if(SEND_SIGNAL(user, COMSIG_SINK_ACT) & COMSIG_SINK_ACT_SUCCESS) // special sink acts
+		return
+
 	if(washing_face)
 		if(ishuman(user))
 			var/mob/living/carbon/human/H = user
@@ -581,25 +605,27 @@
 		user.clean_blood()
 
 
-/obj/structure/sink/attackby(obj/item/O, mob/user, params)
-	if(busy)
-		to_chat(user, "<span class='warning'>Someone's already washing here!</span>")
-		return
+/obj/structure/sink/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
 
-	if(!(istype(O)))
-		return
+	add_fingerprint(user)
 
 	if(!anchored)
-		to_chat(user, "<span class='warning'>[src] isn't connected, wrench it into position first!</span>")
-		return
+		to_chat(user, span_warning("The [name] isn't connected, wrench it into position first."))
+		return ATTACK_CHAIN_PROCEED
 
-	busy = 1
-	var/wateract = 0
-	wateract = (O.wash(user, src))
-	busy = 0
+	if(busy)
+		to_chat(user, span_warning("Someone's already washing here."))
+		return ATTACK_CHAIN_PROCEED
+
+	. = ATTACK_CHAIN_PROCEED_SUCCESS
+	busy = TRUE
+	var/wateract = I.wash(user, src)
+	busy = FALSE
 	if(wateract)
-		add_fingerprint(user)
-		O.water_act(20, COLD_WATER_TEMPERATURE, src)
+		I.water_act(20, COLD_WATER_TEMPERATURE, src)
+
 
 /obj/structure/sink/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -627,18 +653,18 @@
 			if(wateract)
 				I.water_act(20, COLD_WATER_TEMPERATURE, src)
 		if("Disconnect")
-			user.visible_message("<span class='notice'>[user] starts disconnecting [src].</span>", "<span class='notice'>You begin disconnecting [src]...</span>")
+			user.visible_message(span_notice("[user] starts disconnecting [src]."), span_notice("You begin disconnecting [src]..."))
 			if(I.use_tool(src, user, 40, volume = I.tool_volume))
 				if(!loc || !anchored)
 					return
-				user.visible_message("<span class='notice'>[user] disconnects [src]!</span>", "<span class='notice'>You disconnect [src]!</span>")
+				user.visible_message(span_notice("[user] disconnects [src]!"), span_notice("You disconnect [src]!"))
 				set_anchored(FALSE)
 		if("Connect")
-			user.visible_message("<span class='notice'>[user] starts connecting [src].</span>", "<span class='notice'>You begin connecting [src]...</span>")
+			user.visible_message(span_notice("[user] starts connecting [src]."), span_notice("You begin connecting [src]..."))
 			if(I.use_tool(src, user, 40, volume = I.tool_volume))
 				if(!loc || anchored)
 					return
-				user.visible_message("<span class='notice'>[user] connects [src]!</span>", "<span class='notice'>You connect [src]!</span>")
+				user.visible_message(span_notice("[user] connects [src]!"), span_notice("You connect [src]!"))
 				set_anchored(TRUE)
 		if("Rotate")
 			var/list/dir_choices = list("North" = NORTH, "East" = EAST, "South" = SOUTH, "West" = WEST)
@@ -678,26 +704,73 @@
 
 /obj/structure/sink/puddle	//splishy splashy ^_^
 	name = "puddle"
+	desc = "Неглубокий водоём с мутноватой водой. Идеален для мытья рук, полива грядок и философских размышлений о том, кто в нём купался до вас."
+	ru_names = list(
+		NOMINATIVE = "пруд",
+		GENITIVE = "пруда",
+		DATIVE = "пруду",
+		ACCUSATIVE = "пруд",
+		INSTRUMENTAL = "прудом",
+		PREPOSITIONAL = "пруде"
+	)
 	icon_state = "puddle"
 	can_move = 0
 	can_rotate = 0
 	resistance_flags = UNACIDABLE
 
-/obj/structure/sink/puddle/attack_hand(mob/M)
-	icon_state = "puddle-splash"
-	..()
-	icon_state = "puddle"
+/obj/structure/sink/puddle/Initialize(mapload)
+	. = ..()
 
-/obj/structure/sink/puddle/attackby(obj/item/O, mob/user, params)
-	if(istype(O, /obj/item/shovel) && user.a_intent == INTENT_HARM)
-		playsound(src, 'sound/effects/shovel_dig.ogg', 50, 1)
-		if(do_after(user, 5 SECONDS, src))
-			Destroy()
-			return
-	icon_state = "puddle-splash"
-	..()
-	icon_state = "puddle"
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
+
+/obj/structure/sink/puddle/attack_hand(mob/user)
+	flick("puddle-splash", src)
+	return ..()
+
+
+/obj/structure/sink/puddle/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(I, /obj/item/shovel))
+		user.visible_message(
+			span_notice("[user] начина[pluralize_ru(user.gender,"ет","ют")] закапывать [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
+			span_notice("Вы начинаете закапывать [declent_ru(ACCUSATIVE)]..."),
+		)
+		I.play_tool_sound(src, 100)
+		flick("puddle-splash", src)
+		if(!do_after(user, 5 SECONDS, src, category = DA_CAT_TOOL))
+			return ATTACK_CHAIN_PROCEED
+		I.play_tool_sound(src, 100)
+		user.visible_message(
+			span_notice("[user] закопал[genderize_ru(user.gender,"","а","о","и")] [declent_ru(ACCUSATIVE)] при помощи [I.declent_ru(GENITIVE)]."),
+			span_notice("Вы закопали [declent_ru(ACCUSATIVE)]."),
+		)
+		qdel(src)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
+/obj/structure/sink/puddle/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+	wash(arrived)
+
+/obj/structure/sink/puddle/proc/wash(atom/target)
+	if(isitem(target))
+		var/obj/item/item = target
+		item.extinguish()
+
+	if(isliving(target))
+		var/mob/living/l_target = target
+		l_target.ExtinguishMob()
+		l_target.adjust_fire_stacks(-20)
+		to_chat(l_target, span_warning("Вы насквозь промокли!"))
+
+	target.clean_blood()
 
 //////////////////////////////////
 //		Bathroom Fixture Items	//
@@ -718,12 +791,12 @@
 	if(proximity_flag != 1) //if we aren't next to the wall
 		return
 	if(!(get_dir(on_wall, user) in GLOB.cardinal))
-		to_chat(user, "<span class='warning'>You need to be standing next to a wall to place \the [src].</span>")
+		to_chat(user, span_warning("You need to be standing next to a wall to place \the [src]."))
 		return
 	return 1
 
 /obj/item/mounted/shower/do_build(turf/on_wall, mob/user)
-	var/obj/machinery/shower/S = new /obj/machinery/shower(get_turf(user), get_dir(on_wall, user), 1)
+	var/obj/machinery/shower/S = new(get_turf(user), get_dir(on_wall, user), TRUE)
 	transfer_fingerprints_to(S)
 	qdel(src)
 
@@ -754,14 +827,14 @@
 /obj/item/bathroom_parts/attack_self(mob/user)
 	var/turf/T = get_turf(user)
 	if(!T)
-		to_chat(user, "<span class='warning'>You can't build that here!</span>")
+		to_chat(user, span_warning("You can't build that here!"))
 		return
 	if(result in T.contents)
-		to_chat(user, "<span class='warning'>There's already \an [result_name] here.</span>")
+		to_chat(user, span_warning("There's already \an [result_name] here."))
 		return
-	user.visible_message("<span class='notice'>[user] begins assembling a new [result_name].</span>", "<span class='notice'>You begin assembling a new [result_name].</span>")
+	user.visible_message(span_notice("[user] begins assembling a new [result_name]."), span_notice("You begin assembling a new [result_name]."))
 	if(do_after(user, 3 SECONDS, user))
-		user.visible_message("<span class='notice'>[user] finishes building a new [result_name]!</span>", "<span class='notice'>You finish building a new [result_name]!</span>")
+		user.visible_message(span_notice("[user] finishes building a new [result_name]!"), span_notice("You finish building a new [result_name]!"))
 		var/obj/structure/S = new result(T)
 		S.set_anchored(FALSE)
 		S.dir = user.dir

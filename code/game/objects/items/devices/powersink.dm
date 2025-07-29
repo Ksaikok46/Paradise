@@ -145,12 +145,15 @@
 		if (!admins_warned)
 			admins_warned = TRUE
 			message_admins("Power sink at [ADMIN_VERBOSEJMP(src)] is 95% full. Explosion imminent.")
-		playsound(src, 'sound/effects/screech.ogg', 100, 1, 1)
+		playsound(src, 'sound/effects/screech.ogg', 100, TRUE, 1)
 
 	if(power_drained >= max_power)
 		STOP_PROCESSING(SSobj, src)
 		explosion(src.loc, 4,8,16,32, cause = "Power sink overload")
 		qdel(src)
+
+/obj/item/powersink/compact
+	w_class = WEIGHT_CLASS_NORMAL
 
 #undef DISCONNECTED
 #undef CLAMPED_OFF

@@ -28,12 +28,18 @@
 	icon_state = "[initial(icon_state)][charges ? "" : "-drained"]"
 
 
-/obj/item/gun/magic/wand/attack(atom/target, mob/living/user)
+/obj/item/gun/magic/wand/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(target == user)
-		return
-	..()
+		return ATTACK_CHAIN_PROCEED
+	return ..()
 
-/obj/item/gun/magic/wand/afterattack(atom/target, mob/living/user)
+
+/obj/item/gun/magic/wand/magic_charge_act(mob/user)
+	. = ..()
+	update_appearance(UPDATE_ICON_STATE)
+
+
+/obj/item/gun/magic/wand/afterattack(atom/target, mob/living/user, proximity, params)
 	if(!charges)
 		shoot_with_empty_chamber(user)
 		return
@@ -52,7 +58,7 @@
 
 /obj/item/gun/magic/wand/proc/zap_self(mob/living/user)
 	user.visible_message("<span class='danger'>[user] zaps [user.p_them()]self with [src].</span>")
-	playsound(user, fire_sound, 50, 1)
+	playsound(user, fire_sound, 50, TRUE)
 	add_attack_logs(null, user, "zapped [user.p_them()]self with a [src]", ATKLOG_ALL)
 
 /////////////////////////////////////
@@ -129,8 +135,8 @@
 
 /obj/item/gun/magic/wand/teleport/zap_self(mob/living/user)
 	do_teleport(user, user, 10)
-	var/datum/effect_system/smoke_spread/smoke = new
-	smoke.set_up(10, 0, user.loc)
+	var/datum/effect_system/fluid_spread/smoke/smoke = new
+	smoke.set_up(amount = 10, location = user.loc)
 	smoke.start()
 	charges--
 	..()
@@ -192,7 +198,7 @@
 	charges--
 	..()
 
-/obj/item/gun/magic/wand/slipping/afterattack(atom/target, mob/living/user)
+/obj/item/gun/magic/wand/slipping/afterattack(atom/target, mob/living/user, proximity, params)
 	. = ..()
 	if(!charges && !charging)
 		to_chat(usr, "<span class='notice'>[src] has started to regain its charge.</span>")

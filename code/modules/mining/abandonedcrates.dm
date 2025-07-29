@@ -2,7 +2,15 @@
 
 /obj/structure/closet/crate/secure/loot
 	name = "abandoned crate"
-	desc = "What could be inside?"
+	desc = "Что может быть внутри?"
+	ru_names = list(
+		NOMINATIVE = "заброшенный ящик",
+		GENITIVE = "заброшенного ящика",
+		DATIVE = "заброшенному ящику",
+		ACCUSATIVE = "заброшенный ящик",
+		INSTRUMENTAL = "заброшенным ящиком",
+		PREPOSITIONAL = "заброшенном ящике"
+	)
 	icon_state = "securecrate"
 	var/code = null
 	var/lastattempt = null
@@ -48,7 +56,7 @@
 		if(31 to 35)
 			new /obj/item/seeds/firelemon(src)
 		if(36 to 40)
-			new /obj/item/melee/baton(src)
+			new /obj/item/melee/baton/security(src)
 		if(41 to 45)
 			new /obj/item/clothing/under/shorts/red(src)
 			new /obj/item/clothing/under/shorts/blue(src)
@@ -57,7 +65,7 @@
 			for(var/i in 1 to 7)
 				new /obj/item/clothing/accessory/horrible(src)
 		if(51 to 52) // 2% chance
-			new /obj/item/melee/classic_baton(src)
+			new /obj/item/melee/baton(src)
 		if(53 to 54)
 			new /obj/item/toy/balloon(src)
 		if(55 to 56)
@@ -115,7 +123,7 @@
 		if(91)
 			new /obj/item/soulstone/anybody(src)
 		if(92)
-			new /obj/item/katana(src)
+			new /obj/item/melee/katana(src)
 		if(93)
 			new /obj/item/dnainjector/xraymut(src)
 		if(94)
@@ -154,12 +162,12 @@
 
 /obj/structure/closet/crate/secure/loot/attack_hand(mob/user)
 	if(locked)
-		to_chat(user, "<span class='notice'>The crate is locked with a Deca-code lock.</span>")
-		var/input = clean_input("Enter [codelen] digits.", "Deca-Code Lock", "")
+		to_chat(user, span_notice("Ящик закрыт цифровым замком Deca-Code."))
+		var/input = tgui_input_text(usr, "Введите [codelen] цифр.", "Цифровой замок Deca-Code", "")
 		if(in_range(src, user))
 			if(input == code)
 				add_fingerprint(user)
-				to_chat(user, "<span class='notice'>The crate unlocks!</span>")
+				to_chat(user, span_notice("Ящик открывается!"))
 				locked = 0
 				cut_overlays()
 				add_overlay("securecrateg")
@@ -167,9 +175,9 @@
 					add_overlay(get_emissive_block())
 			else if(input == null || length(input) != codelen)
 				add_fingerprint(user)
-				to_chat(user, "<span class='notice'>You leave the crate alone.</span>")
+				to_chat(user, span_notice("Вы оставляете ящик в покое."))
 			else
-				to_chat(user, "<span class='warning'>A red light flashes.</span>")
+				to_chat(user, span_warning("Мигает красный индикатор."))
 				lastattempt = input
 				attempts--
 				if(attempts == 0)
@@ -177,46 +185,58 @@
 	else
 		return ..()
 
-/obj/structure/closet/crate/secure/loot/attackby(obj/item/W, mob/user)
-	if(locked)
-		if(istype(W, /obj/item/card/emag))
-			boom(user)
-			return 1
-		if(W.tool_behaviour == TOOL_MULTITOOL)
-			add_fingerprint(user)
-			to_chat(user, "<span class='notice'>DECA-CODE LOCK REPORT:</span>")
-			if(attempts == 1)
-				to_chat(user, "<span class='warning'>* Anti-Tamper Bomb will activate on next failed access attempt.</span>")
-			else
-				to_chat(user, "<span class='notice'>* Anti-Tamper Bomb will activate after [attempts] failed access attempts.</span>")
-			if(lastattempt != null)
-				var/bulls = 0
-				var/cows = 0
-				var/list/banned = list()
-				for(var/i in 1 to codelen)
-					var/list/a = copytext(lastattempt, i, i + 1)
-					if(a in banned)
-						continue
-					var/g = findtext(code, a)
-					if(g)
-						banned += a
-						if(g == i)
-							++bulls
-						else
-							++cows
 
-				to_chat(user, "<span class='notice'>Last code attempt had [bulls] correct digits at correct positions and [cows] correct digits at incorrect positions.</span>")
-			return 1
+/obj/structure/closet/crate/secure/loot/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/card/emag))
+		if(locked)
+			boom(user)
+			return ATTACK_CHAIN_BLOCKED_ALL
+		add_fingerprint(user)
+		return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
 	return ..()
+
+
+/obj/structure/closet/crate/secure/loot/multitool_act(mob/living/user, obj/item/I)
+	if(!locked)
+		return FALSE
+	. = TRUE
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	to_chat(user, span_notice("ОТЧЕТ ЗАМКА DECA-CODE:"))
+	if(attempts == 1)
+		to_chat(user, span_warning("* Противовзломная бомба активируется при следующей неудачной попытке."))
+	else
+		to_chat(user, span_notice("* Противовзломная бомба активируется после [attempts] [declension_ru(attempts,"неудачной попытки","неудачных попыток","неудачных попыток")]."))
+	if(isnull(lastattempt))
+		return .
+	var/bulls = 0
+	var/cows = 0
+	var/list/banned = list()
+	for(var/i in 1 to codelen)
+		var/list/a = copytext(lastattempt, i, i + 1)
+		if(a in banned)
+			continue
+		var/g = findtext(code, a)
+		if(g)
+			banned += a
+			if(g == i)
+				++bulls
+			else
+				++cows
+	to_chat(user, span_notice("В последней попытке [bulls] [declension_ru(bulls,"цифра","цирфы","цифр")] на правильных позициях и [cows] [declension_ru(cows,"правильная цифра","правильные цирфы","правильных цифр")] на неправильных позициях."))
+
+
 
 /obj/structure/closet/crate/secure/loot/emag_act(mob/user)
 	if(locked)
 		add_attack_logs(user, src, "emag-bombed")
 		boom(user)
 
-/obj/structure/closet/crate/secure/loot/togglelock(mob/user)
+/obj/structure/closet/crate/secure/loot/togglelock(mob/living/user)
+	if(!istype(user))
+		return
 	if(locked)
-		boom(user)
+		attack_hand(user)
 	else
 		..()
 

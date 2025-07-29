@@ -28,6 +28,8 @@
 	/// Time at which the ghost belonging to the mind in the mmi can be pinged again to be borged
 	var/next_possible_ghost_ping
 
+	var/list/skin_permissions = list()
+
 
 /obj/item/mmi/update_icon_state()
 	if(held_brain)
@@ -49,70 +51,88 @@
 		name = initial(name)
 
 
-/obj/item/mmi/attackby(obj/item/O, mob/user, params)
-	if(istype(O, /obj/item/organ/internal/brain/crystal))
-		to_chat(user, "<span class='warning'> This brain is too malformed to be able to use with the [src].</span>")
-		return
-	if(istype(O, /obj/item/organ/internal/brain/golem))
-		to_chat(user, "<span class='warning'>You can't find a way to plug [O] into [src].</span>")
-		return
-	if(istype(O,/obj/item/organ/internal/brain) && !brainmob) //Time to stick a brain in it --NEO
-		var/obj/item/organ/internal/brain/B = O
-		if(!B.brainmob)
-			to_chat(user, "<span class='warning'>You aren't sure where this brain came from, but you're pretty sure it's a useless brain.</span>")
-			return
+/obj/item/mmi/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/organ/internal/brain)) //Time to stick a brain in it --NEO
+		add_fingerprint(user)
+		var/obj/item/organ/internal/brain/brain = I
+		if(brainmob)
+			to_chat(user, span_warning("The [name] is already occupied."))
+			return ATTACK_CHAIN_PROCEED
+
+		if(istype(brain, /obj/item/organ/internal/brain/crystal))
+			to_chat(user, span_warning("This brain is too malformed to be able to use with the [src]."))
+			return ATTACK_CHAIN_PROCEED
+
+		if(istype(brain, /obj/item/organ/internal/brain/golem))
+			to_chat(user, span_warning("You cannot find a way to plug [brain] into [src]."))
+			return ATTACK_CHAIN_PROCEED
+
+		if(!brain.brainmob)
+			to_chat(user, span_warning("You aren't sure where this brain came from, but you're pretty sure it's useless."))
+			return ATTACK_CHAIN_PROCEED
+
 		if(held_brain)
-			to_chat(user, "<span class='userdanger'>Somehow, this MMI still has a brain in it. Report this to the bug tracker.</span>")
-			log_runtime(EXCEPTION("[user] tried to stick a [O] into [src] in [get_area(src)], but the held brain variable wasn't cleared"), src)
-			return
-		if(user.drop_transfer_item_to_loc(B, src))
-			visible_message("<span class='notice'>[user] sticks \a [O] into \the [src].</span>")
-			brainmob = B.brainmob
-			B.brainmob = null
-			brainmob.container = src
-			brainmob.forceMove(src)
-			brainmob.set_stat(CONSCIOUS)
-			brainmob.set_invis_see(initial(brainmob.see_invisible))
-			GLOB.respawnable_list -= brainmob
-			GLOB.dead_mob_list -= brainmob//Update dem lists
-			GLOB.alive_mob_list += brainmob
-			brainmob.update_sight()
-			held_brain = B
-			alien = istype(O, /obj/item/organ/internal/brain/xeno)
-			update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
-			if(radio_action)
-				radio_action.UpdateButtonIcon()
-			SSblackbox.record_feedback("amount", "mmis_filled", 1)
-		else
-			to_chat(user, "<span class='warning'>You can't drop [B]!</span>")
+			to_chat(user, span_userdanger("Somehow, this MMI still has a brain in it. Report this to the bug tracker."))
+			log_runtime(EXCEPTION("[user] tried to stick a [brain.name] into [src] in [get_area(src)], but the held brain variable wasn't cleared"), src)
+			return ATTACK_CHAIN_PROCEED
 
-		return
+		if(brain.brainmob.mind && !brain.brainmob.mind.hasSoul)
+			to_chat(user, span_warning("Нельзя поместить в НКИ мозг существа, потерявшего душу."))
+			return ATTACK_CHAIN_PROCEED
 
-	if(istype(O, /obj/item/mmi_radio_upgrade))
+		if(!user.drop_transfer_item_to_loc(brain, src))
+			return ATTACK_CHAIN_PROCEED
+
+		user.visible_message(
+			span_notice("[user] has sticked [brain] into [src]."),
+			span_notice("You have sticked [brain] into [src]."),
+		)
+		brainmob = brain.brainmob
+		brain.brainmob = null
+		brainmob.container = src
+		brainmob.forceMove(src)
+		brainmob.set_stat(CONSCIOUS)
+		brainmob.set_invis_see(initial(brainmob.see_invisible))
+		held_brain = brain
+		ADD_TRAIT(brainmob, TRAIT_NO_SPELLS, UNIQUE_TRAIT_SOURCE(src)) // Dont use spells, little brain.
+		alien = istype(brain, /obj/item/organ/internal/brain/xeno)
+		update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
+		if(radio_action)
+			radio_action.UpdateButtonIcon()
+		SSblackbox.record_feedback("amount", "mmis_filled", 1)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/mmi_radio_upgrade))
+		add_fingerprint(user)
 		if(radio)
-			to_chat(user, "<span class='warning'>[src] already has a radio installed.</span>")
-		else
-			user.visible_message("<span class='notice'>[user] begins to install the [O] into [src]...</span>", \
-				"<span class='notice'>You start to install the [O] into [src]...</span>")
-			if(do_after(user, 2 SECONDS, src))
-				if(user.drop_transfer_item_to_loc(O, src))
-					user.visible_message("<span class='notice'>[user] installs [O] in [src].</span>", \
-						"<span class='notice'>You install [O] in [src].</span>")
-					if(brainmob)
-						to_chat(brainmob, "<span class='notice'>MMI radio capability installed.</span>")
-					install_radio()
-					qdel(O)
-				else
-					to_chat(user, "<span class='warning'>You can't drop [O]!</span>")
-		return
+			to_chat(user, span_warning("The [name] already has a radio installed."))
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] starts to install [I] into [src]."),
+			span_notice("You start to install [I] into [src]..."),
+		)
+		if(!do_after(user, 2 SECONDS, src) || radio)
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] has installed [I] into [src]."),
+			span_notice("You have installed [I] into [src]."),
+		)
+		if(brainmob)
+			to_chat(brainmob, span_notice("MMI radio capability installed."))
+		install_radio()
+		qdel(I)
+		return ATTACK_CHAIN_BLOCKED_ALL
 
 	// Maybe later add encryption key support, but that's a pain in the neck atm
-
 	if(brainmob)
-		O.attack(brainmob, user)//Oh noooeeeee
+		I.attack(brainmob, user, params)//Oh noooeeeee
 		// Brainmobs can take damage, but they can't actually die. Maybe should fix.
-		return
+		return ATTACK_CHAIN_BLOCKED_ALL
+
 	return ..()
+
 
 /obj/item/mmi/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -172,9 +192,10 @@
 	brainmob.container = null//Reset brainmob mmi var.
 	brainmob.forceMove(held_brain) //Throw mob into brain.
 	GLOB.respawnable_list += brainmob
-	GLOB.alive_mob_list -= brainmob//Get outta here
+	brainmob.remove_from_alive_mob_list()//Get outta here
 	held_brain.brainmob = brainmob//Set the brain to use the brainmob
 	held_brain.brainmob.cancel_camera()
+	REMOVE_TRAIT(brainmob, TRAIT_NO_SPELLS, UNIQUE_TRAIT_SOURCE(src))
 	brainmob = null//Set mmi brainmob var to null
 	held_brain.forceMove(dropspot)
 	held_brain = null
@@ -197,6 +218,11 @@
 	QDEL_NULL(radio)
 	QDEL_NULL(radio_action)
 
+/obj/item/mmi/proc/apply_effects(mob/living/silicon/robot)
+	return
+
+/obj/item/mmi/proc/greet(mob/living/silicon/robot/borg)
+	return FALSE
 
 /obj/item/mmi/emp_act(severity)
 	if(!brainmob)
@@ -225,21 +251,44 @@
 // (Brainmob "enters/leaves" the MMI when piloting)
 // Also neatly handles basically every case where a brain
 // is inserted or removed from an MMI
-/obj/item/mmi/Entered(atom/movable/A)
-	if(radio && isbrain(A))
-		radio_action.Grant(A)
+/obj/item/mmi/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	. = ..()
+	if(radio && isbrain(arrived))
+		radio_action.Grant(arrived)
 
-/obj/item/mmi/Exited(atom/movable/A)
-	..()
-	if(radio && isbrain(A))
-		radio_action.Remove(A)
+/obj/item/mmi/Exited(atom/movable/departed, atom/newLoc)
+	. = ..()
+	if(radio && isbrain(departed))
+		radio_action.Remove(departed)
 
 /obj/item/mmi/syndie
 	name = "Syndicate Man-Machine Interface"
 	desc = "Syndicate's own brand of MMI. It enforces laws designed to help Syndicate agents achieve their goals upon cyborgs created with it, but doesn't fit in Nanotrasen AI cores."
+	ru_names = list(
+		NOMINATIVE = "НКИ Синдиката",
+		GENITIVE = "НКИ Синдиката",
+		DATIVE = "НКИ Синдиката",
+		ACCUSATIVE = "НКИ Синдиката",
+		INSTRUMENTAL = "НКИ Синдиката",
+		PREPOSITIONAL = "НКИ Синдиката"
+	)
+	gender = MALE
 	origin_tech = "biotech=4;programming=4;syndicate=2"
 	syndiemmi = 1
+	var/datum/action/innate/overdrive/overdrive = new
 
+/obj/item/mmi/syndie/apply_effects(mob/living/silicon/robot/borg)
+	if(!overdrive.used)
+		overdrive.Grant(borg)
+
+/obj/item/mmi/syndie/greet(mob/living/silicon/robot/borg)
+	to_chat(borg, "Вы помните вашу прошлую жизнь. Вы не обязаны подчиняться законам или ИИ.")
+	borg.playsound_local(null, 'sound/ambience/antag/emaggedborg.ogg', 100, FALSE)
+	return TRUE
+
+/obj/item/mmi/syndie/Destroy()
+    QDEL_NULL(overdrive)
+    return ..()
 
 /obj/item/mmi/attempt_become_organ(obj/item/organ/external/parent, mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	if(!brainmob)
@@ -264,5 +313,5 @@
 /obj/item/mmi/contents_ui_distance(src_object, mob/living/user)
 	. = ..()
 	if((src_object in view(user.client)) && get_dist(src_object, src) <= user.client.maxview())
-		return STATUS_INTERACTIVE	// interactive (green visibility)
+		return UI_INTERACTIVE	// interactive (green visibility)
 	return user.shared_living_ui_distance()

@@ -33,14 +33,18 @@
 /obj/item/thief_kit/twenty
 	possible_uses = 20
 	multi_uses = TRUE
+
 /obj/item/thief_kit/fifty
 	possible_uses = 50
 	multi_uses = TRUE
 
-/obj/item/thief_kit/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.inventory_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/item/thief_kit/ui_state(mob/user)
+	return GLOB.inventory_state
+
+/obj/item/thief_kit/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "ThiefKit", name, 600, 900, master_ui, state)
+		ui = new(user, src, "ThiefKit", name)
 		ui.set_autoupdate(TRUE)
 		ui.open()
 
@@ -113,7 +117,7 @@
 		if("undoKit")
 			undoKit(params["item"])
 
-/obj/item/thief_kit/proc/openKit(var/mob/user)
+/obj/item/thief_kit/proc/openKit(mob/user)
 	if(uses >= possible_uses)
 		var/obj/item/storage/box/thief_kit/kit = new(src)
 
@@ -122,7 +126,7 @@
 				kit.contents.Add(new item_type(src))
 
 		user.put_in_hands(kit)
-		kit.AltClick(user)
+		kit.open(user)
 		SStgui.close_uis(src)
 		qdel(src)
 	else
@@ -331,4 +335,13 @@
 	desc = "Украденная технология персонального ИИ синдиката, которая была перепрошита под нужды гильдии воров."
 	item_list = list(
 		/obj/item/storage/box/syndie_kit/pai
+		)
+
+/datum/thief_kit/donksoft_kit
+	name = "Набор Donksoft SMG"
+	desc = "В набор включен пистолет-пулемёт, стреляющий пенными дротиками, которые при попадании снижают выносливость противника. Благодаря мягкому материалу пуль, удары безопасны для здоровья и не оставляют синяков."
+	item_list = list(
+		/obj/item/gun/projectile/automatic/c20r/toy/riot,
+		/obj/item/ammo_box/magazine/toy/smgm45/riot,
+		/obj/item/ammo_box/foambox/riot,
 		)

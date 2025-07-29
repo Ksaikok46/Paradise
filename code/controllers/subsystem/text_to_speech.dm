@@ -164,6 +164,8 @@ SUBSYSTEM_DEF(tts)
 		"chaplain" = "Священник",
 		"syndicate officer" = "Офицер синдиката",
 		"visitor" = "посетитель",
+		"mining medic" = "Шахтёрский врач",
+		"lavaland health officer" = "Медицинский работник Лазиса",
 	)
 
 
@@ -207,6 +209,7 @@ SUBSYSTEM_DEF(tts)
 	is_enabled = CONFIG_GET(flag/tts_enabled)
 	if(!is_enabled)
 		flags |= SS_NO_FIRE
+	return SS_INIT_SUCCESS
 
 
 /datum/controller/subsystem/tts/fire()
@@ -291,6 +294,7 @@ SUBSYSTEM_DEF(tts)
 
 	var/dirty_text = message
 	var/text = sanitize_tts_input(dirty_text)
+	var/whisper = FALSE
 
 	if(!text || length_char(text) > MAX_MESSAGE_LEN)
 		return
@@ -303,6 +307,7 @@ SUBSYSTEM_DEF(tts)
 
 	if(traits & TTS_TRAIT_PITCH_WHISPER)
 		text = provider.pitch_whisper(text)
+		whisper = TRUE
 
 	var/hash = rustg_hash_string(RUSTG_HASH_MD5, lowertext(text))
 	var/filename = "sound/tts_cache/[seed.name]/[hash]"
@@ -310,10 +315,10 @@ SUBSYSTEM_DEF(tts)
 	if(fexists("[filename].ogg"))
 		tts_reused++
 		tts_rrps_counter++
-		play_tts(speaker, listener, filename, is_local, effect, preSFX, postSFX)
+		play_tts(speaker, listener, filename, is_local, effect, preSFX, postSFX, whisper)
 		return
 
-	var/datum/callback/play_tts_cb = CALLBACK(src, PROC_REF(play_tts), speaker, listener, filename, is_local, effect, preSFX, postSFX)
+	var/datum/callback/play_tts_cb = CALLBACK(src, PROC_REF(play_tts), speaker, listener, filename, is_local, effect, preSFX, postSFX, whisper)
 
 	if(LAZYLEN(tts_queue[filename]))
 		tts_reused++
@@ -334,16 +339,14 @@ SUBSYSTEM_DEF(tts)
 		provider.failed_requests++
 		// if(provider.failed_requests >= provider.failed_requests_limit)
 		// 	provider.is_enabled = FALSE
-		log_game(span_warning("Error connecting to [provider.name] TTS API. Please inform a maintainer or server host."))
-		message_admins(span_warning("Error connecting to [provider.name] TTS API. Please inform a maintainer or server host."))
+		log_debug(span_warning("Error connecting to [provider.name] TTS API. Please inform a maintainer or server host."))
 		return
 
 	if(response.status_code != 200)
 		provider.failed_requests++
 		// if(provider.failed_requests >= provider.failed_requests_limit)
 		// 	provider.is_enabled = FALSE
-		log_game(span_warning("Error performing [provider.name] TTS API request (Code: [response.status_code])"))
-		message_admins(span_warning("Error performing [provider.name] TTS API request (Code: [response.status_code])"))
+		log_debug(span_warning("Error performing [provider.name] TTS API request (Code: [response.status_code])"))
 		tts_request_failed++
 		if(response.status_code)
 			if(tts_errors["[response.status_code]"])
@@ -372,7 +375,7 @@ SUBSYSTEM_DEF(tts)
 	tts_queue -= filename
 
 
-/datum/controller/subsystem/tts/proc/play_tts(atom/speaker, mob/listener, filename, is_local = TRUE, effect = SOUND_EFFECT_NONE, preSFX = null, postSFX = null)
+/datum/controller/subsystem/tts/proc/play_tts(atom/speaker, mob/listener, filename, is_local = TRUE, effect = SOUND_EFFECT_NONE, preSFX = null, postSFX = null, whisper = FALSE)
 	if(isnull(listener) || !listener.client)
 		return
 
@@ -394,7 +397,7 @@ SUBSYSTEM_DEF(tts)
 			CRASH("Invalid sound effect chosen.")
 	if(effect != SOUND_EFFECT_NONE)
 		if(!fexists(voice))
-			var/datum/callback/play_tts_cb = CALLBACK(src, PROC_REF(play_tts), speaker, listener, filename, is_local, effect, preSFX, postSFX)
+			var/datum/callback/play_tts_cb = CALLBACK(src, PROC_REF(play_tts), speaker, listener, filename, is_local, effect, preSFX, postSFX, whisper)
 			if(LAZYLEN(tts_effects_queue[voice]))
 				LAZYADD(tts_effects_queue[voice], play_tts_cb)
 				return
@@ -412,7 +415,7 @@ SUBSYSTEM_DEF(tts)
 	var/volume = 100
 	var/channel = CHANNEL_TTS_RADIO
 	if(is_local)
-		volume = 100 * listener.client.prefs.get_channel_volume(CHANNEL_TTS_LOCAL)
+		volume = 100 * listener.client.prefs.get_channel_volume(CHANNEL_TTS_LOCAL) / (whisper ? 3 : 1)
 		channel = get_local_channel_by_owner(speaker)
 
 	var/sound/output = sound(voice)
@@ -421,7 +424,7 @@ SUBSYSTEM_DEF(tts)
 	if(isnull(speaker))
 		output.wait = TRUE
 		output.channel = channel
-		output.volume = volume * listener.client.prefs.get_channel_volume(CHANNEL_GENERAL) * listener.client.prefs.get_channel_volume(channel)
+		output.volume = volume * listener.client.prefs.get_channel_volume(CHANNEL_GENERAL) * listener.client.prefs.get_channel_volume(channel) / (whisper ? 3 : 1)
 		output.environment = -1
 
 		if(output.volume <= 0)
@@ -436,7 +439,7 @@ SUBSYSTEM_DEF(tts)
 	if(preSFX)
 		play_sfx(listener, preSFX, output.channel, output.volume, output.environment)
 
-	output = listener.playsound_local(turf_source, output, volume, S = output, wait = TRUE, channel = channel)
+	output = listener.playsound_local(turf_source, output, volume, sound = output, wait = TRUE, channel = channel)
 
 	if(!output || output.volume <= 0)
 		return
@@ -501,7 +504,7 @@ SUBSYSTEM_DEF(tts)
 	. = trim(.)
 	. = regex(@"<[^>]*>", "g").Replace(., "")
 	. = html_decode(.)
-	. = regex(@"[^a-zA-Z0-9а-яА-ЯёЁ,!?+./ \r\n\t:—()-]", "g").Replace(., "")
+	. = regex(@"[^a-zA-Z0-9а-яА-ЯёЁѣѢІіäÄöÖØøÆæÅåÄäꝎꝏꜼꜽŒœ#,!?+./ \r\n\t:—()-]", "g").Replace(., "")
 	. = replacetext(., regex(@"(?<![a-zA-Zа-яёА-ЯЁ])[a-zA-Zа-яёА-ЯЁ]+?(?![a-zA-Zа-яёА-ЯЁ])", "igm"), /proc/tts_word_replacer)
 	for(var/job in tts_job_replacements)
 		. = replacetext(., regex(job, "igm"), tts_job_replacements[job])
@@ -586,6 +589,8 @@ SUBSYSTEM_DEF(tts)
 			"кз" = "Кэ Зэ",
 			"днк" = "дэ эн ка",
 			"бсх" = "бэ эс ха",
+			"исн" = "И Эс Эн",
+			"акн" = "А Кэ Эн",
 		)
 	var/match = tts_replacement_list[lowertext(word)]
 	if(match)

@@ -73,7 +73,7 @@
 
 /obj/machinery/r_n_d/server/process()
 	if(prob(3) && plays_sound)
-		playsound(loc, "computer_ambience", 50, 1)
+		playsound(loc, "computer_ambience", 50, TRUE)
 
 	var/datum/gas_mixture/environment = loc.return_air()
 	switch(environment.temperature)
@@ -117,7 +117,7 @@
 
 // Backup files to CentComm to help admins recover data after griefer attacks
 /obj/machinery/r_n_d/server/proc/griefProtection()
-	for(var/obj/machinery/r_n_d/server/centcom/C in GLOB.machines)
+	for(var/obj/machinery/r_n_d/server/centcom/C in SSmachines.get_by_type(/obj/machinery/r_n_d/server/centcom))
 		files.push_data(C.files)
 
 /obj/machinery/r_n_d/server/proc/produce_heat(heat_amt)
@@ -141,32 +141,42 @@
 				env.merge(removed)
 				air_update_turf()
 
-/obj/machinery/r_n_d/server/attackby(var/obj/item/O as obj, var/mob/user as mob, params)
-	if(disabled)
+
+/obj/machinery/r_n_d/server/attackby(obj/item/I, mob/user, params)
+	if(shocked && shock(user, 50))
 		add_fingerprint(user)
-		return
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(shocked)
-		add_fingerprint(user)
-		shock(user,50)
-
-	if(O.tool_behaviour == TOOL_SCREWDRIVER)
-		add_fingerprint(user)
-		default_deconstruction_screwdriver(user, "[base_icon_state]_o", base_icon_state, O)
-		return 1
-
-	if(exchange_parts(user, O))
-		return 1
-
-	if(panel_open)
-		if(O.tool_behaviour == TOOL_CROWBAR)
-			griefProtection()
-			default_deconstruction_crowbar(user, O)
-			return 1
-	else
+	if(user.a_intent == INTENT_HARM)
 		return ..()
 
-/obj/machinery/r_n_d/server/attack_hand(mob/user as mob)
+	if(exchange_parts(user, I))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
+
+/obj/machinery/r_n_d/server/screwdriver_act(mob/living/user, obj/item/I)
+	if(shocked && shock(user, 50))
+		add_fingerprint(user)
+		return TRUE
+	. = default_deconstruction_screwdriver(user, "[base_icon_state]_o", base_icon_state, I)
+
+
+/obj/machinery/r_n_d/server/crowbar_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(shocked && shock(user, 50))
+		add_fingerprint(user)
+		return .
+	if(!panel_open)
+		add_fingerprint(user)
+		to_chat(user, span_warning("Open the maintenance panel first."))
+		return .
+	griefProtection()
+	default_deconstruction_crowbar(user, I)
+
+
+/obj/machinery/r_n_d/server/attack_hand(mob/user)
 	if(..())
 		return TRUE
 
@@ -215,10 +225,10 @@
 	server_id = -1
 
 /obj/machinery/r_n_d/server/centcom/Initialize()
-	..()
+	. = ..()
 	var/list/no_id_servers = list()
 	var/list/server_ids = list()
-	for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
+	for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 		switch(S.server_id)
 			if(-1)
 				continue
@@ -242,7 +252,7 @@
 
 
 /obj/machinery/computer/rdservercontrol
-	name = "\improper R&D server controller"
+	name = "R&D server controller"
 	icon_screen = "rdcomp"
 	icon_keyboard = "rd_key"
 	light_color = LIGHT_COLOR_FADEDPURPLE
@@ -277,25 +287,25 @@
 		temp_server = null
 		consoles = list()
 		servers = list()
-		for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
+		for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 			if(S.server_id == text2num(href_list["access"]) || S.server_id == text2num(href_list["data"]) || S.server_id == text2num(href_list["logs"]) || S.server_id == text2num(href_list["transfer"]))
 				temp_server = S
 				break
 		if(href_list["access"])
 			screen = 1
-			for(var/obj/machinery/computer/rdconsole/C in GLOB.machines)
+			for(var/obj/machinery/computer/rdconsole/C in SSmachines.get_by_type(/obj/machinery/computer/rdconsole))
 				if(C.sync)
 					consoles += C
 		else if(href_list["data"])
 			screen = 2
 		else if(href_list["logs"])
-			var/awaiting_input = input(usr, "Please input access key", "Security check") as text|null
+			var/awaiting_input = tgui_input_text(usr, "Please input access key", "Security check")
 			if(awaiting_input != temp_server.logs_decryption_key)
 				return
 			screen = 3
 		else if(href_list["transfer"])
 			screen = 4
-			for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
+			for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 				if(S == src)
 					continue
 				servers += S
@@ -315,7 +325,7 @@
 			temp_server.id_with_download += num
 
 	else if(href_list["reset_tech"])
-		var/choice = alert("Technology Data Reset", "Are you sure you want to reset this technology to its default data? Data lost cannot be recovered.", "Continue", "Cancel")
+		var/choice = tgui_alert(usr, "Technology Data Reset", "Are you sure you want to reset this technology to its default data? Data lost cannot be recovered.", list("Continue", "Cancel"))
 		if(choice == "Continue")
 			for(var/I in temp_server.files.known_tech)
 				var/datum/tech/T = temp_server.files.known_tech[I]
@@ -325,7 +335,7 @@
 		temp_server.files.RefreshResearch()
 
 	else if(href_list["reset_design"])
-		var/choice = alert("Design Data Deletion", "Are you sure you want to delete this design? Data lost cannot be recovered.", "Continue", "Cancel")
+		var/choice = tgui_alert(usr, "Design Data Deletion", "Are you sure you want to blacklist this design? Ensure you sync servers after this decision.", list("Continue", "Cancel"))
 		if(choice == "Continue")
 			for(var/I in temp_server.files.known_designs)
 				var/datum/design/D = temp_server.files.known_designs[I]
@@ -351,60 +361,60 @@
 
 	switch(screen)
 		if(0) //Main Menu
-			dat += "Connected Servers:<BR><BR>"
+			dat += "Connected Servers:<br><br>"
 
-			for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
+			for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 				if(istype(S, /obj/machinery/r_n_d/server/centcom) && !badmin)
 					continue
 				if(S.syndicate != syndicate) // Флаг в действии
 					continue
 				dat += "[S.name] || "
-				dat += "<A href='?src=[UID()];access=[S.server_id]'>Access Rights</A> | "
-				dat += "<A href='?src=[UID()];data=[S.server_id]'>Data Management</A> | "
-				dat += "<A href='?src=[UID()];logs=[S.server_id]'>Logs</A>"
+				dat += "<a href='byond://?src=[UID()];access=[S.server_id]'>Access Rights</a> | "
+				dat += "<a href='byond://?src=[UID()];data=[S.server_id]'>Data Management</a> | "
+				dat += "<a href='byond://?src=[UID()];logs=[S.server_id]'>Logs</a>"
 				if(badmin)
-					dat += " | <A href='?src=[UID()];transfer=[S.server_id]'>Server-to-Server Transfer</A>"
-				dat += "<BR>"
+					dat += " | <a href='byond://?src=[UID()];transfer=[S.server_id]'>Server-to-Server Transfer</a>"
+				dat += "<br>"
 
 		if(1) //Access rights menu
-			dat += "[temp_server.name] Access Rights<BR><BR>"
-			dat += "Consoles with Upload Access<BR>"
+			dat += "[temp_server.name] Access Rights<br><br>"
+			dat += "Consoles with Upload Access<br>"
 			for(var/obj/machinery/computer/rdconsole/C in consoles)
 				if(C.syndicate != syndicate) // Флаг в действии 2
 					continue
 				var/turf/console_turf = get_turf(C)
-				dat += "* <A href='?src=[UID()];upload_toggle=[C.id]'>[console_turf.loc]" //FYI, these are all numeric ids, eventually.
+				dat += "* <a href='byond://?src=[UID()];upload_toggle=[C.id]'>[console_turf.loc]" //FYI, these are all numeric ids, eventually.
 				if(C.id in temp_server.id_with_upload)
-					dat += " (Remove)</A><BR>"
+					dat += " (Remove)</a><br>"
 				else
-					dat += " (Add)</A><BR>"
-			dat += "Consoles with Download Access<BR>"
+					dat += " (Add)</a><br>"
+			dat += "Consoles with Download Access<br>"
 			for(var/obj/machinery/computer/rdconsole/C in consoles)
 				if(C.syndicate != syndicate) // Флаг в действии 3
 					continue
 				var/turf/console_turf = get_turf(C)
-				dat += "* <A href='?src=[UID()];download_toggle=[C.id]'>[console_turf.loc]"
+				dat += "* <a href='byond://?src=[UID()];download_toggle=[C.id]'>[console_turf.loc]"
 				if(C.id in temp_server.id_with_download)
-					dat += " (Remove)</A><BR>"
+					dat += " (Remove)</a><br>"
 				else
-					dat += " (Add)</A><BR>"
-			dat += "<HR><A href='?src=[UID()];main=1'>Main Menu</A>"
+					dat += " (Add)</a><br>"
+			dat += "<hr><a href='byond://?src=[UID()];main=1'>Main Menu</a>"
 
 		if(2) //Data Management menu
-			dat += "[temp_server.name] Data Management<BR><BR>"
-			dat += "Known Technologies<BR>"
+			dat += "[temp_server.name] Data Management<br><br>"
+			dat += "Known Technologies<br>"
 			for(var/I in temp_server.files.known_tech)
 				var/datum/tech/T = temp_server.files.known_tech[I]
 				if(T.level <= 0)
 					continue
 				dat += "* [T.name] "
-				dat += "<A href='?src=[UID()];reset_tech=[T.id]'>(Reset)</A><BR>" //FYI, these are all strings.
-			dat += "Known Designs<BR>"
+				dat += "<a href='byond://?src=[UID()];reset_tech=[T.id]'>(Reset)</a><br>" //FYI, these are all strings.
+			dat += "Known Designs<br>"
 			for(var/I in temp_server.files.known_designs)
 				var/datum/design/D = temp_server.files.known_designs[I]
 				dat += "* [D.name] "
-				dat += "<A href='?src=[UID()];reset_design=[D.id]'>(Delete)</A><BR>"
-			dat += "<HR><A href='?src=[UID()];main=1'>Main Menu</A>"
+				dat += "<a href='byond://?src=[UID()];reset_design=[D.id]'>(Delete)</a><br>"
+			dat += "<hr><a href='byond://?src=[UID()];main=1'>Main Menu</a>"
 
 		if(3) //Logs menu
 			dat += "[temp_server.name] Logs viewing<br><br>"
@@ -412,7 +422,7 @@
 				var/clear_time = who_cleared[1]
 				var/user_name = who_cleared[2]
 				var/user_job = who_cleared[3]
-				dat += "[clear_time]: [user_name] ([user_job]) cleared logs<BR>"
+				dat += "[clear_time]: [user_name] ([user_job]) cleared logs<br>"
 
 			for(var/use_log in temp_server.usage_logs)
 				var/log_time = use_log[1]
@@ -420,18 +430,20 @@
 				var/user_job = use_log[3]
 				var/blueprint_printed = use_log[4]
 				var/machine_name = use_log[5]
-				dat += "[log_time]: [user_name] ([user_job]) printed [blueprint_printed] using [machine_name]<BR>"
+				dat += "[log_time]: [user_name] ([user_job]) printed [blueprint_printed] using [machine_name]<br>"
 
-			dat += "<BR><HR><A href='?src=[UID()];clear_logs=1'>Clear Logs</A>"
-			dat += "<BR><HR><A href='?src=[UID()];main=1'>Main Menu</A>"
+			dat += "<br><hr><a href='byond://?src=[UID()];clear_logs=1'>Clear Logs</a>"
+			dat += "<br><hr><a href='byond://?src=[UID()];main=1'>Main Menu</a>"
 
 		if(4) //Server Data Transfer
-			dat += "[temp_server.name] Server to Server Transfer<BR><BR>"
-			dat += "Send Data to what server?<BR>"
+			dat += "[temp_server.name] Server to Server Transfer<br><br>"
+			dat += "Send Data to what server?<br>"
 			for(var/obj/machinery/r_n_d/server/S in servers)
-				dat += "[S.name] <A href='?src=[UID()];send_to=[S.server_id]'> (Transfer)</A><BR>"
-			dat += "<HR><A href='?src=[UID()];main=1'>Main Menu</A>"
-	user << browse({"<meta charset="UTF-8"><TITLE>R&D Server Control</TITLE><HR>[dat]"}, "window=server_control;size=575x400")
+				dat += "[S.name] <a href='byond://?src=[UID()];send_to=[S.server_id]'> (Transfer)</a><br>"
+			dat += "<hr><a href='byond://?src=[UID()];main=1'>Main Menu</a>"
+	var/datum/browser/popup = new(user, "server_control", "R&D Server Control", 575, 400)
+	popup.set_content("<hr>[dat]")
+	popup.open(TRUE)
 	onclose(user, "server_control")
 	return
 

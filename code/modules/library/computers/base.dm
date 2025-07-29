@@ -14,6 +14,10 @@
 	var/num_results = 0
 	var/datum/library_query/query = new()
 
+/obj/machinery/computer/library/attack_animal(mob/living/simple_animal/M)
+	if(istype(M, /mob/living/simple_animal/pet/library_owl))
+		interact(M)
+	. = ..()
 
 /obj/machinery/computer/library/proc/interact_check(var/mob/user)
 	if(stat & (BROKEN | NOPOWER))
@@ -22,7 +26,7 @@
 	if(!Adjacent(user))
 		if(!issilicon(user) && !isobserver(user))
 			user.unset_machine()
-			user << browse(null, "window=library")
+			close_window(user, "library")
 			return 1
 
 	user.set_machine(src)
@@ -97,9 +101,9 @@
 	var/start = max(1, page_num - 3)
 	var/end = min(num_pages, page_num + 3)
 	for(var/i = start to end)
-		var/dat = "<a href='?src=[UID()];page=[i]'>[i]</a>"
+		var/dat = "<a href='byond://?src=[UID()];page=[i]'>[i]</a>"
 		if(i == page_num)
-			dat = "<font size=3><b>[dat]</b></font>"
+			dat = (span_bold(span_fontsize3("[dat]")))
 		if(i != end)
 			dat += " "
 		pagelist += dat

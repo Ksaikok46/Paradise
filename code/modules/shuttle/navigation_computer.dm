@@ -1,6 +1,6 @@
 /obj/machinery/computer/camera_advanced/shuttle_docker
 	name = "navigation computer"
-	desc = "Used to designate a precise transit location for a spacecraft."
+	desc = "Используется, чтобы указать точное местоположение для отправки шаттла."
 	icon_screen = "navigation"
 	icon_keyboard = "med_key"
 	jump_action = null
@@ -178,7 +178,7 @@
 	if(baseturf)
 		my_port.turf_type = baseturf
 	else if(is_mining_level(my_port.z))
-		my_port.turf_type = SSmapping.lavaland_theme?.primary_turf_type ? SSmapping.lavaland_theme.primary_turf_type : /turf/simulated/floor/plating/lava/smooth/lava_land_surface
+		my_port.turf_type = SSmapping.lavaland_theme?.primary_turf_type ? SSmapping.lavaland_theme.primary_turf_type : /turf/simulated/floor/lava/lava_land_surface
 	else
 		my_port.turf_type = /turf/space
 	if(current_user.client)
@@ -324,7 +324,7 @@
 	return TRUE
 
 /datum/action/innate/shuttledocker_rotate
-	name = "Rotate"
+	name = "Повернуть"
 	icon_icon = 'icons/mob/actions/actions_mecha.dmi'
 	button_icon_state = "mech_cycle_equip_off"
 
@@ -337,7 +337,7 @@
 	origin.rotateLandingSpot()
 
 /datum/action/innate/shuttledocker_place
-	name = "Place"
+	name = "Выбрать место"
 	icon_icon = 'icons/mob/actions/actions_mecha.dmi'
 	button_icon_state = "mech_zoom_off"
 
@@ -350,7 +350,7 @@
 	origin.placeLandingSpot(target)
 
 /datum/action/innate/camera_jump/shuttle_docker
-	name = "Jump to Location"
+	name = "Телепорт в локацию"
 	button_icon_state = "camera_jump"
 
 /datum/action/innate/camera_jump/shuttle_docker/Activate()
@@ -360,7 +360,7 @@
 	var/mob/camera/aiEye/remote/remote_eye = C.remote_control
 	var/obj/machinery/computer/camera_advanced/shuttle_docker/console = remote_eye.origin
 
-	playsound(console, 'sound/machines/terminal_prompt_deny.ogg', 25, 0)
+	playsound(console, 'sound/machines/terminal_prompt_deny.ogg', 25, FALSE)
 
 	var/list/L = list()
 	for(var/V in SSshuttle.stationary)
@@ -370,16 +370,16 @@
 		if(console.jumpto_ports[S.id])
 			L[S.name] = S
 
-	playsound(console, 'sound/machines/terminal_prompt.ogg', 25, 0)
+	playsound(console, 'sound/machines/terminal_prompt.ogg', 25, FALSE)
 	var/selected = tgui_input_list(target, "Choose location to jump to", "Locations", L)
 	if(QDELETED(src) || QDELETED(target) || !isliving(target))
 		return
-	playsound(src, "terminal_type", 25, 0)
+	playsound(src, "terminal_type", 25, FALSE)
 	if(selected)
 		var/turf/T = get_turf(L[selected])
 		if(T)
-			playsound(console, 'sound/machines/terminal_prompt_confirm.ogg', 25, 0)
+			playsound(console, 'sound/machines/terminal_prompt_confirm.ogg', 25, FALSE)
 			remote_eye.setLoc(T)
-			to_chat(target, "<span class='notice'>Jumped to [selected]</span>")
+			to_chat(target, span_notice("Телепорт в [selected]"))
 	else
-		playsound(console, 'sound/machines/terminal_prompt_deny.ogg', 25, 0)
+		playsound(console, 'sound/machines/terminal_prompt_deny.ogg', 25, FALSE)

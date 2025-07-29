@@ -4,6 +4,7 @@
 	icon = 'icons/obj/lighting.dmi'
 	icon_state = "flashlight"
 	item_state = "flashlight"
+	gender = MALE
 	w_class = WEIGHT_CLASS_SMALL
 	flags = CONDUCT
 	slot_flags = ITEM_SLOT_BELT
@@ -49,51 +50,60 @@
 		to_chat(user, "You cannot turn the light on while in this [user.loc].")	//To prevent some lighting anomalities.
 		return FALSE
 	on = !on
-	playsound(user, togglesound, 100, 1)
+	playsound(user, togglesound, 100, TRUE)
 	update_brightness()
 	update_equipped_item(update_speedmods = FALSE)
 	return TRUE
 
 
-/obj/item/flashlight/attack(mob/living/M, mob/living/user)
-	add_fingerprint(user)
-	if(on && user.zone_selected == BODY_ZONE_PRECISE_EYES)
-
-		if(((CLUMSY in user.mutations) || user.getBrainLoss() >= 60) && prob(50))	//too dumb to use flashlight properly
-			return ..()	//just hit them in the head
-
-		if(!(ishuman(user) || SSticker) && SSticker.mode.name != "monkey")	//don't have dexterity
-			to_chat(user, "<span class='notice'>You don't have the dexterity to do this!</span>")
-			return
-
-		var/mob/living/carbon/human/H = M	//mob has protective eyewear
-		if(istype(H) && ((H.head && H.head.flags_cover & HEADCOVERSEYES) || (H.wear_mask && H.wear_mask.flags_cover & MASKCOVERSEYES) || (H.glasses && H.glasses.flags_cover & GLASSESCOVERSEYES)))
-			to_chat(user, "<span class='notice'>You're going to need to remove that [(H.head && H.head.flags_cover & HEADCOVERSEYES) ? "helmet" : (H.wear_mask && H.wear_mask.flags_cover & MASKCOVERSEYES) ? "mask" : "glasses"] first.</span>")
-			return
-
-		if(M == user)	//they're using it on themselves
-			if(M.flash_eyes(visual = 1))
-				M.visible_message("<span class='notice'>[M] directs [src] to [M.p_their()] eyes.</span>", \
-									 "<span class='notice'>You wave the light in front of your eyes! Trippy!</span>")
-			else
-				M.visible_message("<span class='notice'>[M] directs [src] to [M.p_their()] eyes.</span>", \
-									 "<span class='notice'>You wave the light in front of your eyes.</span>")
-		else
-
-			user.visible_message("<span class='notice'>[user] directs [src] to [M]'s eyes.</span>", \
-								 "<span class='notice'>You direct [src] to [M]'s eyes.</span>")
-
-			if(istype(H)) //robots and aliens are unaffected
-				var/obj/item/organ/internal/eyes/eyes = H.get_int_organ(/obj/item/organ/internal/eyes)
-				if(M.stat == DEAD || !eyes || (BLINDNESS in M.mutations))	//mob is dead or fully blind
-					to_chat(user, "<span class='notice'>[M]'s pupils are unresponsive to the light!</span>")
-				else if((XRAY in M.mutations) || H.nightvision >= 8) //The mob's either got the X-RAY vision or has a tapetum lucidum (extreme nightvision, i.e. Vulp/Tajara with COLOURBLIND & their monkey forms).
-					to_chat(user, "<span class='notice'>[M]'s pupils glow eerily!</span>")
-				else //they're okay!
-					if(M.flash_eyes(visual = 1))
-						to_chat(user, "<span class='notice'>[M]'s pupils narrow.</span>")
-	else
+/obj/item/flashlight/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+	if(!on || user.zone_selected != BODY_ZONE_PRECISE_EYES)
 		return ..()
+
+	if((HAS_TRAIT(user, TRAIT_CLUMSY) || user.getBrainLoss() >= 60) && prob(50))	//too dumb to use flashlight properly
+		return ..()	//just hit them in the head
+
+	. = ATTACK_CHAIN_PROCEED
+
+	if(!ishuman(user) || SSticker?.mode.name != "monkey")	//don't have dexterity
+		to_chat(user, span_notice("You don't have the dexterity to do this!"))
+		return .
+
+	var/mob/living/carbon/human/human_target = target	//mob has protective eyewear
+	if(ishuman(target) && ((human_target.head && human_target.head.flags_cover & HEADCOVERSEYES) || (human_target.wear_mask && human_target.wear_mask.flags_cover & MASKCOVERSEYES) || (human_target.glasses && human_target.glasses.flags_cover & GLASSESCOVERSEYES)))
+		to_chat(user, span_notice("You're going to need to remove that [(human_target.head && human_target.head.flags_cover & HEADCOVERSEYES) ? "helmet" : (human_target.wear_mask && human_target.wear_mask.flags_cover & MASKCOVERSEYES) ? "mask" : "glasses"] first."))
+		return .
+
+	. |= ATTACK_CHAIN_SUCCESS
+
+	if(target == user)	//they're using it on themselves
+		if(user.flash_eyes(visual = TRUE))
+			user.visible_message(
+				span_notice("[user] directs [src] to [user.p_their()] eyes."),
+				span_notice("You wave the light in front of your eyes! Trippy!"),
+			)
+		else
+			user.visible_message(
+				span_notice("[user] directs [src] to [user.p_their()] eyes."),
+				span_notice("You wave the light in front of your eyes."),
+			)
+	else
+
+		user.visible_message(
+			span_notice("[user] directs [src] to [target]'s eyes."),
+			span_notice("You direct [src] to [target]'s eyes."),
+		)
+
+		if(ishuman(target)) //robots and aliens are unaffected
+			var/obj/item/organ/internal/eyes/eyes = human_target.get_int_organ(/obj/item/organ/internal/eyes)
+			if(human_target.stat == DEAD || !eyes || HAS_TRAIT(human_target, TRAIT_BLIND))	//mob is dead or fully blind
+				to_chat(user, span_notice("[human_target]'s pupils are unresponsive to the light!"))
+			else if(HAS_TRAIT(human_target, TRAIT_XRAY) || human_target.nightvision >= 8) //The mob's either got the X-RAY vision or has a tapetum lucidum (extreme nightvision, i.e. Vulp/Tajara with COLOURBLIND & their monkey forms).
+				to_chat(user, span_notice("[human_target]'s pupils glow eerily!"))
+			else //they're okay!
+				if(human_target.flash_eyes(visual = TRUE))
+					to_chat(user, span_notice("[human_target]'s pupils narrow."))
+
 
 /obj/item/flashlight/extinguish_light(force = FALSE)
 	if(on)
@@ -115,13 +125,28 @@
 
 /obj/item/flashlight/seclite
 	name = "seclite"
-	desc = "A robust flashlight used by security."
+	desc = "Надежный фонарик, используемый службой безопасности."
+	ru_names = list(
+		NOMINATIVE = "фонарик",
+		GENITIVE = "фонарика",
+		DATIVE = "фонарику",
+		ACCUSATIVE = "фонарик",
+		INSTRUMENTAL = "фонариком",
+		PREPOSITIONAL = "фонарике"
+	)
 	icon_state = "seclite"
 	item_state = "seclite"
 	belt_icon = "seclite"
 	force = 9 // Not as good as a stun baton.
 	light_range = 5 // A little better than the standard flashlight.
 	hitsound = 'sound/weapons/genhit1.ogg'
+
+/obj/item/flashlight/sectaclight
+	name = "security tactical flashlight"
+	desc = "Прочный тактический фонарь, оборудованный для комфортного ношения на голове. Используется представителями службы безопасности."
+	icon_state = "sectaclight"
+	item_state = ""
+	slot_flags = ITEM_SLOT_EARS
 
 /obj/item/flashlight/drone
 	name = "low-power flashlight"
@@ -151,17 +176,6 @@
 	icon_state = "lampgreen"
 	item_state = "lampgreen"
 
-
-
-/obj/item/flashlight/lamp/verb/toggle_light()
-	set name = "Toggle light"
-	set category = "Object"
-	set src in oview(1)
-
-	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
-		return
-
-	attack_self(usr)
 
 //Bananalamp
 /obj/item/flashlight/lamp/bananalamp
@@ -221,6 +235,14 @@
 		turn_off()
 		STOP_PROCESSING(SSobj, src)
 
+/obj/item/flashlight/flare/get_heat()
+	return on * 1000
+
+/obj/item/flashlight/flare/proc/turn_on()
+	on = TRUE
+	update_brightness()
+	force = on_damage
+	damtype = FIRE
 
 /obj/item/flashlight/flare/proc/turn_off()
 	on = FALSE
@@ -247,6 +269,33 @@
 			damtype = BURN
 		START_PROCESSING(SSobj, src)
 
+/obj/item/flashlight/flare/on/Initialize()
+	. = ..()
+	turn_on()
+
+//Special flare subtype for the illumination flare shell
+//Acts like a flare, just even stronger, and set length
+/obj/item/flashlight/flare/on/illumination
+	name = "illumination flare"
+	desc = "It's really bright, and unreachable."
+	icon_state = "" //No sprite
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	light_range = 7
+
+/obj/item/flashlight/flare/on/illumination/Initialize()
+	. = ..()
+	fuel = rand(5.0 MINUTES, 6.0 MINUTES) // Approximately half the effective duration of a flare, but justified since it's invincible
+
+/obj/item/flashlight/flare/on/illumination/update_icon()
+	. = ..(NONE)
+
+/obj/item/flashlight/flare/on/illumination/turn_off()
+	..()
+	qdel(src)
+
+/obj/item/flashlight/flare/on/illumination/ex_act(severity)
+	return //Nope
+
 
 // GLOWSTICKS
 
@@ -268,7 +317,7 @@
 
 /obj/item/flashlight/flare/glowstick/Initialize()
 	light_color = color
-	..()
+	. = ..()
 
 
 /obj/item/flashlight/flare/glowstick/update_icon_state()
@@ -341,9 +390,17 @@
 
 /obj/item/flashlight/flare/torch
 	name = "torch"
-	desc = "A torch fashioned from some leaves and a log."
+	desc = "Простейший факел, сделанный из листьев, намотанных на древесину."
+	ru_names = list(
+		NOMINATIVE = "факел",
+		GENITIVE = "факела",
+		DATIVE = "факелу",
+		ACCUSATIVE = "факел",
+		INSTRUMENTAL = "факелом",
+		PREPOSITIONAL = "факеле",
+	)
 	w_class = WEIGHT_CLASS_BULKY
-	light_range = 7
+	light_range = 6
 	icon_state = "torch"
 	item_state = "torch"
 	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi'
@@ -405,13 +462,14 @@
 	emp_cur_charges = min(emp_cur_charges+1, emp_max_charges)
 	return TRUE
 
-/obj/item/flashlight/emp/attack(mob/living/M, mob/living/user)
+
+/obj/item/flashlight/emp/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(on && user.zone_selected == BODY_ZONE_PRECISE_EYES) // call original attack proc only if aiming at the eyes
-		..()
-	return
+		return ..()
+	return ATTACK_CHAIN_PROCEED
 
 
-/obj/item/flashlight/emp/afterattack(atom/A, mob/user, proximity)
+/obj/item/flashlight/emp/afterattack(atom/A, mob/user, proximity, params)
 	if(!proximity)
 		return
 	if(emp_cur_charges > 0)

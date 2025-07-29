@@ -15,6 +15,7 @@
 	close_sound_volume = 35
 	material_drop = /obj/item/stack/sheet/cardboard
 	no_overlays = TRUE
+	can_be_emaged = FALSE
 	/// Current cardboard look provided by spray can painting.
 	var/current_decal = ""
 	/// How fast a mob can move inside this box.
@@ -26,7 +27,7 @@
 
 
 /obj/structure/closet/cardboard/relaymove(mob/living/user, direction)
-	if(!COOLDOWN_FINISHED(src, recently_moved_cd) || !istype(user) || opened || user.incapacitated() || !isturf(loc) || !has_gravity())
+	if(!COOLDOWN_FINISHED(src, recently_moved_cd) || !istype(user) || opened || user.incapacitated() || !isturf(loc) || no_gravity())
 		return
 	var/turf/next_step = get_step(src, direction)
 	if(!next_step)
@@ -40,10 +41,11 @@
 	// And finally the multipler of the box is applied
 	delay *= move_speed_multiplier
 
-	. = Move(next_step, direction, delay)
+	. = Move(next_step, direction)
 	if(. && ISDIAGONALDIR(direction))
 		delay *= sqrt(2)
 
+	set_glide_size(DELAY_TO_GLIDE_SIZE(delay))
 	COOLDOWN_START(src, recently_moved_cd, delay)
 
 
@@ -108,10 +110,12 @@
 	if(!opened || !istype(I, /obj/item/toy/crayon/spraycan))
 		return ..()
 
+	. = ATTACK_CHAIN_PROCEED
+	add_fingerprint(user)
 	var/obj/item/toy/crayon/spraycan/can = I
 	if(can.capped)
 		to_chat(user, span_warning("You need to toggle the cap off before repainting."))
-		return
+		return .
 
 	var/static/list/decal_collection = list(
 		"Atmospherics", "Bartender", "Barber",
@@ -130,22 +134,22 @@
 	)
 	var/new_decal = tgui_input_list(user, "Please select a decal", "Paint box", decal_collection)
 	if(!new_decal)
-		return
+		return .
 	if(user.incapacitated())
 		to_chat(user, span_warning("You're in no condition to perform this action."))
-		return
+		return .
 	if(can != user.get_active_hand())
 		to_chat(user, span_warning("You must be holding [can] to perform this action."))
-		return
+		return .
 	if(!Adjacent(user))
 		to_chat(user, span_warning("You have moved too far away from [src]."))
-		return
+		return .
 	new_decal = lowertext(replacetext(new_decal, " ", "_"))
 	if(new_decal == current_decal)
 		to_chat(user, span_warning("It looks like [src] is already painted this way."))
-		return
+		return .
 
-	add_fingerprint(user)
+	. = ATTACK_CHAIN_PROCEED_SUCCESS
 	current_decal = new_decal
 	update_icon()
 
@@ -179,6 +183,20 @@
 	flick_overlay(image, passed_clients, 1.5 SECONDS)
 	animate(image, pixel_z = 32, alpha = 255, time = 0.5 SECONDS, easing = ELASTIC_EASING)
 	animate(alpha = 0, time = 0.3 SECONDS)
+
+/obj/structure/closet/cardboard/take_damage(damage_amount, damage_type = BRUTE, damage_flag = "", sound_effect = TRUE, attack_dir, armour_penetration = 0)
+	. = ..()
+	if (damage_flag == MELEE)
+		return
+	var/list/humans = list()
+	for(var/mob/living/carbon/human/human in contents)
+		if (istype(human))
+			humans += human
+	if (length(humans) <= 0)
+		return
+	var/mob/living/carbon/human/target = pick(humans)
+	var/armor = target.run_armor_check(BODY_ZONE_CHEST, damage_flag, armour_penetration)
+	target.apply_damage(damage_amount, damage_type, BODY_ZONE_CHEST, armor)
 
 
 #undef SNAKE_ALERT_COOLDOWN

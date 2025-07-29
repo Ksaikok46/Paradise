@@ -24,10 +24,21 @@
 #define STATUS_EFFECT_SHADOW_MEND /datum/status_effect/shadow_mend //Quick, powerful heal that deals damage afterwards. Heals 15 brute/burn every second for 3 seconds.
 #define STATUS_EFFECT_VOID_PRICE /datum/status_effect/void_price //The price of healing yourself with void energy. Deals 3 brute damage every 3 seconds for 30 seconds.
 #define STATUS_EFFECT_EXERCISED /datum/status_effect/exercised //Prevents heart disease
+#define STATUS_EFFECT_SHADOW_EMPOWER /datum/status_effect/shadow_empower // used in shadowpeople species, grants stronger heal effect
 
 #define STATUS_EFFECT_HIPPOCRATIC_OATH /datum/status_effect/hippocraticOath //Gives you an aura of healing as well as regrowing the Rod of Asclepius if lost
 
 #define STATUS_EFFECT_REGENERATIVE_CORE /datum/status_effect/regenerative_core
+
+#define STATUS_EFFECT_LAVALAND_NO_PAIN /datum/status_effect/lavaland_no_pain
+
+#define STATUS_EFFECT_LAVALAND_ETERNAL_BLEEDING_FIX /datum/status_effect/lavaland_eternal_bleeding_fix
+
+#define STATUS_EFFECT_LAVALAND_NIGHT_VISION /datum/status_effect/lavaland_night_vision
+
+#define STATUS_EFFECT_LAVALAND_BLOOD_REGEN /datum/status_effect/lavaland_blood_regen
+
+#define STATUS_EFFECT_DRASK_COMA /datum/status_effect/drask_coma
 
 #define STATUS_EFFECT_TERROR_REGEN /datum/status_effect/terror/regeneration   //over time healing, 125 HP within 25~ seconds
 
@@ -44,7 +55,7 @@
 
 //#define STATUS_EFFECT_POWERREGEN /datum/status_effect/cyborg_power_regen //Regenerates power on a given cyborg over time
 
-//#define STATUS_EFFECT_HISGRACE /datum/status_effect/his_grace //His Grace.
+#define STATUS_EFFECT_HISGRACE /datum/status_effect/his_grace //His Grace.
 
 //#define STATUS_EFFECT_WISH_GRANTERS_GIFT /datum/status_effect/wish_granters_gift //If you're currently resurrecting with the Wish Granter
 
@@ -93,6 +104,8 @@
 
 #define STATUS_EFFECT_CRUSHERMARK /datum/status_effect/crusher_mark //if struck with a proto-kinetic crusher, takes a ton of damage
 
+#define STATUS_EFFECT_FANG_EXHAUSTION /datum/status_effect/fang_exhaust // called by poison fang (crusher trophy)
+
 #define STATUS_EFFECT_SAWBLEED /datum/status_effect/saw_bleed //if the bleed builds up enough, takes a ton of damage
 
 #define STATUS_EFFECT_BLOODLETTING /datum/status_effect/saw_bleed/bloodletting //nerfed version
@@ -113,6 +126,8 @@
 
 #define STATUS_EFFECT_DASH /datum/status_effect/dash // Grants the ability to dash, expiring after a few seconds
 
+#define STATUS_EFFECT_VOMIT /datum/status_effect/tox_vomit // When carbon got enough tox damage - he will vomit.
+
 //#define STATUS_EFFECT_NECROPOLIS_CURSE /datum/status_effect/necropolis_curse
 //#define CURSE_BLINDING	1 //makes the edges of the target's screen obscured
 //#define CURSE_SPAWNING	2 //spawns creatures that attack the target only
@@ -126,9 +141,6 @@
 /// Whether a moth's wings are burnt
 #define STATUS_EFFECT_BURNT_WINGS /datum/status_effect/burnt_wings
 
-/// If a moth is in a cocoon
-#define STATUS_EFFECT_COCOONED /datum/status_effect/cocooned
-
 //human status effects
 // incapacitating
 #define STATUS_EFFECT_STUN /datum/status_effect/incapacitating/stun
@@ -138,6 +150,7 @@
 #define STATUS_EFFECT_SLOWED /datum/status_effect/incapacitating/slowed
 #define STATUS_EFFECT_PARALYZED /datum/status_effect/incapacitating/paralyzed
 #define STATUS_EFFECT_KNOCKDOWN /datum/status_effect/incapacitating/knockdown
+#define STATUS_EFFECT_ARMBAR /datum/status_effect/judo_armbar
 
 // transient
 #define STATUS_EFFECT_CONFUSION /datum/status_effect/transient/confusion
@@ -184,3 +197,16 @@
 #define STATUS_EFFECT_OFFERING_ITEM /datum/status_effect/offering_item
 
 #define STATUS_EFFECT_STARING /datum/status_effect/staring //Used in ../human/examine() proc
+
+#define STATUS_EFFECT_RECENTLY_SUCCUMBED /datum/status_effect/recently_succumbed
+
+#define STATUS_EFFECT_FORCED_RUMBLE /datum/status_effect/forced_rumble
+
+#define STATUS_EFFECT_FORCED_SNEEZE /datum/status_effect/forced_sneeze
+
+#define STATUS_EFFECT_LAVALAND_VISION /datum/status_effect/lavaland_vision
+
+#define STATUS_EFFECT_TEMPERATURE_STABILIZE /datum/status_effect/temperature_stabilize
+
+/// Makes you lean on something
+#define STATUS_EFFECT_LEANING /datum/status_effect/leaning

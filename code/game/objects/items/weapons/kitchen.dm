@@ -29,44 +29,62 @@
 	throw_speed = 3
 	throw_range = 5
 	flags = CONDUCT
-	attack_verb = list("attacked", "stabbed", "poked")
+	attack_verb = list("атаковал", "уколол", "ткнул")
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 30)
 	sharp = 0
 	var/max_contents = 1
 
-/obj/item/kitchen/utensil/New()
-	..()
+
+/obj/item/kitchen/utensil/Initialize(mapload)
+	. = ..()
+
 	if(prob(60))
-		src.pixel_y = rand(0, 4)
+		set_base_pixel_y(rand(0, 4))
 
 	create_reagents(5)
 
-/obj/item/kitchen/utensil/attack(mob/living/carbon/C, mob/living/carbon/user)
-	if(!istype(C))
+
+/obj/item/kitchen/utensil/update_overlays()
+	. = ..()
+	var/obj/item/reagent_containers/food/snack = locate() in src
+	if(snack)
+		var/mutable_appearance/food_olay = mutable_appearance('icons/obj/kitchen.dmi', "loadedfood", color = snack.filling_color)
+		food_olay.pixel_w = pixel_x
+		food_olay.pixel_z = pixel_y
+		. += food_olay
+
+
+/obj/item/kitchen/utensil/attack(mob/living/carbon/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+	if(!iscarbon(target))
 		return ..()
 
 	if(user.a_intent != INTENT_HELP)
 		if(user.zone_selected == BODY_ZONE_HEAD || user.zone_selected == BODY_ZONE_PRECISE_EYES)
-			if((CLUMSY in user.mutations) && prob(50))
-				C = user
-			return eyestab(C, user)
-		else
-			return ..()
+			if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
+				target = user
+			return eyestab(target, user)
+		return ..()
 
-	if(length(contents))
-		var/obj/item/reagent_containers/food/snacks/toEat = contents[1]
-		if(istype(toEat))
-			if(!get_location_accessible(C, BODY_ZONE_PRECISE_MOUTH))
-				if(C == user)
-					to_chat(user, "<span class='warning'>Your face is obscured, so you cant eat.</span>")
-				else
-					to_chat(user, "<span class='warning'>[C]'s face is obscured, so[C.p_they()] cant eat.</span>")
-				return
-			if(C.eat(toEat, user))
-				toEat.On_Consume(C, user)
-				cut_overlays()
-				return
+	. = ATTACK_CHAIN_PROCEED
+	if(!length(contents))
+		return .
+
+	var/obj/item/reagent_containers/food/snacks/toEat = contents[1]
+	if(!istype(toEat))
+		return .
+
+	if(!get_location_accessible(target, BODY_ZONE_PRECISE_MOUTH))
+		if(target == user)
+			balloon_alert(user, span_warning("лицо скрыто"))
+		else
+			balloon_alert(user, span_warning("мешает скрытое лицо"))
+		return .
+
+	if(target.eat(toEat, user))
+		toEat.On_Consume(target, user)
+		update_icon(UPDATE_OVERLAYS)
+		return .|ATTACK_CHAIN_SUCCESS
 
 
 /obj/item/kitchen/utensil/fork
@@ -83,25 +101,25 @@
 	name = "spoon"
 	desc = "It's a spoon. You can see your own upside-down face in it."
 	icon_state = "spoon"
-	attack_verb = list("attacked", "poked")
+	attack_verb = list("атаковал", "ткнул")
 
 /obj/item/kitchen/utensil/pspoon
 	name = "plastic spoon"
 	desc = "It's a plastic spoon. How dull."
 	icon_state = "pspoon"
-	attack_verb = list("attacked", "poked")
+	attack_verb = list("атаковал", "ткнул")
 
 /obj/item/kitchen/utensil/spork
 	name = "spork"
 	desc = "It's a spork. Marvel at its innovative design."
 	icon_state = "spork"
-	attack_verb = list("attacked", "sporked")
+	attack_verb = list("атаковал", "ткнул")
 
 /obj/item/kitchen/utensil/pspork
 	name = "plastic spork"
 	desc = "It's a plastic spork. It's the fork side of the spoon!"
 	icon_state = "pspork"
-	attack_verb = list("attacked", "sporked")
+	attack_verb = list("атаковал", "ткнул")
 
 /*
  * Knives
@@ -115,18 +133,34 @@
 	w_class = WEIGHT_CLASS_SMALL
 	throwforce = 10
 	hitsound = 'sound/weapons/bladeslice.ogg'
-	pickup_sound = 'sound/items/handling/knife_pickup.ogg'
-	drop_sound = 'sound/items/handling/knife_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/knife_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/knife_drop.ogg'
 	throw_speed = 3
 	throw_range = 6
 	materials = list(MAT_METAL=12000)
-	attack_verb = list("slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
+	attack_verb = list("полоснул", "уколол", "поранил", "порезал")
 	sharp = TRUE
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 50)
 	embed_chance = 45
 	embedded_ignore_throwspeed_threshold = TRUE
 	/// Can this item be attached as a bayonet to the gun?
 	var/bayonet_suitable = FALSE
+	/// Used in combination with throwing martial art, to avoid sharpening checks overhead
+	var/default_force
+	/// Same as above
+	var/default_throwforce
+
+
+/obj/item/kitchen/knife/Initialize(mapload)
+	. = ..()
+	default_force = force
+	default_throwforce = throwforce
+
+
+/obj/item/kitchen/knife/sharpen_act(obj/item/whetstone/whetstone, mob/user)
+	. = ..()
+	default_force = force
+	default_throwforce = throwforce
 
 
 /obj/item/kitchen/knife/suicide_act(mob/user)
@@ -139,44 +173,41 @@
 	. = ..()
 	playsound(src, 'sound/weapons/knife_holster/knife_throw.ogg', 30, 1)
 
+
 /obj/item/kitchen/knife/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	var/datum/martial_art/throwing/MA = throwingdatum?.thrower?.mind?.martial_art
 	if(istype(MA) && is_type_in_list(src, MA.knife_types, FALSE))
 		embed_chance = MA.knife_embed_chance
-		throwforce = get_throwforce() + MA.knife_bonus_damage
+		throwforce = default_throwforce + MA.knife_bonus_damage
 		shields_penetration = initial(shields_penetration) + MA.shields_penetration_bonus
-	. = ..()
+	return ..()
+
 
 /obj/item/kitchen/knife/after_throw(datum/callback/callback)
 	embed_chance = initial(embed_chance)
-	throwforce = get_throwforce()
+	throwforce = default_throwforce
 	shields_penetration = initial(shields_penetration)
-	. = ..()
+	return ..()
 
-/obj/item/kitchen/knife/attack(mob/living/target, mob/living/user, def_zone)
+
+/obj/item/kitchen/knife/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	var/datum/martial_art/throwing/MA = user?.mind?.martial_art
 	if(istype(MA) && is_type_in_list(src, MA.knife_types, FALSE))
-		force = get_force() + MA.knife_bonus_damage
+		force = default_force + MA.knife_bonus_damage
 		if(user.zone_selected == BODY_ZONE_HEAD && user.a_intent == INTENT_HARM)
 			if(MA.neck_cut(target, user))
-				return TRUE
+				return ATTACK_CHAIN_PROCEED_SUCCESS
 	. = ..()
+	force = default_force
 
-/obj/item/kitchen/knife/attack_obj(obj/O, mob/living/user, params)
+
+/obj/item/kitchen/knife/attack_obj(obj/object, mob/living/user, params)
 	var/datum/martial_art/throwing/MA = user?.mind?.martial_art
 	if(istype(MA) && is_type_in_list(src, MA.knife_types, FALSE))
-		force = get_force() + MA.knife_bonus_damage
+		force = default_force + MA.knife_bonus_damage
 	. = ..()
+	force = default_force
 
-/obj/item/kitchen/knife/afterattack(atom/target, mob/user, proximity, params)
-	force = get_force()
-	. = ..()
-
-//this ensures that an afterattack will always be called for knives
-/obj/item/kitchen/knife/melee_attack_chain(mob/user, atom/target, params)
-	if(!tool_attack_chain(user, target) && pre_attackby(target, user, params))
-		target.attackby(src, user, params)
-		afterattack(target, user, 1, params)
 
 /obj/item/kitchen/knife/plastic
 	name = "plastic knife"
@@ -184,8 +215,8 @@
 	icon_state = "pknife"
 	item_state = "knife"
 	sharp = 0
-	pickup_sound = 'sound/items/handling/bone_pickup.ogg'
-	drop_sound = 'sound/items/handling/bone_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/bone_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/bone_drop.ogg'
 
 /obj/item/kitchen/knife/ritual
 	name = "ritual knife"
@@ -196,16 +227,39 @@
 
 /obj/item/kitchen/knife/butcher
 	name = "butcher's cleaver"
+	desc = "Огромный мясницкий тесак, предназначенный для измельчения мяса. В том числе и клоунов и их субпродуктов."
+	ru_names = list(
+		NOMINATIVE = "мясницкий тесак",
+		GENITIVE = "мясницкого тесака",
+		DATIVE = "мясницкому тесаку",
+		ACCUSATIVE = "мясницкий тесак",
+		INSTRUMENTAL = "мясницким тесаком",
+		PREPOSITIONAL = "мясницком тесаке"
+	)
 	icon_state = "butch"
-	desc = "A huge thing used for chopping and chopping up meat. This includes clowns and clown-by-products."
 	flags = CONDUCT
 	force = 15
 	throwforce = 8
-	attack_verb = list("cleaved", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
+	attack_verb = list("полоснул", "уколол", "поранил", "порезал")
 	w_class = WEIGHT_CLASS_NORMAL
+
+/obj/item/kitchen/knife/butcher/sharped
+	desc = "Огромный мясницкий тесак, предназначенный для измельчения мяса. В том числе и клоунов и их субпродуктов. Блестит от заточки."
+
+/obj/item/kitchen/knife/butcher/sharped/Initialize(mapload)
+	. = ..()
+	SEND_SIGNAL(src, COMSIG_ITEM_SHARPEN_ACT, 4, 30)
 
 /obj/item/kitchen/knife/butcher/meatcleaver
 	name = "meat cleaver"
+	ru_names = list(
+		NOMINATIVE = "тесак для мяса",
+		GENITIVE = "тесака для мяса",
+		DATIVE = "тесаку для мяса",
+		ACCUSATIVE = "тесак для мяса",
+		INSTRUMENTAL = "тесаком для мяса",
+		PREPOSITIONAL = "тесаке для мяса"
+	)
 	icon_state = "mcleaver"
 	item_state = "mcleaver"
 	force = 25
@@ -220,7 +274,7 @@
 	force = 20
 	throwforce = 20
 	origin_tech = "materials=3;combat=4"
-	attack_verb = list("slashed", "stabbed", "sliced", "torn", "ripped", "cut")
+	attack_verb = list("полоснул", "уколол", "поранил", "порезал")
 	bayonet_suitable = TRUE
 	embed_chance = 90
 
@@ -228,7 +282,15 @@
 	name = "survival knife"
 	icon_state = "survivalknife"
 	belt_icon = "survival_knife"
-	desc = "A hunting grade survival knife."
+	desc = "Охотничий нож повышенной прочности."
+	ru_names = list(
+		NOMINATIVE = "нож для выживания",
+		GENITIVE = "ножа для выживания",
+		DATIVE = "ножу для выживания",
+		ACCUSATIVE = "нож для выживания",
+		INSTRUMENTAL = "ножом для выживания",
+		PREPOSITIONAL = "ноже для выживания"
+	)
 	force = 15
 	throwforce = 15
 
@@ -246,10 +308,35 @@
 	item_state = "bone_dagger"
 	icon_state = "bone_dagger"
 	belt_icon = "bone_dagger"
-	desc = "A sharpened bone. The bare minimum in survival."
+	desc = "Острая кость – минимум для выживания."
+	ru_names = list(
+		NOMINATIVE = "костяной кинжал",
+		GENITIVE = "костяного кинжала",
+		DATIVE = "костяному кинжалу",
+		ACCUSATIVE = "костяной кинжал",
+		INSTRUMENTAL = "костяным кинжалом",
+		PREPOSITIONAL = "костяном кинжале"
+	)
 	materials = list()
-	pickup_sound = 'sound/items/handling/bone_pickup.ogg'
-	drop_sound = 'sound/items/handling/bone_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/bone_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/bone_drop.ogg'
+
+/obj/item/kitchen/knife/combat/survival/bone/eel
+	name = "eel sharpened tail"
+	desc = "Бритвенно-острый хвост донного угля, аккуратно отделённый от основного тела рыбы. Из такого выйдет отличный нож или наконечник для копья."
+	ru_names = list(
+		NOMINATIVE = "хвост донного угря",
+		GENITIVE = "хвоста донного угря",
+		DATIVE = "хвосту донного угря",
+		ACCUSATIVE = "хвост донного угря",
+		INSTRUMENTAL = "хвостом донного угря",
+		PREPOSITIONAL = "хвосте донного угря"
+	)
+	icon = 'icons/obj/lavaland/lava_fishing.dmi'
+	icon_state = "eel_sharpened_tail"
+	lefthand_file = 'icons/mob/inhands/lavaland/fish_items_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/lavaland/fish_items_righthand.dmi'
+	item_state = "eel_sharpened_tail"
 
 /obj/item/kitchen/knife/combat/cyborg
 	name = "cyborg knife"
@@ -275,10 +362,10 @@
 	throwforce = 12 //fuck git
 	materials = list()
 	origin_tech = "biotech=3;combat=2"
-	attack_verb = list("shanked", "shivved")
+	attack_verb = list("порезал", "уколол")
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 0, "acid" = 0)
-	pickup_sound = 'sound/items/handling/bone_pickup.ogg'
-	drop_sound = 'sound/items/handling/bone_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/bone_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/bone_drop.ogg'
 
 /obj/item/kitchen/knife/glassshiv
 	name = "glass shiv"
@@ -288,10 +375,10 @@
 	force = 7
 	throwforce = 8
 	materials = list(MAT_GLASS=MINERAL_MATERIAL_AMOUNT)
-	attack_verb = list("shanked", "shivved")
+	attack_verb = list("порезал", "уколол")
 	armor = list("melee" = 100, "bullet" = 0, "laser" = 0, "energy" = 100, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 100)
-	pickup_sound = 'sound/items/handling/bone_pickup.ogg'
-	drop_sound = 'sound/items/handling/bone_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/bone_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/bone_drop.ogg'
 	var/size
 
 
@@ -328,7 +415,7 @@
 	throw_speed = 3
 	throw_range = 7
 	w_class = WEIGHT_CLASS_NORMAL
-	attack_verb = list("bashed", "battered", "bludgeoned", "thrashed", "whacked")
+	attack_verb = list("ударил", "огрел")
 
 /* Trays moved to /obj/item/storage/bag */
 
@@ -345,7 +432,7 @@
 	throw_speed = 3
 	throw_range = 3
 	w_class = WEIGHT_CLASS_SMALL
-	attack_verb = list("bashed", "battered", "bludgeoned", "thrashed", "smashed")
+	attack_verb = list("ударил")
 
 /obj/item/kitchen/mould/bear
 	name = "bear-shaped candy mould"
@@ -399,7 +486,7 @@
 	throw_speed = 3
 	throw_range = 3
 	w_class = WEIGHT_CLASS_SMALL
-	attack_verb = list("rolled", "cracked", "battered", "thrashed")
+	attack_verb = list("закатил", "треснул")
 
 
 
@@ -415,4 +502,4 @@
 	throw_speed = 3
 	throw_range = 3
 	w_class = WEIGHT_CLASS_SMALL
-	attack_verb = list("bashed", "slashed", "pricked", "thrashed")
+	attack_verb = list("ударил", "полоснул", "уколол")

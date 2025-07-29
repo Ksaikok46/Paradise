@@ -9,6 +9,7 @@
 	var/spawn_amount = 100
 
 /obj/item/grenade/gas/prime()
+	. = ..()
 	var/turf/simulated/target_turf = get_turf(src)
 	if(istype(target_turf))
 		target_turf.atmos_spawn_air(spawn_contents, spawn_amount)
@@ -43,13 +44,13 @@
 
 /obj/item/grenade/gluon/prime()
 	update_mob()
-	playsound(loc, 'sound/effects/empulse.ogg', 50, 1)
+	playsound(loc, 'sound/effects/empulse.ogg', 50, TRUE)
 	for(var/turf/T in view(range, loc))
 		if(isfloorturf(T))
 			var/turf/simulated/F = T
 			F.MakeSlippery(TURF_WET_PERMAFROST, 120 SECONDS)
 			for(var/mob/living/carbon/L in T)
-				L.adjustStaminaLoss(stamina_damage)
+				L.apply_damage(stamina_damage, STAMINA)
 				L.apply_effect(rad_damage, IRRADIATE)
 				L.adjust_bodytemperature(-230)
 	qdel(src)

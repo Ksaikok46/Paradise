@@ -1,14 +1,14 @@
 #define STAGE_TIME 60
 
 /datum/disease/virus/loyalty
-	name = "Loyalty Syndrome"
-	agent = "Halomonas minomae"
-	desc = "A disease that causes acute mass insanity for a certain person, as well as various obsessions"
+	name = "Синдром лояльности"
+	agent = "Халомонас миномай"
+	desc = "Болезнь, вызывающая острую массовую одержимость определённым человеком, а также различные навязчивые идеи."
 	max_stages = 5
 	spread_flags = CONTACT
 	permeability_mod = 0.8
 	can_immunity = FALSE
-	cure_text = "Anti-Psychotics"
+	cure_text = "Галоперидол"
 	cures = list("haloperidol")
 	cure_prob = 8
 	visibility_flags = HIDDEN_HUD
@@ -134,11 +134,14 @@
 					health_change = round(timer/(4 * STAGE_TIME), 0.25)  //1 - ∞ toxins
 
 		if(affected_mob.z == master.z)
+			var/update = NONE
 			if(timer <= STAGE_TIME)
-				affected_mob.adjustOxyLoss(health_change)
-				affected_mob.adjustBruteLoss(health_change)
-				affected_mob.adjustFireLoss(health_change)
-			affected_mob.adjustToxLoss(health_change)
+				update |= affected_mob.adjustOxyLoss(health_change, FALSE)
+				update |= affected_mob.adjustBruteLoss(health_change, FALSE)
+				update |= affected_mob.adjustFireLoss(health_change, FALSE)
+			update |= affected_mob.adjustToxLoss(health_change, FALSE)
+			if(update)
+				affected_mob.updatehealth("loyalty virus")
 		if(message != "")
 			affected_mob.say(message)
 			say_timer = 0

@@ -11,6 +11,7 @@
 	var/embedded_type = /obj/item/embedded/shrapnel
 
 /obj/item/grenade/frag/prime()
+	. = ..()
 	update_mob()
 	var/turf/epicenter = get_turf(src)
 	for(var/mob/living/carbon/human/H in epicenter)
@@ -27,7 +28,7 @@
 
 /obj/item/grenade/frag/proc/embed_shrapnel(mob/living/carbon/human/H, amount)
 	for(var/i = 0, i < amount, i++)
-		if(prob(embed_prob - H.getarmor(null, "bomb")))
+		if(prob(embed_prob - H.getarmor(attack_flag = BOMB)))
 			var/obj/item/embedded/S = new embedded_type(src)
 			H.hitby(S, skipcatch = 1)
 			S.throwforce = 1
@@ -35,18 +36,3 @@
 			S.sharp = FALSE
 		else
 			to_chat(H, "<span class='warning'>Shrapnel bounces off your armor!</span>")
-
-/obj/item/embedded/shrapnel
-	name = "shrapnel"
-	icon = 'icons/obj/shards.dmi'
-	throwforce = 10
-	throw_speed =  EMBED_THROWSPEED_THRESHOLD
-	embed_chance = 100
-	embedded_fall_chance = 0
-	w_class = WEIGHT_CLASS_SMALL
-	sharp = TRUE
-	hitsound = 'sound/weapons/pierce.ogg'
-
-/obj/item/embedded/shrapnel/New()
-	..()
-	icon_state = pick("shrapnel1", "shrapnel2", "shrapnel3")

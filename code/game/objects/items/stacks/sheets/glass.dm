@@ -30,6 +30,7 @@ GLOBAL_LIST_INIT(glass_recipes, list(
 	desc = "HOLY SHEET! That is a lot of glass."
 	singular_name = "glass sheet"
 	icon_state = "sheet-glass"
+	item_state = "sheet-glass"
 	materials = list(MAT_GLASS=MINERAL_MATERIAL_AMOUNT)
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 100)
 	resistance_flags = ACID_PROOF
@@ -44,36 +45,52 @@ GLOBAL_LIST_INIT(glass_recipes, list(
 
 /obj/item/stack/sheet/glass/cyborg
 	materials = list()
-	is_cyborg = 1
+	is_cyborg = TRUE
+	energy_type = /datum/robot_energy_storage/glass
+	cost = 1
 	cyborg_construction_stack = /obj/item/stack/sheet/glass
 
 /obj/item/stack/sheet/glass/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.glass_recipes
 
-/obj/item/stack/sheet/glass/attackby(obj/item/W, mob/user, params)
-	if(istype(W,/obj/item/stack/cable_coil))
-		var/obj/item/stack/cable_coil/CC = W
-		if(CC.get_amount() < 5)
-			to_chat(user, "<b>There is not enough wire in this coil. You need 5 lengths.</b>")
-			return
-		CC.use(5)
-		to_chat(user, "<span class='notice'>You attach wire to the [name].</span>")
-		new /obj/item/stack/light_w(user.loc)
-		src.use(1)
-	else if(istype(W, /obj/item/stack/rods))
-		var/obj/item/stack/rods/V  = W
-		var/obj/item/stack/sheet/rglass/RG = new (user.loc)
-		RG.add_fingerprint(user)
-		V.use(1)
-		var/obj/item/stack/sheet/glass/G = src
-		src = null
-		var/replace = (user.get_inactive_hand()==G)
-		G.use(1)
-		if(!G && !RG && replace)
-			user.put_in_hands(RG)
-	else
-		return ..()
+
+/obj/item/stack/sheet/glass/attackby(obj/item/I, mob/user, params)
+	if(iscoil(I))
+		add_fingerprint(user)
+		var/obj/item/stack/cable_coil/coil = I
+		if(coil.get_amount() < 5)
+			to_chat(user, span_warning("There is not enough wire in this coil. You need five lengths."))
+			return ATTACK_CHAIN_PROCEED
+		if(get_amount() < 1)
+			to_chat(user, span_warning("There is not enough [name] sheets."))
+			return ATTACK_CHAIN_PROCEED
+		coil.use(5)
+		to_chat(user, span_notice("You attach wire to [src]."))
+		var/obj/item/stack/light_w/light = new(drop_location())
+		light.add_fingerprint(user)
+		use(1)
+		user.put_in_hands(light, ignore_anim = FALSE)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(istype(I, /obj/item/stack/rods))
+		add_fingerprint(user)
+		var/obj/item/stack/rods/rods = I
+		if(rods.get_amount() < 1)
+			to_chat(user, span_warning("There is not enough rods."))
+			return ATTACK_CHAIN_PROCEED
+		if(get_amount() < 1)
+			to_chat(user, span_warning("There is not enough glass sheets."))
+			return ATTACK_CHAIN_PROCEED
+		rods.use(1)
+		to_chat(user, span_notice("You attach rods to [src]."))
+		var/obj/item/stack/sheet/rglass/rglass = new(drop_location())
+		rglass.add_fingerprint(user)
+		use(1)
+		user.put_in_hands(rglass, ignore_anim = FALSE)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
 
 
 /*
@@ -101,9 +118,13 @@ GLOBAL_LIST_INIT(reinforced_glass_recipes, list ( \
 	merge_type = /obj/item/stack/sheet/rglass
 	point_value = 4
 
+/obj/item/stack/sheet/rglass/fifty
+	amount = 50
+
 /obj/item/stack/sheet/rglass/cyborg
 	materials = list()
 	is_cyborg = 1
+	energy_type = /datum/robot_energy_storage/metal
 	var/datum/robot_energy_storage/glasource
 	var/metcost = 2
 	var/glacost = 1
@@ -145,24 +166,34 @@ GLOBAL_LIST_INIT(pglass_recipes, list ( \
 	full_window = /obj/structure/window/full/plasmabasic
 	point_value = 19
 
+/obj/item/stack/sheet/plasmaglass/fifty
+	amount = 50
+
 /obj/item/stack/sheet/plasmaglass/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.pglass_recipes
 
-/obj/item/stack/sheet/plasmaglass/attackby(obj/item/W, mob/user, params)
-	if(istype(W, /obj/item/stack/rods))
-		var/obj/item/stack/rods/V  = W
-		var/obj/item/stack/sheet/plasmarglass/RG = new (user.loc)
-		RG.add_fingerprint(user)
-		V.use(1)
-		var/obj/item/stack/sheet/glass/G = src
-		src = null
-		var/replace = (user.get_inactive_hand()==G)
-		G.use(1)
-		if(!G && !RG && replace)
-			user.put_in_hands(RG)
-	else
-		return ..()
+
+/obj/item/stack/sheet/plasmaglass/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/stack/rods))
+		add_fingerprint(user)
+		var/obj/item/stack/rods/rods = I
+		if(rods.get_amount() < 1)
+			to_chat(user, span_warning("There is not enough rods."))
+			return ATTACK_CHAIN_PROCEED
+		if(get_amount() < 1)
+			to_chat(user, span_warning("There is not enough [name] sheets."))
+			return ATTACK_CHAIN_PROCEED
+		rods.use(1)
+		to_chat(user, span_notice("You attach rods to [src]."))
+		var/obj/item/stack/sheet/plasmarglass/rglass = new(drop_location())
+		rglass.add_fingerprint(user)
+		use(1)
+		user.put_in_hands(rglass, ignore_anim = FALSE)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
 
 /*
  * Reinforced plasma glass sheets
@@ -187,6 +218,9 @@ GLOBAL_LIST_INIT(prglass_recipes, list ( \
 	full_window = /obj/structure/window/full/plasmareinforced
 	point_value = 23
 
+/obj/item/stack/sheet/plasmarglass/fifty
+	amount = 50
+
 /obj/item/stack/sheet/plasmarglass/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.prglass_recipes
@@ -207,6 +241,9 @@ GLOBAL_LIST_INIT(titaniumglass_recipes, list(
 	merge_type = /obj/item/stack/sheet/titaniumglass
 	full_window = /obj/structure/window/full/shuttle
 
+/obj/item/stack/sheet/titaniumglass/fifty
+	amount = 50
+
 /obj/item/stack/sheet/titaniumglass/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.titaniumglass_recipes
@@ -226,6 +263,9 @@ GLOBAL_LIST_INIT(plastitaniumglass_recipes, list(
 	resistance_flags = ACID_PROOF
 	merge_type = /obj/item/stack/sheet/plastitaniumglass
 	full_window = /obj/structure/window/plastitanium
+
+/obj/item/stack/sheet/plastitaniumglass/fifty
+	amount = 50
 
 /obj/item/stack/sheet/plastitaniumglass/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()

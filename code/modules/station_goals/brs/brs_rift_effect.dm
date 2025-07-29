@@ -3,7 +3,7 @@
 	desc = "Аномальное образование с неизвестными свойствами."
 	icon = 'icons/obj/engines_and_power/singularity.dmi'
 	icon_state = "singularity_fog"
-	appearance_flags = 0
+	appearance_flags = LONG_GLIDE
 	layer = MASSIVE_OBJ_LAYER
 	invisibility = INVISIBILITY_ANOMALY
 	level = 1 // t-ray scaners show only things with level = 1
@@ -101,10 +101,10 @@
 	Use this before doing anything destructive.
 */
 /obj/effect/abstract/bluespace_rift/proc/is_close_to_singularity(radius = 15)
-	for(var/singularity in GLOB.singularities)
-		if(!atoms_share_level(src, singularity))
+	for(var/obj/singularity/singulo in GLOB.singularities)
+		if(src.z != singulo.z)
 			continue
-		if(get_dist(src, singularity) <= radius)
+		if(get_dist(src, singulo) <= radius)
 			return TRUE
 	return FALSE
 

@@ -20,27 +20,33 @@
 			continue
 		SEND_SOUND(M, S)
 
-/datum/event/apc_short/announce() // закороченные - выведенные из строя
-	GLOB.event_announcement.Announce("Зафиксирована перегрузка энергосети станции [station_name()]. Инженерному отделу надлежит проверить все замкнувшие ЛКП.", "ВНИМАНИЕ: СБОЙ СИСТЕМЫ ПИТАНИЯ.", new_sound = 'sound/AI/attention.ogg')
+/datum/event/apc_short/announce()
+	GLOB.minor_announcement.announce("Зафиксирована перегрузка энергосети станции [station_name()]. Инженерному отделу надлежит проверить все замкнувшие ЛКП.",
+									"Сбой системы питания",
+									'sound/AI/power_short.ogg'
+	)
 
 /datum/event/apc_short/end()
 	return TRUE
 
 /proc/power_failure(announce=TRUE)
-	var/list/skipped_areas_apc = list(
-		/area/engine/engineering,
-		/area/turret_protected/ai)
-
+	var/static/list/skipped_areas_apc = typecacheof(list(
+		/area/engineering/engine,
+		/area/engineering/supermatter,
+		/area/turret_protected/ai,
+	))
 	if(announce)
-		GLOB.event_announcement.Announce("Зафиксирована перегрузка энергосети станции [station_name()]. Инженерному отделу надлежит проверить все замкнувшие ЛКП.", "ВНИМАНИЕ: СБОЙ СИСТЕМЫ ПИТАНИЯ.", new_sound = 'sound/AI/attention.ogg')
-
+		GLOB.minor_announcement.announce("Зафиксирована перегрузка энергосети станции [station_name()]. Инженерному отделу надлежит проверить все замкнувшие ЛКП.",
+										"Сбой системы питания",
+										'sound/AI/attention.ogg'
+		)
 	// break APC_BREAK_PROBABILITY% of all of the APCs on the station
 	var/affected_apc_count = 0
 	for(var/thing in GLOB.apcs)
 		var/obj/machinery/power/apc/C = thing
 		// skip any APCs that are too critical to disable
 		var/area/current_area = get_area(C)
-		if((current_area.type in skipped_areas_apc) || !is_station_level(C.z))
+		if(is_type_in_typecache(current_area, skipped_areas_apc) || !is_station_level(C.z))
 			continue
 		// if we are going to break this one
 		if(prob(APC_BREAK_PROBABILITY))
@@ -60,8 +66,10 @@
 
 /proc/power_restore(announce=TRUE)
 	if(announce)
-		GLOB.event_announcement.Announce("Питание на станции [station_name()] было восстановлено. Приносим извинения за неудобства.", "ВНИМАНИЕ: СИСТЕМА ПИТАНИЯ ВОССТАНОВЛЕНА.", new_sound = 'sound/AI/poweron.ogg')
-
+		GLOB.minor_announcement.announce("Питание на станции [station_name()] было восстановлено. Приносим извинения за неудобства.",
+										ANNOUNCE_APC_REPAIR_RU,
+										'sound/AI/power_restore.ogg'
+		)
 	// recharge the APCs
 	for(var/thing in GLOB.apcs)
 		var/obj/machinery/power/apc/A = thing
@@ -73,10 +81,12 @@
 
 /proc/power_restore_quick(announce=TRUE)
 	if(announce)
-		GLOB.event_announcement.Announce("Все СКА+Ны на станции [station_name()] были перезаряжены. Приносим извинения за неудобства.", "ВНИМАНИЕ: СИСТЕМА ПИТАНИЯ ВОССТАНОВЛЕНА.", new_sound = 'sound/AI/poweron.ogg')
-
+		GLOB.minor_announcement.announce("Все СКАНы на станции [station_name()] были перезаряжены. Приносим извинения за неудобства.",
+										ANNOUNCE_APC_REPAIR_RU,
+										'sound/AI/power_restore.ogg'
+		)
 	// fix all of the SMESs
-	for(var/obj/machinery/power/smes/S in GLOB.machines)
+	for(var/obj/machinery/power/smes/S in SSmachines.get_by_type(/obj/machinery/power/smes))
 		if(!is_station_level(S.z))
 			continue
 		S.charge = S.capacity

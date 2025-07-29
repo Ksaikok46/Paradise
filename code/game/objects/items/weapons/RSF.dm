@@ -4,14 +4,11 @@ RSF
 */
 
 /obj/item/rsf
-	name = "\improper Rapid-Service-Fabricator"
+	name = "Rapid-Service-Fabricator"
 	var/name_short = "RSF"
 	desc = "A device used to rapidly deploy service items."
 	icon = 'icons/obj/tools.dmi'
 	icon_state = "rsf"
-	opacity = 0
-	density = FALSE
-	anchored = FALSE
 	var/matter = 0
 	var/mode = 1
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 0, "acid" = 0)
@@ -34,7 +31,7 @@ RSF
 		update_appearance(UPDATE_DESC)
 
 /obj/item/rsf/rff
-	name = "\improper Rapid-Food-Fabricator"
+	name = "Rapid-Food-Fabricator"
 	name_short = "RFF"
 	desc = "A device used to rapidly deploy delucious food!"
 	icon_state = "rff"
@@ -52,21 +49,26 @@ RSF
 	)
 	update_appearance(UPDATE_DESC)
 
-/obj/item/rsf/attackby(obj/item/W as obj, mob/user as mob, params)
-	..()
-	if(istype(W, /obj/item/rcd_ammo))
-		if((matter + 10) > 30)
-			to_chat(user, "The [name_short] cant hold any more matter.")
-			return
-		qdel(W)
-		matter += 10
-		playsound(src.loc, 'sound/machines/click.ogg', 10, 1)
-		to_chat(user, "The [name_short] now holds [matter]/30 fabrication-units.")
-		desc = "A [name_short]. It currently holds [matter]/30 fabrication-units."
-		return
 
-/obj/item/rsf/attack_self(mob/user as mob)
-	playsound(src.loc, 'sound/effects/pop.ogg', 50, 0)
+/obj/item/rsf/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/rcd_ammo))
+		add_fingerprint(user)
+		if((matter + 10) > 30)
+			to_chat(user, span_warning("The [name_short] cant hold any more matter."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		qdel(I)
+		matter += 10
+		playsound(loc, 'sound/machines/click.ogg', 10, TRUE)
+		to_chat(user, span_notice("The [name_short] now holds [matter]/30 fabrication-units."))
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
+
+/obj/item/rsf/attack_self(mob/user)
+	playsound(src.loc, 'sound/effects/pop.ogg', 50, FALSE)
 	if(mode >= configured_items.len)
 		mode = 1
 	else
@@ -74,11 +76,18 @@ RSF
 	to_chat(user, "Changed dispensing mode to '" + configured_items[mode][1] + "'")
 	update_appearance(UPDATE_DESC)
 
+
 /obj/item/rsf/update_desc(updates = ALL)
 	. = ..()
 	desc = initial(desc) + " Currently set to dispense '[configured_items[mode][1]]'."
 
-/obj/item/rsf/afterattack(atom/A, mob/user as mob, proximity)
+
+/obj/item/rsf/examine(mob/user)
+	. = ..()
+	. += span_notice("It currently holds <b>[matter]/30</b> fabrication-units.")
+
+
+/obj/item/rsf/afterattack(atom/A, mob/user, proximity, params)
 	if(!proximity) return
 	if(!(istype(A, /obj/structure/table) || isfloorturf(A)))
 		return
@@ -100,7 +109,6 @@ RSF
 			return
 		matter--
 		to_chat(user, "The [name_short] now holds [matter]/30 fabrication-units.")
-		desc = "A [name_short]. It currently holds [matter]/30 fabrication-units."
 
 	to_chat(user, "Dispensing " + configured_items[mode][1] + "...")
 	playsound(loc, 'sound/machines/click.ogg', 10, 1)

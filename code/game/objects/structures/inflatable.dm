@@ -21,11 +21,12 @@
 	max_integrity = 50
 	icon = 'icons/obj/inflatable.dmi'
 	icon_state = "wall"
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING
 	var/torn = /obj/item/inflatable/torn
 	var/intact = /obj/item/inflatable
 
 /obj/structure/inflatable/Initialize(location)
-	..()
+	. = ..()
 	air_update_turf(TRUE)
 
 /obj/structure/inflatable/Destroy()
@@ -36,23 +37,19 @@
 /obj/structure/inflatable/CanAtmosPass(turf/T, vertical)
 	return !density
 
+
 /obj/structure/inflatable/attackby(obj/item/I, mob/living/user, params)
-	if(I.sharp || is_type_in_typecache(I, GLOB.pointed_types))
-		user.do_attack_animation(src, used_item = I)
+	. = ..()
+	if(!ATTACK_CHAIN_CANCEL_CHECK(.) && !QDELETED(src) && (is_sharp(I) || is_pointed(I)))
 		deconstruct(FALSE)
-		return FALSE
-	return ..()
+
 
 /obj/structure/inflatable/attack_hand(mob/user)
 	add_fingerprint(user)
 
-/obj/structure/inflatable/AltClick(mob/living/user)
-	if(!istype(user) || !Adjacent(user))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
-		return
+/obj/structure/inflatable/click_alt(mob/living/user)
 	deconstruct(TRUE)
+	return CLICK_ACTION_SUCCESS
 
 
 /obj/structure/inflatable/deconstruct(disassembled = TRUE)
@@ -73,8 +70,8 @@
 	qdel(src)
 
 /obj/structure/inflatable/verb/hand_deflate()
-	set name = "Deflate"
-	set category = "Object"
+	set name = "Сдуть"
+	set category = STATPANEL_OBJECT
 	set src in oview(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))

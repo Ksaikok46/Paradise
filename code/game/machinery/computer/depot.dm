@@ -72,10 +72,10 @@
 /obj/machinery/computer/syndicate_depot/proc/disable_special_functions()
 	return
 
-/obj/machinery/computer/syndicate_depot/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/computer/syndicate_depot/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "SyndicateComputerSimple",  name, window_width, window_height, master_ui, state)
+		ui = new(user, src, "SyndicateComputerSimple", name)
 		ui.open()
 
 /obj/machinery/computer/syndicate_depot/ui_data(mob/user)
@@ -179,13 +179,13 @@
 		else
 			depotarea.set_emergency_access(FALSE)
 			to_chat(user, span_notice("Emergency Access disabled."))
-		playsound(user, sound_yes, 50, 0)
+		playsound(user, sound_yes, 50, FALSE)
 
 /obj/machinery/computer/syndicate_depot/doors/secondary(mob/user, subcommand)
 	if(depotarea)
 		depotarea.toggle_falsewalls(src)
 		to_chat(user, span_notice("False walls toggled."))
-		playsound(user, sound_yes, 50, 0)
+		playsound(user, sound_yes, 50, FALSE)
 
 
 // Engineering AKA self destruct computer, no useful functions, just a trap for the people who can't resist pushing dangerous-sounding buttons.
@@ -211,7 +211,7 @@
 
 /obj/machinery/computer/syndicate_depot/selfdestruct/primary(mob/user)
 	if(depotarea.used_self_destruct)
-		playsound(user, sound_no, 50, 0)
+		playsound(user, sound_no, 50, FALSE)
 		return
 	if(depotarea)
 		depotarea.activate_self_destruct("Fusion reactor containment field disengaged. All hands, evacuate. All hands, evacuate!", TRUE, user)
@@ -259,7 +259,7 @@
 
 /obj/machinery/computer/syndicate_depot/shieldcontrol/primary(mob/user)
 	if(depotarea.used_self_destruct)
-		playsound(user, sound_no, 50, 0)
+		playsound(user, sound_no, 50, FALSE)
 		return
 	if(!istype(perimeterarea))
 		return
@@ -269,7 +269,7 @@
 	else
 		perimeterarea.perimeter_shields_up()
 		depotarea.perimeter_shield_status = TRUE
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 
 /obj/machinery/computer/syndicate_depot/shieldcontrol/secondary(mob/user)
@@ -279,7 +279,7 @@
 		depotarea.shields_down()
 	else
 		depotarea.shields_up()
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 
 // Syndicate comms computer, used to activate visitor mode, and message syndicate. Traitor-only use.
@@ -327,18 +327,18 @@
 		to_chat(user, "ERROR: No lifesigns detected at terminal, aborting.") // Safety to prevent aghosts accidentally consuming the only use.
 		return
 	if(message_sent)
-		playsound(user, 'sound/machines/buzz-sigh.ogg', 50, 0)
+		playsound(user, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 		to_chat(user, span_warning("[src] has already been used to transmit a message to the Syndicate."))
 		return
 	message_sent = TRUE
-	var/input = stripped_input(user, "Please choose a message to transmit to Syndicate HQ via quantum entanglement.  Transmission does not guarantee a response. This function may only be used ONCE.", "To abort, send an empty message.", "")
+	var/input = tgui_input_text(user, "Please choose a message to transmit to Syndicate HQ via quantum entanglement. Transmission does not guarantee a response. This function may only be used ONCE.", "Send Message")
 	if(!input)
 		message_sent = FALSE
 		return
 	Syndicate_announce(input, user)
 	to_chat(user, "Message transmitted.")
 	add_game_logs("has sent a Syndicate comms message from the depot: [input]", user)
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 /obj/machinery/computer/syndicate_depot/syndiecomms/secondary(mob/user)
 	if(!istype(depotarea))
@@ -362,13 +362,13 @@
 	if(!depotarea.on_peaceful)
 		depotarea.peaceful_mode(TRUE, TRUE)
 	grant_syndie_faction(user)
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 /obj/machinery/computer/syndicate_depot/syndiecomms/proc/grant_syndie_faction(mob/user)
 	user.faction += "syndicate"
 	depotarea.alert_log += "[user.name] signed in as a visitor."
 	depotarea.list_add(user, depotarea.peaceful_list)
-	to_chat(user, {"<BR><span class='userdanger'>Welcome, Agent.</span>
+	to_chat(user, {"<br><span class='userdanger'>Welcome, Agent.</span>
 		<span class='warning'>You are now signed-in as a depot visitor.
 		Any other agents with you MUST sign in themselves.
 		You may explore all rooms here, except for bolted ones.
@@ -390,7 +390,7 @@
 
 /obj/machinery/computer/syndicate_depot/teleporter
 	name = "Syndicate Redspace Teleporter Console"
-	desc = "This suspicious high-tech machine creates a Bi-Directional teleporter that is capable to ignore any bluespace interference!"
+	desc = "Эта подозрительная высокотехнологичная машина создает двунаправленный телепорт, способный игнорировать любые BlueSpace-помехи!"
 	icon_screen = "telesci"
 	icon_keyboard = "teleport_key"
 	window_height = 320
@@ -540,7 +540,7 @@
 		return
 	var/bresult = mybeacon.toggle()
 	to_chat(user, span_notice("Syndicate Teleporter Beacon: [bresult ? span_green("ON") : span_red("OFF")]"))
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 /obj/machinery/computer/syndicate_depot/teleporter/secondary(mob/user)
 /*	if(!depotarea.on_peaceful && !check_rights(R_ADMIN, FALSE, user))
@@ -554,7 +554,7 @@
 	toggle_portal()
 	to_chat(user, span_notice("Outgoing Teleport Portal: [portal_enabled ? span_green("ON") : span_red("OFF")]"))
 	updateUsrDialog()
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 /obj/machinery/computer/syndicate_depot/teleporter/proc/toggle_portal()
 	portal_enabled = !portal_enabled
@@ -627,7 +627,7 @@
 	else
 		depotarea.reset_alert()
 	to_chat(user, "Alert level reset.")
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)
 
 /obj/machinery/computer/syndicate_depot/aiterminal/secondary(mob/user)
 	for(var/mob/living/simple_animal/bot/ed209/syndicate/B in depotarea.list_getmobs(depotarea.guard_list))
@@ -636,4 +636,4 @@
 		to_chat(user, "[B] has been recalled.")
 		qdel(B)
 		raise_alert("Sentry bot removed via emergency recall.")
-	playsound(user, sound_yes, 50, 0)
+	playsound(user, sound_yes, 50, FALSE)

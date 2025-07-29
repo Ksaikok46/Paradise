@@ -7,7 +7,7 @@
 		return ..()
 
 	put_in_active_hand(AM)
-	visible_message(span_warning("[src] catches [AM]!"))
+	visible_message(span_warning("[src] лов[pluralize_ru(gender, "ит", "ят")] [AM.declent_ru(ACCUSATIVE)]."))
 	throw_mode_off()
 	SEND_SIGNAL(src, COMSIG_CARBON_THROWN_ITEM_CAUGHT, AM)
 	return TRUE
@@ -38,17 +38,24 @@
 	if(volume > 10) // Anything over 10 volume will make the mob wetter.
 		wetlevel = min(wetlevel + 1,5)
 
+
 /mob/living/carbon/attackby(obj/item/I, mob/user, params)
-	if(length(surgeries))
-		if(user.a_intent == INTENT_HELP)
-			for(var/datum/surgery/S in surgeries)
-				if(S.next_step(user, src))
-					return TRUE
+	if(!length(surgeries) || user.a_intent != INTENT_HELP)
+		return ..()
+
+	for(var/datum/surgery/surgery as anything in surgeries)
+		if(surgery.next_step(user, src))
+			return ATTACK_CHAIN_BLOCKED_ALL
+
 	return ..()
+
 
 /mob/living/carbon/attack_hand(mob/living/carbon/human/user)
 	if(!iscarbon(user))
 		return
+
+	if(SEND_SIGNAL(src, COMSIG_ATOM_ATTACK_HAND, user) & COMPONENT_CANCEL_ATTACK_CHAIN)
+		. = TRUE
 
 	for(var/datum/disease/virus/V in diseases)
 		if(V.spread_flags & CONTACT)
@@ -74,15 +81,15 @@
 				if(M.powerlevel < 0)
 					M.powerlevel = 0
 
-				visible_message("<span class='danger'>The [M.name] has shocked [src]!</span>", "<span class='userdanger'>The [M.name] has shocked you!</span>")
+				visible_message(span_danger("[M.name] шокиру[pluralize_ru(M.gender, "ет", "ют")] [src]!"), \
+				span_userdanger("[M.name] шокиру[pluralize_ru(M.gender, "ет", "ют")] вас!"))
 
 				do_sparks(5, TRUE, src)
 				var/power = (M.powerlevel + rand(0,3)) STATUS_EFFECT_CONSTANT
 				Stun(power)
 				Stuttering(power)
-				if (prob(stunprob) && M.powerlevel >= 8)
+				if(prob(stunprob) && M.powerlevel >= 8)
 					adjustFireLoss(M.powerlevel * rand(6, 6 + M.age_state.damage))
-					updatehealth("slime attack")
 		return 1
 
 /mob/living/carbon/is_mouth_covered(head_only = FALSE, mask_only = FALSE)

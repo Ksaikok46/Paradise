@@ -128,11 +128,13 @@
 		I.access.Add(ACCESS_CLOWN, ACCESS_MIME, ACCESS_THEATRE)
 		I.assignment = name
 	H.sec_hud_set_ID()
+	H.grant_mimicking()
 
 
 //=========== security clown equipment ===========
 /obj/item/pda/clown/security
 	default_cartridge = /obj/item/cartridge/clown
+	default_request_console_cartridge = /obj/item/cartridge/request_console/clown_security
 	icon_state = "pda-security-clown"
 	desc = "Переносной микрокомпьютер от Синктроник Системс, LTD. Этот КПК разработан по заказу тайного покупателя, пожелавшего хонкнуться нераскрытым. Поверхность покрыта политетрафторэтиленом и банановым налётом."
 	ttone = "honk"
@@ -141,7 +143,7 @@
 	name = "Security-Clown ID"
 	registered_name = "Officer Clown"
 	icon_state = "security_clown"
-	desc = "Смотря на эту карту, вы понимаете что центральное командование обладает специфичным чувством юмора."
+	desc = "Смотря на эту карту, вы понимаете что Центральное командование обладает специфичным чувством юмора."
 	access = list(ACCESS_SECURITY, ACCESS_CLOWN, ACCESS_THEATRE, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_WEAPONS)
 
 /obj/item/radio/headset/headset_sec/clown

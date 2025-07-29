@@ -6,7 +6,15 @@
 	dangerous_existence = TRUE //So so much
 	//language = "Clatter"
 
-	species_traits = list(IS_WHITELISTED, RADIMMUNE, NO_BLOOD, NO_HUNGER, NOTRANSSTING, NO_PAIN, VIRUSIMMUNE, NO_GERMS, NO_DECAY, NOCLONE)
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_PAIN,
+		TRAIT_RADIMMUNE,
+		TRAIT_VIRUSIMMUNE,
+		TRAIT_NO_GERMS,
+		TRAIT_NO_DECAY,
+		TRAIT_NO_HUNGER,
+	)
 	forced_heartattack = TRUE // Plasmamen have no blood, but they should still get heart-attacks
 	skinned_type = /obj/item/stack/sheet/mineral/plasma // We're low on plasma, R&D! *eyes plasmaman co-worker intently*
 	reagent_tag = PROCESS_ORG
@@ -40,7 +48,7 @@
 		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys/plasmaman,
 		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/plasmaman,
 		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/plasmaman,
-		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
+		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears/plasmaman,
 	)
 
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/plasmaman
@@ -52,16 +60,24 @@
 	disliked_food = NONE
 	liked_food = NONE
 
+	age_sheet = list(
+		SPECIES_AGE_MIN = 4,
+		SPECIES_AGE_MAX = 150,
+		JOB_MIN_AGE_HIGH_ED = 25,
+		JOB_MIN_AGE_COMMAND = 25,
+	)
+
 
 /datum/species/plasmaman/on_species_gain(mob/living/carbon/human/H)
-	..()
-	H.verbs |= /mob/living/carbon/human/proc/emote_rattle
+	. = ..()
+	add_verb(H, /mob/living/carbon/human/proc/emote_rattle)
+	RegisterSignal(H, COMSIG_CARBON_RECEIVE_FRACTURE, PROC_REF(on_fracture))
 
 
 /datum/species/plasmaman/on_species_loss(mob/living/carbon/human/H)
-	..()
-	H.verbs -= /mob/living/carbon/human/proc/emote_rattle
-
+	. = ..()
+	remove_verb(H, /mob/living/carbon/human/proc/emote_rattle)
+	UnregisterSignal(H, COMSIG_CARBON_RECEIVE_FRACTURE)
 
 //внёс перевод акцента речи, шипящий звук. Но я не смог осилить и он почему-то по прежнему не работает, похоже не тут настраивается -- ПУПС
 /datum/species/plasmaman/say_filter(mob/M, message, datum/language/speaking)
@@ -124,14 +140,29 @@
 		if(JOB_TITLE_HOS)
 			O = new /datum/outfit/plasmaman/hos
 
-		if(JOB_TITLE_CARGOTECH, JOB_TITLE_QUARTERMASTER)
+		if(JOB_TITLE_CARGOTECH)
 			O = new /datum/outfit/plasmaman/cargo
+
+		if(JOB_TITLE_QUARTERMASTER)
+			O = new /datum/outfit/plasmaman/qm
 
 		if(JOB_TITLE_MINER)
 			O = new /datum/outfit/plasmaman/mining
 
-		if(JOB_TITLE_DOCTOR, JOB_TITLE_INTERN, JOB_TITLE_BRIGDOC, JOB_TITLE_PARAMEDIC, JOB_TITLE_CORONER)
+		if(JOB_TITLE_MINING_MEDIC)
+			O = new /datum/outfit/plasmaman/mining_medic
+
+		if(JOB_TITLE_DOCTOR, JOB_TITLE_INTERN)
 			O = new /datum/outfit/plasmaman/medical
+
+		if(JOB_TITLE_BRIGDOC)
+			O = new /datum/outfit/plasmaman/brigdoc
+
+		if(JOB_TITLE_PARAMEDIC)
+			O = new /datum/outfit/plasmaman/paramedic
+
+		if(JOB_TITLE_CORONER)
+			O = new /datum/outfit/plasmaman/coroner
 
 		if(JOB_TITLE_CMO)
 			O = new /datum/outfit/plasmaman/cmo
@@ -212,17 +243,29 @@
 				P.Extinguish(H)
 	H.update_fire()
 	..()
-	if(H.stat == DEAD)
-		return
 	if(H.reagents.get_reagent_amount("pure_plasma") < 5) //increasing chock_reduction by 20
 		H.reagents.add_reagent("pure_plasma", 5)
 
-/datum/species/plasmaman/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
-	if(R.id == "plasma" || R.id == "plasma_dust")
-		H.adjustBruteLoss(-0.25)
-		H.adjustFireLoss(-0.25)
-		H.adjust_alien_plasma(20)
-		H.reagents.remove_reagent(R.id, REAGENTS_METABOLISM)
-		return FALSE //Handling reagent removal on our own. Prevents plasma from dealing toxin damage to Plasmaman
+/datum/species/plasmaman/proc/on_fracture(mob/living/carbon/human/H)
+	SIGNAL_HANDLER
+	H.reagents.add_reagent("plasma_dust", 15)
 
+/datum/species/plasmaman/handle_reagents(mob/living/carbon/human/H, datum/reagent/R)
+	switch(R.id)
+		if("plasma")
+			H.heal_overall_damage(0.25, 0.25)
+			H.adjust_alien_plasma(20)
+			H.reagents.remove_reagent(R.id, REAGENTS_METABOLISM)
+			return FALSE //Handling reagent removal on our own. Prevents plasma from dealing toxin damage to Plasmaman
+		if("plasma_dust")
+			H.heal_overall_damage(0.25, 0.25)
+			H.adjust_alien_plasma(20)
+			if(prob(1))
+				var/list/fractured_organs = H.check_fractures()
+				shuffle(fractured_organs)
+				for(var/obj/item/organ/external/bodypart as anything in fractured_organs)
+					if(bodypart.mend_fracture())
+						break
+			H.reagents.remove_reagent(R.id, REAGENTS_METABOLISM)
+			return FALSE
 	return ..()

@@ -1,3 +1,6 @@
+#define AUTOTRAITOR_LOW_BOUND (5 MINUTES)
+#define AUTOTRAITOR_HIGH_BOUND (15 MINUTES)
+
 /**
  * This is a game mode which has a chance to spawn any minor antagonist.
  */
@@ -9,15 +12,12 @@
 	required_players = 10
 	required_enemies = 1
 	forbidden_antag_jobs = list(ROLE_VAMPIRE = list(JOB_TITLE_CHAPLAIN))
-	var/list/protected_jobs_AI = list(JOB_TITLE_CIVILIAN, JOB_TITLE_CHIEF, JOB_TITLE_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE, JOB_TITLE_ATMOSTECH, JOB_TITLE_MECHANIC, JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_INTERN, JOB_TITLE_CORONER, JOB_TITLE_CHEMIST, JOB_TITLE_GENETICIST, JOB_TITLE_VIROLOGIST, JOB_TITLE_PSYCHIATRIST, JOB_TITLE_PARAMEDIC, JOB_TITLE_RD, JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENTIST_STUDENT, JOB_TITLE_ROBOTICIST, JOB_TITLE_HOP, JOB_TITLE_CHAPLAIN, JOB_TITLE_BARTENDER, JOB_TITLE_CHEF, JOB_TITLE_BOTANIST, JOB_TITLE_QUARTERMASTER, JOB_TITLE_CARGOTECH, JOB_TITLE_MINER, JOB_TITLE_CLOWN, JOB_TITLE_MIME, JOB_TITLE_JANITOR, JOB_TITLE_LIBRARIAN, JOB_TITLE_BARBER, JOB_TITLE_EXPLORER)	// Basically all jobs, except AI.
+	var/list/protected_jobs_AI = list(JOB_TITLE_CIVILIAN, JOB_TITLE_CHIEF, JOB_TITLE_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE, JOB_TITLE_ATMOSTECH, JOB_TITLE_MECHANIC, JOB_TITLE_CMO, JOB_TITLE_DOCTOR, JOB_TITLE_INTERN, JOB_TITLE_CORONER, JOB_TITLE_CHEMIST, JOB_TITLE_GENETICIST, JOB_TITLE_VIROLOGIST, JOB_TITLE_PSYCHIATRIST, JOB_TITLE_PARAMEDIC, JOB_TITLE_RD, JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENTIST_STUDENT, JOB_TITLE_ROBOTICIST, JOB_TITLE_HOP, JOB_TITLE_CHAPLAIN, JOB_TITLE_BARTENDER, JOB_TITLE_CHEF, JOB_TITLE_BOTANIST, JOB_TITLE_QUARTERMASTER, JOB_TITLE_CARGOTECH, JOB_TITLE_MINER, JOB_TITLE_MINING_MEDIC, JOB_TITLE_CLOWN, JOB_TITLE_MIME, JOB_TITLE_JANITOR, JOB_TITLE_LIBRARIAN, JOB_TITLE_EXPLORER)	// Basically all jobs, except AI.
 	var/secondary_protected_species = list(SPECIES_MACNINEPERSON)
 	var/vampire_restricted_jobs = list(JOB_TITLE_CHAPLAIN)
 	/// Chosen antags if any. Key - mind, value - antag type
 	var/list/datum/mind/pre_antags = list()
 	var/list/datum/mind/pre_double_antags = list()
-
-	var/antag_making_cooldown = 5 MINUTES
-	var/next_antag_making_time = 0
 
 	var/list/antag_required_players = list(
 		ROLE_TRAITOR = 10,
@@ -26,31 +26,37 @@
 		ROLE_CHANGELING = 15,
 		ROLE_HIJACKER = 40,
 		ROLE_MALF_AI = 40,
+		ROLE_DEVIL = 40,
 		ROLE_NINJA = 40,
 	)
 	/// Antag weights for main antags
 	var/list/antags_weights
 	/// Chosen speciaal antag type.
 	var/special_antag_type = ROLE_NONE
+	/// Timestamp for autotraitor
+	COOLDOWN_DECLARE(antag_making_cooldown)
 
 
 /datum/game_mode/antag_paradise/announce()
 	to_chat(world, "<b>The current game mode is - Antag Paradise</b>")
 	to_chat(world, "<b>Traitors, thieves, vampires and changelings, oh my! Stay safe as these forces work to bring down the station.</b>")
 
+
 /datum/game_mode/antag_paradise/process()
-	if(SSshuttle.emergency.mode >= SHUTTLE_ESCAPE)
+	if(EMERGENCY_ESCAPED_OR_ENDGAMED)
 		return PROCESS_KILL
 
-	if(world.time < next_antag_making_time)
-		return FALSE
+	if(!COOLDOWN_STARTED(src, antag_making_cooldown) || !COOLDOWN_FINISHED(src, antag_making_cooldown))
+		return
 
-	next_antag_making_time = world.time + antag_making_cooldown
+	COOLDOWN_START(src, antag_making_cooldown, rand(AUTOTRAITOR_LOW_BOUND, AUTOTRAITOR_HIGH_BOUND))
 	var/list/antag_possibilities = list()
 	antag_possibilities[ROLE_VAMPIRE] = get_alive_players_for_role(ROLE_VAMPIRE)
 	antag_possibilities[ROLE_CHANGELING] = get_alive_players_for_role(ROLE_CHANGELING)
 	antag_possibilities[ROLE_TRAITOR] =	get_alive_players_for_role(ROLE_TRAITOR)
 	antag_possibilities[ROLE_THIEF] = get_alive_players_for_role(ROLE_THIEF, list(SPECIES_VOX = 4))
+	antag_possibilities[ROLE_MALF_AI] = get_alive_AIs_for_role(ROLE_MALF_AI)
+	antag_possibilities[ROLE_DEVIL] = get_alive_players_for_role(ROLE_DEVIL)
 	roll_antagonists(antag_possibilities)
 	initiate_antags()
 
@@ -60,20 +66,22 @@
 	pre_double_antags = list()
 
 	var/players = roundstart ? num_players() : num_station_players()
-	var/scale = CONFIG_GET(number/traitor_scaling) ? CONFIG_GET(number/traitor_scaling) : 10
+	var/scale = /*CONFIG_GET(number/traitor_scaling) ? CONFIG_GET(number/traitor_scaling) :*/ 10
 	var/antags_amount
 	var/special_antag_amount
 
 	antags_amount = 1 + round(players / scale)
-	//Special antag spawning not on roundstart is currently disabled for testing purposes.
-	special_antag_amount = roundstart ? 1 + round(players / 50) : 0
+	special_antag_amount = roundstart ? 1 + round(players / 50) : round(players / 50)
 
 	antags_amount = antags_amount - length(GLOB.antagonists)
 	if(antags_amount <= 0)
 		return
 
-	if(special_antag_type == ROLE_NINJA && !roundstart)
-		special_antag_type = pick(ROLE_HIJACKER, ROLE_THIEF, ROLE_MALF_AI)
+	if(!roundstart)
+		if(length(antag_possibilities[ROLE_MALF_AI]))
+			special_antag_type = pick(ROLE_HIJACKER, ROLE_THIEF, ROLE_MALF_AI)
+		else
+			special_antag_type = pick(ROLE_HIJACKER, ROLE_THIEF)
 
 	switch(special_antag_type)
 		if(ROLE_HIJACKER)
@@ -97,13 +105,22 @@
 
 		if(ROLE_MALF_AI)
 			if(special_antag_amount)
-				var/datum/mind/special_antag = roundstart ? safepick(get_players_for_role(ROLE_MALF_AI, req_job_rank = JOB_TITLE_AI)) : safepick(get_alive_players_for_role(ROLE_MALF_AI, req_job_rank = JOB_TITLE_AI))
+				var/datum/mind/special_antag = safepick(antag_possibilities[ROLE_MALF_AI])
 				if(special_antag)
 					special_antag.restricted_roles = (restricted_jobs|protected_jobs|protected_jobs_AI)
 					special_antag.restricted_roles -= JOB_TITLE_AI
-					special_antag.special_role = SPECIAL_ROLE_TRAITOR
+					special_antag.special_role = SPECIAL_ROLE_MALFAI
 					SSjobs.new_malf = special_antag.current
 					pre_antags[special_antag] = ROLE_MALF_AI
+					antags_amount--
+
+		if(ROLE_DEVIL)
+			if(special_antag_amount)
+				var/datum/mind/special_antag = safepick(get_players_for_role(ROLE_DEVIL))
+				if(special_antag)
+					special_antag.restricted_roles = restricted_jobs
+					special_antag.special_role = SPECIAL_ROLE_DEVIL
+					pre_antags[special_antag] = ROLE_DEVIL
 					antags_amount--
 
 		if(ROLE_NINJA)
@@ -199,6 +216,7 @@
 				pre_double_antags[antag] = ROLE_CHANGELING
 				break
 
+
 /datum/game_mode/antag_paradise/pre_setup()
 	if(CONFIG_GET(flag/protect_roles_from_antagonist))
 		restricted_jobs += protected_jobs
@@ -208,10 +226,13 @@
 	antag_possibilities[ROLE_CHANGELING] = get_players_for_role(ROLE_CHANGELING)
 	antag_possibilities[ROLE_TRAITOR] =	get_players_for_role(ROLE_TRAITOR)
 	antag_possibilities[ROLE_THIEF] = get_players_for_role(ROLE_THIEF, list(SPECIES_VOX = 4))
+	antag_possibilities[ROLE_MALF_AI] = get_players_for_role(ROLE_MALF_AI)
+	antag_possibilities[ROLE_DEVIL] =	get_players_for_role(ROLE_DEVIL)
 
 	calculate_antags()
 
-	return roll_antagonists(antag_possibilities, TRUE)
+	return roll_antagonists(antag_possibilities, roundstart = TRUE)
+
 
 /datum/game_mode/antag_paradise/proc/calculate_antags()
 	var/players = num_players()
@@ -285,20 +306,26 @@
 		if(pre_antags[antag] == ROLE_NINJA)
 			var/datum/antagonist/ninja/ninja_datum = new
 			ninja_datum.antag_paradise_mode_chosen = TRUE
+			ninja_datum.change_species(antag.current)
 			antag.add_antag_datum(ninja_datum)
 
-	addtimer(CALLBACK(src, PROC_REF(initiate_antags)), rand(1 SECONDS, 10 SECONDS))
-	next_antag_making_time = world.time + antag_making_cooldown
+	addtimer(CALLBACK(src, PROC_REF(initiate_antags), TRUE), rand(1 SECONDS, 10 SECONDS))
+	COOLDOWN_START(src, antag_making_cooldown, AUTOTRAITOR_LOW_BOUND)	// first auto-traitor tick checks all players in 5 minutes
 	..()
 
 
-/datum/game_mode/antag_paradise/proc/initiate_antags()
+/datum/game_mode/antag_paradise/proc/initiate_antags(roundstart = FALSE)
 	for(var/datum/mind/antag as anything in pre_antags)
 		switch(pre_antags[antag])
 			if(ROLE_HIJACKER)
 				var/datum/antagonist/traitor/hijacker_datum = new
 				hijacker_datum.is_hijacker = TRUE
+				hijacker_datum.contractor_pending = roundstart? new(antag) : null
 				antag.add_antag_datum(hijacker_datum)
+
+			if(ROLE_DEVIL)
+				var/datum/antagonist/devil/divil_datum = new
+				antag.add_antag_datum(divil_datum)
 
 			if(ROLE_MALF_AI)
 				if(isAI(antag.current))
@@ -307,18 +334,21 @@
 					log_and_message_admins("[antag] was not assigned for AI role. Report this to coders.")
 
 			if(ROLE_VAMPIRE)
-				antag.add_antag_datum(/datum/antagonist/vampire)
+				antag.add_antag_datum(/datum/antagonist/vampire/new_vampire)
 			if(ROLE_CHANGELING)
 				antag.add_antag_datum(/datum/antagonist/changeling)
 			if(ROLE_TRAITOR)
-				antag.add_antag_datum(/datum/antagonist/traitor)
+				var/datum/antagonist/traitor/datum = new
+				if(roundstart)
+					datum.contractor_pending = new(antag)
+				antag.add_antag_datum(datum)
 			if(ROLE_THIEF)
 				antag.add_antag_datum(/datum/antagonist/thief)
 
 	for(var/datum/mind/antag as anything in pre_double_antags)
 		switch(pre_double_antags[antag])
 			if(ROLE_VAMPIRE)
-				antag.add_antag_datum(/datum/antagonist/vampire)
+				antag.add_antag_datum(/datum/antagonist/vampire/new_vampire)
 			if(ROLE_CHANGELING)
 				antag.add_antag_datum(/datum/antagonist/changeling)
 
@@ -342,8 +372,15 @@
 			if("nothing")
 				new_list += ROLE_NONE
 				new_list[ROLE_NONE] = check_list[index]
+			if("devil")
+				new_list += ROLE_DEVIL
+				new_list[ROLE_DEVIL] = check_list[index]
 			else
 				new_list += index
 				new_list[index] = check_list[index]
 	return new_list
+
+
+#undef AUTOTRAITOR_LOW_BOUND
+#undef AUTOTRAITOR_HIGH_BOUND
 

@@ -133,9 +133,9 @@ if(!result || result.ckey != __ckey){\
 	var/list/dat = list()
 	dat += "<head><meta http-equiv='X-UA-Compatible' content='IE=edge'><style>.adminticket{border:2px solid} td{border:1px solid grey;} th{border:1px solid grey;} span{float:left;width:150px;}</style></head>"
 	dat += "<div style='min-height:100px'>"
-	dat += "<span>Time Search Range:</span> <a href='?src=[UID()];start_time=1'>[gameTimestamp(wtime = time_from)]</a>"
-	dat += " To: <a href='?src=[UID()];end_time=1'>[gameTimestamp(wtime = time_to)]</a>"
-	dat += "<BR>"
+	dat += "<span>Time Search Range:</span> <a href='byond://?src=[UID()];start_time=1'>[gameTimestamp(wtime = time_from)]</a>"
+	dat += " To: <a href='byond://?src=[UID()];end_time=1'>[gameTimestamp(wtime = time_to)]</a>"
+	dat += "<br>"
 
 	dat += "<span>Mobs being used:</span>"
 	for(var/i in selected_mobs)
@@ -143,17 +143,17 @@ if(!result || result.ckey != __ckey){\
 		if(QDELETED(M))
 			selected_mobs -= i
 			continue
-		dat += "<a href='?src=[UID()];remove_mob=\ref[M]'>[get_display_name(M)]</a>"
-	dat += "<a href='?src=[UID()];add_mob=1'>Add Mob</a>"
-	dat += "<a href='?src=[UID()];clear_mobs=1'>Clear All Mobs</a>"
-	dat += "<BR>"
+		dat += "<a href='byond://?src=[UID()];remove_mob=\ref[M]'>[get_display_name(M)]</a>"
+	dat += "<a href='byond://?src=[UID()];add_mob=1'>Add Mob</a>"
+	dat += "<a href='byond://?src=[UID()];clear_mobs=1'>Clear All Mobs</a>"
+	dat += "<br>"
 
 	dat += "<span>Ckeys being used:</span>"
 	for(var/ckey in selected_ckeys)
-		dat += "<a href='?src=[UID()];remove_ckey=[ckey]'>[get_ckey_name(ckey)]</a>"
-	dat += "<a href='?src=[UID()];add_ckey=1'>Add ckey</a>"
-	dat += "<a href='?src=[UID()];clear_ckeys=1'>Clear All ckeys</a>"
-	dat += "<BR>"
+		dat += "<a href='byond://?src=[UID()];remove_ckey=[ckey]'>[get_ckey_name(ckey)]</a>"
+	dat += "<a href='byond://?src=[UID()];add_ckey=1'>Add ckey</a>"
+	dat += "<a href='byond://?src=[UID()];clear_ckeys=1'>Clear All ckeys</a>"
+	dat += "<br>"
 
 	dat += "<span>Log Types:</span>"
 	for(var/log_type in all_log_types)
@@ -166,11 +166,11 @@ if(!result || result.ckey != __ckey){\
 		else
 			text = log_type
 
-		dat += "<a href='?src=[UID()];toggle_log_type=[log_type]' style='[style]'>[text]</a>"
+		dat += "<a href='byond://?src=[UID()];toggle_log_type=[log_type]' style='[style]'>[text]</a>"
 
-	dat += "<BR>"
-	dat += "<a href='?src=[UID()];clear_all=1'>Clear All Settings</a>"
-	dat += "<a href='?src=[UID()];search=1'>Search</a>"
+	dat += "<br>"
+	dat += "<a href='byond://?src=[UID()];clear_all=1'>Clear All Settings</a>"
+	dat += "<a href='byond://?src=[UID()];search=1'>Search</a>"
 	dat += "</div>"
 
 	// Search results
@@ -197,8 +197,8 @@ if(!result || result.ckey != __ckey){\
 
 /datum/log_viewer/Topic(href, href_list)
 	if(href_list["start_time"])
-		var/input = input(usr, "hh:mm:ss", "Start time", "00:00:00") as text|null
-		if(!input)
+		var/input = tgui_input_text(usr, "hh:mm:ss", "Start time", "00:00:00")
+		if(isnull(input))
 			return
 		var/res = timeStampToNum(input)
 		if(res < 0)
@@ -208,8 +208,8 @@ if(!result || result.ckey != __ckey){\
 		show_ui(usr)
 		return
 	if(href_list["end_time"])
-		var/input = input(usr, "hh:mm:ss", "End time", "04:00:00") as text|null
-		if(!input)
+		var/input = tgui_input_text(usr, "hh:mm:ss", "End time", "04:00:00")
+		if(isnull(input))
 			return
 		var/res = timeStampToNum(input)
 		if(res < 0)
@@ -251,13 +251,13 @@ if(!result || result.ckey != __ckey){\
 		return
 	if(href_list["add_mob"])
 		var/list/mobs = getpois(TRUE, TRUE)
-		var/datum/async_input/A = input_autocomplete_async(usr, "Please, select a mob: ", mobs)
-		A.on_close(CALLBACK(src, PROC_REF(add_mob), usr))
+		var/mob_choice = tgui_input_list(usr, "Please, select a mob: ", "Mob selector", mobs)
+		add_mob(usr, mobs[mob_choice])
 		return
 	if(href_list["add_ckey"])
 		var/list/ckeys = GLOB.logging.get_ckeys_logged()
-		var/datum/async_input/A = input_autocomplete_async(usr, "Please, select a ckey: ", ckeys)
-		A.on_close(CALLBACK(src, PROC_REF(add_ckey), usr))
+		var/ckey_choice = tgui_input_list(usr, "Please, select a ckey: ", "Ckey selector", ckeys)
+		add_ckey(usr, ckey_choice)
 		return
 	if(href_list["remove_mob"])
 		var/mob/M = locate(href_list["remove_mob"])

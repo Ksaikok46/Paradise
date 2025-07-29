@@ -2,7 +2,15 @@
 //Limited use.
 /obj/item/gripper
 	name = "magnetic gripper"
-	desc = "A simple grasping tool for synthetic assets."
+	ru_names = list(
+		NOMINATIVE = "магнитный захват",
+		GENITIVE = "магнитного захвата",
+		DATIVE = "магнитному захвату",
+		ACCUSATIVE = "магнитный захват",
+		INSTRUMENTAL = "магнитным захватом",
+		PREPOSITIONAL = "магнитном захвате"
+	)
+	desc = "Простой захватывающий инструмент для синтетических материалов."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "gripper"
 
@@ -41,7 +49,15 @@
 
 /obj/item/gripper/medical
 	name = "medical gripper"
-	desc = "A grasping tool used to hold organs and help patients up once surgery is complete."
+	ru_names = list(
+		NOMINATIVE = "медицинский захват",
+		GENITIVE = "медицинского захвата",
+		DATIVE = "медицинскому захвату",
+		ACCUSATIVE = "медицинский захват",
+		INSTRUMENTAL = "медицинским захватом",
+		PREPOSITIONAL = "медицинском захвате"
+	)
+	desc = "Захватывающий инструмент, используемый для удержания органов и помощи пациентам после завершения операции."
 	can_hold = list(/obj/item/organ,
 					/obj/item/reagent_containers/iv_bag,
 					/obj/item/robot_parts/head,
@@ -65,10 +81,10 @@
 			H.AdjustWeakened(-6 SECONDS)
 			if(!H.IsSleeping())
 				H.set_resting(FALSE, instant = TRUE)
-			playsound(user.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
+			playsound(user.loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 			user.visible_message( \
-				span_notice("[user] shakes [H] trying to wake [H.p_them()] up!"),\
-				span_notice("You shake [H] trying to wake [H.p_them()] up!"),\
+				span_notice("[user] тряс[pluralize_ru(user.gender,"ет","ут")] [H] пытаясь поднять [genderize_ru(H.gender,"его","её","его","их")]!"),\
+				span_notice("Вы трясёте [H] пытаясь поднять [genderize_ru(H.gender,"его","её","его","их")]!"),\
 				)
 			user.changeNext_move(CLICK_CD_MELEE)
 		return
@@ -79,7 +95,15 @@
 
 /obj/item/gripper/service
 	name = "Card gripper"
-	desc = "A grasping tool used to take IDs for paying taxes and waking up drunken crewmates"
+	ru_names = list(
+		NOMINATIVE = "карточный захват",
+		GENITIVE = "карточного захвата",
+		DATIVE = "карточному захвату",
+		ACCUSATIVE = "карточный захват",
+		INSTRUMENTAL = "карточным захватом",
+		PREPOSITIONAL = "карточном захвате"
+	)
+	desc = "Захватывающий инструмент, используемый для изъятия ID-карт, для уплаты налогов, и пробуждения пьяных членов экипажа."
 	can_hold = list(/obj/item/card,
 					/obj/item/camera_film,
 					/obj/item/paper,
@@ -91,11 +115,19 @@
 
 /obj/item/gripper/service/melee_attack_chain(mob/living/user, atom/target, params)
 	try_shake_up(user, target)
-	..()
+	. = ..()
 
 /obj/item/gripper/cogscarab
 	name = "ancient gripper"
-	desc = "A brass grasping tool for supporting workmates."
+	ru_names = list(
+		NOMINATIVE = "древний захват",
+		GENITIVE = "древнего захвата",
+		DATIVE = "древнему захвату",
+		ACCUSATIVE = "древний захват",
+		INSTRUMENTAL = "древним захватом",
+		PREPOSITIONAL = "древнем захвате"
+	)
+	desc = "Латунный захватывающий инструмент для поддержки коллег."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "clock_gripper"
 
@@ -109,9 +141,73 @@
 	)
 	..()
 
+/obj/item/gripper/universal
+	name = "Universal gripper"
+	ru_names = list(
+		NOMINATIVE = "универсальный захват",
+		GENITIVE = "универсального захвата",
+		DATIVE = "универсальному захвату",
+		ACCUSATIVE = "универсальный захват",
+		INSTRUMENTAL = "универсальным захватом",
+		PREPOSITIONAL = "универсальном захвате"
+	)
+	desc = "Универсальный захватывающий инструмент, используемый для выполнения сверх секретных заданий клана паука."
+	icon_state = "diskgripper"
+	can_hold = list(/obj/item/firealarm_electronics,
+		/obj/item/airalarm_electronics,
+		/obj/item/airlock_electronics,
+		/obj/item/firelock_electronics,
+		/obj/item/intercom_electronics,
+		/obj/item/apc_electronics,
+		/obj/item/access_control,
+		/obj/item/tracker_electronics,
+		/obj/item/stock_parts,
+		/obj/item/vending_refill,
+		/obj/item/mounted/frame/light_fixture,
+		/obj/item/mounted/frame/apc_frame,
+		/obj/item/mounted/frame/alarm_frame,
+		/obj/item/mounted/frame/firealarm,
+		/obj/item/mounted/frame/newscaster_frame,
+		/obj/item/mounted/frame/intercom,
+		/obj/item/mounted/frame/extinguisher,
+		/obj/item/mounted/frame/light_switch,
+		/obj/item/mounted/frame/door_control,
+		/obj/item/assembly/control,
+		/obj/item/rack_parts,
+		/obj/item/camera_assembly,
+		/obj/item/tank,
+		/obj/item/circuitboard,
+		/obj/item/stack/tile/light,
+		/obj/item/stack/ore/bluespace_crystal,
+		/obj/item/organ,
+		/obj/item/reagent_containers/iv_bag,
+		/obj/item/robot_parts/head,
+		/obj/item/robot_parts/l_arm,
+		/obj/item/robot_parts/r_arm,
+		/obj/item/robot_parts/l_leg,
+		/obj/item/robot_parts/r_leg,
+		/obj/item/robot_parts/chest,
+		/obj/item/stack/sheet/mineral/plasma,
+		/obj/item/card,
+		/obj/item/camera_film,
+		/obj/item/paper,
+		/obj/item/photo,
+		/obj/item/toy/plushie,
+		/obj/item/reagent_containers/food,
+		/obj/item/seeds,
+		/obj/item/disk/plantgene)
+
 /obj/item/gripper/nuclear
 	name = "Nuclear gripper"
-	desc = "Designed for all your nuclear needs."
+	ru_names = list(
+		NOMINATIVE = "ядерный захват",
+		GENITIVE = "ядерного захвата",
+		DATIVE = "ядерному захвату",
+		ACCUSATIVE = "ядерный захват",
+		INSTRUMENTAL = "ядерным захватом",
+		PREPOSITIONAL = "ядерном захвате"
+	)
+	desc = "Создан для всех ваших ядерных нужд."
 	icon_state = "diskgripper"
 	can_hold = list(/obj/item/disk/nuclear)
 
@@ -120,9 +216,9 @@
 	can_hold = typecacheof(can_hold)
 
 /obj/item/gripper/verb/drop_item_gripped()
-	set name = "Drop Gripped Item"
+	set name = "Выкинуть предмет"
 	set desc = "Release an item from your magnetic gripper."
-	set category = "Drone"
+	set category = STATPANEL_DRONE
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
 	drop_gripped_item()
@@ -131,13 +227,13 @@
 	if(gripped_item)
 		gripped_item.attack_self(user)
 	else
-		to_chat(user, "<span class='warning'>[src] is empty.</span>")
+		balloon_alert(user, "клешня пуста!")
 
 /obj/item/gripper/tool_act(mob/living/user, obj/item/tool, tool_type)
 	if(!gripped_item)
-		return
-	gripped_item.tool_act(user, tool, tool_type)
-	if (QDELETED(gripped_item)) // if item was dissasembled we need to clear the pointer
+		return FALSE
+	. = gripped_item.tool_act(user, tool, tool_type)
+	if(QDELETED(gripped_item)) // if item was dissasembled we need to clear the pointer
 		drop_gripped_item(TRUE) // silent = TRUE to prevent "You drop X" message from appearing without actually dropping anything
 
 /obj/item/gripper/Click(location,control,params)
@@ -152,23 +248,27 @@
 		return
 	gripped_item ? usr.DblClickOn(gripped_item, params) : usr.ClickOn(src, params)
 
+
 /obj/item/gripper/attackby(obj/item/weapon, mob/user, params)
 	if(!gripped_item)
-		return
-	gripped_item.attackby(weapon, user, params)
-	if (QDELETED(gripped_item)) // if item was dissasembled we need to clear the pointer
+		return ATTACK_CHAIN_PROCEED
+	. = gripped_item.attackby(weapon, user, params)
+	if(QDELETED(gripped_item)) // if item was dissasembled we need to clear the pointer
 		drop_gripped_item(TRUE) // silent = TRUE to prevent "You drop X" message from appearing without actually dropping anything
+
 
 /obj/item/gripper/proc/drop_gripped_item(silent = FALSE)
 	if(!gripped_item)
 		return
 	if(!silent)
-		to_chat(loc, "<span class='warning'>You drop [gripped_item].</span>")
+		balloon_alert(loc, "предмет выброшен")
 	gripped_item.forceMove(get_turf(src))
 	gripped_item = null
 
-/obj/item/gripper/attack(mob/living/carbon/M, mob/living/carbon/user)
-	return
+
+/obj/item/gripper/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+	return ATTACK_CHAIN_PROCEED
+
 
 /// Grippers are snowflakey so this is needed to to prevent forceMoving grippers after `if(!user.drop_from_active_hand())` checks done in certain attackby's.
 /obj/item/gripper/forceMove(atom/destination)
@@ -177,46 +277,46 @@
 /obj/item/gripper/proc/isEmpty()
 	return isnull(gripped_item)
 
-/obj/item/gripper/melee_attack_chain(mob/user, atom/target, params)
-	if(!target) //Target is invalid
-		return FALSE
+
+/obj/item/gripper/melee_attack_chain(mob/user, atom/target, params)	// this shit requires massive refactoring
+	. = ATTACK_CHAIN_PROCEED
 
 	if(gripped_item) //Already have an item.
-
 		//Pass the attack on to the target. This might delete/relocate gripped_item.
-		if(!target.attackby(gripped_item, user, params))
+		. |= target.attackby(gripped_item, user, params)
+		if((. & ATTACK_CHAIN_NO_AFTERATTACK) || QDELETED(src) || QDELETED(gripped_item) || QDELETED(target) || QDELETED(user))
 			// If the attackby didn't resolve or delete the target or gripped_item, afterattack
 			// (Certain things, such as mountable frames, rely on afterattack)
-			gripped_item?.afterattack(target, user, 1, params)
+			gripped_item.afterattack(target, user, TRUE, params)
 
 		//If gripped_item either didn't get deleted, or it failed to be transfered to its target
 		if(!gripped_item && contents.len)
 			gripped_item = contents[1]
-			return FALSE
 		else if(gripped_item && !contents.len)
 			gripped_item = null
 
 	else if(isitem(target)) //Check that we're not pocketing a mob.
 		var/obj/item/I = target
-		if(is_type_in_typecache(I, can_hold) && Adjacent(user, I)) // Make sure the item is something the gripper can hold
-			to_chat(user, span_notice("You collect [I]."))
+		if(is_type_in_typecache(I, can_hold)) // Make sure the item is something the gripper can hold
+			. |= ATTACK_CHAIN_SUCCESS
+			balloon_alert(user, "подобрано")
 			I.forceMove(src)
 			gripped_item = I
 			I.update_icon(UPDATE_OVERLAYS) //Some items change their appearance upon being pulled (IV drip as an example)
 			update_icon(UPDATE_OVERLAYS)
-			RegisterSignal(I, list(COMSIG_MOVABLE_MOVED, COMSIG_PARENT_QDELETING), PROC_REF(handle_item_moving))
+			RegisterSignal(I, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING), PROC_REF(handle_item_moving))
 			RegisterSignal(I, list(COMSIG_ATOM_UPDATED_ICON), PROC_REF(handle_item_icon_update))
 		else
-			to_chat(user, span_warning("Your gripper cannot hold [target]."))
-			return FALSE
+			balloon_alert(user, "невозможно взять!")
+
 	else //We are empty and trying to attack something else
 		target.attack_hand(user)
+		. |= ATTACK_CHAIN_SUCCESS
 
-	return TRUE
 
 /obj/item/gripper/proc/handle_item_moving()
 	SIGNAL_HANDLER
-	UnregisterSignal(gripped_item, list(COMSIG_MOVABLE_MOVED, COMSIG_PARENT_QDELETING, COMSIG_ATOM_UPDATED_ICON))
+	UnregisterSignal(gripped_item, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING, COMSIG_ATOM_UPDATED_ICON))
 	gripped_item.update_icon(UPDATE_OVERLAYS)
 	gripped_item = null
 	update_icon(UPDATE_OVERLAYS)
@@ -239,7 +339,15 @@
 /obj/item/matter_decompiler
 
 	name = "matter decompiler"
-	desc = "Eating trash, bits of glass, or other debris will replenish your stores."
+	ru_names = list(
+		NOMINATIVE = "декомпилятор материи",
+		GENITIVE = "декомпилятора материи",
+		DATIVE = "декомпилятору материи",
+		ACCUSATIVE = "декомпилятор материи",
+		INSTRUMENTAL = "декомпилятором материи",
+		PREPOSITIONAL = "декомпиляторе материи"
+	)
+	desc = "Поедание мусора, осколков стекла или другого мусора пополнит ваши запасы."
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "minigibber"
 
@@ -250,8 +358,10 @@
 		"wood" = 0
 		)
 
-/obj/item/matter_decompiler/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
-	return
+
+/obj/item/matter_decompiler/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+	return ATTACK_CHAIN_PROCEED
+
 
 /obj/item/matter_decompiler/afterattack(atom/target, mob/living/user, proximity, params)
 	if(!proximity) return //Not adjacent.
@@ -269,47 +379,47 @@
 			grabbed_something = TRUE
 
 	if(grabbed_something)
-		to_chat(user, "<span class='notice'>You deploy your decompiler and clear out the contents of \the [T].</span>")
+		to_chat(user, span_notice("Вы разворачиваете декомпилятор и забираете предметы с [T.declent_ru(GENITIVE)]."))
 	else
-		to_chat(user, "<span class='warning'>Nothing on \the [T] is useful to you.</span>")
+		to_chat(user, span_warning("На [T.declent_ru(PREPOSITIONAL)] ничего полезного для вас нет."))
 	return
 
 //PRETTIER TOOL LIST.
 /mob/living/silicon/robot/drone/installed_modules()
 
 	if(weapon_lock)
-		to_chat(src, "<span class='warning'>Weapon lock active, unable to use modules! Count:[weaponlock_time]</span>")
+		to_chat(src, span_warning("Активна блокировка оружия, невозможно использовать модули! Счётчик: [weaponlock_time]"))
 		return
 
 	if(!module)
 		module = new /obj/item/robot_module/drone(src)
 
-	var/dat = {"<meta charset="UTF-8"><HEAD><TITLE>Drone modules</TITLE><META HTTP-EQUIV='Refresh' CONTENT='10'></HEAD><BODY>\n"}
-	dat += {"<A HREF='?src=[UID()];mach_close=robotmod'>Close</A>
-	<BR>
-	<BR>
-	<B>Activated Modules</B>
-	<BR>
-	Module 1: [module_state_1 ? "<A HREF=?src=[UID()];mod=\ref[module_state_1]>[module_state_1]<A>" : "No Module"]<BR>
-	Module 2: [module_state_2 ? "<A HREF=?src=[UID()];mod=\ref[module_state_2]>[module_state_2]<A>" : "No Module"]<BR>
-	Module 3: [module_state_3 ? "<A HREF=?src=[UID()];mod=\ref[module_state_3]>[module_state_3]<A>" : "No Module"]<BR>
-	<BR>
-	<B>Installed Modules</B><BR><BR>"}
+	var/dat = {"<meta charset="UTF-8"><head><title>Модули дрона</title><meta HTTP-EQUIV='Refresh' CONTENT='10'></head><body>\n"}
+	dat += {"<a href='byond://?src=[UID()];mach_close=robotmod'>Закрыть</a>
+	<br>
+	<br>
+	<b>Активированные модули</b>
+	<br>
+	Модуль 1: [module_state_1 ? "<a href=?src=[UID()];mod=\ref[module_state_1]>[module_state_1]<a>" : "Нет модуля"]<br>
+	Модуль 2: [module_state_2 ? "<a href=?src=[UID()];mod=\ref[module_state_2]>[module_state_2]<a>" : "Нет модуля"]<br>
+	Модуль 3: [module_state_3 ? "<a href=?src=[UID()];mod=\ref[module_state_3]>[module_state_3]<a>" : "Нет модуля"]<br>
+	<br>
+	<b>Установленные модули</b><br><br>"}
 
 
-	var/tools = "<B>Tools and devices</B><BR>"
-	var/resources = "<BR><B>Resources</B><BR>"
+	var/tools = "<b>Инструменты и устройства</b><br>"
+	var/resources = "<br><b>Рекурсы</b><br>"
 
 	for(var/O in module.modules)
 
 		var/module_string = ""
 
 		if(!O)
-			module_string += text("<B>Resource depleted</B><BR>")
+			module_string += text("<b>Ресурсы исчерпаны</b><br>")
 		else if(activated(O))
-			module_string += text("[O]: <B>Activated</B><BR>")
+			module_string += text("[O]: <b>Активирован</b><br>")
 		else
-			module_string += text("[O]: <A HREF=?src=[UID()];act=\ref[O]>Activate</A><BR>")
+			module_string += text("[O]: <a href=?src=[UID()];act=\ref[O]>Активировать</a><br>")
 
 		if(isitem(O) && !(istype(O,/obj/item/stack/cable_coil)))
 			tools += module_string
@@ -320,15 +430,18 @@
 
 	if(emagged)
 		if(!module.emag)
-			dat += text("<B>Resource depleted</B><BR>")
+			dat += text("<b>Ресурсы исчерпаны</b><br>")
 		else if(activated(module.emag))
-			dat += text("[module.emag]: <B>Activated</B><BR>")
+			dat += text("[module.emag]: <b>Активирован</b><br>")
 		else
-			dat += text("[module.emag]: <A HREF=?src=[UID()];act=\ref[module.emag]>Activate</A><BR>")
+			dat += text("[module.emag]: <a href=?src=[UID()];act=\ref[module.emag]>Активировать</a><br>")
 
 	dat += resources
 
-	src << browse(dat, "window=robotmod&can_close=0")
+	var/datum/browser/popup = new(src, "robotmod", "Drone modules")
+	popup.set_content(dat)
+	popup.set_window_options("can_close=0;")
+	popup.open(FALSE)
 
 //Putting the decompiler here to avoid doing list checks every tick.
 /mob/living/silicon/robot/drone/use_power()

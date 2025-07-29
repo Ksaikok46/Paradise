@@ -3,7 +3,7 @@
 	name = "telepad"
 	desc = "A bluespace telepad used for teleporting objects to and from a location."
 	icon = 'icons/obj/telescience.dmi'
-	icon_state = "pad-idle"
+	icon_state = "pad"
 	anchored = TRUE
 	use_power = IDLE_POWER_USE
 	idle_power_usage = 200
@@ -36,14 +36,20 @@
 		E += C.rating
 	efficiency = E
 
+
 /obj/machinery/telepad/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
 	if(exchange_parts(user, I))
-		return
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
 	return ..()
+
 
 /obj/machinery/telepad/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
-	default_deconstruction_screwdriver(user, "pad-idle-o", "pad-idle", I)
+	default_deconstruction_screwdriver(user, "pad-o", initial(icon_state), I)
 
 /obj/machinery/telepad/multitool_act(mob/user, obj/item/I)
 	if(!panel_open)
@@ -65,7 +71,7 @@
 	name = "cargo telepad"
 	desc = "A telepad used by the Rapid Crate Sender."
 	icon = 'icons/obj/telescience.dmi'
-	icon_state = "pad-idle"
+	icon_state = "pad"
 	anchored = TRUE
 	use_power = IDLE_POWER_USE
 	idle_power_usage = 20
@@ -82,7 +88,7 @@
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
-	to_chat(user, "<span class = 'caution'> You [stage ? "screw in" : "unscrew"] the telepad's tracking beacon.</span>")
+	to_chat(user, span_caution("Вы [stage ? "прикручиваете" : "откручиваете"] маячок отслеживания телепада."))
 	stage = !stage
 
 /obj/machinery/telepad_cargo/wrench_act(mob/user, obj/item/I)
@@ -108,8 +114,8 @@
 
 /obj/item/telepad_beacon/attack_self(mob/user as mob)
 	if(user)
-		to_chat(user, "<span class = 'caution'> Locked In</span>")
+		to_chat(user, span_caution("Фиксация завершена"))
 		new /obj/machinery/telepad_cargo(user.loc)
-		playsound(src, 'sound/effects/pop.ogg', 100, 1, 1)
+		playsound(src, 'sound/effects/pop.ogg', 100, TRUE, 1)
 		qdel(src)
 	return

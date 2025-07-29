@@ -145,7 +145,7 @@
 	desc = "This spell disables all weapons, cameras and most other technology in range."
 	base_cooldown = 40 SECONDS
 	cooldown_min = 20 SECONDS //50 deciseconds reduction per rank
-	clothes_req = TRUE
+	clothes_req = FALSE
 	invocation = "NEC CANTIO"
 	invocation_type = "shout"
 
@@ -362,10 +362,10 @@
 	invocation = "ONI SOMA"
 	invocation_type = "shout"
 
-	selection_activated_message		= "<span class='notice'>Your prepare to cast your fireball spell! <B>Left-click to cast at a target!</B></span>"
+	selection_activated_message		= "<span class='notice'>Your prepare to cast your fireball spell! <b>Left-click to cast at a target!</b></span>"
 	selection_deactivated_message	= "<span class='notice'>You extinguish your fireball...for now.</span>"
 
-	var/fireball_type = /obj/item/projectile/magic/fireball
+	var/fireball_type = /obj/projectile/magic/fireball
 	action_icon_state = "fireball0"
 	sound = 'sound/magic/fireball.ogg'
 
@@ -390,13 +390,14 @@
 	if(!isturf(U) || !isturf(T))
 		return FALSE
 
-	var/obj/item/projectile/magic/fireball/FB = new fireball_type(user.loc)
+	var/obj/projectile/magic/fireball/FB = new fireball_type(user.loc)
 	FB.current = get_turf(user)
 	FB.original = target
 	FB.firer = user
-	FB.preparePixelProjectile(target, get_turf(target), user, targeting.click_params)
+	var/turf/target_turf = get_turf(target)
+	FB.preparePixelProjectile(target, target_turf, user, targeting.click_params)
 	FB.fire()
-	user.newtonian_move(get_dir(U, T))
+	user.newtonian_move(get_dir(target_turf, T))
 
 	return TRUE
 
@@ -470,7 +471,7 @@
 /obj/effect/proc_holder/spell/sacred_flame/create_new_targeting()
 	var/datum/spell_targeting/aoe/T = new()
 	T.include_user = TRUE
-	T.range = 6
+	T.range = 7
 	T.allowed_type = /mob/living
 	return T
 
@@ -478,7 +479,11 @@
 /obj/effect/proc_holder/spell/sacred_flame/cast(list/targets, mob/user = usr)
 	for(var/mob/living/L in targets)
 		L.adjust_fire_stacks(20)
+		L.IgniteMob()
 	if(isliving(user))
+		if(!HAS_TRAIT(user, TRAIT_RESIST_HEAT))
+			ADD_TRAIT(user, TRAIT_RESIST_HEAT, MAGIC_TRAIT)
+			to_chat(user, span_notice("Ты стал огнестойким."))
 		var/mob/living/U = user
 		U.IgniteMob()
 

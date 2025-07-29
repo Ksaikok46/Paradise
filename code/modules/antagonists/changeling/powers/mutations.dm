@@ -37,10 +37,10 @@
 
 	var/obj/item/weapon = new weapon_type(user, silent, src)
 	user.put_in_hands(weapon)
-	playsound(user, "bonebreak", 150, 1)
 
 	RegisterSignal(user, COMSIG_MOB_KEY_DROP_ITEM_DOWN, PROC_REF(retract), override = TRUE)
 	RegisterSignal(user, COMSIG_MOB_WEAPON_APPEARS, PROC_REF(retract), override = TRUE)
+	playsound(owner.loc, 'sound/effects/bone_break_1.ogg', 100, TRUE)
 
 	return weapon
 
@@ -66,7 +66,7 @@
 	if(done)
 		. = COMPONENT_CANCEL_DROP
 		if(!silent)
-			playsound(user, "bonebreak", 150, TRUE)
+			playsound(owner.loc, 'sound/effects/bone_break_2.ogg', 100, TRUE)
 			user.visible_message(span_warning("With a sickening crunch, [user] reforms [user.p_their()] [weapon_name_simple] into an arm!"),
 								span_notice("We assimilate the [weapon_name_simple] back into our body."),
 								span_warning("You hear organic matter ripping and tearing!"))
@@ -94,6 +94,7 @@
 
 	if(istype(user.wear_suit, suit_type) || istype(user.head, helmet_type))
 		user.visible_message(span_warning("[user] casts off [user.p_their()] [suit_name_simple]!"), span_warning("We cast off our [suit_name_simple][genetic_damage > 0 ? ", temporarily weakening our genomes." : "."]"), span_warning("You hear the organic matter ripping and tearing!"))
+		playsound(owner.loc, 'sound/effects/bone_break_2.ogg', 100, TRUE)
 		qdel(user.wear_suit)
 		qdel(user.head)
 		user.update_inv_wear_suit()
@@ -160,7 +161,8 @@
 	force = 45
 	armour_penetration = -30
 	block_chance = 50
-	hitsound = 'sound/weapons/bladeslice.ogg'
+	block_type = MELEE_ATTACKS
+	hitsound = 'sound/weapons/armblade.ogg'
 	throwforce = 0 //Just to be on the safe side
 	throw_range = 0
 	throw_speed = 0
@@ -183,13 +185,7 @@
 	return ..()
 
 
-/obj/item/melee/arm_blade/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
-	if(attack_type == PROJECTILE_ATTACK)
-		final_block_chance = 0 //only blocks melee
-	return ..()
-
-
-/obj/item/melee/arm_blade/afterattack(atom/target, mob/user, proximity)
+/obj/item/melee/arm_blade/afterattack(atom/target, mob/user, proximity, params)
 	if(!proximity)
 		return
 
@@ -255,7 +251,7 @@
 	gender = MALE
 	ru_names = list(NOMINATIVE = "молот из плоти", GENITIVE = "молота из плоти", DATIVE = "молоту из плоти", ACCUSATIVE = "молот из плоти", INSTRUMENTAL = "молотом из плоти", PREPOSITIONAL = "молоте из плоти")
 
-/obj/item/melee/arm_blade/fleshy_maul/afterattack(atom/target, mob/living/user, proximity)
+/obj/item/melee/arm_blade/fleshy_maul/afterattack(atom/target, mob/living/user, proximity, params)
 	if(!proximity)
 		return
 
@@ -266,8 +262,9 @@
 
 	else if(iswallturf(target))
 		var/turf/simulated/wall/wall = target
-		wall.take_damage(30)
 		user.do_attack_animation(wall)
+		user.changeNext_move(attack_speed)
+		wall.take_damage(30)
 		playsound(src, 'sound/weapons/smash.ogg', 50, TRUE)
 
 	else if(isliving(target))
@@ -340,6 +337,7 @@
 			loc.visible_message(span_warning("[loc.name]\'s arm starts stretching inhumanly!"), \
 								span_warning("Our arm twists and mutates, transforming it into a tentacle."), \
 								span_italics("You hear organic matter ripping and tearing!"))
+			playsound(loc, 'sound/effects/bone_break_1.ogg', 100, TRUE)
 		else
 			to_chat(loc, span_notice("You prepare to extend a tentacle."))
 
@@ -349,6 +347,7 @@
 		parent_action.UnregisterSignal(parent_action.owner, COMSIG_MOB_KEY_DROP_ITEM_DOWN)
 		parent_action.UnregisterSignal(parent_action.owner, COMSIG_MOB_WEAPON_APPEARS)
 		parent_action = null
+		playsound(loc, 'sound/effects/bone_break_2.ogg', 100, TRUE)
 	return ..()
 
 
@@ -364,7 +363,7 @@
 /obj/item/ammo_casing/magic/tentacle
 	name = "tentacle"
 	desc = "a tentacle."
-	projectile_type = /obj/item/projectile/tentacle
+	projectile_type = /obj/projectile/tentacle
 	caliber = "tentacle"
 	icon_state = "tentacle_end"
 	muzzle_flash_effect = null
@@ -381,7 +380,7 @@
 	return ..()
 
 
-/obj/item/projectile/tentacle
+/obj/projectile/tentacle
 	name = "tentacle"
 	icon_state = "tentacle_end"
 	pass_flags = PASSTABLE
@@ -395,28 +394,28 @@
 	var/obj/item/ammo_casing/magic/tentacle/source //the item that shot it
 
 
-/obj/item/projectile/tentacle/New(obj/item/ammo_casing/magic/tentacle/tentacle_casing)
+/obj/projectile/tentacle/New(obj/item/ammo_casing/magic/tentacle/tentacle_casing)
 	source = tentacle_casing
 	..()
 
 
-/obj/item/projectile/tentacle/fire(setAngle)
+/obj/projectile/tentacle/fire(setAngle)
 	if(firer)
-		chain = firer.Beam(src, icon_state = "tentacle", time = INFINITY, maxdistance = INFINITY, beam_sleep_time = 1)
+		chain = firer.Beam(src, icon_state = "tentacle", time = INFINITY, maxdistance = INFINITY)
 		intent = firer.a_intent
 		if(intent == INTENT_DISARM)
 			armour_penetration = 100   //ignore block_chance
 	..()
 
 
-/obj/item/projectile/tentacle/proc/reset_throw(mob/living/carbon/human/user)
+/obj/projectile/tentacle/proc/reset_throw(mob/living/carbon/human/user)
 	if(QDELETED(user))
 		return
 	if(user.in_throw_mode)
 		user.throw_mode_off() //Don't annoy the changeling if he doesn't catch the item
 
 
-/obj/item/projectile/tentacle/proc/tentacle_disarm(obj/item/thrown_item, mob/living/carbon/user)
+/obj/projectile/tentacle/proc/tentacle_disarm(obj/item/thrown_item, mob/living/carbon/user)
 	reset_throw(user)
 
 	if(QDELETED(thrown_item) || QDELETED(user))
@@ -434,20 +433,19 @@
 	user.put_in_active_hand(thrown_item)
 
 
-/obj/item/projectile/tentacle/proc/tentacle_grab(mob/living/carbon/target, mob/living/carbon/user)
+/obj/projectile/tentacle/proc/tentacle_grab(mob/living/carbon/target, mob/living/carbon/user)
 	if(QDELETED(target) || QDELETED(user))
 		return
 
 	if(!user.Adjacent(target))
 		return
 
-	var/obj/item/grab/grab = target.grabbedby(user, TRUE)
-	if(istype(grab))
-		grab.state = GRAB_PASSIVE
+	if(target.grabbedby(user, supress_message = TRUE))
+		target.grippedby(user) //instant aggro grab
 		target.Weaken(4 SECONDS)
 
 
-/obj/item/projectile/tentacle/proc/tentacle_stab(mob/living/carbon/target, mob/living/carbon/user)
+/obj/projectile/tentacle/proc/tentacle_stab(mob/living/carbon/target, mob/living/carbon/user)
 	if(QDELETED(target) || QDELETED(user))
 		return
 
@@ -471,7 +469,7 @@
 	playsound(get_turf(user), offarm_item.hitsound, 75, TRUE)
 
 
-/obj/item/projectile/tentacle/on_hit(atom/target, blocked = 0)
+/obj/projectile/tentacle/on_hit(atom/target, blocked = 0)
 	qdel(source.gun) //one tentacle only unless you miss
 	if(blocked >= 100)
 		return FALSE
@@ -551,7 +549,7 @@
 				. = TRUE
 
 
-/obj/item/projectile/tentacle/Destroy()
+/obj/projectile/tentacle/Destroy()
 	qdel(chain)
 	source = null
 	return ..()
@@ -600,15 +598,17 @@
 		loc.visible_message(span_warning("The end of [loc.name]\'s hand inflates rapidly, forming a huge shield-like mass!"), \
 							span_warning("We inflate our hand into a strong shield."), \
 							span_italics("You hear organic matter ripping and tearing!"))
+		playsound(loc, 'sound/effects/bone_break_1.ogg', 100, TRUE)
 
 
-/obj/item/shield/changeling/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+/obj/item/shield/changeling/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(remaining_uses < 1)
 		if(ishuman(loc))
 			var/mob/living/carbon/human/user = loc
 			user.visible_message(span_warning("With a sickening crunch, [user] reforms [user.p_their()] shield into an arm!"), \
 								span_notice("We assimilate our shield into our body."), \
 								span_italics("You hear organic matter ripping and tearing!"))
+			playsound(loc, 'sound/effects/bone_break_2.ogg', 100, TRUE)
 			user.temporarily_remove_item_from_inventory(src, force = TRUE)
 		qdel(src)
 		return FALSE
@@ -745,6 +745,7 @@
 		loc.visible_message(span_warning("[loc.name]\'s flesh turns black, quickly transforming into a hard, chitinous mass!"), \
 							span_warning("We harden our flesh, creating a suit of armor!"), \
 							span_italics("You hear organic matter ripping and tearing!"))
+		playsound(loc, 'sound/effects/bone_break_1.ogg', 100, TRUE)
 
 
 /obj/item/clothing/head/helmet/changeling

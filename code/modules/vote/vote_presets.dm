@@ -1,7 +1,13 @@
+#define CREW_TRANSFER_CHOICE 	"Инициировать трансфер экипажа"
+#define CONTINUE_SHIFT_CHOICE 	"Продолжить смену"
+
 // Crew transfer vote
 /datum/vote/crew_transfer
-	question = "End the shift"
-	choices = list("Initiate Crew Transfer", "Continue The Round")
+	question = "Завершение смены"
+	choices = list(
+		CREW_TRANSFER_CHOICE,
+		CONTINUE_SHIFT_CHOICE
+	)
 	vote_type_text = "crew transfer"
 
 /datum/vote/crew_transfer/New()
@@ -10,7 +16,8 @@
 	..()
 
 /datum/vote/crew_transfer/handle_result(result)
-	if(result == "Initiate Crew Transfer")
+	if(result == CREW_TRANSFER_CHOICE)
+		SSvote.clear_transfer_votes()
 		init_shift_change(null, TRUE)
 
 // Map vote
@@ -25,15 +32,29 @@
 	no_dead_vote = FALSE
 
 /datum/vote/map/generate_choices()
-	for(var/datum/map/possible_map as anything in (subtypesof(/datum/map) - SSmapping.map_datum.type))
+	var/list/map_pool = subtypesof(/datum/map)
+	/*
+	if(CONFIG_GET(string/map_vote_mode) == "nodoubles")
+		map_pool -= SSmapping.map_datum.type
+
+	if(CONFIG_GET(string/map_vote_mode) == "notriples")
+		if(SSmapping.previous_maps && length(SSmapping.previous_maps))
+			var/current_map = SSmapping.map_datum.type
+			if(current_map == SSmapping.previous_maps[1])
+				map_pool -= current_map
+	*/
+	for(var/datum/map/possible_map as anything in map_pool)
 		if(initial(possible_map.admin_only))
 			continue
 		choices.Add("[initial(possible_map.station_name)] ([initial(possible_map.name)])")
 
 /datum/vote/map/announce()
 	..()
-	for(var/mob/M in GLOB.player_list)
-		M.throw_alert("Map Vote", /atom/movable/screen/alert/notify_mapvote, timeout_override = CONFIG_GET(number/vote_period))
+	for(var/mob/voter in GLOB.player_list)
+		voter.throw_alert("Map Vote", /atom/movable/screen/alert/notify_mapvote, timeout_override = CONFIG_GET(number/vote_period))
+		if(!voter.client?.prefs || voter.client?.prefs?.toggles2 & PREFTOGGLE_2_DISABLE_VOTE_POPUPS)
+			continue
+		voter.immediate_vote()
 
 /datum/vote/map/handle_result(result)
 	// Find target map.
@@ -72,3 +93,6 @@
 	if(!SSticker.ticker_going)
 		SSticker.ticker_going = TRUE
 		to_chat(world, "<font color='red'><b>The round will start soon.</b></font>")
+
+#undef CREW_TRANSFER_CHOICE
+#undef CONTINUE_SHIFT_CHOICE

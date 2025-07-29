@@ -9,6 +9,8 @@
 	layer = LIGHTING_LAYER
 	invisibility = INVISIBILITY_LIGHTING
 	simulated = FALSE
+	light_system = NO_LIGHT_SUPPORT
+	light_range = 0
 
 	var/turf/myturf
 
@@ -40,7 +42,6 @@ GLOBAL_LIST_EMPTY(default_lighting_underlays_by_z)
 		stack_trace("a lighting object was assigned to a turf that already had a lighting object!")
 
 	affected_turf.lighting_object = src
-	affected_turf.luminosity = 0
 
 	// This path is really hot. this is faster
 	// Really this should be a global var or something, but lets not think about that yes?
@@ -57,7 +58,6 @@ GLOBAL_LIST_EMPTY(default_lighting_underlays_by_z)
 	SSlighting.objects_queue -= src
 	if (isturf(affected_turf))
 		affected_turf.lighting_object = null
-		affected_turf.luminosity = 1
 	affected_turf = null
 	return ..()
 
@@ -107,8 +107,8 @@ GLOBAL_LIST_EMPTY(default_lighting_underlays_by_z)
 			alpha_corner.cache_r, alpha_corner.cache_g, alpha_corner.cache_b, 00,
 			00, 00, 00, 01
 		)
-
-	affected_turf.luminosity = set_luminosity
+		
+	SSdemo.mark_turf(affected_turf)
 
 
 // Variety of overrides so the overlays don't get affected by weird things.
@@ -133,13 +133,7 @@ GLOBAL_LIST_EMPTY(default_lighting_underlays_by_z)
 	if(harderforce)
 		. = ..()
 
-/atom/movable/lighting_object/Crossed(atom/movable/AM, oldloc)
-	return
-
-/atom/movable/lighting_object/Uncrossed(atom/movable/AM)
-	return
-
-/atom/movable/lighting_object/Bump(atom/A, yes)
+/atom/movable/lighting_object/Bump(atom/bumped_atom)
 	return
 
 /atom/movable/lighting_object/throw_at(atom/target, range, speed, mob/thrower, spin, diagonals_first, datum/callback/callback, force, dodgeable)

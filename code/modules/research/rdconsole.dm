@@ -61,7 +61,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 #define DECONSTRUCT_POWER 250
 
 /obj/machinery/computer/rdconsole
-	name = "\improper R&D console"
+	name = "R&D console"
 	icon_screen = "rdcomp"
 	icon_keyboard = "rd_key"
 	light_color = LIGHT_COLOR_FADEDPURPLE
@@ -84,7 +84,9 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	var/syndicate = 0 //добавленный для синдибазы флаг
 
 	var/id = 0			//ID of the computer (for server restrictions).
-	var/sync = 1		//If sync = 0, it doesn't show up on Server Control Console
+	var/sync = TRUE		//If sync if FALSE, it doesn't show up on Server Control Console
+	///Range to search for rnd devices in proximity to console
+	var/range = 3
 
 	req_access = list(ACCESS_TOX)	//Data and setting manipulation requires scientist access.
 
@@ -93,68 +95,52 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	var/ui_theme = "Nanotrasen" //Тема интерфейса
 
+
 /proc/CallTechName(ID) //A simple helper proc to find the name of a tech with a given ID.
 	for(var/T in subtypesof(/datum/tech))
 		var/datum/tech/tt = T
 		if(initial(tt.id) == ID)
 			return initial(tt.name)
 
-/proc/CallMaterialName(ID)
-	if(copytext(ID, 1, 2) == "$")
-		var/return_name = copytext(ID, 2)
-		switch(return_name)
-			if("metal")
-				return_name = "Metal"
-			if("glass")
-				return_name = "Glass"
-			if("gold")
-				return_name = "Gold"
-			if("silver")
-				return_name = "Silver"
-			if("plasma")
-				return_name = "Solid Plasma"
-			if("uranium")
-				return_name = "Uranium"
-			if("diamond")
-				return_name = "Diamond"
-			if("clown")
-				return_name = "Bananium"
-			if("mime")
-				return_name = "Tranquillite"
-			if("titanium")
-				return_name = "Titanium"
-			if("bluespace")
-				return_name = "Bluespace Mesh"
-			if("plastic")
-				return_name = "Plastic"
-		return return_name
-	else
-		for(var/R in subtypesof(/datum/reagent))
-			var/datum/reagent/rt = R
-			if(initial(rt.id) == ID)
-				return initial(rt.name)
+/proc/CallMaterialName(return_name)
+	switch(return_name)
+		if("plasma")
+			return_name = "Solid Plasma"
+		if("clown")
+			return_name = "Bananium"
+		if("mime")
+			return_name = "Tranquillite"
+		if("bluespace")
+			return_name = "Bluespace Mesh"
+		else
+			var/datum/reagent/our_reagent = GLOB.chemical_reagents_list[return_name]
+			if(our_reagent && initial(our_reagent.id) == return_name)
+				return_name = initial(our_reagent.name)
+	return capitalize(return_name)
 
 /obj/machinery/computer/rdconsole/proc/SyncRDevices() //Makes sure it is properly sync'ed up with the devices attached to it (if any).
-	for(var/obj/machinery/r_n_d/D in range(3,src))
-		if(!isnull(D.linked_console) || D.disabled || D.panel_open)
+	for(var/obj/machinery/r_n_d/D in range(range, src))
+		if(!isnull(D.linked_console) || D.panel_open)
 			continue
+
 		if(istype(D, /obj/machinery/r_n_d/destructive_analyzer))
 			if(linked_destroy == null)
 				linked_destroy = D
 				D.linked_console = src
+
 		else if(istype(D, /obj/machinery/r_n_d/protolathe))
 			if(linked_lathe == null)
 				linked_lathe = D
 				D.linked_console = src
+
 		else if(istype(D, /obj/machinery/r_n_d/circuit_imprinter))
 			if(linked_imprinter == null)
 				linked_imprinter = D
 				D.linked_console = src
-	return
 
 //Have it automatically push research to the centcom server so wild griffins can't fuck up R&D's work --NEO
 /obj/machinery/computer/rdconsole/proc/griefProtection()
-	for(var/obj/machinery/r_n_d/server/centcom/C in GLOB.machines)
+	for(var/obj/machinery/r_n_d/server/centcom/C in SSmachines.get_by_type(/obj/machinery/r_n_d/server/centcom))
 		files.push_data(C.files)
 
 /obj/machinery/computer/rdconsole/proc/Maximize()
@@ -179,15 +165,29 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		id = 0027
 		update_icon()
 	if(!id)
-		for(var/obj/machinery/r_n_d/server/centcom/S in GLOB.machines)
+		for(var/obj/machinery/r_n_d/server/centcom/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server/centcom))
 			S.initialize_serv()
 			break
 
-/obj/machinery/computer/rdconsole/Initialize()
-	..()
+/obj/machinery/computer/rdconsole/Initialize(mapload)
+	. = ..()
 	SyncRDevices()
 
 /obj/machinery/computer/rdconsole/Destroy()
+	QDEL_NULL(files)
+	QDEL_NULL(t_disk)
+	QDEL_NULL(d_disk)
+	matching_designs.Cut()
+	if(linked_destroy)
+		linked_destroy.linked_console = null
+		linked_destroy = null
+	if(linked_lathe)
+		linked_lathe.linked_console = null
+		linked_lathe = null
+	if(linked_imprinter)
+		linked_imprinter.linked_console = null
+		linked_imprinter = null
+
 	if(wait_message_timer)
 		deltimer(wait_message_timer)
 		wait_message_timer = 0
@@ -198,27 +198,32 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	griefProtection()
 */
 
-/obj/machinery/computer/rdconsole/attackby(var/obj/item/D as obj, var/mob/user as mob, params)
+/obj/machinery/computer/rdconsole/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
 
 	//Loading a disk into it.
-	if(istype(D, /obj/item/disk))
+	if(istype(I, /obj/item/disk))
+		add_fingerprint(user)
 		if(t_disk || d_disk)
-			to_chat(user, "A disk is already loaded into the machine.")
-			return
-
-		if(istype(D, /obj/item/disk/tech_disk)) t_disk = D
-		else if(istype(D, /obj/item/disk/design_disk)) d_disk = D
+			to_chat(user, span_warning("Another disk is inserted into the machine."))
+			return ATTACK_CHAIN_PROCEED
+		var/tech_disk = istype(I, /obj/item/disk/tech_disk)
+		if(!tech_disk && !istype(I, /obj/item/disk/design_disk))
+			to_chat(user, span_warning("Machine cannot accept disks in that format."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		if(tech_disk)
+			t_disk = I
 		else
-			to_chat(user, "<span class='danger'>Machine cannot accept disks in that format.</span>")
-			return
-		if(!user.drop_transfer_item_to_loc(D, src))
-			return
-		to_chat(user, "<span class='notice'>You add the disk to the machine!</span>")
-	else if(!(linked_destroy && linked_destroy.busy) && !(linked_lathe && linked_lathe.busy) && !(linked_imprinter && linked_imprinter.busy))
-		..()
-	add_fingerprint(user)
-	SStgui.update_uis(src)
-	return
+			d_disk = I
+		SStgui.update_uis(src)
+		to_chat(user, span_notice("You have inserted a disk into the machine."))
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/machinery/computer/rdconsole/emag_act(mob/user)
 	if(!emagged)
@@ -227,7 +232,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		req_access = list()
 		emagged = TRUE
 		if(user)
-			to_chat(user, "<span class='notice'>You disable the security protocols</span>")
+			to_chat(user, span_notice("You disable the security protocols"))
 
 /obj/machinery/computer/rdconsole/proc/valid_nav(next_menu, next_submenu)
 	switch(next_menu)
@@ -249,7 +254,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	var/desired_num_sheets = 0
 	if(amount == "custom")
-		desired_num_sheets = input("How many sheets would you like to eject from the machine?", "How much?", 1) as null|num
+		desired_num_sheets = tgui_input_number(usr, "How many sheets would you like to eject from the machine?", "How much?", 1)
 		if(isnull(desired_num_sheets))
 			desired_num_sheets = 0
 	else
@@ -275,7 +280,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	if(!sync)
 		return
 	clear_wait_message()
-	for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
+	for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 		var/server_processed = FALSE
 		if(S.disabled)
 			continue
@@ -308,11 +313,11 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		return
 
 	if(linked_destroy.busy)
-		to_chat(usr, "<span class='danger'>[linked_destroy] is busy at the moment.</span>")
+		to_chat(user, span_danger("[linked_destroy] is busy at the moment."))
 		return
 
 	if(!linked_destroy.loaded_item)
-		to_chat(usr, "<span class='danger'>[linked_destroy] appears to be empty.</span>")
+		to_chat(user, span_danger("[linked_destroy] appears to be empty."))
 		return
 
 	var/list/temp_tech = linked_destroy.ConvertReqString2List(linked_destroy.loaded_item.origin_tech)
@@ -324,7 +329,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			break
 
 	if(!pointless)
-		var/choice = input("This item does not raise tech levels. Proceed destroying loaded item anyway?") in list("Proceed", "Cancel")
+		var/choice = tgui_alert(usr, "This item does not raise tech levels. Proceed destroying loaded item anyway?", , list("Proceed", "Cancel"))
 		if(choice == "Cancel" || !linked_destroy)
 			return
 
@@ -354,7 +359,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	if(!linked_destroy.hacked)
 		if(!linked_destroy.loaded_item)
-			to_chat(usr, "<span class='danger'>[linked_destroy] appears to be empty.</span>")
+			to_chat(usr, span_danger("[linked_destroy] appears to be empty."))
 		else
 			var/tech_log
 			for(var/T in temp_tech)
@@ -363,8 +368,9 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 					tech_log += "[T] [new_level], "
 			if(tech_log)
 				investigate_log("[user] increased tech deconstructing [linked_destroy.loaded_item]: [tech_log]. ", INVESTIGATE_RESEARCH)
-			send_mats()
-			linked_destroy.loaded_item = null
+		send_mats()
+		linked_destroy.loaded_item = null
+
 
 	for(var/obj/I in linked_destroy.contents)
 		for(var/mob/M in I.contents)
@@ -391,23 +397,23 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 /obj/machinery/computer/rdconsole/proc/start_machine(obj/machinery/r_n_d/machine, design_id, amount)
 	if(!machine)
-		to_chat(usr, "<span class='danger'>No linked device detected.</span>")
+		to_chat(usr, span_danger("No linked device detected."))
 		return
 
 	var/is_lathe = istype(machine, /obj/machinery/r_n_d/protolathe)
 	var/is_imprinter = istype(machine, /obj/machinery/r_n_d/circuit_imprinter)
 
 	if(!is_lathe && !is_imprinter)
-		to_chat(usr, "<span class='danger'>Unexpected linked device type.</span>")
+		to_chat(usr, span_danger("Unexpected linked device type."))
 		return
 
 	if(machine.busy)
-		to_chat(usr, "<span class='danger'>[machine] is busy at the moment.</span>")
+		to_chat(usr, span_danger("[machine] is busy at the moment."))
 		return
 
 	var/datum/design/being_built = files.known_designs[design_id]
 	if(!being_built)
-		to_chat(usr, "<span class='danger'>Unknown design specified.</span>")
+		to_chat(usr, span_danger("Unknown design specified."))
 		return
 
 	if(!(being_built.build_type & (is_lathe ? PROTOLATHE : IMPRINTER)))
@@ -466,7 +472,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	addtimer(CALLBACK(src, PROC_REF(finish_machine), usr, amount, enough_materials, machine, being_built, coeff), time_to_construct)
 
-	for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
+	for(var/obj/machinery/r_n_d/server/S in SSmachines.get_by_type(/obj/machinery/r_n_d/server))
 		if(S.disabled)
 			continue
 		if(syndicate != S.syndicate)
@@ -474,33 +480,43 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		if(istype(S, /obj/machinery/r_n_d/server/core) || istype(S, /obj/machinery/r_n_d/server/centcom))
 			S.add_usage_log(usr, being_built, machine)
 
+
 /obj/machinery/computer/rdconsole/proc/finish_machine(mob/user, amount, enough_materials, obj/machinery/r_n_d/machine, datum/design/being_built, coeff)
 	if(machine)
 		if(enough_materials && being_built)
 			investigate_log("[key_name_log(user)] built [amount] of [being_built.build_path] via [machine].", INVESTIGATE_RESEARCH)
+
+			var/locked = being_built.locked && !is_taipan(z)
 			for(var/i in 1 to amount)
 				var/obj/new_item = new being_built.build_path(src)
 				if(istype(new_item, /obj/item/storage/backpack/holding))
 					new_item.investigate_log("built by [key_name_log(user)]", INVESTIGATE_ENGINE)
+
 				if(isitem(new_item) && !istype(new_item, /obj/item/stack/sheet)) // To avoid materials dupe glitches
 					var/obj/item/new_item_item = new_item
 					new_item_item.update_materials_coeff(coeff)
-				if(being_built.locked)
-					var/obj/item/storage/lockbox/research/L = new/obj/item/storage/lockbox/research(machine.loc)
-					new_item.forceMove(L)
-					L.name += " ([new_item.name])"
-					L.origin_tech = new_item.origin_tech
-					L.req_access = being_built.access_requirement
+
+				if(locked && isitem(new_item))
+					var/obj/item/real_item = new_item
+					var/obj/item/storage/lockbox/research/lockbox = new /obj/item/storage/lockbox/research(machine.loc)
+					real_item.forceMove(lockbox)
+					lockbox.name += " ([real_item.name])"
+					lockbox.origin_tech = real_item.origin_tech
+					lockbox.req_access = being_built.access_requirement
+					lockbox.w_class = real_item.w_class > lockbox.w_class ? real_item.w_class : lockbox.w_class
+
 					var/list/lockbox_access
-					for(var/A in L.req_access)
+					for(var/A in lockbox.req_access)
 						lockbox_access += "[get_access_desc(A)] "
-					L.desc = "A locked box. It is locked to [lockbox_access]access."
+					lockbox.desc = "A locked box. It is locked to [lockbox_access]access."
 				else
 					new_item.loc = machine.loc
+
 		machine.busy = FALSE
 
 	clear_wait_message()
 	SStgui.update_uis(src)
+
 
 /obj/machinery/computer/rdconsole/ui_act(action, list/params)
 	if(..())
@@ -606,7 +622,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		if("eject_item") //Eject the item inside the destructive analyzer.
 			if(linked_destroy)
 				if(linked_destroy.busy)
-					to_chat(usr, "<span class='danger'>[linked_destroy] is busy at the moment.</span>")
+					to_chat(usr, span_danger("[linked_destroy] is busy at the moment."))
 
 				else if(linked_destroy.loaded_item)
 					linked_destroy.loaded_item.forceMove(linked_destroy.loc)
@@ -617,7 +633,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 		if("maxresearch")
 			if(!check_rights(R_ADMIN))
 				return
-			if(alert("Are you sure you want to maximize research levels?","Confirmation","Yes","No")=="No")
+			if(tgui_alert(usr, "Are you sure you want to maximize research levels?", "Confirmation", list("Yes", "No"))=="No")
 				return
 			log_admin("[key_name(usr)] has maximized the research levels.")
 			message_admins("[key_name_admin(usr)] has maximized the research levels.")
@@ -629,7 +645,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 		if("sync") //Sync the research holder with all the R&D consoles in the game that aren't sync protected.
 			if(!sync)
-				to_chat(usr, "<span class='danger'>You must connect to the network first!</span>")
+				to_chat(usr, span_danger("You must connect to the network first!"))
 			else
 				add_wait_message("Syncing Database...", SYNC_RESEARCH_DELAY)
 				griefProtection() //Putting this here because I dont trust the sync process
@@ -687,7 +703,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 		if("reset") //Reset the R&D console's database.
 			griefProtection()
-			var/choice = alert("Are you sure you want to reset the R&D console's database? Data lost cannot be recovered.", "R&D Console Database Reset", "Continue", "Cancel")
+			var/choice = tgui_alert(usr, "Are you sure you want to reset the R&D console's database? Data lost cannot be recovered.", "R&D Console Database Reset", list("Continue", "Cancel"))
 			if(choice == "Continue")
 				add_wait_message("Resetting Database...", RESET_RESEARCH_DELAY)
 				addtimer(CALLBACK(src, PROC_REF(reset_research)), RESET_RESEARCH_DELAY)
@@ -723,15 +739,15 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	if(..())
 		return 1
 	if(!allowed(user) && !isobserver(user))
-		to_chat(user, "<span class='warning'>Access denied.</span>")
+		to_chat(user, span_warning("Access denied."))
 		playsound(src, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
 		return TRUE
 	ui_interact(user)
 
-/obj/machinery/computer/rdconsole/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/computer/rdconsole/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "RndConsole", name, 800, 550, master_ui, state)
+		ui = new(user, src, "RndConsole", name)
 		ui.open()
 
 /obj/machinery/computer/rdconsole/proc/ui_machine_data(obj/machinery/r_n_d/machine, list/data)
@@ -962,7 +978,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 /obj/machinery/computer/rdconsole/core
 	name = "core R&D console"
-	desc = "A console used to interface with R&D tools."
+	desc = "Консоль, используемая для взаимодействия с инструментами НИО."
 	id = 1
 
 /obj/machinery/computer/rdconsole/core/old_frame
@@ -973,20 +989,21 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 /obj/machinery/computer/rdconsole/robotics
 	name = "robotics R&D console"
-	desc = "A console used to interface with R&D tools."
+	desc = "Консоль, используемая для взаимодействия с инструментами НИО."
 	id = 2
 	req_access = list(ACCESS_ROBOTICS)
 	circuit = /obj/item/circuitboard/rdconsole/robotics
 
 /obj/machinery/computer/rdconsole/experiment
-	name = "\improper E.X.P.E.R.I-MENTOR R&D console"
-	desc = "A console used to interface with R&D tools."
+	name = "E.X.P.E.R.I-MENTOR R&D console"
+	desc = "Консоль, используемая для взаимодействия с инструментами НИО."
 	id = 3
+	range = 5
 	circuit = /obj/item/circuitboard/rdconsole/experiment
 
 /obj/machinery/computer/rdconsole/mechanics
 	name = "mechanics R&D console"
-	desc = "A console used to interface with R&D tools."
+	desc = "Консоль, используемая для взаимодействия с инструментами НИО."
 	id = 4
 	req_access = list(ACCESS_MECHANIC)
 	circuit = /obj/item/circuitboard/rdconsole/mechanics
@@ -998,7 +1015,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 /obj/machinery/computer/rdconsole/public
 	name = "public R&D console"
-	desc = "A console used to interface with R&D tools."
+	desc = "Консоль, используемая для взаимодействия с инструментами НИО."
 	id = 5
 	req_access = list()
 	circuit = /obj/item/circuitboard/rdconsole/public

@@ -100,7 +100,7 @@
 /obj/item/mmi/robotic_brain/proc/request_player()
 	for(var/mob/dead/observer/O in GLOB.player_list)
 		if(check_observer(O))
-			to_chat(O, "<span class='boldnotice'>\A [src] has been activated. (<a href='?src=[O.UID()];jump=\ref[src]'>Teleport</a> | <a href='?src=[UID()];signup=\ref[O]'>Sign Up</a>)</span>")
+			to_chat(O, "<span class='boldnotice'>\A [src] has been activated. (<a href='byond://?src=[O.UID()];jump=\ref[src]'>Teleport</a> | <a href='byond://?src=[UID()];signup=\ref[O]'>Sign Up</a>)</span>")
 
 /obj/item/mmi/robotic_brain/proc/check_observer(mob/dead/observer/O)
 	if(cannotPossess(O))
@@ -151,7 +151,7 @@
 /obj/item/mmi/robotic_brain/attempt_become_organ(obj/item/organ/external/parent, mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	if(. && imprinted_master)
-		to_chat(target, span_dangerbigger("You are permanently imprinted to [imprinted_master], obey [imprinted_master]'s every order and assist [imprinted_master.p_them()] in completing [imprinted_master.p_their()] goals at any cost."))
+		to_chat(target, span_biggerdanger("You are permanently imprinted to [imprinted_master], obey [imprinted_master]'s every order and assist [imprinted_master.p_them()] in completing [imprinted_master.p_their()] goals at any cost."))
 
 
 /obj/item/mmi/robotic_brain/proc/transfer_personality(mob/candidate)
@@ -265,7 +265,7 @@
 	brainmob.dna.species = new /datum/species/machine() // Else it will default to human. And we don't want to clone IRC humans now do we?
 	brainmob.dna.ResetSE()
 	brainmob.dna.ResetUI()
-	GLOB.dead_mob_list -= brainmob
+	brainmob.remove_from_dead_mob_list()
 	..()
 
 /obj/item/mmi/robotic_brain/attack_ghost(mob/dead/observer/O)

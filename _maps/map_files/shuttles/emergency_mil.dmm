@@ -351,7 +351,7 @@
 "bc" = (
 /obj/machinery/door/airlock/security/glass{
 	name = "Escape Shuttle Cell";
-	req_access = list(2)
+	req_access = list(63)
 	},
 /turf/simulated/floor/shuttle/objective_check,
 /area/shuttle/escape)
@@ -389,7 +389,8 @@
 	dwidth = 11;
 	height = 13;
 	timid = 1;
-	width = 24
+	width = 24;
+	port_direction = 8
 	},
 /obj/machinery/door/airlock/shuttle{
 	aiControlDisabled = 1;

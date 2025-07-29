@@ -11,7 +11,7 @@
 	tts_seed = "Anubarak"
 	turns_per_move = 8
 	response_help = "pets"
-	emote_hear = list("chitters")
+	emote_hear = list("щебечет")
 	maxHealth = 250
 	health = 250
 	harm_intent_damage = 3
@@ -20,4 +20,5 @@
 	unique_pet = TRUE
 	atmos_requirements = list("min_oxy" = 5, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 2, "min_co2" = 0, "max_co2" = 5, "min_n2" = 0, "max_n2" = 0)
 	gender = FEMALE
+	hud_type = /datum/hud/simple_animal/spider
 

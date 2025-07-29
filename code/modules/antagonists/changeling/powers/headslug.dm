@@ -10,7 +10,7 @@
 
 
 /datum/action/changeling/headslug/try_to_sting(mob/user, mob/target)
-	if(alert("Are you sure you wish to do this? This action cannot be undone.",, "Yes", "No") == "No")
+	if(tgui_alert(user, "Are you sure you wish to do this? This action cannot be undone.", "Sting", list("Yes", "No")) != "Yes")
 		return
 	..()
 
@@ -25,7 +25,7 @@
 		victim.EyeBlurry(40 SECONDS)
 		var/obj/item/organ/internal/eyes/eyes = victim.get_int_organ(/obj/item/organ/internal/eyes)
 		if(istype(eyes))
-			eyes.receive_damage(5, 1)
+			eyes.internal_receive_damage(5, silent = TRUE)
 		victim.AdjustConfused(6 SECONDS)
 
 	for(var/mob/living/silicon/silicon in range(2, user))
@@ -55,6 +55,6 @@
 		crab.origin.active = TRUE
 		crab.origin.transfer_to(crab)
 		to_chat(crab, span_warning("You burst out of the remains of your former body in a shower of gore!"))
-		to_chat(crab, span_changeling("Our eggs can be laid in any dead humanoid, but not in small ones. Use <B>Alt-Click</B> on the valid mob and keep calm for 5 seconds."))
+		to_chat(crab, span_changeling("Our eggs can be laid in any dead humanoid, but not in small ones. Use <b>Alt-Click</b> on the valid mob and keep calm for 5 seconds."))
 		to_chat(crab, span_notice("Though this form shall perish after laying the egg, our true self shall be reborn in time."))
 

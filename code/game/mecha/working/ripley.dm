@@ -16,6 +16,8 @@
 	var/hides = 0
 	var/plates = 0
 
+	mech_type = MECH_TYPE_RIPLEY
+
 
 /obj/mecha/working/ripley/Destroy()
 	for(var/i=1, i <= hides, i++)
@@ -101,7 +103,7 @@
 	initial_icon = "deathripley"
 	step_in = 3
 	slow_pressure_step_in = 3
-	opacity=0
+	opacity = FALSE
 	max_temperature = 65000
 	max_integrity = 300
 	lights_power = 7
@@ -155,11 +157,11 @@
 		add_attack_logs(user, src, "emagged")
 		emagged = TRUE
 		if(user)
-			to_chat(user, "<span class='notice'>You slide the card through [src]'s ID slot.</span>")
+			to_chat(user, span_notice("You slide the card through [src]'s ID slot."))
 		playsound(loc, "sparks", 100, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
-		desc += "</br><span class='danger'>The mech's equipment slots spark dangerously!</span>"
+		desc += span_danger("</br>The mech's equipment slots spark dangerously!")
 	else if(user)
-		to_chat(user, "<span class='warning'>[src]'s ID slot rejects the card.</span>")
+		to_chat(user, span_warning("[src]'s ID slot rejects the card."))
 
 /obj/mecha/working/ripley/full_load
 	name = "Тестовый Рипли"

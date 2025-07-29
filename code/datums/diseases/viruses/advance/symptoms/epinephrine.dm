@@ -16,7 +16,7 @@ Bonus
 
 /datum/symptom/epinephrine
 
-	name = "Inotropical Hyperfunction"
+	name = "Инотропная гиперфункция"
 	id = "epinephrine"
 	stealth = -5
 	resistance = -4
@@ -31,10 +31,10 @@ Bonus
 		switch(A.stage)
 			if(5)
 				if(prob(10))
-					to_chat(M, span_notice(pick("Your body feels tough.", "You are feeling on edge.")))
+					to_chat(M, span_notice(pick("Ваше тело кажется крепким.", "Вы чувствуете себя настороженно.")))
 	if(A.stage > 4 && M.health <= HEALTH_THRESHOLD_CRIT)
 		M.reagents.add_reagent("epinephrine", 0.5)
 	if(M.reagents.get_reagent_amount("epinephrine") > 20)
 		var/obj/item/organ/internal/heart/heart = M.get_int_organ(/obj/item/organ/internal/heart)
-		heart?.receive_damage(1)
+		heart?.internal_receive_damage(1)
 	return

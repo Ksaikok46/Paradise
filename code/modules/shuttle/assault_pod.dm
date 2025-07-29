@@ -5,6 +5,10 @@
 	width = 7
 	height = 7
 
+/obj/docking_port/mobile/assault_pod/nt
+	name = "Emergency Droppod"
+	id = "shit_rain"
+
 /obj/docking_port/mobile/assault_pod/request()
 	if(z == initial(src.z)) //No launching pods that have already launched
 		return ..()
@@ -14,8 +18,6 @@
 	..()
 	if(!istype(S1, /obj/docking_port/stationary/transit))
 		playsound(get_turf(src.loc), 'sound/effects/explosion1.ogg',50,1)
-
-
 
 /obj/item/assault_pod
 	name = "Assault Pod Targetting Device"
@@ -30,11 +32,16 @@
 	var/height = 7
 	var/lz_dir = 1
 
+/obj/item/assault_pod/nt
+	name = "Emergency Droppod Targeting Devise"
+	shuttle_id = "shit_rain"
 
 /obj/item/assault_pod/attack_self(mob/living/user)
 	var/target_area
-	target_area = input("Area to land", "Select a Landing Zone", target_area) in GLOB.teleportlocs
-	var/area/picked_area = GLOB.teleportlocs[target_area]
+	target_area = tgui_input_list(user, "Area to land", "Select a Landing Zone", SSmapping.teleportlocs)
+	if(!target_area)
+		return
+	var/area/picked_area = SSmapping.teleportlocs[target_area]
 	if(!src || QDELETED(src))
 		return
 
@@ -51,7 +58,7 @@
 	landing_zone.dir = lz_dir
 	landing_zone.register() //new docking ports must be registered
 
-	for(var/obj/machinery/computer/shuttle/S in GLOB.machines)
+	for(var/obj/machinery/computer/shuttle/S in SSmachines.get_by_type(/obj/machinery/computer/shuttle))
 		if(S.shuttleId == shuttle_id)
 			S.possible_destinations = "[landing_zone.id]"
 

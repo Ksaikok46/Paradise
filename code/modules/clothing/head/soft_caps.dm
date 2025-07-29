@@ -4,6 +4,7 @@
 	icon_state = "cargosoft"
 	item_state = "helmet"
 	item_color = "cargo"
+	dying_key = DYE_REGISTRY_SOFTCAP
 	var/flipped = FALSE
 	actions_types = list(/datum/action/item_action/flip_cap)
 	dog_fashion = /datum/dog_fashion/head/cargo_tech
@@ -15,7 +16,6 @@
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/head.dmi',
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/head.dmi'
 		)
-	dyeable = TRUE
 
 
 /obj/item/clothing/head/soft/update_icon_state()
@@ -111,9 +111,17 @@
 	item_color = "rainbow"
 	dog_fashion = null
 
+/obj/item/clothing/head/soft/paramedic
+	name = "paramedic`s cap"
+	desc = "A soft cap worn by a paramedic."
+	icon_state = "paramedicsoft"
+	item_state = "paramedicsoft"
+	item_color = "paramedic"
+	dog_fashion = null
+
 /obj/item/clothing/head/soft/brigphys
 	name = "brigphysic`s cap"
-	desc = "Кепи бригмедика"
+	desc = "A soft cap worn by a brig physician."
 	icon_state = "brigphyssoft"
 	item_state = "brigphyssoft"
 	item_color = "brigphys"
@@ -142,7 +150,7 @@
 	dog_fashion = null
 
 /obj/item/clothing/head/soft/solgov/elite
-	name = "\improper Trans-Solar Federation Specops marine cap"
+	name = "Trans-Solar Federation Specops marine cap"
 	desc = "A cap worn by marines of the Trans-Solar Federation Specops division."
 	armor = list("melee" = 40, "bullet" = 30, "laser" = 30, "energy" = 10, "bomb" = 25, "bio" = 10, "rad" = 0, "fire" = 50, "acid" = 60)
 	icon_state = "solgovelitesoft_flipped"
@@ -157,7 +165,7 @@
 	dog_fashion = null
 
 /obj/item/clothing/head/soft/solgov/command/elite
-	name = "\improper Trans-Solar Federation Specops Lieutenant's cap"
+	name = "Trans-Solar Federation Specops Lieutenant's cap"
 	desc = "A cap worn by marines of the Trans-Solar Federation Specops division. The insignia signifies the wearer bears the rank of a Lieutenant."
 	icon_state = "solgovcelitesoft"
 	item_color = "solgovcelite"

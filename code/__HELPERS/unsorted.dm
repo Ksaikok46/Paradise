@@ -45,6 +45,15 @@
 	else if(dx<0)
 		.+=360
 
+/proc/Get_Pixel_Angle(var/y, var/x)//for getting the angle when animating something's pixel_x and pixel_y
+	if(!y)
+		return (x>=0)?90:270
+	.=arctan(x/y)
+	if(y<0)
+		.+=180
+	else if(x<0)
+		.+=360
+
 //Returns location. Returns null if no location was found.
 /proc/get_teleport_loc(turf/location,mob/target,distance = 1, density = FALSE, errorx = 0, errory = 0, eoffsetx = 0, eoffsety = 0)
 /*
@@ -121,7 +130,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 			var/turf/center = locate((destination.x+xoffset),(destination.y+yoffset),location.z)//So now, find the new center.
 
 			//Now to find a box from center location and make that our destination.
-			for(var/turf/T in block(locate(center.x+b1xerror,center.y+b1yerror,location.z), locate(center.x+b2xerror,center.y+b2yerror,location.z) ))
+			for(var/turf/T in block(center.x+b1xerror,center.y+b1yerror,location.z, center.x+b2xerror,center.y+b2yerror,location.z) )
 				if(density&&T.density)	continue//If density was specified.
 				if(T.x>world.maxx || T.x<1)	continue//Don't want them to teleport off the map.
 				if(T.y>world.maxy || T.y<1)	continue
@@ -226,11 +235,11 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	for(var/mob/living/silicon/robot/A in GLOB.player_list)
 		if(A.stat == DEAD || A.connected_ai || A.scrambledcodes || isdrone(A) || iscogscarab(A) || isclocker(A))
 			continue
-		var/name = "[A.real_name] ([A.modtype] [A.braintype])"
+		var/name = "[A.real_name] ([A.modtype?.name] [A.braintype])"
 		borgs[name] = A
 
 	if(borgs.len)
-		select = input("Unshackled borg signals detected:", "Borg selection", null, null) as null|anything in borgs
+		select = tgui_input_list(usr, "Unshackled borg signals detected:", "Borg selection", borgs, null)
 		return borgs[select]
 
 //When a borg is activated, it can choose which AI it wants to be slaved to
@@ -260,7 +269,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 /proc/select_active_ai(var/mob/user)
 	var/list/ais = active_ais()
 	if(ais.len)
-		if(user)	. = input(usr,"AI signals detected:", "AI selection") in ais
+		if(user)	. = tgui_input_list(usr, "AI signals detected:", "AI selection", ais)
 		else		. = pick(ais)
 	return .
 
@@ -322,28 +331,32 @@ Turf and target are seperate in case you want to teleport some distance from a t
 /proc/sortmobs()
 	var/list/moblist = list()
 	var/list/sortmob = sortAtom(GLOB.mob_list)
-	for(var/mob/living/silicon/ai/M in sortmob)
-		moblist.Add(M)
-		if(M.eyeobj)
-			moblist.Add(M.eyeobj)
-	for(var/mob/living/silicon/pai/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/silicon/robot/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/carbon/human/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/carbon/brain/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/carbon/alien/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/dead/observer/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/new_player/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/simple_animal/slime/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/simple_animal/M in sortmob)
-		moblist.Add(M)
+	for(var/mob/living/silicon/ai/mob in sortmob)
+		moblist.Add(mob)
+		if(mob.eyeobj)
+			moblist.Add(mob.eyeobj)
+	for(var/mob/living/silicon/pai/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/silicon/robot/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/carbon/human/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/carbon/true_devil/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/carbon/brain/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/carbon/alien/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/dead/observer/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/new_player/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/simple_animal/slime/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/living/simple_animal/mob in sortmob)
+		moblist.Add(mob)
+	for(var/mob/camera/blob/mob in sortmob)
+		moblist.Add(mob)
 	return moblist
 
 // Format a power value in W, kW, MW, or GW.
@@ -366,9 +379,18 @@ Turf and target are seperate in case you want to teleport some distance from a t
 /proc/get_mob_by_ckey(key)
 	if(!key)
 		return
-	for(var/mob/M in GLOB.mob_list)
-		if(M.ckey == key)
-			return M
+
+	for(var/mob/mob as anything in GLOB.player_list)
+		if(mob.ckey != key)
+			continue
+
+		return mob
+
+	for(var/mob/mob as anything in GLOB.left_player_list)
+		if(mob.ckey != key)
+			continue
+
+		return mob
 
 /proc/get_client_by_ckey(ckey)
 	if(cmptext(copytext(ckey, 1, 2),"@"))
@@ -382,13 +404,29 @@ Turf and target are seperate in case you want to teleport some distance from a t
 			if(GLOB.stealthminID[P] == txt)
 				return P
 
-// Returns the atom sitting on the turf.
-// For example, using this on a disk, which is in a bag, on a mob, will return the mob because it's on the turf.
-/proc/get_atom_on_turf(var/atom/movable/M)
-	var/atom/loc = M
-	while(loc && loc.loc && !istype(loc.loc, /turf/))
-		loc = loc.loc
-	return loc
+
+/**
+ * Returns the top-most atom sitting on the turf.
+ * For example, using this on a disk, which is in a bag, on a mob,
+ * will return the mob because it's on the turf.
+ *
+ * Arguments
+ * * something_in_turf - a movable within the turf, somewhere.
+ * * stop_type - optional - stops looking if stop_type is found in the turf, returning that type (if found).
+ **/
+/proc/get_atom_on_turf(atom/movable/something_in_turf, stop_type)
+	if(!istype(something_in_turf))
+		CRASH("get_atom_on_turf was not passed an /atom/movable! Got [isnull(something_in_turf) ? "null":"type: [something_in_turf.type]"]")
+
+	var/atom/movable/topmost_thing = something_in_turf
+
+	while(topmost_thing?.loc && !isturf(topmost_thing.loc))
+		topmost_thing = topmost_thing.loc
+		if(stop_type && istype(topmost_thing, stop_type))
+			break
+
+	return topmost_thing
+
 
 /*
 Returns 1 if the chain up to the area contains the given typepath
@@ -490,67 +528,81 @@ Returns 1 if the chain up to the area contains the given typepath
 		weight += I.w_class
 	return weight
 
-//Step-towards method of determining whether one atom can see another. Similar to viewers()
-/proc/can_see(var/atom/source, var/atom/target, var/length=5) // I couldnt be arsed to do actual raycasting :I This is horribly inaccurate.
-	var/turf/current = get_turf(source)
+
+///Step-towards method of determining whether one atom can see another. Similar to viewers()
+///note: this is a line of sight algorithm, view() does not do any sort of raycasting and cannot be emulated by it accurately
+/atom/proc/can_see(atom/target, length = 5) // I couldnt be arsed to do actual raycasting :I This is horribly inaccurate.
+	var/turf/current_turf = get_turf(src)
 	var/turf/target_turf = get_turf(target)
+	if(!current_turf || !target_turf)	// nullspace
+		return FALSE
+	if(get_dist(current_turf, target_turf) > length)
+		return FALSE
+	if(current_turf == target_turf)//they are on the same turf, source can see the target
+		return TRUE
 	var/steps = 1
-
-	if(current != target_turf)
-		current = get_step_towards(current, target_turf)
-		while(current != target_turf)
-			if(steps > length)
-				return 0
-			if(current.opacity)
-				return 0
-			for(var/thing in current)
-				var/atom/A = thing
-				if(A.opacity)
-					return 0
-			current = get_step_towards(current, target_turf)
-			steps++
-
-	return 1
-
-
-//Returns: all the areas in the world
-/proc/return_areas()
-	var/list/area/areas = list()
-	for(var/area/A in world)
-		areas += A
-	return areas
-
-//Returns: all the areas in the world, sorted.
-/proc/return_sorted_areas()
-	return sortAtom(return_areas())
+	current_turf = get_step_towards(current_turf, target_turf)
+	while(current_turf != target_turf)
+		if(steps > length)
+			return FALSE
+		if(IS_OPAQUE_TURF(current_turf))
+			return FALSE
+		current_turf = get_step_towards(current_turf, target_turf)
+		steps++
+	return TRUE
 
 //Takes: Area type as text string or as typepath OR an instance of the area.
 //Returns: A list of all areas of that type in the world.
-/proc/get_areas(var/areatype)
-	if(!areatype) return null
-	if(istext(areatype)) areatype = text2path(areatype)
+/proc/get_areas(areatype, subtypes=TRUE)
+	if(!areatype)
+		return null
+	if(istext(areatype))
+		areatype = text2path(areatype)
 	if(isarea(areatype))
 		var/area/areatemp = areatype
 		areatype = areatemp.type
 
-	var/list/areas = new/list()
-	for(var/area/N in world)
-		if(istype(N, areatype)) areas += N
+	var/list/areas = list()
+	if(subtypes)
+		var/list/cache = typecacheof(areatype)
+		for(var/area/area_to_check as anything in GLOB.areas)
+			if(cache[area_to_check.type])
+				areas += area_to_check
+	else
+		for(var/area/area_to_check as anything in GLOB.areas)
+			if(area_to_check.type == areatype)
+				areas += area_to_check
 	return areas
 
 //Takes: Area type as text string or as typepath OR an instance of the area.
 //Returns: A list of all turfs in areas of that type of that type in the world.
-/proc/get_area_turfs(var/areatype)
-	if(!areatype) return null
-	if(istext(areatype)) areatype = text2path(areatype)
+/proc/get_area_turfs(areatype, subtypes=TRUE)
+	if(!areatype)
+		return null
+	if(istext(areatype))
+		areatype = text2path(areatype)
 	if(isarea(areatype))
 		var/area/areatemp = areatype
 		areatype = areatemp.type
 
-	var/list/turfs = new/list()
-	for(var/area/N in world)
-		if(N.type == areatype)
-			for(var/turf/T in N) turfs += T
+	// Pull out the areas
+	var/list/areas_to_pull = list()
+	if(subtypes)
+		var/list/cache = typecacheof(areatype)
+		for(var/area/area_to_check as anything in GLOB.areas)
+			if(!cache[area_to_check.type])
+				continue
+			areas_to_pull += area_to_check
+	else
+		for(var/area/area_to_check as anything in GLOB.areas)
+			if(area_to_check.type != areatype)
+				continue
+			areas_to_pull += area_to_check
+
+	// Now their turfs
+	var/list/turfs = list()
+	for(var/area/pull_from as anything in areas_to_pull)
+		turfs += pull_from.get_contained_turfs()
 	return turfs
 
 //Takes: Area type as text string or as typepath OR an instance of the area.
@@ -563,7 +615,7 @@ Returns 1 if the chain up to the area contains the given typepath
 		areatype = areatemp.type
 
 	var/list/atoms = new/list()
-	for(var/area/N in world)
+	for(var/area/N as anything in GLOB.areas)
 		if(istype(N, areatype))
 			for(var/atom/A in N)
 				atoms += A
@@ -573,145 +625,6 @@ Returns 1 if the chain up to the area contains the given typepath
 	var/x_pos = null
 	var/y_pos = null
 	var/z_pos = null
-
-/area/proc/move_contents_to(var/area/A, var/turftoleave=null, var/direction = null)
-	//Takes: Area. Optional: turf type to leave behind.
-	//Returns: Nothing.
-	//Notes: Attempts to move the contents of one area to another area.
-	//       Movement based on lower left corner. Tiles that do not fit
-	//		 into the new area will not be moved.
-
-	if(!A || !src) return 0
-
-	var/list/turfs_src = get_area_turfs(src.type)
-	var/list/turfs_trg = get_area_turfs(A.type)
-
-	var/src_min_x = 0
-	var/src_min_y = 0
-	for(var/turf/T in turfs_src)
-		if(T.x < src_min_x || !src_min_x) src_min_x	= T.x
-		if(T.y < src_min_y || !src_min_y) src_min_y	= T.y
-
-	var/trg_min_x = 0
-	var/trg_min_y = 0
-	for(var/turf/T in turfs_trg)
-		if(T.x < trg_min_x || !trg_min_x) trg_min_x	= T.x
-		if(T.y < trg_min_y || !trg_min_y) trg_min_y	= T.y
-
-	var/list/refined_src = new/list()
-	for(var/turf/T in turfs_src)
-		refined_src += T
-		refined_src[T] = new/datum/coords
-		var/datum/coords/C = refined_src[T]
-		C.x_pos = (T.x - src_min_x)
-		C.y_pos = (T.y - src_min_y)
-
-	var/list/refined_trg = new/list()
-	for(var/turf/T in turfs_trg)
-		refined_trg += T
-		refined_trg[T] = new/datum/coords
-		var/datum/coords/C = refined_trg[T]
-		C.x_pos = (T.x - trg_min_x)
-		C.y_pos = (T.y - trg_min_y)
-
-	var/list/fromupdate = new/list()
-	var/list/toupdate = new/list()
-
-	moving:
-		for(var/turf/T in refined_src)
-			var/datum/coords/C_src = refined_src[T]
-			for(var/turf/B in refined_trg)
-				var/datum/coords/C_trg = refined_trg[B]
-				if(C_src.x_pos == C_trg.x_pos && C_src.y_pos == C_trg.y_pos)
-
-					var/old_dir1 = T.dir
-					var/old_icon_state1 = T.icon_state
-					var/old_icon1 = T.icon
-
-					var/turf/X = B.ChangeTurf(T.type)
-					X.dir = old_dir1
-					X.icon_state = old_icon_state1
-					X.icon = old_icon1 //Shuttle floors are in shuttle.dmi while the defaults are floors.dmi
-
-					// Give the new turf our air, if simulated
-					if(issimulatedturf(X) && issimulatedturf(T))
-						var/turf/simulated/sim = X
-						sim.copy_air_with_tile(T)
-
-
-					/* Quick visual fix for some weird shuttle corner artefacts when on transit space tiles */
-					if(direction && findtext(X.icon_state, "swall_s"))
-
-						// Spawn a new shuttle corner object
-						var/obj/corner = new()
-						corner.loc = X
-						corner.set_density(TRUE)
-						corner.set_anchored(TRUE)
-						corner.icon = X.icon
-						corner.icon_state = replacetext(X.icon_state, "_s", "_f")
-						corner.tag = "delete me"
-						corner.name = "wall"
-
-						// Find a new turf to take on the property of
-						var/turf/nextturf = get_step(corner, direction)
-						if(!nextturf || !isspaceturf(nextturf))
-							nextturf = get_step(corner, turn(direction, 180))
-
-
-						// Take on the icon of a neighboring scrolling space icon
-						X.icon = nextturf.icon
-						X.icon_state = nextturf.icon_state
-
-
-					for(var/obj/O in T)
-
-						// Reset the shuttle corners
-						if(O.tag == "delete me")
-							X.icon = 'icons/turf/shuttle/shuttle.dmi'
-							X.icon_state = replacetext(O.icon_state, "_f", "_s") // revert the turf to the old icon_state
-							X.name = "wall"
-							qdel(O) // prevents multiple shuttle corners from stacking
-							continue
-						if(!isobj(O)) continue
-						O.loc.Exited(O)
-						O.setLoc(X,teleported=1)
-						O.loc.Entered(O)
-					for(var/mob/M in T)
-						if(!M.move_on_shuttle)
-							continue
-						M.loc = X
-
-//					var/area/AR = X.loc
-
-//					if(AR.lighting_use_dynamic)							//TODO: rewrite this code so it's not messed by lighting ~Carn
-//						X.opacity = !X.opacity
-//						X.set_opacity(!X.opacity)
-
-					toupdate += X
-
-					if(turftoleave)
-						fromupdate += T.ChangeTurf(turftoleave)
-					else
-						T.ChangeTurf(T.baseturf)
-
-					refined_src -= T
-					refined_trg -= B
-					continue moving
-
-	if(toupdate.len)
-		for(var/turf/simulated/T1 in toupdate)
-			SSair.remove_from_active(T1)
-			T1.CalculateAdjacentTurfs()
-			SSair.add_to_active(T1,1)
-
-	if(fromupdate.len)
-		for(var/turf/simulated/T2 in fromupdate)
-			SSair.remove_from_active(T2)
-			T2.CalculateAdjacentTurfs()
-			SSair.add_to_active(T2,1)
-
-
-
 
 /proc/DuplicateObject(obj/original, perfectcopy = FALSE , sameloc = FALSE, atom/newloc = null)
 	if(!original)
@@ -740,6 +653,7 @@ Returns 1 if the chain up to the area contains the given typepath
 		O.update_icon()
 	return O
 
+// Я хочу чтобы этот прок умер
 /area/proc/copy_contents_to(area/A , platingRequired = FALSE, perfect_copy = TRUE)
 	//Takes: Area. Optional: If it should copy to areas that don't have plating
 	//Returns: Nothing.
@@ -866,42 +780,58 @@ Returns 1 if the chain up to the area contains the given typepath
 			mobs += M
 	return mobs
 
+GLOBAL_LIST_INIT(body_zone, list(
+	BODY_ZONE_HEAD = list(NOMINATIVE = "голова", GENITIVE = "головы", DATIVE = "голове", ACCUSATIVE = "голову", INSTRUMENTAL = "головой", PREPOSITIONAL = "голове"),
+    BODY_ZONE_CHEST = list(NOMINATIVE = "грудь", GENITIVE = "груди", DATIVE = "груди", ACCUSATIVE = "грудь", INSTRUMENTAL = "грудью", PREPOSITIONAL = "груди"),
+    BODY_ZONE_L_ARM = list(NOMINATIVE = "левая рука", GENITIVE = "левой руки", DATIVE = "левой руке", ACCUSATIVE = "левую руку", INSTRUMENTAL = "левой рукой", PREPOSITIONAL = "левой руке"),
+    BODY_ZONE_R_ARM = list(NOMINATIVE = "правая рука", GENITIVE = "правой руки", DATIVE = "правой руке", ACCUSATIVE = "правую руку", INSTRUMENTAL = "правой рукой", PREPOSITIONAL = "правой руке"),
+    BODY_ZONE_L_LEG = list(NOMINATIVE = "левая нога", GENITIVE = "левой ноги", DATIVE = "левой ноге", ACCUSATIVE = "левую ногу", INSTRUMENTAL = "левой ногой", PREPOSITIONAL = "левой ноге"),
+    BODY_ZONE_R_LEG = list(NOMINATIVE = "правая нога", GENITIVE = "правой ноги", DATIVE = "правой ноге", ACCUSATIVE = "правую ногу", INSTRUMENTAL = "правой ногой", PREPOSITIONAL = "правой ноге"),
+    BODY_ZONE_TAIL = list(NOMINATIVE = "хвост", GENITIVE = "хвоста", DATIVE = "хвосту", ACCUSATIVE = "хвост", INSTRUMENTAL = "хвостом", PREPOSITIONAL = "хвосте"),
+    BODY_ZONE_WING = list(NOMINATIVE = "крылья", GENITIVE = "крыльев", DATIVE = "крыльям", ACCUSATIVE = "крылья", INSTRUMENTAL = "крыльями", PREPOSITIONAL = "крыльях"),
+    BODY_ZONE_PRECISE_EYES = list(NOMINATIVE = "глаза", GENITIVE = "глаз", DATIVE = "глазам", ACCUSATIVE = "глаза", INSTRUMENTAL = "глазами", PREPOSITIONAL = "глазах"),
+    BODY_ZONE_PRECISE_MOUTH = list(NOMINATIVE = "рот", GENITIVE = "рта", DATIVE = "рту", ACCUSATIVE = "рот", INSTRUMENTAL = "ртом", PREPOSITIONAL = "рте"),
+    BODY_ZONE_PRECISE_GROIN = list(NOMINATIVE = "живот", GENITIVE = "живота", DATIVE = "животу", ACCUSATIVE = "живот", INSTRUMENTAL = "животом", PREPOSITIONAL = "животе"),
+    BODY_ZONE_PRECISE_L_HAND = list(NOMINATIVE = "левая кисть", GENITIVE = "левой кисти", DATIVE = "левой кисти", ACCUSATIVE = "левую кисть", INSTRUMENTAL = "левой кистью", PREPOSITIONAL = "левой кисти"),
+    BODY_ZONE_PRECISE_R_HAND = list(NOMINATIVE = "правая кисть", GENITIVE = "правой кисти", DATIVE = "правой кисти", ACCUSATIVE = "правую кисть", INSTRUMENTAL = "правой кистью", PREPOSITIONAL = "правой кисти"),
+    BODY_ZONE_PRECISE_L_FOOT = list(NOMINATIVE = "левая ступня", GENITIVE = "левой ступни", DATIVE = "левой ступне", ACCUSATIVE = "левую ступню", INSTRUMENTAL = "левой ступнёй", PREPOSITIONAL = "левой ступне"),
+    BODY_ZONE_PRECISE_R_FOOT = list(NOMINATIVE = "правая ступня", GENITIVE = "правой ступни", DATIVE = "правой ступне", ACCUSATIVE = "правую ступню", INSTRUMENTAL = "правой ступнёй", PREPOSITIONAL = "правой ступне")
+))
 
 /proc/parse_zone(zone)
 	switch(zone)
 		if(BODY_ZONE_HEAD)
-			return "head"
+			return "голова"
 		if(BODY_ZONE_CHEST)
-			return "chest"
+			return "грудь"
 		if(BODY_ZONE_L_ARM)
-			return "left arm"
+			return "левая рука"
 		if(BODY_ZONE_R_ARM)
-			return "right arm"
+			return "правая рука"
 		if(BODY_ZONE_L_LEG)
-			return "left leg"
+			return "левая нога"
 		if(BODY_ZONE_R_LEG)
-			return "right leg"
+			return "правая нога"
 		if(BODY_ZONE_TAIL)
-			return "tail"
+			return "хвост"
 		if(BODY_ZONE_WING)
-			return "wings"
+			return "крылья"
 		if(BODY_ZONE_PRECISE_EYES)
-			return "eyes"
+			return "глаза"
 		if(BODY_ZONE_PRECISE_MOUTH)
-			return "mouth"
+			return "рот"
 		if(BODY_ZONE_PRECISE_GROIN)
-			return "groin"
+			return "живот"
 		if(BODY_ZONE_PRECISE_L_HAND)
-			return "left hand"
+			return "левая кисть"
 		if(BODY_ZONE_PRECISE_R_HAND)
-			return "right hand"
+			return "правая кисть"
 		if(BODY_ZONE_PRECISE_L_FOOT)
-			return "left foot"
+			return "левая ступня"
 		if(BODY_ZONE_PRECISE_R_FOOT)
-			return "right foot"
+			return "правая ступня"
 		else
 			stack_trace("Wrong zone input.")
-
 
 /*
 
@@ -918,36 +848,37 @@ Returns 1 if the chain up to the area contains the given typepath
 
 */
 
-/proc/get_turf_pixel(atom/movable/AM)
-	if(!istype(AM))
+/proc/get_turf_pixel(atom/movable/checked_atom)
+	if(!istype(checked_atom))
 		return
 
-	//Find AM's matrix so we can use it's X/Y pixel shifts
-	var/matrix/M = matrix(AM.transform)
+	//Find checked_atom's matrix so we can use it's X/Y pixel shifts
+	var/matrix/matrix = matrix(checked_atom.transform)
 
-	var/pixel_x_offset = AM.pixel_x + M.get_x_shift()
-	var/pixel_y_offset = AM.pixel_y + M.get_y_shift()
+	var/pixel_x_offset = checked_atom.pixel_x + matrix.get_x_shift()
+	var/pixel_y_offset = checked_atom.pixel_y + matrix.get_y_shift()
 
 	//Irregular objects
-	if(AM.bound_height != world.icon_size || AM.bound_width != world.icon_size)
-		var/icon/AMicon = icon(AM.icon, AM.icon_state)
-		pixel_x_offset += ((AMicon.Width()/world.icon_size)-1)*(world.icon_size*0.5)
-		pixel_y_offset += ((AMicon.Height()/world.icon_size)-1)*(world.icon_size*0.5)
-		qdel(AMicon)
+	var/icon/checked_atom_icon = icon(checked_atom.icon, checked_atom.icon_state)
+	var/checked_atom_icon_height = checked_atom_icon.Height()
+	var/checked_atom_icon_width = checked_atom_icon.Width()
+	if(checked_atom_icon_height != world.icon_size || checked_atom_icon_width != world.icon_size)
+		pixel_x_offset += ((checked_atom_icon_height / world.icon_size) - 1) * (world.icon_size * 0.5)
+		pixel_y_offset += ((checked_atom_icon_width / world.icon_size) - 1) * (world.icon_size * 0.5)
 
 	//DY and DX
-	var/rough_x = round(round(pixel_x_offset,world.icon_size)/world.icon_size)
-	var/rough_y = round(round(pixel_y_offset,world.icon_size)/world.icon_size)
+	var/rough_x = round(round(pixel_x_offset, world.icon_size) / world.icon_size)
+	var/rough_y = round(round(pixel_y_offset, world.icon_size) / world.icon_size)
 
 	//Find coordinates
-	var/turf/T = get_turf(AM) //use AM's turfs, as it's coords are the same as AM's AND AM's coords are lost if it is inside another atom
-	if(!T)
+	var/turf/turf = get_turf(checked_atom) //use AM's turfs, as it's coords are the same as AM's AND AM's coords are lost if it is inside another atom
+	if(!turf)
 		return null
-	var/final_x = clamp(T.x + rough_x, 1, world.maxx)
-	var/final_y = clamp(T.y + rough_y, 1, world.maxy)
+	var/final_x = clamp(turf.x + rough_x, 1, world.maxx)
+	var/final_y = clamp(turf.y + rough_y, 1, world.maxy)
 
 	if(final_x || final_y)
-		return locate(final_x, final_y, T.z)
+		return locate(final_x, final_y, turf.z)
 
 //Finds the distance between two atoms, in pixels
 //centered = 0 counts from turf edge to edge
@@ -985,55 +916,6 @@ GLOBAL_LIST_INIT(can_embed_types, typecacheof(list(
 
 	if(is_type_in_typecache(W, GLOB.can_embed_types))
 		return 1
-
-/proc/is_hot(obj/item/W as obj)
-	if(W.tool_behaviour == TOOL_WELDER)
-		if(W.tool_enabled)
-			return 2500
-		else
-			return 0
-	if(istype(W, /obj/item/lighter))
-		var/obj/item/lighter/O = W
-		if(O.lit)
-			return 1500
-		else
-			return 0
-	if(istype(W, /obj/item/match))
-		var/obj/item/match/O = W
-		if(O.lit == 1)
-			return 1000
-		else
-			return 0
-	if(istype(W, /obj/item/clothing/mask/cigarette))
-		var/obj/item/clothing/mask/cigarette/O = W
-		if(O.lit)
-			return 1000
-		else
-			return 0
-	if(istype(W, /obj/item/candle))
-		var/obj/item/candle/O = W
-		if(O.lit)
-			return 1000
-		else
-			return 0
-	if(istype(W, /obj/item/flashlight/flare))
-		var/obj/item/flashlight/flare/O = W
-		if(O.on)
-			return 1000
-		else
-			return 0
-	if(istype(W, /obj/item/gun/energy/plasmacutter))
-		return 3800
-	if(istype(W, /obj/item/melee/energy))
-		var/obj/item/melee/energy/O = W
-		if(O.active)
-			return 3500
-		else
-			return 0
-	if(isigniter(W))
-		return 20000
-	else
-		return 0
 
 //Whether or not the given item counts as sharp in terms of dealing damage
 /proc/is_sharp(obj/O)
@@ -1109,7 +991,7 @@ GLOBAL_LIST_INIT(wall_items, typecacheof(list(/obj/machinery/power/apc, /obj/mac
 
 
 /proc/get_angle(atom/a, atom/b)
-		return atan2(b.y - a.y, b.x - a.x)
+	return atan2(b.y - a.y, b.x - a.x)
 
 /proc/atan2(x, y)
 	if(!x && !y) return 0
@@ -1125,7 +1007,7 @@ Standard way to write links -Sayu
 /proc/topic_link(var/datum/D, var/arglist, var/content)
 	if(istype(arglist,/list))
 		arglist = list2params(arglist)
-	return "<a href='?src=[D.UID()];[arglist]'>[content]</a>"
+	return "<a href='byond://?src=[D.UID()];[arglist]'>[content]</a>"
 
 
 // This proc is made to check if we can interact or use (directly or in the other way) the specific bodypart
@@ -1242,7 +1124,7 @@ Standard way to write links -Sayu
 		colour = pick(list("FF0000","FF7F00","FFFF00","00FF00","0000FF","4B0082","8F00FF"))
 	else
 		for(var/i=1;i<=3;i++)
-			var/temp_col = "[num2hex(rand(lower,upper))]"
+			var/temp_col = "[num2hex(rand(lower, upper), 2)]"
 			if(length(temp_col )<2)
 				temp_col  = "0[temp_col]"
 			colour += temp_col
@@ -1397,6 +1279,8 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		stop_orbit()
 
 	orbiting = A
+	LAZYOR(A.orbiters, src)
+	SEND_SIGNAL(orbiting, COMSIG_ATOM_ORBIT_BEGIN, src)
 	if(ismob(A))
 		var/mob/M = A
 		M.ghost_orbiting += 1
@@ -1434,21 +1318,21 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		sleep(0.6)
 
 	if(orbiting == A) //make sure we haven't started orbiting something else.
-		if(ismob(orbiting))
-			var/mob/M = orbiting
-			M.ghost_orbiting -= 1
-		orbiting = null
-		transform = cached_transform
-		SpinAnimation(0, 0, parallel = FALSE)
+		stop_orbit()
 
 
 /atom/movable/proc/stop_orbit()
 	if(ismob(orbiting))
 		var/mob/M = orbiting
 		M.ghost_orbiting -= 1
+
+	SEND_SIGNAL(orbiting, COMSIG_ATOM_ORBIT_STOP, src)
+	LAZYREMOVE(orbiting.orbiters, src)
 	orbiting = null
 	transform = cached_transform
 	SpinAnimation(0, 0, parallel = FALSE)
+	// После, потому что сначало надо занулить orbiting дабы худ показался ЧИСТЫЙ
+	SEND_SIGNAL(src, COMSIG_ORBITER_ORBIT_STOP)
 
 
 //Centers an image.
@@ -1458,7 +1342,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 //The y dimension of the icon file used in the image
 // eg: center_image(I, 32,32)
 // eg2: center_image(I, 96,96)
-/proc/center_image(var/image/I, x_dimension = 0, y_dimension = 0)
+/proc/center_image(image/I, x_dimension = 0, y_dimension = 0)
 	if(!I)
 		return
 
@@ -1562,11 +1446,29 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		if(areas)
 			. |= T.loc
 
-/proc/turf_clear(turf/T)
-	for(var/atom/A in T)
-		if(A.simulated)
-			return FALSE
-	return TRUE
+/proc/urange_multiz(dist=0, atom/center=usr, orange=0, areas=0)
+	if(!dist)
+		if(!orange)
+			return list(center)
+		else
+			return list()
+	var/list/stations_z = levels_by_trait(STATION_LEVEL)
+	var/min_z = max(center.z - dist, stations_z[1])
+	var/max_z = min(center.z + dist, stations_z[length(stations_z)])
+	var/list/turfs = RANGE_TURFS_MULTIZ(dist, center, min_z, max_z)
+	if(orange)
+		turfs -= get_turf(center)
+	. = list()
+	for(var/V in turfs)
+		var/turf/T = V
+		. += T
+		. += T.contents
+		if(areas)
+			. |= T.loc
+
+/proc/is_there_multiz()
+	return SSmapping?.map_datum?.traits?.len > 1
+
 
 /proc/screen_loc2turf(scr_loc, turf/origin)
 	var/tX = splittext(scr_loc, ",")
@@ -1597,7 +1499,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 
 /proc/pick_closest_path(value, list/matches = get_fancy_list_of_atom_types())
 	if(value == FALSE) //nothing should be calling us with a number, so this is safe
-		value = input("Enter type to find (blank for all, cancel to cancel)", "Search for type") as null|text
+		value = tgui_input_text(usr, "Enter type to find (blank for all, cancel to cancel)", "Search for type", encode = FALSE)
 		if(isnull(value))
 			return
 	value = trim(value)
@@ -1611,7 +1513,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 	if(matches.len == 1)
 		chosen = matches[1]
 	else
-		chosen = input("Select a type", "Pick Type", matches[1]) as null|anything in matches
+		chosen = tgui_input_list(usr, "Select a type", "Pick Type", matches,  matches[1])
 		if(!chosen)
 			return
 	chosen = matches[chosen]
@@ -1656,7 +1558,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 			/obj/item/organ/internal = "INT_ORG",
 			/obj/item/organ = "ORGAN",
 			/obj/item/pda = "PDA",
-			/obj/item/projectile = "PROJ",
+			/obj/projectile = "PROJ",
 			/obj/item/radio/headset = "HEADSET",
 			/obj/item/reagent_containers/glass/beaker = "BEAKER",
 			/obj/item/reagent_containers/glass/bottle = "BOTTLE",
@@ -1755,7 +1657,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 
 //returns the number of ticks slept
 /proc/stoplag(initial_delay)
-	if(!Master || !(Master.current_runlevel & RUNLEVELS_DEFAULT))
+	if (!Master || Master.init_stage_completed < INITSTAGE_MAX)
 		sleep(world.tick_lag)
 		return 1
 	if(!initial_delay)
@@ -1902,13 +1804,6 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 			continue
 		. += A
 
-//gives us the stack trace from CRASH() without ending the current proc.
-/proc/stack_trace(msg)
-	CRASH(msg)
-
-/datum/proc/stack_trace(msg)
-	CRASH(msg)
-
 /proc/pass()
 	return
 
@@ -1988,17 +1883,6 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 	)
 	return _list
 
-/// Waits at a line of code until X is true
-#define UNTIL(X) while(!(X)) stoplag()
-
-// Check if the source atom contains another atom
-/atom/proc/contains(atom/location)
-	if(!location)
-		return FALSE
-	if(location == src)
-		return TRUE
-
-	return contains(location.loc)
 
 /**
   * Returns the clean name of an audio channel.
@@ -2009,31 +1893,31 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 /proc/get_channel_name(channel)
 	switch(channel)
 		if(CHANNEL_GENERAL)
-			return "General Sounds"
+			return "Основные звуки"
 		if(CHANNEL_LOBBYMUSIC)
-			return "Lobby Music"
+			return "Музыка в лобби"
 		if(CHANNEL_ADMIN)
-			return "Admin MIDIs"
+			return "Админские MIDI"
 		if(CHANNEL_VOX)
-			return "AI Announcements"
+			return "Оповещения ИИ"
 		if(CHANNEL_JUKEBOX)
-			return "Dance Machines"
+			return "Танцевальные машины"
 		if(CHANNEL_HEARTBEAT)
-			return "Heartbeat"
+			return "Сердцебиение"
 		if(CHANNEL_BUZZ)
-			return "White Noise"
+			return "Белый шум"
 		if(CHANNEL_AMBIENCE)
-			return "Ambience"
+			return "Эмбиент"
 		if(CHANNEL_TTS_LOCAL)
-			return "TTS Local"
+			return "TTS рядом"
 		if(CHANNEL_TTS_RADIO)
-			return "TTS Radio"
+			return "TTS в радиосвязи"
 		if(CHANNEL_RADIO_NOISE)
-			return "Radio Noise"
+			return "Звуки радиосвязи"
 		if(CHANNEL_INTERACTION_SOUNDS)
-			return "Item Interaction Sounds"
+			return "Звуки взаимодействия с предметами"
 		if(CHANNEL_BOSS_MUSIC)
-			return "Boss Music"
+			return "Музыка боссов"
 
 /proc/get_compass_dir(atom/start, atom/end) //get_dir() only considers an object to be north/south/east/west if there is zero deviation. This uses rounding instead. // Ported from CM-SS13
 	if(!start || !end)
@@ -2145,3 +2029,100 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 			return ITEM_SLOT_LEGCUFFED_STRING
 		if(ITEM_SLOT_ACCESSORY)
 			return ITEM_SLOT_ACCESSORY_STRING
+
+
+/proc/return_typenames(type)
+	return splittext("[type]", "/")
+
+// Among other things, used by flamethrower and boiler spray to calculate if flame/spray can pass through.
+// Returns an atom for specific effects (primarily flames and acid spray) that damage things upon contact
+//
+// This is a copy-and-paste of the Enter() proc for turfs with tweaks related to the applications
+// of LinkBlocked
+/proc/LinkBlocked(atom/movable/mover, turf/start_turf, turf/target_turf, list/atom/forget)
+	if (!mover)
+		return null
+
+	/// the actual dir between the start and target turf
+	var/fdir = get_dir(start_turf, target_turf)
+	if (!fdir)
+		return null
+
+	var/fd1 = fdir & (fdir-1)
+	var/fd2 = fdir - fd1
+
+	/// The direction that mover's path is being blocked by
+	var/blocking_dir = 0
+
+	var/obstacle
+	var/turf/T
+	var/atom/A
+
+	var/datum/can_pass_info/pass = new(mover, no_id = FALSE)
+
+	blocking_dir |= start_turf.CanAStarPass(fdir, pass)
+	for (obstacle in start_turf) //First, check objects to block exit
+		if (mover == obstacle || (obstacle in forget))
+			continue
+		if (!isstructure(obstacle) && !ismob(obstacle) && !isvehicle(obstacle))
+			continue
+		A = obstacle
+		blocking_dir |= A.CanAStarPass(fdir, pass)
+		if ((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+			return A
+
+	// Check for atoms in adjacent turf EAST/WEST
+	if (fd1 && fd1 != fdir)
+		T = get_step(start_turf, fd1)
+		if (T.CanAStarPass(fd2, pass) || T.CanAStarPass(fd1, pass))
+			blocking_dir |= fd1
+			if ((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+				return T
+		for (obstacle in T)
+			if(obstacle in forget)
+				continue
+			if (!isstructure(obstacle) && !ismob(obstacle) && !isvehicle(obstacle))
+				continue
+			A = obstacle
+			if (A.CanAStarPass(fd2, pass) || A.CanAStarPass(fd1, pass))
+				blocking_dir |= fd1
+				if ((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+					return A
+				break
+
+	// Check for atoms in adjacent turf NORTH/SOUTH
+	if (fd2 && fd2 != fdir)
+		T = get_step(start_turf, fd2)
+		if (T.CanAStarPass(fd1, pass) || T.CanAStarPass(fd2, pass))
+			blocking_dir |= fd2
+			if ((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+				return T
+		for (obstacle in T)
+			if(obstacle in forget)
+				continue
+			if (!isstructure(obstacle) && !ismob(obstacle) && !isvehicle(obstacle))
+				continue
+			A = obstacle
+			if (A.CanAStarPass(fd1, pass) || A.CanAStarPass(fd2, pass))
+				blocking_dir |= fd2
+				if ((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+					return A
+				break
+
+	// Check the turf itself
+	blocking_dir |= target_turf.CanAStarPass(fdir, pass)
+	if ((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+		return target_turf
+	for (obstacle in target_turf) // Finally, check atoms in the target turf
+		if(obstacle in forget)
+			continue
+		if (!isstructure(obstacle) && !ismob(obstacle) && !isvehicle(obstacle))
+			continue
+		A = obstacle
+		blocking_dir |= A.CanAStarPass(fdir, pass)
+		if((fd1 && blocking_dir == fd1) || (fd2 && blocking_dir == fd2))
+			return A
+		if((!fd1 || blocking_dir & fd1) && (!fd2 || blocking_dir & fd2))
+			return A
+
+	return null // Nothing found to block the link of mover from start_turf to target_turf

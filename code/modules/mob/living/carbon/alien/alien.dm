@@ -4,7 +4,7 @@
 /mob/living/carbon/alien
 	name = "alien"
 	voice_name = "alien"
-	speak_emote = list("hisses")
+	speak_emote = list("шипит")
 	tts_seed = "Ladyvashj"
 	bubble_icon = "alien"
 	icon = 'icons/mob/alien.dmi'
@@ -14,6 +14,11 @@
 
 	var/nightvision_enabled = FALSE
 	nightvision = 4
+
+	verb_say = "шипит"
+	verb_ask = "вопросительно шипит"
+	verb_exclaim = "рычит"
+	verb_yell = "ревёт"
 
 	var/obj/item/card/id/wear_id = null // Fix for station bounced radios -- Skie
 	var/has_fine_manipulation = FALSE
@@ -35,6 +40,9 @@
 	var/leaping = FALSE
 	dirslash_enabled = TRUE
 
+	var/antag_datum_type = /datum/antagonist/xenomorph
+	var/role_text = ""
+
 	var/can_evolve = FALSE
 	var/evolution_points = 0
 	var/max_evolution_points = 200
@@ -52,7 +60,7 @@
 /mob/living/carbon/alien/New()
 	..()
 	create_reagents(1000)
-	verbs += /mob/living/verb/mob_sleep
+	add_verb(src, /mob/living/verb/mob_sleep)
 	night_vision_action = new
 	night_vision_action.Grant(src)
 
@@ -62,12 +70,25 @@
 	if(caste_movement_delay)
 		update_alien_speed()
 
+/mob/living/carbon/alien/Initialize(mapload)
+	. = ..()
+	GLOB.aliens_list += src
 
 /mob/living/carbon/alien/Destroy()
 	if(night_vision_action)
 		night_vision_action.Remove(src)
 		night_vision_action = null
+	GLOB.aliens_list -= src
 	return ..()
+
+/mob/living/carbon/alien/proc/update_datum()
+	var/datum/old_datum = mind.has_antag_datum(/datum/antagonist/xenomorph)
+	if(old_datum)
+		if(old_datum.type != antag_datum_type)
+			mind.remove_antag_datum(old_datum)
+		else
+			return
+	mind.add_antag_datum(antag_datum_type, /datum/team/xenomorph)
 
 
 /**
@@ -82,14 +103,13 @@
 	)
 
 
-/mob/living/carbon/alien/Stat()
-	..()
-	statpanel("Status")
-	stat(null, "Intent: [a_intent]")
-	stat(null, "Move Mode: [m_intent]")
-	show_stat_emergency_shuttle_eta()
+/mob/living/carbon/alien/get_status_tab_items()
+	var/list/status_tab_data = ..()
+	. = status_tab_data
+	status_tab_data[++status_tab_data.len] = list("Намерение:", "[a_intent]")
+	status_tab_data[++status_tab_data.len] = list("Режим передвижения:", "[m_intent]")
 	if(can_evolve)
-		stat(null, "Evolution progress: [evolution_points]/[max_evolution_points]")
+		status_tab_data[++status_tab_data.len] = list("Evolution progress:", "[evolution_points]/[max_evolution_points]")
 
 
 /mob/living/carbon/alien/get_default_language()
@@ -98,37 +118,42 @@
 	return GLOB.all_languages[LANGUAGE_XENOS]
 
 /mob/living/carbon/alien/say_quote(var/message, var/datum/language/speaking = null)
-	var/verb = "hisses"
 	var/ending = copytext(message, length(message))
 
-	if(speaking && (speaking.name != "Galactic Common")) //this is so adminbooze xenos speaking common have their custom verbs,
-		verb = speaking.get_spoken_verb(ending)          //and use normal verbs for their own languages and non-common languages
+	if(speaking && (speaking.name != "Galactic Common")) 						//this is so adminbooze xenos speaking common have their custom verbs,
+		return genderize_decode(src, speaking.get_spoken_verb(ending))          //and use normal verbs for their own languages and non-common languages
 	else
-		if(ending=="!")
-			verb = "roars"
-		else if(ending=="?")
-			verb = "hisses curiously"
-	return verb
+		return ..()
 
 
-/mob/living/carbon/alien/adjustToxLoss(amount, updating_health)
+/mob/living/carbon/alien/adjustToxLoss(
+	amount = 0,
+	updating_health = TRUE,
+	blocked = 0,
+	forced = FALSE,
+	used_weapon = null,
+)
 	return STATUS_UPDATE_NONE
 
-/mob/living/carbon/alien/adjustFireLoss(amount, updating_health) // Weak to Fire
-	if(amount > 0)
-		return ..(amount * ALIEN_BURN_MOD)
-	else
-		return ..(amount)
 
-/mob/living/carbon/alien/adjustBruteLoss(amount, updating_health = TRUE)
-	if(amount > 0)
-		return ..(amount * ALIEN_BRUTE_MOD, updating_health)
-	else
-		return ..(amount, updating_health)
+/mob/living/carbon/alien/get_incoming_damage_modifier(
+	damage = 0,
+	damagetype = BRUTE,
+	def_zone = null,
+	sharp = FALSE,
+	used_weapon = null,
+)
+	. = ..()
+
+	switch(damagetype)
+		if(BRUTE)
+			. *= ALIEN_BRUTE_MOD
+		if(BURN)
+			. *= ALIEN_BURN_MOD
 
 
 /mob/living/carbon/alien/check_eye_prot()
-	return 2
+	return FLASH_PROTECTION_WELDER
 
 /mob/living/carbon/alien/handle_environment(var/datum/gas_mixture/environment)
 

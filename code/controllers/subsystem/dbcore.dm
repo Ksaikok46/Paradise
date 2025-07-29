@@ -35,7 +35,7 @@ SUBSYSTEM_DEF(dbcore)
 /datum/controller/subsystem/dbcore/Initialize()
 	if(!schema_valid)
 		log_startup_progress("Database schema ([CONFIG_GET(number/db_version)]) doesn't match the latest schema version ([SQL_VERSION]). Roundstart has been delayed.")
-
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/dbcore/fire()
 	for(var/I in active_queries)
@@ -252,11 +252,78 @@ SUBSYSTEM_DEF(dbcore)
   */
 /datum/controller/subsystem/dbcore/proc/NewQuery(sql_query, arguments)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, "<span class='boldannounce'>DB query blocked: Advanced ProcCall detected.</span>")
+		to_chat(usr, span_boldannounceooc("DB query blocked: Advanced ProcCall detected."))
 		message_admins("[key_name(usr)] attempted to create a DB query via advanced proc-call")
 		log_and_message_admins("attempted to create a DB query via advanced proc-call")
 		return FALSE
 	return new /datum/db_query(connection, sql_query, arguments)
+
+/*
+ * Takes a list of rows (each row being an associated list of column => value) and inserts them via a single mass query.
+ * Rows missing columns present in other rows will resolve to SQL NULL
+ * You are expected to do your own escaping of the data, and expected to provide your own quotes for strings.
+ * The duplicate_key arg can be true to automatically generate this part of the query
+ * or set to a string that is appended to the end of the query
+ * Ignore_errors instructes mysql to continue inserting rows if some of them have errors.
+ * the erroneous row(s) aren't inserted and there isn't really any way to know why or why errored
+*/
+/datum/controller/subsystem/dbcore/proc/MassInsert(table, list/rows, duplicate_key = FALSE, ignore_errors = FALSE, warn = FALSE, async = TRUE, special_columns = null)
+	if (!table || !rows || !istype(rows))
+		return
+
+	// Prepare column list
+	var/list/columns = list()
+	var/list/has_question_mark = list()
+	for (var/list/row in rows)
+		for (var/column in row)
+			columns[column] = "?"
+			has_question_mark[column] = TRUE
+	for (var/column in special_columns)
+		columns[column] = special_columns[column]
+		has_question_mark[column] = findtext(special_columns[column], "?")
+
+	// Prepare SQL query full of placeholders
+	var/list/query_parts = list("INSERT")
+	if (ignore_errors)
+		query_parts += " IGNORE"
+	query_parts += " INTO "
+	query_parts += table
+	query_parts += "\n([columns.Join(", ")])\nVALUES"
+
+	var/list/arguments = list()
+	var/has_row = FALSE
+	for (var/list/row in rows)
+		if (has_row)
+			query_parts += ","
+		query_parts += "\n  ("
+		var/has_col = FALSE
+		for (var/column in columns)
+			if (has_col)
+				query_parts += ", "
+			if (has_question_mark[column])
+				var/name = "p[arguments.len]"
+				query_parts += replacetext(columns[column], "?", ":[name]")
+				arguments[name] = row[column]
+			else
+				query_parts += columns[column]
+			has_col = TRUE
+		query_parts += ")"
+		has_row = TRUE
+
+	if (duplicate_key == TRUE)
+		var/list/column_list = list()
+		for (var/column in columns)
+			column_list += "[column] = VALUES([column])"
+		query_parts += "\nON DUPLICATE KEY UPDATE [column_list.Join(", ")]"
+	else if (duplicate_key != FALSE)
+		query_parts += duplicate_key
+
+	var/datum/db_query/Query = NewQuery(query_parts.Join(), arguments)
+	if (warn)
+		. = Query.warn_execute(async)
+	else
+		. = Query.Execute(async)
+	qdel(Query)
 
 /**
   * Handler to allow many queries to be executed en masse
@@ -389,7 +456,7 @@ SUBSYSTEM_DEF(dbcore)
 	if(!.)
 		SSdbcore.total_errors++
 		if(usr)
-			to_chat(usr, "<span class='danger'>A SQL error occurred during this operation, please inform an admin or a coder.</span>")
+			to_chat(usr, span_danger("A SQL error occurred during this operation, please inform an admin or a coder."))
 		message_admins("An SQL error has occured. Please check the server logs, with the following timestamp ID: \[[time_stamp()]]")
 
 /**
@@ -464,7 +531,7 @@ SUBSYSTEM_DEF(dbcore)
 
 // Just tells the admins if a query timed out, and asks if the server hung to help error reporting
 /datum/db_query/proc/slow_query_check()
-	message_admins("HEY! A database query timed out. Did the server just hang? <a href='?_src_=holder;slowquery=yes'>\[YES\]</a>|<a href='?_src_=holder;slowquery=no'>\[NO\]</a>")
+	message_admins("HEY! A database query timed out. Did the server just hang? <a href='byond://?_src_=holder;slowquery=yes'>\[YES\]</a>|<a href='byond://?_src_=holder;slowquery=no'>\[NO\]</a>")
 
 
 /**
@@ -496,12 +563,12 @@ SUBSYSTEM_DEF(dbcore)
 	set category = "Debug"
 	set name = "Reestablish DB Connection"
 	if(!CONFIG_GET(flag/sql_enabled))
-		to_chat(usr, "<span class='warning'>The Database is not enabled in the server configuration!</span>")
+		to_chat(usr, span_warning("The Database is not enabled in the server configuration!"))
 		return
 
 	if(SSdbcore.IsConnected())
-		if(!check_rights(R_DEBUG, FALSE))
-			to_chat(usr, "<span class='warning'>The database is already connected! (Only those with +DEBUG can force a reconnection)</span>")
+		if(!check_rights(R_ADMIN, FALSE) || !check_rights(R_DEBUG, FALSE)) //we dont want coders to deal with db
+			to_chat(usr, span_warning("The database is already connected! (Only those with +DEBUG can force a reconnection)"))
 			return
 
 		var/reconnect = alert("The database is already connected! If you *KNOW* that this is incorrect, you can force a reconnection", "The database is already connected!", "Force Reconnect", "Cancel")

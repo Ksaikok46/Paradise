@@ -7,18 +7,33 @@
 	invisibility = INVISIBILITY_ABSTRACT // nope cant see this shit
 	anchored = TRUE
 
-/obj/effect/step_trigger/proc/Trigger(var/atom/movable/A)
+
+/obj/effect/step_trigger/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+
+/obj/effect/step_trigger/proc/Trigger(atom/movable/A)
 	return FALSE
 
-/obj/effect/step_trigger/Crossed(var/H, oldloc)
-	. = ..()
-	if(!H)
+
+/obj/effect/step_trigger/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(!arrived)
 		return
-	if(isobserver(H) && !affect_ghosts)
+
+	if(!affect_ghosts && isobserver(arrived))
 		return
-	if(!ismob(H) && mobs_only)
+
+	if(mobs_only && !ismob(arrived))
 		return
-	Trigger(H)
+
+	INVOKE_ASYNC(src, PROC_REF(Trigger), arrived)
+
 
 /obj/effect/step_trigger/singularity_act()
 	return
@@ -35,7 +50,7 @@
 
 /obj/effect/step_trigger/message/Trigger(mob/M)
 	if(M.client)
-		to_chat(M, "<span class='info'>[message]</span>")
+		to_chat(M, span_notice("[message]"))
 		if(once)
 			qdel(src)
 
@@ -103,12 +118,13 @@
 	var/teleport_x = 0	// teleportation coordinates (if one is null, then no teleport!)
 	var/teleport_y = 0
 	var/teleport_z = 0
+	density = 0
+	opacity = 0
 
 /obj/effect/step_trigger/teleporter/Trigger(atom/movable/A)
 	if(teleport_x && teleport_y && teleport_z)
 
-		var/turf/T = locate(teleport_x, teleport_y, teleport_z)
-		A.forceMove(T)
+		A.loc = locate(teleport_x, teleport_y, teleport_z)
 
 /* Random teleporter, teleports atoms to locations ranging from teleport_x - teleport_x_offset, etc */
 
@@ -150,13 +166,14 @@
 		s.start()
 
 	if(entersmoke)
-		var/datum/effect_system/smoke_spread/s = new
-		s.set_up(4, 1, src, 0)
-		s.start()
+		var/datum/effect_system/fluid_spread/smoke/smoke = new
+		smoke.set_up(amount = 4, location = src)
+		smoke.start()
+
 	if(exitsmoke)
-		var/datum/effect_system/smoke_spread/s = new
-		s.set_up(4, 1, dest, 0)
-		s.start()
+		var/datum/effect_system/fluid_spread/smoke/smoke = new
+		smoke.set_up(amount = 4, location = dest)
+		smoke.start()
 
 	uses--
 	if(uses == 0)

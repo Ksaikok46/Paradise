@@ -9,9 +9,9 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	icon_living = "tribble1"
 	icon_dead = "tribble1_dead"
 	speak = list("Prrrrr...")
-	speak_emote = list("purrs", "trills")
-	emote_hear = list("shuffles", "purrs")
-	emote_see = list("trundles around", "rolls")
+	speak_emote = list("мурлычет", "заливается трелью")
+	emote_hear = list("мурчит", "мурлычет")
+	emote_see = list("катается туда-сюда", "кружится")
 	tts_seed = "Meepo"
 	speak_chance = 10
 	turns_per_move = 5
@@ -39,7 +39,7 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	GLOB.totaltribbles += 1
 
 
-/mob/living/simple_animal/tribble/attack_hand(mob/user as mob)
+/mob/living/simple_animal/tribble/attack_hand(mob/user)
 	..()
 	if(src.stat != DEAD)
 		new /obj/item/toy/tribble(user.loc)
@@ -52,12 +52,12 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 			qdel(src)
 
 
-/mob/living/simple_animal/tribble/attackby(var/obj/item/O as obj, var/mob/user as mob, params)
-	if(istype(O, /obj/item/scalpel))
-		to_chat(user, "<span class='notice'>You try to neuter the tribble, but it's moving too much and you fail!</span>")
-	else if(istype(O, /obj/item/cautery))
-		to_chat(user, "<span class='notice'>You try to un-neuter the tribble, but it's moving too much and you fail!</span>")
-	..()
+/mob/living/simple_animal/tribble/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/scalpel))
+		to_chat(user, span_notice("You try to neuter the tribble, but it's moving too much and you fail!"))
+	else if(istype(I, /obj/item/cautery))
+		to_chat(user, span_notice("You try to un-neuter the tribble, but it's moving too much and you fail!"))
+	return ..()
 
 
 /mob/living/simple_animal/tribble/proc/procreate()
@@ -113,14 +113,22 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	to_chat(user, "<span class='notice'>The tribble gets up and wanders around.</span>")
 	. = ..()
 
-/obj/item/toy/tribble/attackby(obj/item/O, mob/user) //neutering and un-neutering
-	..()
-	if(istype(O, /obj/item/scalpel) && src.gestation != null)
+
+/obj/item/toy/tribble/attackby(obj/item/I, mob/user, params) //neutering and un-neutering
+	. = ..()
+
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || isnull(gestation))
+		return .
+
+	if(istype(I, /obj/item/scalpel))
 		gestation = null
-		to_chat(user, "<span class='notice'>You neuter the tribble so that it can no longer re-produce.</span>")
-	else if(istype(O, /obj/item/cautery) && src.gestation == null)
+		to_chat(user, span_notice("You neuter the tribble so that it can no longer re-produce."))
+		return .
+
+	if(istype(I, /obj/item/cautery))
 		gestation = 0
-		to_chat(user, "<span class='notice'>You fuse some recently cut tubes together, it should be able to reproduce again.</span>")
+		to_chat(user, span_notice("You fuse some recently cut tubes together, it should be able to reproduce again."))
+
 
 //||Fur and Fur Products ||
 
@@ -153,6 +161,7 @@ GLOBAL_VAR_INIT(totaltribbles, 0)   //global variable so it updates for all trib
 	item_state = "furgloves"
 	transfer_prints = TRUE
 	transfer_blood = TRUE
+	undyeable = TRUE
 
 // Equivalent to a winter coat's hood
 /obj/item/clothing/head/furcap

@@ -2,6 +2,15 @@
 
 /obj/machinery/computer/operating
 	name = "operating computer"
+	desc = "Высокотехнологичный медицинский компьютер, используемый для контролирования процесса хиругических операций."
+	ru_names = list(
+		NOMINATIVE = "операционный компьютер",
+		GENITIVE = "операционного компьютера",
+		DATIVE = "операционному компьютеру",
+		ACCUSATIVE = "операционный компьютер",
+		INSTRUMENTAL = "операционным компьютером",
+		PREPOSITIONAL = "операционном компьютере"
+	)
 	density = TRUE
 	anchored = TRUE
 	icon_keyboard = "med_key"
@@ -55,10 +64,10 @@
 	add_fingerprint(user)
 	ui_interact(user)
 
-/obj/machinery/computer/operating/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/computer/operating/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "OperatingComputer", "Patient Monitor", 650, 455, master_ui, state)
+		ui = new(user, src, "OperatingComputer", capitalize(declent_ru(NOMINATIVE)))
 		ui.open()
 
 /obj/machinery/computer/operating/ui_data(mob/user)
@@ -101,15 +110,16 @@
 				occupantData["temperatureSuitability"] = 1
 		else if(isanimal(occupant))
 			var/mob/living/simple_animal/silly = occupant
-			if(silly.bodytemperature < silly.minbodytemp)
+			var/datum/component/animal_temperature/temp = silly.GetComponent(/datum/component/animal_temperature)
+			if(silly.bodytemperature < temp?.minbodytemp)
 				occupantData["temperatureSuitability"] = -3
-			else if(silly.bodytemperature > silly.maxbodytemp)
+			else if(silly.bodytemperature > temp?.maxbodytemp)
 				occupantData["temperatureSuitability"] = 3
 		// Blast you, imperial measurement system
 		occupantData["btCelsius"] = occupant.bodytemperature - T0C
 		occupantData["btFaren"] = ((occupant.bodytemperature - T0C) * (9.0/5.0))+ 32
 
-		if(ishuman(occupant) && !(NO_BLOOD in occupant.dna.species.species_traits))
+		if(ishuman(occupant) && !HAS_TRAIT(occupant, TRAIT_NO_BLOOD))
 			var/mob/living/carbon/human/H = occupant
 			occupantData["pulse"] = occupant.get_pulse(GETPULSE_TOOL)
 			occupantData["hasBlood"] = 1
@@ -127,13 +137,13 @@
 				if(surgery_step.repeatable)
 					var/datum/surgery_step/next = procedure.get_surgery_next_step()
 					if(next)
-						surgery_desc += " or [capitalize(next.get_step_information(procedure))]"
+						surgery_desc += " или [capitalize(next.get_step_information(procedure))]"
 				var/obj/item/organ/organ
 				if(ishuman(occupant))
 					var/mob/living/carbon/human/H = occupant
 					organ = H.bodyparts_by_name[procedure.location]
 				occupantData["surgeries"] += list(list(
-					"bodypartName" = capitalize(organ?.name || procedure.location),
+					"bodypartName" = capitalize(organ?.declent_ru(NOMINATIVE) || procedure.location),
 					"surgeryName" = capitalize(procedure.name),
 					"stepName" = surgery_desc.Join("")
 				))
@@ -200,20 +210,20 @@
 	var/isNewPatient = (table.patient != currentPatient) //Is this a new Patient?
 
 	if(table.patient.stat == DEAD || HAS_TRAIT(table.patient, TRAIT_FAKEDEATH))
-		patientStatus = "умер"
+		patientStatus = "зафиксирована смерть"
 	else if(table.patient.stat == CONSCIOUS)
 		patientStatus = "в сознании"
 	else if(table.patient.stat == UNCONSCIOUS)
-		patientStatus = "спит"
+		patientStatus = "без сознания"
 
 	if(isNewPatient)
-		atom_say("Обнаружен новый пациент, загрузка показаний")
+		atom_say("Обнаружен новый пациент, загрузка показаний.")
 		var/blood_type_msg
 		if(ishuman(table.patient))
 			blood_type_msg = table.patient.dna.blood_type
 		else
 			blood_type_msg = "\[ОШИБКА: НЕИЗВЕСТНО\]"
-		atom_say("[table.patient], группа крови [blood_type_msg], [patientStatus]")
+		atom_say("[table.patient], группа крови [blood_type_msg], [patientStatus].")
 		SStgui.update_uis(src)
 		patientStatusHolder = table.patient.stat
 		currentPatient = table.patient
@@ -221,13 +231,13 @@
 	if(nextTick < world.time)
 		nextTick=world.time + OP_COMPUTER_COOLDOWN
 		if(crit && table.patient.health <= -50 )
-			playsound(src.loc, 'sound/machines/defib_success.ogg', 50, 0)
+			playsound(src.loc, 'sound/machines/defib_success.ogg', 50, FALSE)
 		if(oxy && table.patient.getOxyLoss()>oxyAlarm)
-			playsound(src.loc, 'sound/machines/defib_saftyoff.ogg', 50, 0)
+			playsound(src.loc, 'sound/machines/defib_saftyoff.ogg', 50, FALSE)
 		if(healthAnnounce && table.patient.health <= healthAlarm)
-			atom_say("[round(table.patient.health)]")
+			atom_say("Оценка здоровья пациента: [round(table.patient.health)] %.")
 		if(table.patient.stat != patientStatusHolder)
-			atom_say("Пациент [patientStatus]")
+			atom_say("Состояние пациента: [patientStatus].")
 			patientStatusHolder = table.patient.stat
 
 /obj/machinery/computer/operating/old_frame

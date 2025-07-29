@@ -1,26 +1,31 @@
 /datum/action/innate/robot_sight
 	var/sight_mode = null
+
 	icon_icon = 'icons/obj/decals.dmi'
 	button_icon_state = "securearea"
 
 /datum/action/innate/robot_sight/Activate()
 	var/mob/living/silicon/robot/R = owner
+
 	R.sight_mode |= sight_mode
 	R.update_sight()
-	active = 1
+
+	active = TRUE
 
 /datum/action/innate/robot_sight/Deactivate()
 	var/mob/living/silicon/robot/R = owner
+
 	R.sight_mode &= ~sight_mode
 	R.update_sight()
-	active = 0
+
+	active = FALSE
 
 /datum/action/innate/robot_sight/xray
-	name = "X-ray Vision"
+	name = "Рентген зрение"
 	sight_mode = SILICONXRAY
 
 /datum/action/innate/robot_sight/thermal
-	name = "Thermal Vision"
+	name = "Термальное зрение"
 	sight_mode = SILICONTHERM
 	icon_icon = 'icons/obj/clothing/glasses.dmi'
 	button_icon_state = "thermal"
@@ -31,7 +36,7 @@
 	button_icon_state = "borg-extra-vision"
 
 /datum/action/innate/robot_sight/meson
-	name = "Meson Vision"
+	name = "Мезонное зрение"
 	sight_mode = SILICONMESON
 	icon_icon = 'icons/obj/clothing/glasses.dmi'
 	button_icon_state = "meson"

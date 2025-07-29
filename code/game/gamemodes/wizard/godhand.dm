@@ -1,5 +1,5 @@
 /obj/item/melee/touch_attack
-	name = "\improper outstretched hand"
+	name = "outstretched hand"
 	desc = "High Five?"
 	icon_state = "syndballoon"
 	item_state = null
@@ -48,16 +48,16 @@
 	return ..()
 
 
-/obj/item/melee/touch_attack/attack(mob/target, mob/living/carbon/user)
+/obj/item/melee/touch_attack/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!iscarbon(user)) //Look ma, no hands
-		return
+		return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't reach out!</span>")
-		return
-	..()
+		to_chat(user, span_warning("You can't reach out!"))
+		return ATTACK_CHAIN_PROCEED|ATTACK_CHAIN_NO_AFTERATTACK
+	return ..()
 
 
-/obj/item/melee/touch_attack/afterattack(atom/target, mob/user, proximity)
+/obj/item/melee/touch_attack/afterattack(atom/target, mob/user, proximity, params)
 	if(HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 	if(catchphrase)
@@ -77,7 +77,7 @@
 	item_state = "disintegrate"
 
 
-/obj/item/melee/touch_attack/disintegrate/afterattack(atom/target, mob/living/carbon/user, proximity)
+/obj/item/melee/touch_attack/disintegrate/afterattack(atom/target, mob/living/carbon/user, proximity, params)
 	if(!proximity || target == user || !ismob(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //exploding after touching yourself would be bad
 		return
 	var/mob/M = target
@@ -95,7 +95,7 @@
 	item_state = "fleshtostone"
 
 
-/obj/item/melee/touch_attack/fleshtostone/afterattack(atom/target, mob/living/carbon/user, proximity)
+/obj/item/melee/touch_attack/fleshtostone/afterattack(atom/target, mob/living/carbon/user, proximity, params)
 	if(!proximity || target == user || !isliving(target) || !iscarbon(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //getting hard after touching yourself would also be bad
 		return
 	if(user.incapacitated())
@@ -117,11 +117,11 @@
 	needs_permit = FALSE
 
 
-/obj/item/melee/touch_attack/fake_disintegrate/afterattack(atom/target, mob/living/carbon/user, proximity)
+/obj/item/melee/touch_attack/fake_disintegrate/afterattack(atom/target, mob/living/carbon/user, proximity, params)
 	if(!proximity || target == user || !ismob(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //not exploding after touching yourself would be bad
 		return
 	do_sparks(4, 0, target.loc)
-	playsound(target.loc, 'sound/goonstation/effects/gib.ogg', 50, 1)
+	playsound(target.loc, 'sound/goonstation/effects/gib.ogg', 50, TRUE)
 	..()
 
 
@@ -134,7 +134,7 @@
 	item_state = "cluwnecurse"
 
 
-/obj/item/melee/touch_attack/cluwne/afterattack(atom/target, mob/living/carbon/user, proximity)
+/obj/item/melee/touch_attack/cluwne/afterattack(atom/target, mob/living/carbon/user, proximity, params)
 	if(!proximity || target == user || !ishuman(target) || !iscarbon(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)) //clowning around after touching yourself would unsurprisingly, be bad
 		return
 
@@ -142,8 +142,8 @@
 		to_chat(user, "<span class='warning'>The spell has no effect on [target].</span>")
 		return
 
-	var/datum/effect_system/smoke_spread/s = new
-	s.set_up(5, FALSE, target)
+	var/datum/effect_system/fluid_spread/smoke/s = new
+	s.set_up(amount = 5, location = target)
 	s.start()
 
 	var/mob/living/carbon/human/H = target

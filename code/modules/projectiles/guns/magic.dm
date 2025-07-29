@@ -8,8 +8,8 @@
 	fire_sound_text = "energy blast"
 	flags =  CONDUCT
 	w_class = WEIGHT_CLASS_HUGE
-	pickup_sound = 'sound/items/handling/generic_pickup1.ogg'
-	drop_sound = 'sound/items/handling/generic_drop3.ogg'
+	pickup_sound = 'sound/items/handling/pickup/generic_pickup1.ogg'
+	drop_sound = 'sound/items/handling/drop/generic_drop3.ogg'
 	var/max_charges = 6
 	var/charges = 0
 	var/recharge_rate = 4
@@ -21,10 +21,10 @@
 	clumsy_check = 0
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL // Has no trigger at all, uses magic instead
 
-	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi' //not really a gun and some toys use these inhands
-	righthand_file = 'icons/mob/inhands/items_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/staff_lefthand.dmi' //not really a gun and some toys use these inhands
+	righthand_file = 'icons/mob/inhands/staff_righthand.dmi'
 
-/obj/item/gun/magic/afterattack(atom/target, mob/living/user, flag)
+/obj/item/gun/magic/afterattack(atom/target, mob/living/user, flag, params)
 	if(no_den_usage)
 		var/area/A = get_area(user)
 		if(istype(A, /area/wizard_station))
@@ -50,6 +50,23 @@
 	if(chambered && !chambered.BB) //if BB is null, i.e the shot has been fired...
 		charges--//... drain a charge
 	return
+
+
+/obj/item/gun/magic/magic_charge_act(mob/user)
+	. = NONE
+
+	if(charges >= max_charges)
+		return
+
+	if(!can_charge && prob(80))
+		max_charges = max(0, max_charges - 1)
+
+	charges = max_charges
+	. |= RECHARGE_SUCCESSFUL
+
+	if(!max_charges)
+		. |= RECHARGE_BURNOUT
+
 
 /obj/item/gun/magic/Initialize()
 	. = ..()
@@ -82,5 +99,5 @@
 
 /obj/item/gun/magic/suicide_act(mob/user)
 	user.visible_message("<span class='suicide'>[user] is twisting the [name] above [user.p_their()] head, releasing a magical blast! It looks like [user.p_theyre()] trying to commit suicide.</span>")
-	playsound(loc, fire_sound, 50, 1, -1)
+	playsound(loc, fire_sound, 50, TRUE, -1)
 	return FIRELOSS

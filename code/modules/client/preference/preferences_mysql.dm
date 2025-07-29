@@ -21,7 +21,8 @@
 					discord_name,
 					keybindings,
 					viewrange,
-					ghost_darkness_level
+					ghost_darkness_level,
+					toggles_3
 					FROM [format_table_name("player")]
 					WHERE ckey=:ckey"}, list(
 						"ckey" = C.ckey
@@ -55,15 +56,17 @@
 		keybindings = init_keybindings(raw = query.item[19])
 		viewrange = query.item[20]
 		ghost_darkness_level = query.item[21]
+		toggles3 = text2num(query.item[22])
 
 	qdel(query)
 
 	//Sanitize
 	ooccolor		= sanitize_hexcolor(ooccolor, initial(ooccolor))
-	UI_style		= sanitize_inlist(UI_style, list("White", "Midnight", "Plasmafire", "Retro", "Slimecore", "Operative"), initial(UI_style))
+	UI_style		= sanitize_inlist(UI_style, list(UI_THEME_WHITE, UI_THEME_MIDNIGHT, UI_THEME_PLASMAFIRE, UI_THEME_RETRO, UI_THEME_SLIMECORE, UI_THEME_OPERATIVE), initial(UI_style))
 	default_slot	= sanitize_integer(default_slot, 1, max_save_slots, initial(default_slot))
 	toggles			= sanitize_integer(toggles, 0, TOGGLES_TOTAL, initial(toggles))
 	toggles2		= sanitize_integer(toggles2, 0, TOGGLES_2_TOTAL, initial(toggles2))
+	toggles3		= sanitize_integer(toggles3, 0, TOGGLES_3_TOTAL, initial(toggles3))
 	sound			= sanitize_integer(sound, 0, 65535, initial(sound))
 	UI_style_color	= sanitize_hexcolor(UI_style_color, initial(UI_style_color))
 	UI_style_alpha	= sanitize_integer(UI_style_alpha, 0, 255, initial(UI_style_alpha))
@@ -75,7 +78,7 @@
 	parallax = sanitize_integer(parallax, 0, 16, initial(parallax))
 	discord_id			= sanitize_text(discord_id, initial(discord_id))
 	discord_name		= sanitize_text(discord_name, initial(discord_name))
-	return 1
+	return TRUE
 
 /datum/preferences/proc/save_preferences(client/C)
 
@@ -108,7 +111,8 @@
 					parallax=:parallax,
 					keybindings=:keybindings,
 					viewrange=:viewrange,
-					ghost_darkness_level=:ghost_darkness_level
+					ghost_darkness_level=:ghost_darkness_level,
+					toggles_3=:toggles3
 					WHERE ckey=:ckey"}, list(
 						// OH GOD THE PARAMETERS
 						"ooccolour" = ooccolor,
@@ -130,6 +134,7 @@
 						"viewrange" = viewrange,
 						"ghost_darkness_level" = ghost_darkness_level,
 						"ckey" = C.ckey,
+						"toggles3" = num2text(toggles3, CEILING(log(10, (TOGGLES_3_TOTAL)), 1)),
 					)
 					)
 
@@ -334,13 +339,14 @@
 	metadata		= sanitize_text(metadata, initial(metadata))
 	real_name		= reject_bad_name(real_name, 1)
 	if(isnull(species)) species = SPECIES_HUMAN
-	if(isnull(language)) language = "None"
+	if(isnull(language)) language = LANGUAGE_NONE
 	if(isnull(nanotrasen_relation)) nanotrasen_relation = initial(nanotrasen_relation)
 	if(isnull(speciesprefs)) speciesprefs = initial(speciesprefs)
 	if(!real_name) real_name = random_name(gender,species)
 	be_random_name	= sanitize_integer(be_random_name, 0, 1, initial(be_random_name))
-	gender			= sanitize_gender(gender, FALSE, !SP.has_gender)
-	age				= sanitize_integer(age, AGE_MIN, AGE_MAX, initial(age))
+	gender			= sanitize_gender(gender, FALSE, !SP?.has_gender)
+	var/age_limits = get_age_limits(SP, list(SPECIES_AGE_MIN, SPECIES_AGE_MAX, JOB_MIN_AGE_COMMAND))
+	age				= sanitize_integer(age, age_limits[SPECIES_AGE_MIN], age_limits[SPECIES_AGE_MAX], age_limits[JOB_MIN_AGE_COMMAND])
 	h_colour		= sanitize_hexcolor(h_colour)
 	h_sec_colour	= sanitize_hexcolor(h_sec_colour)
 	f_colour		= sanitize_hexcolor(f_colour)
@@ -409,9 +415,12 @@
 /datum/preferences/proc/form_choosen_gears()
 	choosen_gears.Cut()
 	for(var/gear in loadout_gear)
-		var/datum/geartype = GLOB.gear_datums[gear]
+		var/datum/gear/geartype = GLOB.gear_datums[gear]
 		if(!istype(geartype))
 			loadout_gear -= gear // Delete wrong/outdated data
+			continue
+		if(!geartype.can_select(cl = parent, species_name = species, silent = TRUE)) // all other checks, no jobs in prefs, be quiet
+			loadout_gear -= gear
 			continue
 		var/datum/gear/new_gear = new geartype.type
 		for(var/tweak in loadout_gear[gear])

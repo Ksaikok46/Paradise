@@ -5,11 +5,12 @@
 	desc = "A large pulsating plant..."
 	icon = 'icons/effects/spacevines.dmi'
 	icon_state = "flower_bud"
-	layer = MOB_LAYER + 0.9
-	opacity = 0
-	canSmoothWith = list()
-	smooth = SMOOTH_FALSE
-	var/growth_time = 1200
+	layer = SPACEVINE_MOB_LAYER
+	opacity = FALSE
+	canSmoothWith = null
+	smooth = NONE
+	var/growth_time = 120 SECONDS
+	var/list/vines = list()
 
 /obj/structure/alien/resin/flower_bud_enemy/New()
 	..()
@@ -20,8 +21,7 @@
 	anchors += locate(x+2,y-2,z)
 
 	for(var/turf/T in anchors)
-		var/datum/beam/B = Beam(T, "vine", time=INFINITY, maxdistance=5, beam_type=/obj/effect/ebeam/vine)
-		B.sleep_time = 10 //these shouldn't move, so let's slow down updates to 1 second (any slower and the deletion of the vines would be too slow)
+		vines += Beam(T, "vine", maxdistance = 5, beam_type = /obj/effect/ebeam/reacting/vine)
 	addtimer(CALLBACK(src, PROC_REF(bear_fruit)), growth_time)
 
 /obj/structure/alien/resin/flower_bud_enemy/proc/bear_fruit()
@@ -29,20 +29,9 @@
 	new /mob/living/simple_animal/hostile/venus_human_trap(get_turf(src))
 	qdel(src)
 
-
-/obj/effect/ebeam/vine
-	name = "thick vine"
-	mouse_opacity = MOUSE_OPACITY_ICON
-	desc = "A thick vine, painful to the touch."
-
-
-/obj/effect/ebeam/vine/Crossed(atom/movable/AM, oldloc)
-	if(isliving(AM))
-		var/mob/living/L = AM
-		if(!("vines" in L.faction))
-			L.adjustBruteLoss(5)
-			to_chat(L, "<span class='alert'>You cut yourself on the thorny vines.</span>")
-
+/obj/structure/alien/resin/flower_bud_enemy/Destroy()
+	QDEL_LIST(vines)
+	return ..()
 
 
 /mob/living/simple_animal/hostile/venus_human_trap
@@ -62,6 +51,7 @@
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	unsuitable_atmos_damage = 0
 	faction = list("hostile","vines","plants")
+	AI_delay_max = 0 SECONDS
 	var/list/grasping = list()
 	var/max_grasps = 4
 	var/grasp_chance = 20
@@ -75,7 +65,7 @@
 			if(L.stat == DEAD)
 				var/datum/beam/B = grasping[L]
 				if(B)
-					B.End()
+					qdel(B)
 				grasping -= L
 
 			//Can attack+pull multiple times per cycle
@@ -83,8 +73,7 @@
 				L.attack_animal(src)
 			else
 				if(prob(grasp_pull_chance))
-					dir = get_dir(src,L) //staaaare
-					step(L,get_dir(L,src)) //reel them in
+					step_with_glide(direction = get_dir(src, L))
 					L.Weaken(6 SECONDS) //you can't get away now~
 
 		if(grasping.len < max_grasps)
@@ -98,7 +87,7 @@
 								continue grasping
 					if(prob(grasp_chance))
 						to_chat(L, "<span class='userdanger'>\The [src] has you entangled!</span>")
-						grasping[L] = Beam(L, "vine", time=INFINITY, maxdistance=5, beam_type=/obj/effect/ebeam/vine)
+						grasping[L] = Beam(L, "vine", time=INFINITY, maxdistance=5, beam_type=/obj/effect/ebeam/reacting/vine)
 
 						break //only take 1 new victim per cycle
 
@@ -111,7 +100,7 @@
 			if(O.density)
 				return
 	var/dist = get_dist(src,the_target)
-	Beam(the_target, "vine", time=dist*2, maxdistance=dist+2, beam_type=/obj/effect/ebeam/vine)
+	Beam(the_target, "vine", time=dist*2, maxdistance=dist+2, beam_type=/obj/effect/ebeam/reacting/vine)
 	the_target.attack_animal(src)
 
 

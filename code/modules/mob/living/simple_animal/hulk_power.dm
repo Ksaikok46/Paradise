@@ -3,7 +3,6 @@
 /obj/effect/proc_holder/spell/hulk_transform
 	name = "Transform"
 	desc = "Превращение в халка."
-	panel = "Hulk"
 	action_icon_state = "transformarion_hulk"
 	action_background_icon_state = "bg_hulk"
 	base_cooldown = 10 SECONDS
@@ -28,20 +27,20 @@
 		DSN.occupant = null
 		DSN.icon_state = "scanner_0"
 	var/mob/living/simple_animal/hulk/Monster
-	if(CLUMSY in user.mutations)
+	if(HAS_TRAIT(user, TRAIT_CLUMSY))
 		Monster = new /mob/living/simple_animal/hulk/clown_hulk(get_turf(user))
 	else if(isunathi(user))
 		Monster = new /mob/living/simple_animal/hulk/zilla(get_turf(user))
 	else
 		Monster = new /mob/living/simple_animal/hulk/human(get_turf(user))
 
-	var/datum/effect_system/smoke_spread/smoke = new
-	smoke.set_up(10, 0, user.loc)
+	var/datum/effect_system/fluid_spread/smoke/smoke = new
+	smoke.set_up(amount = 10, location = user.loc)
 	smoke.start()
 	playsound(user, 'sound/effects/bamf.ogg', CHANNEL_BUZZ)
 	Monster.original_body = user
 	user.forceMove(Monster)
-	user.status_flags |= GODMODE
+	ADD_TRAIT(user, TRAIT_GODMODE, UNIQUE_TRAIT_SOURCE(Monster))
 	user.mind.transfer_to(Monster)
 	Monster.say(pick("RAAAAAAAARGH!", "HNNNNNNNNNGGGGGGH!", "GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", "AAAAAAARRRGH!" ))
 
@@ -52,7 +51,6 @@
 /obj/effect/proc_holder/spell/hulk_dash
 	name = "Dash"
 	desc = "Разбег. Чем он дольше, тем больнее будет, тем кто встанет у вас на пути."
-	panel = "Hulk"
 	action_icon_state = "charge_hulk"
 	action_background_icon_state = "bg_hulk"
 	base_cooldown = 13 SECONDS
@@ -218,7 +216,6 @@
 /obj/effect/proc_holder/spell/hulk_jump
 	name = "Leap"
 	desc = "Прыжок. Можно легко сломать кому-то кость при столкновении."
-	panel = "Hulk"
 	action_icon_state = "jump_hulk"
 	action_background_icon_state = "bg_hulk"
 	base_cooldown = 13 SECONDS
@@ -335,7 +332,6 @@
 /obj/effect/proc_holder/spell/hulk_honk
 	name = "HulkHONK"
 	desc = "Ваш хонк заставляет ваших врагов пасть на пол и налить под себя смазку (от страха). На ваших братьях-клоунах работает как лечение."
-	panel = "Hulk"
 	action_icon_state = "honk_hulk"
 	action_background_icon_state = "bg_hulk"
 	base_cooldown = 25 SECONDS
@@ -353,10 +349,12 @@
 		return
 	playsound(user, 'sound/items/airhorn.ogg', CHANNEL_BUZZ)
 	for(var/mob/living/carbon/M in ohearers(2))
-		if(CLUMSY in M.mutations)
-			M.adjustBruteLoss(-10)
-			M.adjustToxLoss(-10)
-			M.adjustOxyLoss(-10)
+		if(HAS_TRAIT(M, TRAIT_CLUMSY))
+			var/update = NONE
+			update |= M.heal_overall_damage(10, 10, updating_health = FALSE)
+			update |= M.heal_damage_type(10, OXY, updating_health = FALSE)
+			if(update)
+				M.updatehealth()
 			M.AdjustWeakened(-2 SECONDS)
 			M.AdjustStunned(-2 SECONDS)
 		else
@@ -372,10 +370,9 @@
 
 
 //Hulk Joke
-/obj/effect/proc_holder/spell/hulk_joke/create_new_targeting()
+/obj/effect/proc_holder/spell/hulk_joke
 	name = "Joke"
 	desc = "Пускает большое облако дыма, а так-же лечит вас. Хорошее решение если вам нужно отступить."
-	panel = "Hulk"
 	action_icon_state = "joke_hulk"
 	action_background_icon_state = "bg_hulk"
 	base_cooldown = 35 SECONDS
@@ -393,14 +390,12 @@
 		return
 
 	var/mob/living/simple_animal/hulk/clown_hulk = user
-	clown_hulk.adjustBruteLoss(-50)
-	clown_hulk.adjustToxLoss(-10)
-	clown_hulk.adjustOxyLoss(-10)
+	clown_hulk.heal_damages(brute = 50, tox = 10, oxy = 10)
 	clown_hulk.AdjustWeakened(-2 SECONDS)
 	clown_hulk.AdjustStunned(-2 SECONDS)
 
-	var/datum/effect_system/smoke_spread/smoke = new
-	smoke.set_up(10,0, user.loc)
+	var/datum/effect_system/fluid_spread/smoke/smoke = new
+	smoke.set_up(amount = 10, location = user.loc)
 	smoke.start()
 	playsound(user,pick('sound/spookoween/scary_clown_appear.ogg','sound/spookoween/scary_horn.ogg','sound/spookoween/scary_horn2.ogg','sound/spookoween/scary_horn3.ogg'),CHANNEL_BUZZ, 100)
 
@@ -411,7 +406,6 @@
 /obj/effect/proc_holder/spell/hulk_mill
 	name = "Windmill"
 	desc = "Вы начинаете крутить хвостом во все стороны и наносить им урон. Хорошим выбором будет использовать это в узких помещаниях."
-	panel = "Hulk"
 	action_icon_state = "mill_hulk"
 	action_background_icon_state = "bg_hulk"
 	base_cooldown = 20 SECONDS
@@ -452,14 +446,14 @@
 
 
 //Harchok
-/obj/item/projectile/energy/hulkspit
+/obj/projectile/energy/hulkspit
 	name = "spit"
 	icon = 'icons/obj/weapons/projectiles.dmi'
 	icon_state = "neurotoxin"
 	damage = 15
 	damage_type = TOX
 
-/obj/item/projectile/energy/hulkspit/on_hit(atom/target, def_zone = BODY_ZONE_CHEST, blocked = 0)
+/obj/projectile/energy/hulkspit/on_hit(atom/target, def_zone = BODY_ZONE_CHEST, blocked = 0)
 	if(iscarbon(target))
 		var/mob/living/carbon/M = target
 		M.Weaken(4 SECONDS)
@@ -470,13 +464,12 @@
 /obj/effect/proc_holder/spell/fireball/hulk_spit
 	name = "Fire Spit"
 	desc = "Вы харкаете во врага зеленой соплей и поджигаете его."
-	panel = "Hulk"
 	invocation_type = "none"
 	action_icon_state = "harchok_hulk"
 	action_background_icon_state = "bg_hulk"
-	selection_activated_message	= "<span class='notice'>Your prepare to spit fire! <B>Left-click to spit at a target!</B></span>"
+	selection_activated_message	= "<span class='notice'>Your prepare to spit fire! <b>Left-click to spit at a target!</b></span>"
 	selection_deactivated_message = "<span class='notice'>You swallow your spit...for now.</span>"
-	fireball_type = /obj/item/projectile/energy/hulkspit
+	fireball_type = /obj/projectile/energy/hulkspit
 	base_cooldown = 25 SECONDS
 	human_req = FALSE
 	need_active_overlay = TRUE
@@ -498,9 +491,9 @@
 	name = "LazorZ"
 	desc = "Вы стреляете из глаз слабеньким лазером. Может помочь, если хитрые СБшники прячутся за стеклами."
 	action_icon_state = "lazer_hulk"
-	selection_activated_message	= "<span class='notice'>You strained your eyes preparing the LAZOR! <B>Left-click to fire at a target!</B></span>"
+	selection_activated_message	= "<span class='notice'>You strained your eyes preparing the LAZOR! <b>Left-click to fire at a target!</b></span>"
 	selection_deactivated_message = "<span class='notice'>You relax your eyes...for now.</span>"
-	fireball_type = /obj/item/projectile/beam
+	fireball_type = /obj/projectile/beam
 	base_cooldown = 7 SECONDS
 	sound = 'sound/weapons/laser.ogg'
 

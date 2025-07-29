@@ -24,6 +24,7 @@ SUBSYSTEM_DEF(jobs)
 
 /datum/controller/subsystem/jobs/Initialize()
 	SetupOccupations()
+	return SS_INIT_SUCCESS
 
 
 // Only fires every 5 minutes
@@ -37,7 +38,7 @@ SUBSYSTEM_DEF(jobs)
 	occupations = list()
 	var/list/all_jobs = subtypesof(/datum/job)
 	if(!all_jobs.len)
-		to_chat(world, "<span class='warning'>Ошибка выдачи профессий, датумы профессий не найдены.</span>")
+		to_chat(world, span_warning("Ошибка выдачи профессий, датумы профессий не найдены."))
 		return
 
 	for(var/J in all_jobs)
@@ -93,7 +94,7 @@ SUBSYSTEM_DEF(jobs)
 			return 0
 		if(!job.character_old_enough(player.client))
 			return 0
-		if(!is_job_whitelisted(player, rank))
+		if(job.species_in_blacklist(player.client))
 			return 0
 
 		var/position_limit = job.total_positions
@@ -159,6 +160,8 @@ SUBSYSTEM_DEF(jobs)
 		if(player.mind && (job.title in player.mind.restricted_roles))
 			Debug("FOC incompatbile with antagonist role, Player: [player]")
 			continue
+		if(job.species_in_blacklist(player.client))
+			Debug("FOC player character race isn't right for job, Player: [player]")
 		if(player.client.prefs.GetJobDepartment(job, level) & job.flag)
 			Debug("FOC pass, Player: [player], Level:[level]")
 			candidates += player
@@ -208,6 +211,10 @@ SUBSYSTEM_DEF(jobs)
 
 		if(player.mind && (job.title in player.mind.restricted_roles))
 			Debug("GRJ incompatible with antagonist role, Player: [player], Job: [job.title]")
+			continue
+
+		if(job.species_in_blacklist(player.client))
+			Debug("GRJ player character race rendering them ineligible for job, Player: [player]")
 			continue
 
 		if((job.current_positions < job.spawn_positions) || job.spawn_positions == -1)
@@ -381,9 +388,8 @@ SUBSYSTEM_DEF(jobs)
 				if(player.mind && (job.title in player.mind.restricted_roles))
 					Debug("DO incompatible with antagonist role, Player: [player], Job:[job.title]")
 					continue
-
-				if(!is_job_whitelisted(player, job.title))
-					Debug("DO player not whitelisted, Player: [player], Job:[job.title]")
+				if(job.species_in_blacklist(player.client))
+					Debug("DO player character race rendering them ineligible for job, Player: [player]")
 					continue
 
 				// If the player wants that job on this level, then try give it to him.
@@ -423,7 +429,7 @@ SUBSYSTEM_DEF(jobs)
 			Debug("AC2 Assistant located, Player: [player]")
 			AssignRole(player, JOB_TITLE_CIVILIAN)
 		else if(player.client.prefs.alternate_option == RETURN_TO_LOBBY)
-			to_chat(player, "<span class='danger'>Unfortunately, none of the round start roles you selected had a free slot. Please join the game by using \"Join Game!\" button and selecting a role with a free slot.</span>")
+			to_chat(player, span_danger("Unfortunately, none of the round start roles you selected had a free slot. Please join the game by using \"Join Game!\" button and selecting a role with a free slot."))
 			player.ready = 0
 			unassigned -= player
 
@@ -445,25 +451,25 @@ SUBSYSTEM_DEF(jobs)
 
 		CreateMoneyAccount(H, rank, job)
 	var/list/L = list()
-	L.Add("<B>Вы <span class='red'>[alt_title ? alt_title : rank]</span>.</B>")
-	L.Add("<b>На этой должности вы отвечаете непосредственно перед <span class='red'>[replacetext(job.supervisors,"the ","")]</span>. Особые обстоятельства могут это изменить.</b>")
-	L.Add("<b>Для получения дополнительной информации о работе на станции, см. <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure\">Стандартные Рабочие Процедуры (СРП)</a></b>")
+	L.Add("<b>Вы [span_red(alt_title ? alt_title : rank)].</b>")
+	L.Add("<b>На этой должности вы отвечаете непосредственно перед [span_red(replacetext(job.supervisors,"the ",""))]. Особые обстоятельства могут это изменить.</b>")
+	L.Add("<b>Для получения дополнительной информации о работе на станции, см. <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure\">Стандартные Рабочие Процедуры (СРП)</a></b>")
 	if(job.is_service)
-		L.Add("<b>Будучи работником отдела Обслуживания, убедитесь что прочли <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Service&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи работником отдела Обслуживания, убедитесь что прочли <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Service&#41\">СРП своего отдела</a></b>")
 	if(job.is_supply)
-		L.Add("<b>Будучи работником отдела Снабжения, убедитесь что прочли <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Supply&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи работником отдела Снабжения, убедитесь что прочли <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Supply&#41\">СРП своего отдела</a></b>")
 	if(job.is_command)
-		L.Add("<b>Будучи важным членом Командования, убедитесь что прочли <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Command&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи важным членом Командования, убедитесь что прочли <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Command&#41\">СРП своего отдела</a></b>")
 	if(job.is_legal)
-		L.Add("<b>Ваша должность требует полного знания <a href=\"https://ss220.space/wiki/index.php/Space_Law\">Космического Закона</a> и <a href=\"https://ss220.space/wiki/index.php/Legal_Standard_Operating_Procedure\">Правовых Стандартных Рабочих Процедур</a></b>")
+		L.Add("<b>Ваша должность требует полного знания <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Space_Law\">Космического Закона</a> и <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Legal_Standard_Operating_Procedure\">Правовых Стандартных Рабочих Процедур</a></b>")
 	if(job.is_engineering)
-		L.Add("<b>Будучи работником Инженерного отдела, убедитесь что прочли <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Engineering&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи работником Инженерного отдела, убедитесь что прочли <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Engineering&#41\">СРП своего отдела</a></b>")
 	if(job.is_medical)
-		L.Add("<b>Будучи работником Медицинского отдела, убедитесь что прочли <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Medical&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи работником Медицинского отдела, убедитесь что прочли <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Medical&#41\">СРП своего отдела</a></b>")
 	if(job.is_science)
-		L.Add("<b>Будучи работником Научного отдела, убедитесь что прочли <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Science&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи работником Научного отдела, убедитесь что прочли <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Science&#41\">СРП своего отдела</a></b>")
 	if(job.is_security)
-		L.Add("<b>Будучи работником Службы Безопасности, вам необходимо знание <a href=\"https://ss220.space/wiki/index.php/Space_Law\">Космического Закона</a>, <a href=\"https://ss220.space/wiki/index.php/Legal_Standard_Operating_Procedure\">Правовых СРП</a>, а также <a href=\"https://ss220.space/wiki/index.php/Standard_Operating_Procedure_&#40;Security&#41\">СРП своего отдела</a></b>")
+		L.Add("<b>Будучи работником Службы Безопасности, вам необходимо знание <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Space_Law\">Космического Закона</a>, <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Legal_Standard_Operating_Procedure\">Правовых СРП</a>, а также <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Standard_Operating_Procedure_&#40;Security&#41\">СРП своего отдела</a></b>")
 	if(job.req_admin_notify)
 		L.Add("<b>Вы играете на важной для игрового процесса должности. Если вам необходимо покинуть игру, пожалуйста, используйте крио и проинформируйте командование. Если вы не можете это сделать, пожалуйста, проинформируйте админов через админхэлп.</b>")
 	if(job.is_novice)
@@ -487,37 +493,56 @@ SUBSYSTEM_DEF(jobs)
 		for(var/obj/effect/landmark/start/sloc in GLOB.landmarks_list)
 			if(sloc.name != rank)
 				continue
+
 			if(locate(/mob/living) in sloc.loc)
 				continue
+
 			mark_spawn = sloc
 			break
+
 		if(!mark_spawn)
 			mark_spawn = locate("start*[rank]") // use old stype
+
 		if(!mark_spawn) // No spawn, then spawn on latejoin mark
 			log_runtime(EXCEPTION("No landmark start for [rank]."))
 			mark_spawn = pick(GLOB.latejoin)
-		if(!mark_spawn) // still no spawn, fall back to the arrivals shuttle
+
+		if(!mark_spawn || SSticker.shuttle_start) // still no spawn, fall back to the arrivals shuttle
 			var/list/turf/possible_turfs = list()
+			var/list/turf/possible_but_bad_turfs = list() // Used if too many people for shattle.
 			for(var/turf/TS in get_area_turfs(/area/shuttle/arrival/station))
 				if(TS.density)
 					continue
+
+				var/bad_turf = FALSE
 				for(var/obj/O in TS)
-					if(O.density)
+					if(!O.density)
 						continue
+
+					bad_turf = TRUE
+					possible_but_bad_turfs += TS
+					break
+
+				if(bad_turf)
+					continue
+
 				possible_turfs += TS
-			mark_spawn = pick(possible_turfs)
+
+			mark_spawn = possible_turfs.len ? pick(possible_turfs) : pick(possible_but_bad_turfs)
 
 		if(isturf(mark_spawn))
 			turf_spawn = mark_spawn
+
 		else if(istype(mark_spawn, /obj/effect/landmark/start) && isturf(mark_spawn.loc))
 			turf_spawn = mark_spawn.loc
+
 		else
 			message_admins("Couldn't find spawnpoint for [H] [ADMIN_COORDJMP(H)]. Notify mapper about it.")
 
 		if(turf_spawn)
 			H.forceMove(turf_spawn)
 			// Moving wheelchair if they have one
-			if(H.buckled && istype(H.buckled, /obj/structure/chair/wheelchair))
+			if(H.buckled && istype(H.buckled, /obj/vehicle/ridden/wheelchair))
 				H.buckled.forceMove(H.loc)
 				H.buckled.dir = H.dir
 
@@ -530,17 +555,22 @@ SUBSYSTEM_DEF(jobs)
 		job.after_spawn(H)
 
 		//Gives glasses to the vision impaired
-		if(NEARSIGHTED in H.mutations)
+		if(HAS_TRAIT(H, TRAIT_NEARSIGHTED))
 			var/equipped = H.equip_to_slot_or_del(new /obj/item/clothing/glasses/regular(H), ITEM_SLOT_EYES)
 			if(equipped != 1)
 				var/obj/item/clothing/glasses/G = H.glasses
 				if(istype(G) && !G.prescription)
 					G.upgrade_prescription()
 					H.update_nearsighted_effects()
+
+		if(!issilicon(H))
+			// Wheelchair necessary?
+			var/obj/item/organ/external/l_foot = H.get_organ(BODY_ZONE_PRECISE_L_FOOT)
+			var/obj/item/organ/external/r_foot = H.get_organ(BODY_ZONE_PRECISE_R_FOOT)
+			if(!l_foot && !r_foot || (H.client.prefs.disabilities & DISABILITY_FLAG_PARAPLEGIA) && !(H.dna.species.blacklisted_disabilities & DISABILITY_FLAG_PARAPLEGIA))
+				var/obj/vehicle/ridden/wheelchair/W = new /obj/vehicle/ridden/wheelchair(H.loc)
+				W.buckle_mob(H, TRUE)
 	return H
-
-
-
 
 
 /datum/controller/subsystem/jobs/proc/LoadJobsFile(jobsfile, highpop) //ran during round setup, reads info from jobs.txt -- Urist
@@ -625,8 +655,11 @@ SUBSYSTEM_DEF(jobs)
 
 
 /datum/controller/subsystem/jobs/proc/CreateMoneyAccount(mob/living/H, rank, datum/job/job)
-	var/money_amount = job ? rand(500, 1500) * get_job_factor(job, job.random_money_factor) : rand(500, 1500)
-	var/datum/money_account/M = create_account(H.real_name, money_amount, null)
+	var/money_amount = rand(job.min_start_money, job.max_start_money)
+	var/datum/money_account/M = create_account(H.real_name, money_amount, null, job, TRUE)
+	if(H.dna)
+		GLOB.dna2account[H.dna] = M
+
 	var/remembered_info = ""
 
 	remembered_info += "<b>Номер вашего аккаунта:</b> #[M.account_number]<br>"
@@ -652,14 +685,23 @@ SUBSYSTEM_DEF(jobs)
 
 	H.mind.initial_account = M
 
-	spawn(0)
-		to_chat(H, "<span class='boldnotice'>Номер вашего аккаунта: [M.account_number], ПИН вашего аккаунта: [M.remote_access_pin]</span>")
+	H.mind.initial_account.insurance_type = job.insurance_type
+	switch (job.insurance_type)
+		if(INSURANCE_TYPE_NONE)
+			H.mind.initial_account.insurance = INSURANCE_NONE
+		if(INSURANCE_TYPE_BUDGETARY)
+			H.mind.initial_account.insurance = INSURANCE_BUDGETARY
+		if(INSURANCE_TYPE_STANDART)
+			H.mind.initial_account.insurance = INSURANCE_STANDART
+		if(INSURANCE_TYPE_EXTENDED)
+			H.mind.initial_account.insurance = INSURANCE_EXTENDED
+		if(INSURANCE_TYPE_DELUXE)
+			H.mind.initial_account.insurance = INSURANCE_DELUXE
+		if(INSURANCE_TYPE_NT_SPECIAL)
+			H.mind.initial_account.insurance = INSURANCE_NT_SPECIAL
 
-/datum/controller/subsystem/jobs/proc/get_job_factor(datum/job/job, randomized)
-	if(randomized)
-		return job.money_factor*rand(0.25, 4) // for now only used for civillians
-	else
-		return job.money_factor
+	spawn(0)
+		to_chat(H, span_boldnotice("Номер вашего аккаунта: [M.account_number], ПИН вашего аккаунта: [M.remote_access_pin]"))
 
 /datum/controller/subsystem/jobs/proc/format_jobs_for_id_computer(obj/item/card/id/tgtcard)
 	var/list/jobs_to_formats = list()
@@ -703,6 +745,14 @@ SUBSYSTEM_DEF(jobs)
 			oldjobdatum.current_positions--
 			newjobdatum.current_positions++
 
+/datum/controller/subsystem/jobs/proc/account_job_transfer(name_owner, job_title, salary_capcap = TRUE)
+
+	var/datum/money_account/account_job = get_account_with_name(name_owner)
+
+	if(account_job)
+		account_job.linked_job = SSjobs.GetJob(job_title)
+		account_job.salary_payment_active = salary_capcap
+
 /datum/controller/subsystem/jobs/proc/notify_dept_head(jobtitle, antext)
 	// Used to notify the department head of jobtitle X that their employee was brigged, demoted or terminated
 	if(!jobtitle || !antext)
@@ -722,7 +772,7 @@ SUBSYSTEM_DEF(jobs)
 		return
 	var/datum/data/pda/app/messenger/PM = target_pda.find_program(/datum/data/pda/app/messenger)
 	if(PM && PM.can_receive())
-		PM.notify("<b>Автоматическое Оповещение: </b>\"[antext]\" (Невозможно Ответить)", 0) // the 0 means don't make the PDA flash
+		PM.notify("<b>Автоматическое оповещение: </b>\"[antext]\" (Невозможно Ответить)", 0) // the 0 means don't make the PDA flash
 
 /datum/controller/subsystem/jobs/proc/notify_by_name(target_name, antext)
 	// Used to notify a specific crew member based on their real_name
@@ -737,7 +787,7 @@ SUBSYSTEM_DEF(jobs)
 		return
 	var/datum/data/pda/app/messenger/PM = target_pda.find_program(/datum/data/pda/app/messenger)
 	if(PM && PM.can_receive())
-		PM.notify("<b>Автоматическое Оповещение: </b>\"[antext]\" (Невозможно Ответить)", 0) // the 0 means don't make the PDA flash
+		PM.notify("<b>Автоматическое оповещение: </b>\"[antext]\" (Невозможно Ответить)", 0) // the 0 means don't make the PDA flash
 
 /datum/controller/subsystem/jobs/proc/format_job_change_records(centcom)
 	var/list/formatted = list()
@@ -847,25 +897,25 @@ SUBSYSTEM_DEF(jobs)
 			added_living += minutes
 
 			if(announce)
-				to_chat(C.mob, "<span class='notice'>You got: [minutes] Living EXP!</span>")
+				to_chat(C.mob, span_notice("You got: [minutes] Living EXP!"))
 
 			for(var/category in GLOB.exp_jobsmap)
 				if(GLOB.exp_jobsmap[category]["titles"])
 					if(myrole in GLOB.exp_jobsmap[category]["titles"])
 						play_records[C.ckey][category] += minutes
 						if(announce)
-							to_chat(C.mob, "<span class='notice'>You got: [minutes] [category] EXP!</span>")
+							to_chat(C.mob, span_notice("You got: [minutes] [category] EXP!"))
 
 			if(C.mob.mind.special_role)
 				play_records[C.ckey][EXP_TYPE_SPECIAL] += minutes
 				if(announce)
-					to_chat(C.mob, "<span class='notice'>You got: [minutes] Special EXP!</span>")
+					to_chat(C.mob, span_notice("You got: [minutes] Special EXP!"))
 
 		else if(isobserver(C.mob))
 			play_records[C.ckey][EXP_TYPE_GHOST] += minutes
 			added_ghost += minutes
 			if(announce)
-				to_chat(C.mob, "<span class='notice'>You got: [minutes] Ghost EXP!</span>")
+				to_chat(C.mob, span_notice("You got: [minutes] Ghost EXP!"))
 		else
 			continue
 

@@ -15,7 +15,7 @@
 	mob_size = MOB_SIZE_SMALL
 	pass_flags = PASSTABLE
 
-	speak_emote = list("clanks", "clinks", "clunks", "clangs")
+	speak_emote = list("лязгает")
 	tts_seed = "Earth"
 	speak_statement = "clinks"
 	speak_exclamation = "proclaims"
@@ -63,7 +63,7 @@
 	//Shhhh it's a secret. No one needs to know about infinite power for clockwork drone
 	cell = new /obj/item/stock_parts/cell/high/slime(src)
 	mmi = null
-	verbs -= /mob/living/silicon/robot/verb/Namepick
+	remove_verb(src, /mob/living/silicon/robot/verb/Namepick)
 	module = new /obj/item/robot_module/cogscarab(src)
 
 	var/datum/action/innate/hide/drone/cogscarab/hide = new()
@@ -80,10 +80,12 @@
 		hide.Remove(src)
 	. = ..()
 
+/mob/living/silicon/robot/cogscarab/add_strippable_element()
+	return
 
 /mob/living/silicon/robot/cogscarab/init(alien = FALSE, mob/living/silicon/ai/ai_to_sync_to = null)
 	laws = new /datum/ai_laws/ratvar()
-	connected_ai = null
+	set_connected_ai(null)
 
 	aiCamera = new/obj/item/camera/siliconcam/drone_camera(src)
 	additional_law_channels["Drone"] = get_language_prefix(LANGUAGE_DRONE_BINARY)
@@ -105,7 +107,7 @@
 		warn_wind_up = WINDUP_STATE_NONE
 	else
 		if(!warn_wind_up)
-			to_chat(src, "<span class='warning'>You feel how your cogs inside slowing down! You need to find beacon to rewind yourself!</span>")
+			to_chat(src, span_warning("You feel how your cogs inside slowing down! You need to find beacon to rewind yourself!"))
 			warn_wind_up = WINDUP_STATE_WARNING
 
 
@@ -113,7 +115,7 @@
 		if(wind_up_timer < 0)
 			wind_up_timer = 0
 		if(warn_wind_up < WINDUP_STATE_DANGER)
-			to_chat(src, "<span class='userdanger'>The gears inside stopped to work! Find the beacon!</span>")
+			to_chat(src, span_userdanger("The gears inside stopped to work! Find the beacon!"))
 			warn_wind_up = WINDUP_STATE_DANGER
 		adjustBruteLoss(2)
 	else
@@ -122,10 +124,11 @@
 	//rounds to 30 and divides by 30. if timer full, 6 - 5, state 1. from 1 to 6.
 
 
-/mob/living/silicon/robot/cogscarab/Stat()
-	..()
+/mob/living/silicon/robot/cogscarab/get_status_tab_items()
+	var/list/status_tab_data = ..()
+	. = status_tab_data
 	if(mind?.current)
-		stat("Wind Up Timer:", "[wind_up_timer]")
+		status_tab_data[++status_tab_data.len] = list("Wind Up Timer:", "[wind_up_timer]")
 
 /mob/living/silicon/robot/cogscarab/rename_character(oldname, newname)
 	// force it to not actually change most things
@@ -143,11 +146,12 @@
 	if(blocks_emissive)
 		add_overlay(get_emissive_block())
 
-/mob/living/silicon/robot/cogscarab/attackby(obj/item/W, mob/user, params)
-	if(istype(W, /obj/item/borg/upgrade))
-		return
 
+/mob/living/silicon/robot/cogscarab/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/borg/upgrade))
+		return ATTACK_CHAIN_BLOCKED
 	return ..()
+
 
 /mob/living/silicon/robot/cogscarab/welder_act(mob/user, obj/item/I)
 	if(user.a_intent != INTENT_HELP)
@@ -167,8 +171,8 @@
 	H.w_class = WEIGHT_CLASS_TINY
 	H.attack_hand(grabber)
 
-	to_chat(grabber, "<span class='notice'>Вы подняли [src.name].")
-	to_chat(src, "<span class='notice'>[grabber.name] поднял[genderize_ru(grabber.gender,"","а","о","и")] вас.</span>")
+	to_chat(grabber, span_notice("Вы подняли [src.name]."))
+	to_chat(src, span_notice("[grabber.name] поднял[genderize_ru(grabber.gender,"","а","о","и")] вас."))
 	grabber.status_flags |= PASSEMOTES
 
 	return H
@@ -193,14 +197,16 @@
 /mob/living/silicon/robot/cogscarab/allowed(obj/item/I) //No opening cover
 	return FALSE
 
+
 /mob/living/silicon/robot/cogscarab/updatehealth(reason = "none given", should_log = FALSE)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return ..()
-	health = maxHealth - (getBruteLoss() + getFireLoss() + (suiciding ? getOxyLoss() : 0))
+	set_health(maxHealth - (getBruteLoss() + getFireLoss() + (suiciding ? getOxyLoss() : 0)))
 	update_stat("updatehealth([reason])", should_log)
 
+
 /mob/living/silicon/robot/cogscarab/update_stat(reason = "none given", should_log = FALSE)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return ..()
 	if(health <= 0 && stat != DEAD)
 		ghostize(TRUE)
@@ -216,47 +222,48 @@
 	SSticker.mode.remove_clocker(mind, FALSE)
 	adjustBruteLoss(health)
 
-/mob/living/silicon/robot/cogscarab/Bump(atom/movable/AM, yes)
-	if(is_type_in_list(AM, allowed_bumpable_objects))
+/mob/living/silicon/robot/cogscarab/Bump(atom/bumped_atom)
+	if(is_type_in_list(bumped_atom, allowed_bumpable_objects))
 		return ..()
 
-/mob/living/silicon/robot/cogscarab/start_pulling(atom/movable/AM, force = pull_force, show_message = FALSE)
+/mob/living/silicon/robot/cogscarab/start_pulling(atom/movable/pulled_atom, state, force = pull_force, supress_message = FALSE)
+	if(is_type_in_list(pulled_atom, pullable_items))
+		force = INFINITY	// Drone power! Makes them able to drag pipes and such
+		return ..()
 
-	if(is_type_in_list(AM, pullable_items))
-		..(AM, force = INFINITY) // Drone power! Makes them able to drag pipes and such
-
-	else if(isitem(AM))
-		var/obj/item/O = AM
-		if(O.w_class > WEIGHT_CLASS_SMALL)
-			if(show_message)
+	if(isitem(pulled_atom))
+		var/obj/item/pulled_item = pulled_atom
+		if(pulled_item.w_class > WEIGHT_CLASS_SMALL)
+			if(!supress_message)
 				to_chat(src, span_warning("You are too small to pull that."))
-			return
-		else
-			..()
-	else
-		if(show_message)
-			to_chat(src, span_warning("You are too small to pull that."))
+			return FALSE
+		return ..()
+
+	if(!supress_message)
+		to_chat(src, span_warning("You are too small to pull that."))
+	return FALSE
+
 
 /mob/living/silicon/robot/cogscarab/add_robot_verbs()
-	src.verbs |= silicon_subsystems
+	add_verb(src, silicon_subsystems)
 
 /mob/living/silicon/robot/cogscarab/remove_robot_verbs()
-	src.verbs -= silicon_subsystems
+	remove_verb(src, silicon_subsystems)
 
 /mob/living/silicon/robot/cogscarab/toggle_sensor_mode()
-	var/sensor_type = input("Please select sensor type.", "Sensor Integration", null) in list("Medical","Diagnostic", "Multisensor","Disable")
+	var/sensor_type = tgui_input_list(usr, "Please select sensor type.", "Sensor Integration", list("Medical","Diagnostic", "Multisensor","Disable"), null)
 	remove_med_sec_hud()
 	switch(sensor_type)
 		if("Medical")
 			add_med_hud()
-			to_chat(src, "<span class='notice'>Life signs monitor overlay enabled.</span>")
+			to_chat(src, span_notice("Life signs monitor overlay enabled."))
 		if("Diagnostic")
 			add_diag_hud()
-			to_chat(src, "<span class='notice'>Robotics diagnostic overlay enabled.</span>")
+			to_chat(src, span_notice("Robotics diagnostic overlay enabled."))
 		if("Multisensor")
 			add_med_hud()
 			add_diag_hud()
-			to_chat(src, "<span class='notice'>Multisensor overlay enabled.</span>")
+			to_chat(src, span_notice("Multisensor overlay enabled."))
 		if("Disable")
 			to_chat(src, "Sensor augmentations disabled.")
 
@@ -271,9 +278,9 @@
 	return
 
 /mob/living/silicon/robot/cogscarab/verb/light()
-	set name = "Light On/Off"
+	set name = "Освещение"
 	set desc = "Activate a low power omnidirectional LED. Toggled on or off."
-	set category = "Cogscarab"
+	set category = STATPANEL_COGSCARAB
 
 	if(lamp_intensity)
 		lamp_intensity = lamp_max // setting this to lamp_max will make control_headlamp shutoff the lamp
@@ -281,7 +288,7 @@
 
 /mob/living/silicon/robot/cogscarab/control_headlamp()
 	if(stat || lamp_recharging || low_power_mode)
-		to_chat(src, "<span class='danger'>This function is currently offline.</span>")
+		to_chat(src, span_danger("This function is currently offline."))
 		return
 
 //Some sort of magical "modulo" thing which somehow increments lamp power by 2, until it hits the max and resets to 0.
@@ -316,22 +323,22 @@
 			grabbed_something = TRUE
 
 	if(grabbed_something)
-		to_chat(user, "<span class='notice'>You deploy your melter and take some contents to melt from \the [T].</span>")
+		to_chat(user, span_notice("You deploy your melter and take some contents to melt from \the [T]."))
 	else
-		to_chat(user, "<span class='warning'>Nothing on \the [T] is useful to you.</span>")
+		to_chat(user, span_warning("Nothing on \the [T] is useful to you."))
 
 	return
 
 /obj/item/clockwork/brassmaker/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>It has [length(grabbed_items)] items ready to be melted, and [round(metal_amount/metal_need_per_brass, 0.01)] brass.</span>"
+	. += span_notice("It has [length(grabbed_items)] items ready to be melted, and [round(metal_amount/metal_need_per_brass, 0.01)] brass.")
 
 /obj/item/clockwork/brassmaker/attack_self(mob/user)
 	. = ..()
 	if(!length(grabbed_items))
-		to_chat(user, "<span class='warning'>[src] is empty!</span>")
+		to_chat(user, span_warning("[src] is empty!"))
 		return
-	to_chat(user, "<span class='notice'>You begin to melt everything you've picked up.</span>")
+	to_chat(user, span_notice("You begin to melt everything you've picked up."))
 	user.playsound_local(src, 'sound/machines/blender.ogg', 20, 1)
 	for(var/obj/item/A in grabbed_items)
 		if(A.materials[MAT_METAL])
@@ -341,7 +348,7 @@
 			else
 				metal_amount += A.materials[MAT_METAL]
 
-	user.changeNext_move(CLICK_CD_MELEE * melt_click_delay)
+	user.changeNext_move(attack_speed * melt_click_delay)
 	QDEL_LIST(grabbed_items)
 
 	if(isrobot(user))

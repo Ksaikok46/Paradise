@@ -51,7 +51,7 @@
 	displayed_text = new_val
 
 	if(displayed_text)
-		maptext = "<font face='Small Fonts' size=[text_size]>[displayed_text]</font>"
+		maptext = MAPTEXT("[displayed_text]")
 	else
 		maptext = null
 
@@ -81,7 +81,7 @@
 
 /obj/effect/countdown/clonepod
 	name = "cloning pod countdown"
-	text_size = 1
+	// text_size = 1
 
 /obj/effect/countdown/clonepod/get_value()
 	var/obj/machinery/clonepod/C = attached_to
@@ -95,7 +95,7 @@
 	name = "anomaly countdown"
 
 /obj/effect/countdown/anomaly/get_value()
-	var/obj/effect/anomaly/A = attached_to
+	var/obj/effect/old_anomaly/A = attached_to
 	if(!istype(A))
 		return
 	var/time_left = max(0, (A.death_time - world.time) / 10)
@@ -103,7 +103,7 @@
 
 /obj/effect/countdown/clockworkgate
 	name = "gateway countdown"
-	text_size = 1
+	// text_size = 1
 	color = "#BE8700"
 
 /obj/effect/countdown/clockworkgate/get_value()

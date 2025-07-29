@@ -1,18 +1,18 @@
 GLOBAL_LIST_EMPTY(empty_playable_ai_cores)
 
 /mob/living/silicon/ai/verb/wipe_core()
-	set name = "Wipe Core"
-	set category = "OOC"
+	set name = "Выгрузить ядро ИИ"
+	set category = STATPANEL_OOC
 	set desc = "Wipe your core. This is functionally equivalent to cryo or robotic storage, freeing up your job slot."
 
 	// Guard against misclicks, this isn't the sort of thing we want happening accidentally
-	if(alert("WARNING: This will immediately wipe your core and ghost you, removing your character from the round permanently (similar to cryo and robotic storage). Are you entirely sure you want to do this?",
-					"Wipe Core", "No", "No", "Yes") != "Yes")
+	if(tgui_alert(usr, "WARNING: This will immediately wipe your core and ghost you, removing your character from the round permanently (similar to cryo and robotic storage). Are you entirely sure you want to do this?", "Wipe Core", list("No", "Yes")) != "Yes")
 		return
 
 	// We warned you.
-	GLOB.empty_playable_ai_cores += new /obj/structure/AIcore/deactivated(loc)
-	GLOB.global_announcer.autosay("[src] has been moved to intelligence storage.", "Artificial Intelligence Oversight")
+	var/dead_aicore = new /obj/structure/AIcore/deactivated(loc)
+	GLOB.empty_playable_ai_cores += dead_aicore
+	GLOB.global_announcer.autosay("[src] has been moved to intelligence storage.", "Artificial Intelligence Oversight", follow_target_override = dead_aicore)
 
 	for(var/mob/living/silicon/robot/R in connected_robots)
 		R.disconnect_from_ai()
@@ -26,6 +26,8 @@ GLOBAL_LIST_EMPTY(empty_playable_ai_cores)
 	if(mind.objectives.len)
 		mind.objectives.Cut()
 		mind.special_role = null
+
+	view_core()
 
 	// Ghost the current player and allow or disallow them to respawn, depends on time
 	if(TOO_EARLY_TO_GHOST)

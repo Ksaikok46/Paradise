@@ -14,7 +14,6 @@
 	light_range = 4
 	light_on = FALSE
 	light_system = MOVABLE_LIGHT_DIRECTIONAL
-	var/obj/item/clothing/suit/space/hardsuit/suit
 	actions_types = list(/datum/action/item_action/toggle_helmet_light)
 
 	//Species-specific stuff.
@@ -31,70 +30,16 @@
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/helmet.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/helmet.dmi'
 		)
-	sprite_sheets_obj = list(
-		SPECIES_UNATHI = 'icons/obj/clothing/species/unathi/hats.dmi',
-		SPECIES_TAJARAN = 'icons/obj/clothing/species/tajaran/hats.dmi',
-		SPECIES_SKRELL = 'icons/obj/clothing/species/skrell/hats.dmi',
-		SPECIES_VOX = 'icons/obj/clothing/species/vox/hats.dmi',
-		SPECIES_VULPKANIN = 'icons/obj/clothing/species/vulpkanin/hats.dmi'
-		)
 
 
 /obj/item/clothing/head/helmet/space/hardsuit/Initialize(mapload, obj/item/clothing/suit/space/hardsuit/parent)
 	. = ..()
-	if(istype(parent))
-		suit = parent
-	else
+	if(!istype(parent))
 		stack_trace("Investigate hardsuit helmet ([type]). Initialized without proper suit.")
-
-
-/obj/item/clothing/head/helmet/space/hardsuit/Destroy()
-	if(suit)
-		suit.RemoveHelmet(loc)
-		suit.helmet = null
-		suit = null
-	return ..()
 
 
 /obj/item/clothing/head/helmet/space/hardsuit/update_icon_state()
 	icon_state = "[base_icon_state][light_on]-[item_color]"
-
-
-/obj/item/clothing/head/helmet/space/hardsuit/attack_hand(mob/user, pickupfireoverride = FALSE)
-	if(suit)
-		suit.RemoveHelmet(user)
-	else
-		qdel(src)
-		stack_trace("Investigate hardsuit helmet attackhand of type: [type]")
-
-
-/obj/item/clothing/head/helmet/space/hardsuit/equipped(mob/living/carbon/user, slot, initial = FALSE)
-	. = ..(user, slot, TRUE)
-	if(!suit || slot != ITEM_SLOT_HEAD || user.wear_suit != suit)
-		if(!QDELING(src))
-			qdel(src)
-		stack_trace("Investigate hardsuit helmet equip of type: [type]")
-		return FALSE
-
-
-/obj/item/clothing/head/helmet/space/hardsuit/dropped(mob/living/carbon/user, slot, silent = FALSE)
-	. = ..(user, slot, TRUE)
-	if(!suit || slot != ITEM_SLOT_HEAD || user.wear_suit != suit)
-		if(!QDELING(src))
-			qdel(src)
-		stack_trace("Investigate hardsuit helmet drop of type: [type]")
-		return FALSE
-	suit.RemoveHelmet(user)
-
-
-/obj/item/clothing/head/helmet/space/hardsuit/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
-	if(HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
-		return
-	if(suit)
-		suit.RemoveHelmet(usr)
-	else
-		qdel(src)
-		stack_trace("Investigate hardsuit helmet mousedrop of type: [type]")
 
 
 /obj/item/clothing/head/helmet/space/hardsuit/attack_self(mob/user)
@@ -107,7 +52,7 @@
 	update_equipped_item(update_buttons)
 
 
-/obj/item/clothing/head/helmet/space/hardsuit/item_action_slot_check(slot)
+/obj/item/clothing/head/helmet/space/hardsuit/item_action_slot_check(slot, mob/user, datum/action/action)
 	if(slot == ITEM_SLOT_HEAD)
 		return TRUE
 
@@ -156,13 +101,6 @@
 		SPECIES_VULPKANIN = 'icons/mob/clothing/species/vulpkanin/suit.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/suit.dmi'
 		)
-	sprite_sheets_obj = list(
-		SPECIES_UNATHI = 'icons/obj/clothing/species/unathi/suits.dmi',
-		SPECIES_TAJARAN = 'icons/obj/clothing/species/tajaran/suits.dmi',
-		SPECIES_SKRELL = 'icons/obj/clothing/species/skrell/suits.dmi',
-		SPECIES_VOX = 'icons/obj/clothing/species/vox/suits.dmi',
-		SPECIES_VULPKANIN = 'icons/obj/clothing/species/vulpkanin/suits.dmi'
-		)
 
 
 /obj/item/clothing/suit/space/hardsuit/Initialize(mapload)
@@ -171,8 +109,8 @@
 
 
 /obj/item/clothing/suit/space/hardsuit/Destroy()
-	QDEL_NULL(helmet)
-	QDEL_NULL(jetpack)
+	unequip_helmet()
+	helmet = null
 	return ..()
 
 
@@ -180,33 +118,49 @@
 	if(!helmettype || helmet)
 		return
 
-	var/obj/item/clothing/head/helmet/space/hardsuit/new_helmet = new helmettype(src, src)
-	helmet = new_helmet
+	helmet = new helmettype(src, src)
 	helmet.update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
+	RegisterSignal(helmet, COMSIG_ITEM_DROPPED, PROC_REF(on_helmet_dropped))
+	RegisterSignal(helmet, COMSIG_ITEM_EQUIPPED, PROC_REF(on_helmet_equipped))
+	RegisterSignal(helmet, COMSIG_QDELETING, PROC_REF(on_helmet_destroyed))
+
+
+/obj/item/clothing/suit/space/hardsuit/proc/on_helmet_dropped()
+	SIGNAL_HANDLER
+
+	RemoveHelmet()
+
+
+/obj/item/clothing/suit/space/hardsuit/proc/on_helmet_equipped(datum/source, mob/user, slot)
+	SIGNAL_HANDLER
+
+	if(slot & ITEM_SLOT_HEAD)
+		return
+	RemoveHelmet()
+
+
+/obj/item/clothing/suit/space/hardsuit/proc/on_helmet_destroyed()
+	SIGNAL_HANDLER
+
+	RemoveHelmet()
+	helmet = null
 
 
 /obj/item/clothing/suit/space/hardsuit/equipped(mob/user, slot, initial)
 	. = ..()
-	RemoveHelmet(user)
+	RemoveHelmet()
 
 
 /obj/item/clothing/suit/space/hardsuit/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
-	RemoveHelmet(user)
+	RemoveHelmet()
 
 
-/obj/item/clothing/suit/space/hardsuit/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
-	if(HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
-		return
-	RemoveHelmet(usr)
-	. = ..()
+/obj/item/clothing/suit/space/hardsuit/ui_action_click(mob/user, datum/action/action, leftclick)
+	ToggleHelmet()
 
 
-/obj/item/clothing/suit/space/hardsuit/ui_action_click(mob/user)
-	ToggleHelmet(user)
-
-
-/obj/item/clothing/suit/space/hardsuit/item_action_slot_check(slot)
+/obj/item/clothing/suit/space/hardsuit/item_action_slot_check(slot, mob/user, datum/action/action)
 	if(slot == ITEM_SLOT_CLOTH_OUTER) //we only give the mob the ability to toggle the helmet if he's wearing the hardsuit.
 		return TRUE
 
@@ -216,60 +170,103 @@
 	..()
 
 
-/obj/item/clothing/suit/space/hardsuit/proc/ToggleHelmet(mob/living/carbon/human/user)
-	if(!ishuman(user))
-		return
-	if(!helmet)
-		to_chat(user, span_warning("[src] has no helmet anymore!"))
-		return
-	if(taser_proof?.ert_mindshield_locked)
-		if(isertmindshielded(user))
-			to_chat(user, span_notice("Access granted, identity verified..."))
-		else
-			to_chat(user, span_warning("Access denied. The user is not identified!"))
-			return
+/obj/item/clothing/suit/space/hardsuit/attackby(obj/item/I, mob/user, params)
+	. = ..()
+
+	if(ATTACK_CHAIN_CANCEL_CHECK(.))
+		return .
+
+	if(istype(I, /obj/item/hardsuit_taser_proof))
+		add_fingerprint(user)
+		var/obj/item/hardsuit_taser_proof/new_taser_proof = I
+		if(user.get_item_by_slot(ITEM_SLOT_CLOTH_OUTER) == src)
+			to_chat(user, span_warning("You cannot install the upgrade into [src] while wearing it."))
+			return .
+		if(taser_proof)
+			to_chat(user, span_warning("The [name] already has a taser proof upfrage installed."))
+			return .
+		if(!user.drop_transfer_item_to_loc(new_taser_proof, src))
+			return .
+		to_chat(user, span_notice("You have successfully installed the taser proof upgrade into [src]."))
+		taser_proof = new_taser_proof
+		taser_proof.hardsuit = src
+		return .|ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/hardsuit_shield))
+		add_fingerprint(user)
+		var/obj/item/hardsuit_shield/new_shield = I
+		if(user.get_item_by_slot(ITEM_SLOT_CLOTH_OUTER) == src)
+			to_chat(user, span_warning("You cannot install the upgrade into [src] while wearing it."))
+			return .
+		var/datum/component/shielded/shielded = GetComponent(/datum/component/shielded)
+		if(istype(shielded))
+			to_chat(user, span_warning("The [name] already has a shield installed."))
+			return .
+		if(!user.drop_transfer_item_to_loc(new_shield, src))
+			return .
+		to_chat(user, span_notice("You have successfully installed the shield upgrade into [src]."))
+		new_shield.attach_to_suit(src)
+		return .|ATTACK_CHAIN_BLOCKED_ALL
+
+
+/obj/item/clothing/suit/space/hardsuit/proc/ToggleHelmet()
 	if(suit_adjusted)
-		RemoveHelmet(user)
-		return
-	if(user.wear_suit != src)
-		to_chat(user, span_warning("You must be wearing [src] to engage the helmet!"))
-		return
-	EngageHelmet(user)
+		return RemoveHelmet()
+	return EngageHelmet()
 
 
-/obj/item/clothing/suit/space/hardsuit/proc/EngageHelmet(mob/living/carbon/human/user)
-	if(!helmet || suit_adjusted)
+/obj/item/clothing/suit/space/hardsuit/proc/EngageHelmet()
+	var/mob/living/carbon/human/wearer = loc
+	if(suit_adjusted || !ishuman(wearer))
 		return FALSE
-	if(user.head)
-		to_chat(user, span_warning("You're already wearing something on your head!"))
+	if(wearer.wear_suit != src)
+		to_chat(wearer, span_warning("You must be wearing [src] to engage the helmet!"))
 		return FALSE
-	if(!user.equip_to_slot(helmet, ITEM_SLOT_HEAD))
+	if(!helmet)
+		to_chat(wearer, span_warning("[src] has no helmet anymore!"))
+		return FALSE
+	if(wearer.head)
+		to_chat(wearer, span_warning("You're already wearing something on your head!"))
+		return FALSE
+	if(taser_proof?.ert_mindshield_locked)
+		if(isertmindshielded(wearer))
+			to_chat(wearer, span_notice("Access granted, identity verified..."))
+		else
+			to_chat(wearer, span_warning("Access denied. The user is not identified!"))
+			return FALSE
+	if(!wearer.equip_to_slot_if_possible(helmet, ITEM_SLOT_HEAD, initial = TRUE))
 		return FALSE
 	. = TRUE
 	suit_adjusted = TRUE
-	to_chat(user, span_notice("You engage the helmet on the hardsuit."))
-	user.update_head(helmet, TRUE)
-	user.update_inv_wear_suit()
-	playsound(user, 'sound/items/rig_deploy.ogg', 110, TRUE)
+	playsound(wearer, 'sound/items/rig_deploy.ogg', 110, TRUE)
+	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
+	to_chat(wearer, span_notice("You engage the helmet on [src]."))
+	wearer.update_inv_wear_suit()
+	for(var/datum/action/action as anything in actions)
+		action.UpdateButtonIcon()
 
 
-/obj/item/clothing/suit/space/hardsuit/proc/RemoveHelmet(mob/living/carbon/human/user)
-	if(!helmet)
-		return FALSE
+/obj/item/clothing/suit/space/hardsuit/proc/RemoveHelmet()
+	unequip_helmet()
 	if(!suit_adjusted)
 		return FALSE
 	. = TRUE
 	suit_adjusted = FALSE
-	if(helmet.light_on)
-		helmet.toggle_light(update_buttons = FALSE)
-	if(ishuman(user))
-		user.temporarily_remove_item_from_inventory(helmet, force = TRUE)
-		user.update_inv_wear_suit()
-		to_chat(user, span_notice("The helmet on the hardsuit disengages."))
-	helmet.forceMove(src)
-	playsound(user, 'sound/items/rig_retract.ogg', 110, TRUE)
+	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
+	playsound(loc, 'sound/items/rig_retract.ogg', 110, TRUE)
 	for(var/datum/action/action as anything in actions)
 		action.UpdateButtonIcon()
+
+
+/obj/item/clothing/suit/space/hardsuit/proc/unequip_helmet()
+	if(!helmet || helmet.loc == src)
+		return
+	var/mob/living/carbon/human/wearer = helmet.loc
+	if(!ishuman(wearer))
+		helmet.forceMove(src)
+		return
+	wearer.transfer_item_to_loc(helmet, src, force = TRUE, silent = TRUE)
+	wearer.update_inv_wear_suit()
 
 
 //Engineering hardsuit
@@ -377,6 +374,8 @@
 	visor_flags_inv = HIDEMASK|HIDEGLASSES|HIDENAME|HIDETAIL
 	visor_clothing_flags = STOPSPRESSUREDMAGE
 	var/combat_rad = 50
+	var/combat_slow = 0
+	var/eva_slow = 1
 
 
 /obj/item/clothing/head/helmet/space/hardsuit/syndi/Destroy()
@@ -417,12 +416,14 @@
 		clothing_flags |= visor_clothing_flags
 		flags_cover |= (HEADCOVERSEYES|HEADCOVERSMOUTH)
 		flags_inv |= visor_flags_inv
+		flags_inv_transparent |= visor_flags_inv_transparent
 		cold_protection |= HEAD
 		armor.rad = 100
 	else
 		clothing_flags &= ~visor_clothing_flags
 		flags_cover &= ~(HEADCOVERSEYES|HEADCOVERSMOUTH)
 		flags_inv &= ~visor_flags_inv
+		flags_inv_transparent &= ~visor_flags_inv_transparent
 		cold_protection &= ~HEAD
 		armor.rad = combat_rad
 	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
@@ -440,12 +441,12 @@
 		linkedsuit.on = !linkedsuit.on
 
 	if(linkedsuit.on)
-		linkedsuit.slowdown = 1
+		linkedsuit.slowdown = eva_slow
 		linkedsuit.clothing_flags |= STOPSPRESSUREDMAGE
 		linkedsuit.cold_protection |= (UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|TAIL)
 		linkedsuit.armor.rad = 100
 	else
-		linkedsuit.slowdown = 0
+		linkedsuit.slowdown = combat_slow
 		linkedsuit.clothing_flags &= ~STOPSPRESSUREDMAGE
 		linkedsuit.cold_protection &= ~(UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|TAIL)
 		linkedsuit.armor.rad = combat_rad
@@ -470,6 +471,10 @@
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/syndi
 	jetpack = /obj/item/tank/jetpack/suit
 
+/obj/item/clothing/suit/space/hardsuit/syndi/on/Initialize(mapload)
+	. = ..()
+	var/obj/item/clothing/head/helmet/space/hardsuit/syndi/our_helmet = helmet
+	our_helmet?.adjust_headgear(toggle = TRUE)
 
 /obj/item/clothing/suit/space/hardsuit/syndi/Initialize(mapload)
 	. = ..()
@@ -492,7 +497,7 @@
 	desc = "[initial(desc)][on ? "" : alt_desc]"
 
 
-/obj/item/clothing/suit/space/hardsuit/syndi/EngageHelmet(mob/living/carbon/human/user)
+/obj/item/clothing/suit/space/hardsuit/syndi/EngageHelmet()
 	. = ..()
 	if(. && on && !light_on)
 		helmet.toggle_light()
@@ -554,6 +559,8 @@
 	armor = list(melee = 70, bullet = 70, laser = 50, energy = 40, bomb = 80, bio = 100, rad = 100, fire = 100, acid = 100) //Almost as good as DS gear, but unlike DS can switch to combat for mobility
 	item_color = "sst"
 	combat_rad = 100
+	combat_slow = -0.1
+	eva_slow = 0
 
 /obj/item/clothing/suit/space/hardsuit/syndi/elite/sst
 	icon_state = "hardsuit0-sst"
@@ -584,7 +591,7 @@
 
 //Soviet hardsuit
 /obj/item/clothing/head/helmet/space/hardsuit/soviet
-	name = "\improper Soviet hardsuit helmet"
+	name = "Soviet hardsuit helmet"
 	desc = "A military hardsuit helmet bearing the red star of the U.S.S.P."
 	icon_state = "hardsuit0-soviet"
 	item_state = "hardsuit0-soviet"
@@ -592,7 +599,7 @@
 	armor = list("melee" = 35, "bullet" = 15, "laser" = 30,"energy" = 10, "bomb" = 10, "bio" = 100, "rad" = 50, "fire" = 75, "acid" = 75)
 
 /obj/item/clothing/suit/space/hardsuit/soviet
-	name = "\improper Soviet hardsuit"
+	name = "Soviet hardsuit"
 	desc = "A soviet military hardsuit designed for maximum speed and mobility. Proudly displays the U.S.S.P flag on the chest."
 	icon_state = "hardsuit-soviet"
 	item_state = "hardsuit-soviet"
@@ -604,14 +611,14 @@
 	jetpack = /obj/item/tank/jetpack/suit
 
 /obj/item/clothing/head/helmet/space/hardsuit/soviet/commander
-	name = "\improper Soviet command hardsuit helmet"
+	name = "Soviet command hardsuit helmet"
 	desc = "A military hardsuit helmet with a red command stripe."
 	icon_state = "hardsuit0-soviet-commander"
 	item_state = "hardsuit0-soviet-commander"
 	item_color = "soviet-commander"
 
 /obj/item/clothing/suit/space/hardsuit/soviet/commander
-	name = "\improper Soviet command hardsuit"
+	name = "Soviet command hardsuit"
 	desc = "A soviet military command hardsuit designed for maximum speed and mobility."
 	icon_state = "hardsuit-soviet-commander"
 	item_state = "hardsuit-soviet-commander"
@@ -625,8 +632,8 @@
 	item_state = "medical_helm"
 	armor = list("melee" = 30, "bullet" = 5, "laser" = 10, "energy" = 5, "bomb" = 10, "bio" = 100, "rad" = 60, "fire" = 60, "acid" = 75)
 	item_color = "medical"
-	flash_protect = 0
-	scan_reagents = 1 //Generally worn by the CMO, so they'd get utility off of seeing reagents
+	flash_protect = FLASH_PROTECTION_NONE
+	examine_extensions = EXAMINE_HUD_SCIENCE
 
 /obj/item/clothing/suit/space/hardsuit/medical
 	name = "medical hardsuit"
@@ -644,21 +651,21 @@
 	desc = "A special helmet designed for work in a hazardous, low pressure environment. Has an additional layer of armor."
 	icon_state = "hardsuit0-sec"
 	item_state = "sec_helm"
-	armor = list("melee" = 35, "bullet" = 15, "laser" = 30,"energy" = 20, "bomb" = 10, "bio" = 100, "rad" = 50, "fire" = 75, "acid" = 75)
+	armor = list("melee" = 45, "bullet" = 25, "laser" = 30,"energy" = 20, "bomb" = 10, "bio" = 100, "rad" = 50, "fire" = 75, "acid" = 75)
 	item_color = "sec"
 
 /obj/item/clothing/head/helmet/space/hardsuit/security/warden
 	name = "warden's hardsuit helmet"
 	desc = "A special helmet designed for work in a hazardous, low pressure environment. Has an additional layer of armor."
 	icon_state = "hardsuit0-warden"
-	armor = list("melee" = 40, "bullet" = 20, "laser" = 30,"energy" = 20, "bomb" = 15, "bio" = 100, "rad" = 50, "fire" = 80, "acid" = 85)
+	armor = list("melee" = 50, "bullet" = 30, "laser" = 30,"energy" = 20, "bomb" = 15, "bio" = 100, "rad" = 50, "fire" = 80, "acid" = 85)
 	item_color = "warden"
 
 /obj/item/clothing/suit/space/hardsuit/security/warden
 	name = "warden's hardsuit"
 	desc = "A special suit that protects against hazardous, low pressure environments. Has an additional layer of armor."
 	icon_state = "hardsuit-warden"
-	armor = list("melee" = 40, "bullet" = 20, "laser" = 30,"energy" = 20, "bomb" = 15, "bio" = 100, "rad" = 50, "fire" = 80, "acid" = 85)
+	armor = list("melee" = 50, "bullet" = 30, "laser" = 30,"energy" = 20, "bomb" = 15, "bio" = 100, "rad" = 50, "fire" = 80, "acid" = 85)
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/security/warden
 
 /obj/item/clothing/suit/space/hardsuit/security
@@ -666,7 +673,7 @@
 	desc = "A special suit that protects against hazardous, low pressure environments. Has an additional layer of armor."
 	icon_state = "hardsuit-sec"
 	item_state = "sec_hardsuit"
-	armor = list("melee" = 35, "bullet" = 15, "laser" = 30, "energy" = 20, "bomb" = 10, "bio" = 100, "rad" = 50, "fire" = 75, "acid" = 75)
+	armor = list("melee" = 45, "bullet" = 25, "laser" = 30, "energy" = 20, "bomb" = 10, "bio" = 100, "rad" = 50, "fire" = 75, "acid" = 75)
 	allowed = list(/obj/item/gun,/obj/item/flashlight,/obj/item/tank/internals,/obj/item/melee/baton,/obj/item/reagent_containers/spray/pepper,/obj/item/ammo_box,/obj/item/ammo_casing,/obj/item/restraints/handcuffs)
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/security
 
@@ -674,14 +681,14 @@
 	name = "head of security's hardsuit helmet"
 	desc = "A special bulky helmet designed for work in a hazardous, low pressure environment. Has an additional layer of armor."
 	icon_state = "hardsuit0-hos"
-	armor = list("melee" = 45, "bullet" = 25, "laser" = 30, "energy" = 30, "bomb" = 25, "bio" = 100, "rad" = 50, "fire" = 95, "acid" = 95)
+	armor = list("melee" = 55, "bullet" = 35, "laser" = 30, "energy" = 30, "bomb" = 25, "bio" = 100, "rad" = 50, "fire" = 95, "acid" = 95)
 	item_color = "hos"
 
 /obj/item/clothing/suit/space/hardsuit/security/hos
 	name = "head of security's hardsuit"
 	desc = "A special bulky suit that protects against hazardous, low pressure environments. Has an additional layer of armor."
 	icon_state = "hardsuit-hos"
-	armor = list("melee" = 45, "bullet" = 25, "laser" = 30, "energy" = 30, "bomb" = 25, "bio" = 100, "rad" = 50, "fire" = 95, "acid" = 95)
+	armor = list("melee" = 55, "bullet" = 35, "laser" = 30, "energy" = 30, "bomb" = 25, "bio" = 100, "rad" = 50, "fire" = 95, "acid" = 95)
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/security/hos
 	jetpack = /obj/item/tank/jetpack/suit
 
@@ -691,8 +698,8 @@
 	icon_state = "hardsuit0-brigmed"
 	armor = list("melee" = 30, "bullet" = 10, "laser" = 20, "energy" = 15, "bomb" = 10, "bio" = 100, "rad" = 60, "fire" = 60, "acid" = 75)
 	item_color = "brigmed"
-	flash_protect = 0
-	scan_reagents = 1
+	flash_protect = FLASH_PROTECTION_NONE
+	examine_extensions = EXAMINE_HUD_SCIENCE
 
 /obj/item/clothing/suit/space/hardsuit/security/brigmed
 	name = "brig physician's hardsuit"
@@ -731,7 +738,7 @@
 	item_state = "rd"
 	armor = list("melee" = 30, "bullet" = 5, "laser" = 10, "energy" = 5, "bomb" = 100, "bio" = 100, "rad" = 60, "fire" = 60, "acid" = 80)
 	item_color = "rd"
-	scan_reagents = TRUE
+	examine_extensions = EXAMINE_HUD_SCIENCE
 	var/explosion_detection_dist = 40
 
 

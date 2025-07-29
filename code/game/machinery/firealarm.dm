@@ -34,11 +34,8 @@ GLOBAL_LIST_EMPTY(firealarms)
 	/// Used to prevent pulling spam by same persons
 	var/last_time_pulled
 
-
-/obj/machinery/firealarm/New(location, direction, building)
+/obj/machinery/firealarm/Initialize(mapload, direction, building)
 	. = ..()
-
-	GLOB.firealarms += src
 
 	if(building)
 		buildstage = FIRE_ALARM_FRAME
@@ -46,14 +43,21 @@ GLOBAL_LIST_EMPTY(firealarms)
 		setDir(direction)
 		set_pixel_offsets_from_dir(26, -26, 26, -26)
 
+	if(istype(get_area(src), /area))
+		LAZYADD(GLOB.station_fire_alarms["[z]"], src)
+
 	myArea = get_area(src)
 	LAZYADD(myArea.firealarms, src)
+
+	if(is_station_contact(z))
+		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
+
 	update_fire_light()
 	update_icon()
 
 
 /obj/machinery/firealarm/Destroy()
-	GLOB.firealarms -= src
+	LAZYREMOVE(GLOB.station_fire_alarms["[z]"], src)
 	LAZYREMOVE(myArea.firealarms, src)
 	return ..()
 
@@ -82,7 +86,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		return
 
 	var/area/area = get_area(src)
-	if(area.fire)
+	if(area?.fire)
 		icon_state = "firealarm_alarming"
 		return
 	if(!detecting)
@@ -101,7 +105,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 
 	if(is_station_contact(z) && show_alert_level)
 
-		. += "overlay_[get_security_level()]"
+		. += "overlay_[SSsecurity_level.get_current_level_as_text()]"
 		underlays += emissive_appearance(icon, "firealarm_overlay_lightmask", src)
 
 	if(!wiresexposed)
@@ -113,7 +117,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		emagged = TRUE
 		if(user)
 			user.visible_message(span_warning("Sparks fly out of the [src]!"), span_notice("You emag [src], disabling its thermal sensors."))
-		playsound(loc, 'sound/effects/sparks4.ogg', 50, 1)
+		playsound(loc, 'sound/effects/sparks4.ogg', 50, TRUE)
 
 /obj/machinery/firealarm/temperature_expose(datum/gas_mixture/air, temperature, volume)
 	..()
@@ -133,28 +137,38 @@ GLOBAL_LIST_EMPTY(firealarms)
 		alarm(rand(30/severity, 60/severity))
 	..()
 
+
 /obj/machinery/firealarm/attackby(obj/item/I, mob/user, params)
-	add_fingerprint(user)
-	if(wiresexposed)
-		if(buildstage == FIRE_ALARM_UNWIRED)
+	if(!wiresexposed || user.a_intent == INTENT_HARM)
+		return ..()
+
+	switch(buildstage)
+		if(FIRE_ALARM_UNWIRED)
 			if(istype(I, /obj/item/stack/cable_coil))
+				add_fingerprint(user)
 				var/obj/item/stack/cable_coil/coil = I
 				if(!coil.use(5))
 					to_chat(user, span_warning("You need more cable for this!"))
-					return
-
+					return ATTACK_CHAIN_PROCEED
 				buildstage = FIRE_ALARM_READY
-				playsound(get_turf(src), I.usesound, 50, 1)
+				playsound(get_turf(src), I.usesound, 50, TRUE)
 				to_chat(user, span_notice("You wire [src]!"))
 				update_icon()
-		if(buildstage == FIRE_ALARM_FRAME)
+				return ATTACK_CHAIN_PROCEED_SUCCESS
+
+		if(FIRE_ALARM_FRAME)
 			if(istype(I, /obj/item/firealarm_electronics))
+				if(!user.drop_transfer_item_to_loc(I, src))
+					return ..()
+				add_fingerprint(user)
 				to_chat(user, span_notice("You insert the circuit!"))
 				qdel(I)
 				buildstage = FIRE_ALARM_UNWIRED
 				update_icon()
-		return
+				return ATTACK_CHAIN_BLOCKED_ALL
+
 	return ..()
+
 
 /obj/machinery/firealarm/crowbar_act(mob/user, obj/item/I)
 	if(buildstage != FIRE_ALARM_UNWIRED)
@@ -248,7 +262,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		if(!(stat & BROKEN))
 			var/obj/item/I = new /obj/item/firealarm_electronics(loc)
 			if(!disassembled)
-				I.obj_integrity = I.max_integrity * 0.5
+				I.update_integrity(I.max_integrity * 0.5)
 		new /obj/item/stack/cable_coil(loc, 3)
 	qdel(src)
 
@@ -258,7 +272,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 		set_light_on(FALSE)
 		return
 
-	if(GLOB.security_level == SEC_LEVEL_EPSILON)
+	if(SSsecurity_level.get_current_level_as_number() == SEC_LEVEL_EPSILON)
 		set_light(2, 1, COLOR_WHITE, TRUE)
 		return
 
@@ -267,6 +281,11 @@ GLOBAL_LIST_EMPTY(firealarms)
 	else
 		set_light_on(FALSE)
 
+/obj/machinery/firealarm/proc/on_security_level_update(datum/source, previous_level_number, new_level_number)
+	SIGNAL_HANDLER
+
+	update_icon()
+	update_fire_light()
 
 /obj/machinery/firealarm/power_change(forced = FALSE)
 	. = ..()
@@ -314,7 +333,7 @@ GLOBAL_LIST_EMPTY(firealarms)
 				. += "<span class='notice'>The fire alarm's <b>wires</b> are exposed by the <i>unscrewed</i> panel.</span>"
 				. += "<span class='notice'>The detection circuitry can be turned <b>[detecting ? "off" : "on"]</b> by <i>pulsing</i> the board.</span>"
 
-	. += "It shows the alert level as: <B><U>[capitalize(get_security_level())]</U></B>."
+	. += "It shows the alert level as: <b><u>[capitalize(SSsecurity_level.get_current_level_as_text())]</u></b>."
 
 
 /obj/machinery/firealarm/proc/reset()

@@ -10,7 +10,8 @@
 	var/light_time = 0.2 SECONDS // The duration the area is illuminated
 	var/range = 7 // The range in tiles of the flashbang
 
-/obj/item/grenade/flashbang/prime()
+/obj/item/grenade/flashbang/prime(power = 1)
+	. = ..()
 	update_mob()
 	var/turf/T = get_turf(src)
 	if(T)
@@ -21,7 +22,7 @@
 		// Blob damage
 		for(var/obj/structure/blob/B in hear(range + 1, T))
 			var/damage = round(30 / (get_dist(B, T) + 1))
-			B.take_damage(damage, BURN, "melee", FALSE)
+			B.take_damage(damage * power, BURN, MELEE, FALSE)
 
 		// Stunning & damaging mechanic
 		bang(T, src, range)
@@ -44,20 +45,20 @@
 	for(var/mob/living/M in hearers(range, T))
 		if(M.stat == DEAD)
 			continue
-		M.show_message("<span class='warning'>BANG</span>", 2)
+		M.show_message(span_warning("BANG"), 2)
 		var/mobturf = get_turf(M)
 		// Flash
 		if(flash)
 			if(M.weakeyes)
-				M.visible_message("<span class='disarm'><b>[M]</b> screams and collapses!</span>")
-				to_chat(M, "<span class='userdanger'><font size=3>AAAAGH!</font></span>")
+				M.visible_message(span_disarm("<b>[M]</b> screams and collapses!"))
+				to_chat(M, span_userdanger(span_fontsize3("AAAAGH!")))
 				M.Weaken(10 SECONDS) //hella stunned
 				if(ishuman(M))
 					M.emote("scream")
 					var/mob/living/carbon/human/H = M
 					var/obj/item/organ/internal/eyes/E = H.get_int_organ(/obj/item/organ/internal/eyes)
 					if(E)
-						E.receive_damage(8, TRUE)
+						E.internal_receive_damage(8, silent = TRUE)
 			if(M.flash_eyes())
 				M.AdjustConfused(6 SECONDS)
 			if(issilicon(M))
@@ -69,14 +70,14 @@
 			if(source_turf == mobturf) // Holding on person or being exactly where lies is significantly more dangerous and voids protection
 				M.Weaken(10 SECONDS)
 			if(!ear_safety)
-				M.adjustStaminaLoss(15)
+				M.apply_damage(15, STAMINA)
 				M.Weaken(1 SECONDS)
 				M.Deaf(30 SECONDS)
 				if(iscarbon(M))
 					var/mob/living/carbon/C = M
 					var/obj/item/organ/internal/ears/ears = C.get_int_organ(/obj/item/organ/internal/ears)
 					if(istype(ears))
-						ears.receive_damage(5)
+						ears.internal_receive_damage(5)
 						if(ears.damage >= 15)
 							to_chat(M, span_warning("Your ears start to ring badly!"))
 							if(prob(ears.damage - 5))

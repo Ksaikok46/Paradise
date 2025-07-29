@@ -151,9 +151,9 @@
 	else
 		return ..()
 
-/obj/item/pipe/AltClick(mob/user)
-	if(Adjacent(user))
-		rotate()
+/obj/item/pipe/click_alt(mob/user)
+	rotate()
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/pipe/proc/update(var/obj/machinery/atmospherics/make_from)
 	name = "[get_pipe_name(pipe_type, PIPETYPE_ATMOS)] fitting"
@@ -179,8 +179,8 @@
 // rotate the pipe item clockwise
 
 /obj/item/pipe/verb/rotate()
-	set category = "Object"
-	set name = "Rotate Pipe"
+	set category = STATPANEL_OBJECT
+	set name = "Повернуть трубу"
 	set src in view(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
@@ -196,8 +196,8 @@
 
 
 /obj/item/pipe/verb/flip()
-	set category = "Object"
-	set name = "Flip Pipe"
+	set category = STATPANEL_OBJECT
+	set name = "Перевернуть трубу"
 	set src in view(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
@@ -216,7 +216,7 @@
 	fixdir()
 
 
-/obj/item/pipe/Move()
+/obj/item/pipe/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
 	if(is_bent_pipe() \
 		&& (src.dir in GLOB.cardinal))
@@ -529,17 +529,19 @@
 	item_state = "buildpipe"
 	w_class = WEIGHT_CLASS_BULKY
 
-/obj/item/pipe_meter/attackby(var/obj/item/W as obj, var/mob/user as mob, params)
-	if(W.tool_behaviour != TOOL_WRENCH)
-		return ..()
-	if(!locate(/obj/machinery/atmospherics/pipe, src.loc))
-		to_chat(user, span_warning("You need to fasten it to a pipe"))
-		return 1
+
+/obj/item/pipe_meter/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(!locate(/obj/machinery/atmospherics/pipe, loc))
+		to_chat(user, span_warning("You need to fasten it to a pipe!"))
+		return .
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
 	var/obj/machinery/atmospherics/meter/meter = new(loc)
 	meter.add_fingerprint(user)
-	playsound(src.loc, W.usesound, 50, 1)
 	to_chat(user, span_notice("You have fastened the meter to the pipe."))
 	qdel(src)
+
 
 /obj/item/pipe_meter/rpd_act(mob/user, obj/item/rpd/our_rpd)
 	if(our_rpd.mode == RPD_DELETE_MODE)
@@ -555,14 +557,16 @@
 	item_state = "buildpipe"
 	w_class = WEIGHT_CLASS_BULKY
 
-/obj/item/pipe_gsensor/attackby(var/obj/item/W as obj, var/mob/user as mob)
-	if(!W.tool_behaviour == TOOL_WRENCH)
-		return ..()
+
+/obj/item/pipe_gsensor/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
 	var/obj/machinery/atmospherics/air_sensor/sensor = new(loc)
 	sensor.add_fingerprint(user)
-	playsound(get_turf(src), W.usesound, 50, 1)
 	to_chat(user, span_notice("You have fastened the gas sensor."))
 	qdel(src)
+
 
 /obj/item/pipe_gsensor/rpd_act(mob/user, obj/item/rpd/our_rpd)
 	if(our_rpd.mode == RPD_DELETE_MODE)

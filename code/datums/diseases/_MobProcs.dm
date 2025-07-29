@@ -26,8 +26,11 @@
 /mob/proc/CanContractDisease(datum/disease/D)
 	return TRUE
 
+/mob/living/carbon/true_devil/CanContractDisease(datum/disease/D)
+	return FALSE
+
 /mob/living/carbon/human/CanContractDisease(datum/disease/D)
-	if((VIRUSIMMUNE in dna.species.species_traits) && !D.ignore_immunity)
+	if(!D.ignore_immunity && HAS_TRAIT(src, TRAIT_VIRUSIMMUNE) || HAS_TRAIT(src, TRAIT_ABSOLUTE_VIRUSIMMUNE))
 		return FALSE
 	for(var/thing in D.required_organs)
 		if(!((locate(thing) in bodyparts) || (locate(thing) in internal_organs)))
@@ -131,4 +134,8 @@
 	//permeability_coefficient == 0.01 => 99% defense; permeability_coefficient == 1 => 0% defense
 	if(istype(Clothing) && prob(100 * (1 - Clothing.permeability_coefficient)))
 		return TRUE
+	return FALSE
+
+
+/mob/proc/check_smart_brain()
 	return FALSE

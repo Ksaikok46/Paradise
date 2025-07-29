@@ -45,7 +45,7 @@
 
 /obj/machinery/atmospherics/pipe/simple/atmos_init(initPipe = 1)
 	..()
-	if(initPipe)
+	if(initPipe && isturf(loc))
 		normalize_dir()
 		var/N = 2
 		for(var/D in GLOB.cardinal)
@@ -67,10 +67,11 @@
 							node2 = target
 							break
 
-		var/turf/T = loc			// hide if turf is not intact
-		if(!T.transparent_floor)
-			hide(T.intact)
+		var/turf/our_turf = loc
+		if(our_turf.transparent_floor == TURF_NONTRANSPARENT)
+			hide(our_turf.intact)	// hide if turf is not intact
 		update_icon()
+
 
 /obj/machinery/atmospherics/pipe/simple/check_pressure(pressure)
 	var/datum/gas_mixture/environment = loc.return_air()
@@ -89,9 +90,9 @@
 
 /obj/machinery/atmospherics/pipe/simple/proc/burst()
 	src.visible_message(span_danger("\The [src] bursts!"))
-	playsound(src.loc, 'sound/effects/bang.ogg', 25, 1)
-	var/datum/effect_system/smoke_spread/smoke = new
-	smoke.set_up(1,0, src.loc, 0)
+	playsound(src.loc, 'sound/effects/bang.ogg', 25, TRUE)
+	var/datum/effect_system/fluid_spread/smoke/smoke = new
+	smoke.set_up(amount = 1, location = src.loc)
 	smoke.start()
 	qdel(src)
 

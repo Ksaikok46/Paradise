@@ -84,7 +84,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 	py = new_py
 	Show()
 
-/obj/effect/hallucination/simple/Move()
+/obj/effect/hallucination/simple/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
 	Show()
 
@@ -133,7 +133,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 			return
 		Expand()
 		if((get_turf(target) in flood_turfs) && !target.internal)
-			target.hallucinate_living("fake_alert", "too_much_tox")
+			target.hallucinate_living("fake_alert", ALERT_TOO_MUCH_TOX)
 		next_expand = world.time + FAKE_FLOOD_EXPAND_TIME
 
 /obj/effect/hallucination/fake_flood/proc/Expand()
@@ -235,8 +235,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 	if(pump)
 		borer = new(pump.loc,target)
 		for(var/i in 0 to 10)
-			borer.glide_for(3)
-			walk_to(borer, get_step(borer, get_cardinal_dir(borer, T)))
+			SSmove_manager.move_to(borer, T, 1, rand(2, 4))
 			if(borer.Adjacent(T))
 				to_chat(T, "<span class='userdanger'>You feel a creeping, horrible sense of dread come over you, freezing your limbs and setting your heart racing.</span>")
 				T.Stun(8 SECONDS)
@@ -283,7 +282,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 	if(target.client)
 		target.client.images |= fakebroken
 		target.client.images |= fakerune
-	target.playsound_local(wall,'sound/effects/meteorimpact.ogg', 150, 1)
+	target.playsound_local(wall,'sound/effects/meteorimpact.ogg', 150, TRUE)
 	bubblegum = new(wall, target)
 	addtimer(CALLBACK(src, PROC_REF(bubble_attack), landing), 10)
 
@@ -292,12 +291,12 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 	while(get_turf(bubblegum) != landing && target && target.stat != DEAD && get_dist(landing, get_turf(bubblegum)) <= 7)
 		bubblegum.forceMove(get_step_towards(bubblegum, landing))
 		bubblegum.setDir(get_dir(bubblegum, landing))
-		target.playsound_local(get_turf(bubblegum), 'sound/effects/meteorimpact.ogg', 150, 1)
+		target.playsound_local(get_turf(bubblegum), 'sound/effects/meteorimpact.ogg', 150, TRUE)
 		shake_camera(target, 2, 1)
 		if(bubblegum.Adjacent(target) && !charged)
 			charged = TRUE
 			target.Weaken(8 SECONDS)
-			target.adjustStaminaLoss(40)
+			target.apply_damage(40, STAMINA)
 			step_away(target, bubblegum)
 			shake_camera(target, 4, 3)
 			target.visible_message("<span class='warning'>[target] jumps backwards, falling on the ground!</span>", "<span class='userdanger'>[bubblegum] slams into you!</span>")
@@ -357,7 +356,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 	switch(rand(1,5))
 		if(1) //Laser fight
 			for(var/i in 0 to hits)
-				target.playsound_local(null, 'sound/weapons/laser.ogg', 25, 1)
+				target.playsound_local(null, 'sound/weapons/laser.ogg', 25, TRUE)
 				if(prob(75))
 					addtimer(CALLBACK(target, TYPE_PROC_REF(/mob, playsound_local), null, 'sound/weapons/sear.ogg', 25, 1), rand(10,20))
 				else
@@ -365,12 +364,12 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 				sleep(rand(CLICK_CD_RANGE, CLICK_CD_RANGE + 8))
 			target.playsound_local(null, get_sfx("bodyfall"), 25)
 		if(2) //Esword fight
-			target.playsound_local(null, 'sound/weapons/saberon.ogg', 15, 1)
+			target.playsound_local(null, 'sound/weapons/saberon.ogg', 15, TRUE)
 			for(var/i in 0 to hits)
-				target.playsound_local(null, 'sound/weapons/blade1.ogg', 25, 1)
+				target.playsound_local(null, 'sound/weapons/blade1.ogg', 25, TRUE)
 				sleep(rand(CLICK_CD_MELEE, CLICK_CD_MELEE + 8))
 			target.playsound_local(null, get_sfx("bodyfall"), 25, 1)
-			target.playsound_local(null, 'sound/weapons/saberoff.ogg', 15, 1)
+			target.playsound_local(null, 'sound/weapons/saberoff.ogg', 15, TRUE)
 		if(3) //Gun fight
 			for(var/i in 0 to hits)
 				target.playsound_local(null, get_sfx("gunshot"), 25)
@@ -381,13 +380,13 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 				sleep(rand(CLICK_CD_RANGE, CLICK_CD_RANGE + 8))
 			target.playsound_local(null, get_sfx("bodyfall"), 25, 1)
 		if(4) //Stunprod + cablecuff
-			target.playsound_local(null, 'sound/weapons/egloves.ogg', 40, 1)
-			target.playsound_local(null, get_sfx("bodyfall"), 25, 1)
+			target.playsound_local(null, 'sound/weapons/egloves.ogg', 40, TRUE)
+			target.playsound_local(null, get_sfx("bodyfall"), 25, TRUE)
 			sleep(20)
-			target.playsound_local(null, 'sound/weapons/cablecuff.ogg', 15, 1)
+			target.playsound_local(null, 'sound/weapons/cablecuff.ogg', 15, TRUE)
 		if(5) // Tick Tock
 			for(var/i in 0 to hits)
-				target.playsound_local(null, 'sound/items/timer.ogg', 25, 1)
+				target.playsound_local(null, 'sound/items/timer.ogg', 25, TRUE)
 				sleep(15)
 	qdel(src)
 
@@ -411,10 +410,10 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 			if(image_file)
 				switch(item)
 					if("esword")
-						target.playsound_local(H, 'sound/weapons/saberon.ogg',35,1)
+						target.playsound_local(H, 'sound/weapons/saberon.ogg', 35, TRUE)
 						A = image(image_file,H,"swordred", layer=ABOVE_MOB_LAYER)
 					if("dual_esword")
-						target.playsound_local(H, 'sound/weapons/saberon.ogg',35,1)
+						target.playsound_local(H, 'sound/weapons/saberon.ogg', 35, TRUE)
 						A = image(image_file,H,"dualsaberred1", layer=ABOVE_MOB_LAYER)
 					if("stunpaper")
 						A = image(image_file,H,"paper", layer=ABOVE_MOB_LAYER)
@@ -431,7 +430,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 					target.client.images |= A
 					sleep(rand(150,250))
 					if(item == "esword" || item == "dual_esword")
-						target.playsound_local(H, 'sound/weapons/saberoff.ogg',35,1)
+						target.playsound_local(H, 'sound/weapons/saberoff.ogg', 35, TRUE)
 					target.client.images.Remove(A)
 				break
 	qdel(src)
@@ -536,13 +535,13 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 			A = image('icons/mob/mob.dmi',target,"daemon")
 		if("robot")//Cyborg
 			A = image('icons/mob/robots.dmi',target,"robot")
-			target.playsound_local(target,'sound/voice/liveagain.ogg', 75, 1)
+			target.playsound_local(target,'sound/voice/liveagain.ogg', 75, TRUE)
 		if("custom")
 			A = image(custom_icon_file, target, custom_icon)
 	A.override = 1
 	if(target.client)
 		to_chat(target, "<span class='italics'>...wabbajack...wabbajack...</span>")
-		target.playsound_local(target,'sound/magic/staff_change.ogg', 50, 1, -1)
+		target.playsound_local(target,'sound/magic/staff_change.ogg', 50, TRUE, -1)
 		delusion = A
 		target.client.images |= A
 	sleep(duration)
@@ -598,7 +597,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 	desc = ""
 	density = FALSE
 	anchored = TRUE
-	opacity = 0
+	opacity = FALSE
 	var/mob/living/carbon/human/my_target = null
 	var/weapon_name = null
 	var/obj/item/weap = null
@@ -615,30 +614,44 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 
 	var/health = 100
 
-/obj/effect/fake_attacker/attackby(obj/item/P, mob/living/user, params)
-	step_away(src,my_target,2)
-	user.changeNext_move(CLICK_CD_MELEE)
-	user.do_attack_animation(src)
-	my_target.playsound_local(src, P.hitsound, 1)
-	my_target.visible_message("<span class='danger'>[my_target] flails around wildly.</span>", \
-							"<span class='danger'>[my_target] has attacked [src]!</span>")
 
-	health -= P.force
-	return
-
-/obj/effect/fake_attacker/Crossed(mob/M, oldloc)
-	if(M == my_target)
-		step_away(src,my_target,2)
-		if(prob(30))
-			for(var/mob/O in oviewers(world.view , my_target))
-				to_chat(O, "<span class='danger'>[my_target] stumbles around.</span>")
-
-/obj/effect/fake_attacker/New(loc, mob/living/carbon/T)
-	..()
-	my_target = T
-	addtimer(CALLBACK(GLOBAL_PROC, /proc/qdel, src), 300)
-	step_away(src,my_target,2)
+/obj/effect/fake_attacker/Initialize(mapload, mob/living/carbon/my_target)
+	. = ..()
+	src.my_target = my_target
+	QDEL_IN(src, 30 SECONDS)
+	step_away(src, my_target, 2)
 	INVOKE_ASYNC(src, PROC_REF(attack_loop))
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+
+/obj/effect/fake_attacker/attackby(obj/item/I, mob/user, params)
+	. = ATTACK_CHAIN_PROCEED
+	if(!my_target)
+		return .
+	. |= ATTACK_CHAIN_SUCCESS
+	user.do_attack_animation(src)
+	step_away(src, my_target, 2)
+	my_target.playsound_local(src, I.hitsound, TRUE)
+	my_target.visible_message(
+		span_danger("[my_target] flails around wildly."),
+		span_danger("[my_target] has attacked [src]!"),
+	)
+	health -= I.force
+
+
+/obj/effect/fake_attacker/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(!my_target || arrived != my_target)
+		return
+
+	step_away(src, my_target, 2)
+	if(prob(30))
+		my_target.visible_message(span_danger("[my_target] stumbles around."))
+
 
 /obj/effect/fake_attacker/proc/updateimage()
 //	qdel(src.currentimage)
@@ -674,16 +687,16 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 				if(weapon_name)
 					my_target.playsound_local(my_target, weap.hitsound, 1)
 					my_target.show_message("<span class='danger'>[src.name] has attacked [my_target] with [weapon_name]!</span>", 1)
-					my_target.adjustStaminaLoss(30)
+					my_target.apply_damage(30, STAMINA)
 					if(prob(20))
 						my_target.AdjustEyeBlurry(6 SECONDS)
 					if(prob(33))
 						if(!locate(/obj/effect/overlay) in my_target.loc)
 							fake_blood(my_target)
 				else
-					my_target.playsound_local(my_target, pick('sound/weapons/punch1.ogg','sound/weapons/punch2.ogg','sound/weapons/punch3.ogg','sound/weapons/punch4.ogg'), 25, 1, -1)
+					my_target.playsound_local(my_target, pick('sound/weapons/punch1.ogg','sound/weapons/punch2.ogg','sound/weapons/punch3.ogg','sound/weapons/punch4.ogg'), 25, TRUE, -1)
 					my_target.show_message("<span class='userdanger'>[src.name] has punched [my_target]!</span>", 1)
-					my_target.adjustStaminaLoss(30)
+					my_target.apply_damage(30, STAMINA)
 					if(prob(33))
 						if(!locate(/obj/effect/overlay) in my_target.loc)
 							fake_blood(my_target)
@@ -711,7 +724,7 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 	/obj/item/clothing/shoes/chameleon/noslip, /obj/item/card/id/syndicate,\
 	/obj/item/clothing/mask/chameleon, /obj/item/clothing/glasses/thermal,\
 	/obj/item/chameleon, /obj/item/card/emag,\
-	/obj/item/storage/toolbox/syndicate, /obj/item/aiModule,\
+	/obj/item/storage/toolbox/syndicate, /obj/item/ai_module,\
 	/obj/item/radio/headset/syndicate,	/obj/item/grenade/plastic/c4,\
 	/obj/item/powersink, /obj/item/storage/box/syndie_kit,\
 	/obj/item/toy/syndicateballoon, /obj/item/gun/energy/laser/captain,\
@@ -736,13 +749,13 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 		doors += I
 		if(target.client)
 			target.client.images |= I
-			target.playsound_local(get_turf(A), 'sound/machines/boltsdown.ogg',30,0,3)
+			target.playsound_local(get_turf(A), 'sound/machines/boltsdown.ogg', 30, FALSE, 3)
 		sleep(rand(6,12))
 	sleep(100)
 	for(var/image/B in doors)
 		if(target.client)
 			target.client.images.Remove(B)
-			target.playsound_local(get_turf(B), 'sound/machines/boltsup.ogg',30,0,3)
+			target.playsound_local(get_turf(B), 'sound/machines/boltsup.ogg', 30, FALSE, 3)
 		sleep(rand(6,12))
 	qdel(src)
 
@@ -751,8 +764,8 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 /obj/effect/hallucination/whispers/New(loc,var/mob/living/carbon/T)
 	. = ..()
 	target = T
-	var/speak_messages = list("Я слежу за тобой…","[target.name]!","Уйди!","Ты слышал это?","Что ты натворил?","Почему?","Отдай!","Хонк!","ПОМОГИТЕ!!","БЕГИТЕ!!","УБЕЙТЕ МЕНЯ!","O bidai nabora se'sma!","EI NATH!!","Kchck-Chkck? Kchchck!")
-	var/radio_messages = list("Ксеноморфы!","Синга вышла!","Телекомы упали!","Они взвели нюку!","Они убили Иана!","П-помогите!","[pick("Культисты", "Маг", "Генка", "Нюкеры", "Ревенант", "Труп", "Драка", "Я слышал флешку", "Нужна помощь")] в [pick(GLOB.teleportlocs)][prob(50)?"!":"!!"]","Где [target.name]?","[target.name] мёртв!","Вызывайте шаттл!","ИИ взломан!")
+	var/speak_messages = list("Я слежу за тобой…","[target.name]!","Уйди!","Ты слышал это?","Что ты натворил?","Почему?","Отдай!","Хонк!","ПОМОГИТЕ!!","БЕГИТЕ!!","УБЕЙТЕ МЕНЯ!","О бидай набора се'сма!","EI NATH!!","Kchck-Chkck? Kchchck!")
+	var/radio_messages = list("Ксеноморфы!","Синга вышла!","Телекомы упали!","Они взвели нюку!","Они убили Иана!","П-помогите!","[pick("Культисты", "Маг", "Генка", "Нюкеры", "Ревенант", "Труп", "Драка", "Я слышал флешку", "Нужна помощь")] в [pick(SSmapping.teleportlocs)][prob(50)?"!":"!!"]","Где [target.name]?","[target.name] мёртв!","Вызывайте шаттл!","ИИ взломан!")
 
 	var/list/mob/living/carbon/people = list()
 	var/mob/living/carbon/person = null
@@ -768,7 +781,7 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 	if(person) //Basic talk
 		var/image/speech_overlay = image('icons/mob/talk.dmi', person, "h0", layer = ABOVE_MOB_LAYER)
 		SET_PLANE_EXPLICIT(speech_overlay, ABOVE_GAME_PLANE, src)
-		target.hear_say(message_to_multilingual(pick(speak_messages), safepick(person.languages)), speaker = person)
+		target.hear_say(message_to_multilingual(pick(speak_messages), safepick(person.languages)), speaker = person, is_whisper = TRUE)
 		if(target.client)
 			target.client.images |= speech_overlay
 			sleep(30)
@@ -795,7 +808,7 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 		"<span class='notice'>You hear a distant scream.</span>",
 		"<span class='notice'>You feel invincible, nothing can hurt you!</span>",
 		"<span class='warning'>You feel a tiny prick!</span>",
-		"<B>[target]</B> sneezes.",
+		"<b>[target]</b> sneezes.",
 		"<span class='warning'>You feel faint.</span>",
 		"<span class='noticealien'>You hear a strange, alien voice in your head...</span> [pick("Hiss","Ssss")]",
 		"<span class='notice'>You can see...everything!</span>")
@@ -845,30 +858,30 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 //			to_chat(src, "Strange Audio")
 			switch(rand(1,20))
 				if(1)
-					playsound_local(null,'sound/machines/airlock_open.ogg', 15, 1)
+					playsound_local(null,'sound/machines/airlock_open.ogg', 15, TRUE)
 				if(2)
 					if(prob(50))
-						playsound_local(null,'sound/effects/explosion1.ogg', 50, 1)
+						playsound_local(null,'sound/effects/explosion1.ogg', 50, TRUE)
 					else
-						playsound_local(null, 'sound/effects/explosion2.ogg', 50, 1)
+						playsound_local(null, 'sound/effects/explosion2.ogg', 50, TRUE)
 				if(3)
-					playsound_local(null, 'sound/effects/explosionfar.ogg', 50, 1)
+					playsound_local(null, 'sound/effects/explosionfar.ogg', 50, TRUE)
 				if(4)
-					playsound_local(null, pick('sound/effects/glassbr1.ogg','sound/effects/glassbr2.ogg','sound/effects/glassbr3.ogg'), 50, 1)
+					playsound_local(null, pick('sound/effects/glassbr1.ogg','sound/effects/glassbr2.ogg','sound/effects/glassbr3.ogg'), 50, TRUE)
 				if(5)
 					playsound_local(null, 'sound/weapons/ring.ogg', 35)
 					for(var/i in 0 to 2)
 						sleep(15)
 						playsound_local(null, 'sound/weapons/ring.ogg', 35)
 				if(6)
-					playsound_local(null, 'sound/magic/summon_guns.ogg', 50, 1)
+					playsound_local(null, 'sound/magic/summon_guns.ogg', 50, TRUE)
 				if(7)
-					playsound_local(null, 'sound/machines/alarm.ogg', 100, 0)
+					playsound_local(null, 'sound/machines/alarm.ogg', 100, FALSE)
 				if(8)
-					playsound_local(null, 'sound/voice/bfreeze.ogg', 35, 0)
+					playsound_local(null, 'sound/voice/bfreeze.ogg', 35, FALSE)
 				if(9)
 					//To make it more realistic, I added two gunshots (enough to kill)
-					playsound_local(null, 'sound/weapons/gunshots/gunshot.ogg', 25, 1)
+					playsound_local(null, 'sound/weapons/gunshots/gunshot.ogg', 25, TRUE)
 					var/timer_pause = rand(10,30)
 					addtimer(CALLBACK(src, TYPE_PROC_REF(/mob, playsound_local), null, 'sound/weapons/gunshots/gunshot.ogg', 25, 1), timer_pause)
 					addtimer(CALLBACK(src, TYPE_PROC_REF(/mob, playsound_local), null, sound(get_sfx("bodyfall"), 25), 25, 1), timer_pause+rand(5,10))
@@ -876,7 +889,7 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 					playsound_local(null, 'sound/effects/pray_chaplain.ogg', 50)
 				if(11)
 					//Same as above, but with tasers.
-					playsound_local(null, 'sound/weapons/taser.ogg', 25, 1)
+					playsound_local(null, 'sound/weapons/taser.ogg', 25, TRUE)
 					var/timer_pause = rand(10,30)
 					addtimer(CALLBACK(src, TYPE_PROC_REF(/mob, playsound_local), null, 'sound/weapons/taser.ogg', 25, 1), timer_pause)
 					addtimer(CALLBACK(src, TYPE_PROC_REF(/mob, playsound_local), null, sound(get_sfx("bodyfall"), 25), 25, 1), timer_pause+rand(5,10))
@@ -888,39 +901,39 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 						'sound/hallucinations/growl3.ogg', 'sound/hallucinations/im_here1.ogg', 'sound/hallucinations/im_here2.ogg', 'sound/hallucinations/i_see_you1.ogg', 'sound/hallucinations/i_see_you2.ogg',\
 						'sound/hallucinations/look_up1.ogg', 'sound/hallucinations/look_up2.ogg', 'sound/hallucinations/over_here1.ogg', 'sound/hallucinations/over_here2.ogg', 'sound/hallucinations/over_here3.ogg',\
 						'sound/hallucinations/turn_around1.ogg', 'sound/hallucinations/turn_around2.ogg', 'sound/hallucinations/veryfar_noise.ogg', 'sound/hallucinations/wail.ogg')
-					playsound_local(null, pick(creepyasssounds), 50, 1)
+					playsound_local(null, pick(creepyasssounds), 50, TRUE)
 				if(13)
-					to_chat(src, "<span class='warning'>You feel a tiny prick!</span>")
+					to_chat(src, "<span class='warning'>Вы ощущаете лёгкое покалывание!</span>")
 				if(14)
-					to_chat(src, "<h1 class='alert'>Приоритетное оповещение.</h1>")
+					to_chat(src, "<h1 class='alert'>Приоритетное объявление</h1>")
 					to_chat(src, "<br><br><span class='alert'>Эвакуационный шаттл совершил стыковку со станцией. У вас есть 3 минуты, чтобы взобраться на борт эвакуационного шаттла.</span><br><br>")
-					playsound_local(null, 'sound/AI/shuttledock.ogg', 100)
+					playsound_local(null, 'sound/AI/eshuttle_dock.ogg', 100)
 				if(15)
-					playsound_local(null, 'sound/items/welder.ogg', 15, 1)
+					playsound_local(null, 'sound/items/welder.ogg', 15, TRUE)
 					sleep(105)
-					playsound_local(null, 'sound/items/welder2.ogg', 15, 1)
+					playsound_local(null, 'sound/items/welder2.ogg', 15, TRUE)
 					sleep(15)
-					playsound_local(null, 'sound/items/ratchet.ogg', 15, 1)
+					playsound_local(null, 'sound/items/ratchet.ogg', 15, TRUE)
 				if(16)
-					playsound_local(null, 'sound/items/screwdriver.ogg', 15, 1)
+					playsound_local(null, 'sound/items/screwdriver.ogg', 15, TRUE)
 					sleep(rand(10,30))
 					for(var/i in 0 to rand(1,3))
-						playsound_local(null, 'sound/weapons/empty.ogg', 15, 1)
+						playsound_local(null, 'sound/weapons/empty.ogg', 15, TRUE)
 						sleep(rand(10,30))
-					playsound_local(null, 'sound/machines/airlock_force_open.ogg', 15, 1)
+					playsound_local(null, 'sound/machines/airlock_force_open.ogg', 15, TRUE)
 				if(17)
-					playsound_local(null, 'sound/weapons/saberon.ogg', 35, 1)
+					playsound_local(null, 'sound/weapons/saberon.ogg', 35, TRUE)
 				if(18)
-					to_chat(src, "<h1 class='alert'>ВНИМАНИЕ: БИОЛОГИЧЕСКАЯ УГРОЗА.</h1>")
+					to_chat(src, "<h1 class='alert'>Биологическая угроза</h1>")
 					to_chat(src, "<br><br><span class='alert'>Вспышка биологической угрозы 5-го уровня зафиксирована на борту станции [station_name()]. Всему персоналу надлежит сдержать её распространение любой ценой!.</span><br><br>")
 					playsound_local(null, 'sound/AI/outbreak5.ogg')
 				if(19) //Tesla loose!
-					playsound_local(null, 'sound/magic/lightningbolt.ogg', 35, 1)
+					playsound_local(null, 'sound/magic/lightningbolt.ogg', 35, TRUE)
 					for(var/i in 0 to 2)
 						sleep(20)
-						playsound_local(null, 'sound/magic/lightningbolt.ogg', 65+(35*(i-1)), 1)	//65%, then 100% volume.
+						playsound_local(null, 'sound/magic/lightningbolt.ogg', 65+(35*(i-1)), TRUE)	//65%, then 100% volume.
 				if(20) //AI is doomsdaying!
-					to_chat(src, "<h1 class='alert'>ВНИМАНИЕ: ОБНАРУЖЕНА АНОМАЛИЯ.</h1>")
+					to_chat(src, "<h1 class='alert'>Аномалия</h1>")
 					to_chat(src, "<br><br><span class='alert'>Во всех системах станции обнаружены вредоносные процессы, пожалуйста, деактивируйте ваш ИИ, чтобы предотвратить возможное повреждение его ядра морали.</span><br><br>")
 					playsound_local(null, 'sound/AI/aimalf.ogg')
 		if("hudscrew")
@@ -929,27 +942,27 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 			sleep(rand(100,250))
 			hal_screwyhud = SCREWYHUD_NONE
 		if("fake_alert")
-			var/alert_type = pick("not_enough_oxy","not_enough_tox","not_enough_co2","too_much_oxy","too_much_co2","too_much_tox","newlaw","nutrition","charge","weightless","fire","locked","hacked","temp","pressure")
+			var/alert_type = pick(ALERT_NOT_ENOUGH_OXYGEN, ALERT_NOT_ENOUGH_TOX, ALERT_NOT_ENOUGH_CO2, ALERT_TOO_MUCH_OXYGEN, ALERT_TOO_MUCH_TOX, ALERT_TOO_MUCH_CO2,"newlaw","nutrition","charge","weightless","fire","locked","hacked","temp","pressure")
 			if(specific)
 				alert_type = specific
 			switch(alert_type)
-				if("not_enough_oxy")
-					throw_alert("not_enough_oxy", /atom/movable/screen/alert/not_enough_oxy, override = TRUE)
-				if("not_enough_tox")
-					throw_alert("not_enough_tox", /atom/movable/screen/alert/not_enough_tox, override = TRUE)
-				if("not_enough_co2")
-					throw_alert("not_enough_co2", /atom/movable/screen/alert/not_enough_co2, override = TRUE)
-				if("too_much_oxy")
-					throw_alert("too_much_oxy", /atom/movable/screen/alert/too_much_oxy, override = TRUE)
-				if("too_much_co2")
-					throw_alert("too_much_co2", /atom/movable/screen/alert/too_much_co2, override = TRUE)
-				if("too_much_tox")
-					throw_alert("too_much_tox", /atom/movable/screen/alert/too_much_tox, override = TRUE)
+				if(ALERT_NOT_ENOUGH_OXYGEN)
+					throw_alert(ALERT_NOT_ENOUGH_OXYGEN, /atom/movable/screen/alert/not_enough_oxy, override = TRUE)
+				if(ALERT_NOT_ENOUGH_TOX)
+					throw_alert(ALERT_NOT_ENOUGH_TOX, /atom/movable/screen/alert/not_enough_tox, override = TRUE)
+				if(ALERT_NOT_ENOUGH_CO2)
+					throw_alert(ALERT_NOT_ENOUGH_CO2, /atom/movable/screen/alert/not_enough_co2, override = TRUE)
+				if(ALERT_TOO_MUCH_OXYGEN)
+					throw_alert(ALERT_TOO_MUCH_OXYGEN, /atom/movable/screen/alert/too_much_oxy, override = TRUE)
+				if(ALERT_TOO_MUCH_TOX)
+					throw_alert(ALERT_TOO_MUCH_TOX, /atom/movable/screen/alert/too_much_tox, override = TRUE)
+				if(ALERT_TOO_MUCH_CO2)
+					throw_alert(ALERT_TOO_MUCH_CO2, /atom/movable/screen/alert/too_much_co2, override = TRUE)
 				if("nutrition")
 					if(prob(50))
-						throw_alert("nutrition", /atom/movable/screen/alert/hunger/fat, override = TRUE, icon_override = dna.species.hunger_icon)
+						throw_alert(ALERT_NUTRITION, /atom/movable/screen/alert/hunger/fat, override = TRUE, icon_override = dna.species.hunger_icon)
 					else
-						throw_alert("nutrition", /atom/movable/screen/alert/hunger/starving, override = TRUE, icon_override = dna.species.hunger_icon)
+						throw_alert(ALERT_NUTRITION, /atom/movable/screen/alert/hunger/starving, override = TRUE, icon_override = dna.species.hunger_icon)
 				if("weightless")
 					throw_alert("weightless", /atom/movable/screen/alert/weightless, override = TRUE)
 				if("fire")
@@ -1062,8 +1075,8 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 				var/mob/dead/observer/fakemob = pick(dead_people)
 				if(fakemob)
 					sleep(rand(30, 60))
-					to_chat(src, "<span class='deadsay'><span class='name'>[fakemob.name]</span>(FOLLOW) [pick("complains", "moans", "whines", "laments", "blubbers", "salts")], <span class='message'>\"[pick("мёртв","привет [name]","ты тоже?","ИИ взломан?",\
-					 "я[prob(50)?", блять,":""] ненавижу [pick("культистов", "реву", "абдукторов", "предателей", "свармеров", "вирусы", "тебя")]")]\"</span></span>")
+					to_chat(src, span_deadsay("[span_name(fakemob.name)](FOLLOW) [pick("жалуется", "стонет", "хнычет", "причитает", "рыдает", "ноет")], \
+					[span_message("\"[pick("мёртв", "привет [name]", "ты тоже?", "ИИ взломан?", "я[prob(50)?", блять,": ""] ненавижу [pick("культистов", "реву", "абдукторов", "предателей", "свармеров", "вирусы", "тебя")]")]\"")]"))
 			sleep(rand(50,70))
 			hal_screwyhud = SCREWYHUD_NONE
 			SetSleeping(0)

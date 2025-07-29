@@ -13,7 +13,7 @@
 	var/deflection_chance = 0
 	/// Can it reflect projectiles in a random direction?
 	var/reroute_deflection = FALSE
-	///Chance to block melee attacks using items while on throw mode.
+	///Chance to block melee attacks using items
 	var/block_chance = 0
 	//Chance to reflect projectiles but NINJA!
 	var/reflection_chance = 0
@@ -41,6 +41,20 @@
 	var/in_stance = FALSE
 	/// The priority of which martial art is picked from all the ones someone knows, the higher the number, the higher the priority.
 	var/weight = 0
+	/// If provided, this overrides default time (in deciseconds) required to reinforce aggressive/neck grab to the next state.
+	var/grab_speed
+	/// If provided, this list will override victim's default resist chances for any grab state.
+	/// Examples: list(MARTIAL_GRAB_AGGRESSIVE = 60, MARTIAL_GRAB_NECK = 40, MARTIAL_GRAB_KILL = 5) or list(MARTIAL_GRAB_NECK = 5)
+	var/list/grab_resist_chances
+	/// Set to TRUE to prevent users of this style from using stun batons (and stunprods)
+	var/no_baton = FALSE
+	/// Message displayed when someone uses a baton when its forbidden by a martial art
+	var/no_baton_reason = span_warning("Из-за занятий по боевым искусствам вы не можете крепко схватиться за станбатон!")
+	/// Whether or not you can grab someone while horizontal with this Martial Art
+	var/can_horizontally_grab = TRUE
+	/// If falce, doesn't change strength and strength limit.
+	var/change_musculs = TRUE
+
 
 /datum/martial_art/New()
 	. = ..()
@@ -58,8 +72,8 @@
 /datum/martial_art/proc/help_act(mob/living/carbon/human/A, mob/living/carbon/human/D)
 	return act(MARTIAL_COMBO_STEP_HELP, A, D)
 
-/datum/martial_art/proc/can_use(mob/living/carbon/human/H)
-	return !HAS_TRAIT(H, TRAIT_PACIFISM)
+/datum/martial_art/proc/can_use(mob/living/carbon/human/human)
+	return !HAS_TRAIT(human, TRAIT_PACIFISM)
 
 /datum/martial_art/proc/act(step, mob/living/carbon/human/user, mob/living/carbon/human/target, could_start_new_combo = TRUE)
 	if(!can_use(user))
@@ -80,10 +94,14 @@
 			return check_combos(step, user, target, could_start_new_combo)
 	return FALSE
 
-/datum/martial_art/proc/reset_combos()
+/datum/martial_art/proc/reset_combos(mob/living/carbon/human/human)
 	current_combos.Cut()
 	streak = ""
-	var/mob/living/carbon/human/owner = locateUID(owner_UID)
+	var/mob/living/carbon/human/owner
+	if(human)
+		owner = human
+	else
+		owner = locateUID(owner_UID)
 	if(istype(owner) && !QDELETED(owner))
 		owner.hud_used.combo_display.update_icon(ALL, streak)
 	for(var/combo_type in combos)
@@ -120,7 +138,7 @@
 
 /datum/martial_art/proc/basic_hit(mob/living/carbon/human/A, mob/living/carbon/human/D)
 
-	var/damage = rand(A.dna.species.punchdamagelow, A.dna.species.punchdamagehigh)
+	var/damage = rand(A.dna.species.punchdamagelow + A.physiology.punch_damage_low, A.dna.species.punchdamagehigh + A.physiology.punch_damage_high)
 	var/datum/unarmed_attack/attack = A.dna.species.unarmed
 
 	var/atk_verb = "[pick(attack.attack_verb)]"
@@ -134,26 +152,26 @@
 			A.do_attack_animation(D, attack.animation_type)
 
 	if(!damage)
-		playsound(D.loc, attack.miss_sound, 25, 1, -1)
-		D.visible_message("<span class='warning'>[A] has attempted to [atk_verb] [D]!</span>")
+		playsound(D.loc, attack.miss_sound, 25, TRUE, -1)
+		D.visible_message(span_warning("[A] has attempted to [atk_verb] [D]!"))
 		return FALSE
 
 	var/obj/item/organ/external/affecting = D.get_organ(ran_zone(A.zone_selected))
 	var/armor_block = D.run_armor_check(affecting, "melee")
 
-	playsound(D.loc, attack.attack_sound, 25, 1, -1)
-	D.visible_message("<span class='danger'>[A] has [atk_verb] [D]!</span>", \
-								"<span class='userdanger'>[A] has [atk_verb] [D]!</span>")
+	playsound(D.loc, attack.attack_sound, 25, TRUE, -1)
+	D.visible_message(span_danger("[A] has [atk_verb] [D]!"), \
+								span_userdanger("[A] has [atk_verb] [D]!"))
 
 	D.apply_damage(damage, BRUTE, affecting, armor_block)
 	objective_damage(A, D, damage, BRUTE)
 
 	add_attack_logs(A, D, "Melee attacked with martial-art [src]", (damage > 0) ? null : ATKLOG_ALL)
 
-	if((D.stat != DEAD) && damage >= A.dna.species.punchstunthreshold)
-		D.visible_message("<span class='danger'>[A] has weakened [D]!!</span>", \
-								"<span class='userdanger'>[A] has weakened [D]!</span>")
-		D.apply_effect(4 SECONDS, WEAKEN, armor_block)
+	if((D.stat != DEAD) && damage >= (A.dna.species.punchstunthreshold + A.physiology.punch_stun_threshold))
+		D.visible_message(span_danger("[A] has weakened [D]!!"), \
+								span_userdanger("[A] has weakened [D]!"))
+		D.apply_effect(4 SECONDS, KNOCKDOWN, armor_block)
 		D.forcesay(GLOB.hit_appends)
 	else if(D.body_position == LYING_DOWN)
 		D.forcesay(GLOB.hit_appends)
@@ -165,10 +183,10 @@
 			if(visible_message || self_message)
 				defender.visible_message(visible_message, self_message)
 			else
-				defender.visible_message("<span class='warning'>[defender] blocks [I]!</span>")
+				defender.visible_message(span_warning("[defender] blocks [I]!"))
 			return TRUE
 
-/datum/martial_art/proc/user_hit_by(atom/movable/AM, mob/living/carbon/human/H)
+/datum/martial_art/proc/user_hit_by(atom/movable/AM, mob/living/carbon/human/human)
 	return FALSE
 
 /datum/martial_art/proc/objective_damage(mob/living/user, mob/living/target, damage, damage_type)
@@ -178,61 +196,84 @@
 			if(target.mind == objective.target)
 				objective.take_damage(damage, damage_type)
 
-/datum/martial_art/proc/teach(mob/living/carbon/human/H, make_temporary = FALSE)
-	if(!H.mind)
+/datum/martial_art/proc/teach(mob/living/carbon/human/human, make_temporary = FALSE)
+	if(!human.mind)
 		return FALSE
-	for(var/datum/martial_art/MA in H.mind.known_martial_arts)
-		if(istype(MA, src))
-			return FALSE
+
+	if(change_musculs && HASBIT(SEND_SIGNAL(human, COMSIG_CAN_CHANGE_STRENGTH), COMPONENT_CAN_CHANGE_STRENGTH))
+		ADD_TRAIT(human, TRAIT_STRONG_MUSCLES, UNIQUE_TRAIT_SOURCE(src))
+		human.update_body(TRUE)
+
+	for(var/datum/martial_art/art in human.mind.known_martial_arts)
+		if(!istype(art, src))
+			continue
+
+		return FALSE
+
+	if(no_baton)
+		if(isbaton(human.get_item_by_slot(ITEM_SLOT_HAND_LEFT)))
+			human.drop_l_hand()
+
+		if(isbaton(human.get_item_by_slot(ITEM_SLOT_HAND_RIGHT)))
+			human.drop_r_hand()
+
 	if(has_explaination_verb)
-		H.verbs |= /mob/living/carbon/human/proc/martial_arts_help
+		add_verb(human, /mob/living/carbon/human/proc/martial_arts_help)
+
 	if(has_dirslash)
-		H.verbs |= /mob/living/carbon/human/proc/dirslash_enabling
-		H.dirslash_enabled = TRUE
+		add_verb(human, /mob/living/carbon/human/proc/dirslash_enabling)
+		human.dirslash_enabled = TRUE
+
 	temporary = make_temporary
-	H.mind.known_martial_arts.Add(src)
-	H.mind.martial_art = get_highest_weight(H)
-	owner_UID = H.UID()
+	human.mind.known_martial_arts.Add(src)
+	human.mind.martial_art = get_highest_weight(human)
+	owner_UID = human.UID()
 	return TRUE
 
-/datum/martial_art/proc/remove(mob/living/carbon/human/H)
+/datum/martial_art/proc/remove(mob/living/carbon/human/human)
 	var/datum/martial_art/MA = src
-	if(!H.mind)
+	if(!human.mind)
 		return FALSE
+
+	if(human.hud_used)
+		reset_combos()
+
 	deltimer(combo_timer)
-	H.mind.known_martial_arts.Remove(MA)
-	H.mind.martial_art = get_highest_weight(H)
-	remove_verbs(H)
+	human.mind.known_martial_arts.Remove(MA)
+	human.mind.martial_art = get_highest_weight(human)
+	remove_martial_art_verbs(human)
+	REMOVE_TRAIT(human, TRAIT_STRONG_MUSCLES, UNIQUE_TRAIT_SOURCE(src))
+	human.update_body(TRUE)
 	return TRUE
 
-/datum/martial_art/proc/remove_verbs(mob/living/carbon/human/old_human)
-	old_human.verbs -= /mob/living/carbon/human/proc/martial_arts_help
-	old_human.verbs -= /mob/living/carbon/human/proc/dirslash_enabling
+/datum/martial_art/proc/remove_martial_art_verbs(mob/living/carbon/human/old_human)
+	remove_verb(old_human, /mob/living/carbon/human/proc/martial_arts_help)
+	remove_verb(old_human, /mob/living/carbon/human/proc/dirslash_enabling)
 	old_human.dirslash_enabled = initial(old_human.dirslash_enabled)
 	return TRUE
 
 ///	Returns the martial art with the highest weight from all the ones someone knows.
-/datum/martial_art/proc/get_highest_weight(mob/living/carbon/human/H)
+/datum/martial_art/proc/get_highest_weight(mob/living/carbon/human/human)
 	var/datum/martial_art/highest_weight = null
-	for(var/datum/martial_art/MA in H.mind.known_martial_arts)
+	for(var/datum/martial_art/MA in human.mind.known_martial_arts)
 		if(!highest_weight || MA.weight > highest_weight.weight)
 			highest_weight = MA
 	return highest_weight
 
 /mob/living/carbon/human/proc/martial_arts_help()
-	set name = "Show Info"
+	set name = "Информацию о БИ"
 	set desc = "Gives information about the martial arts you know."
-	set category = "Martial Arts"
-	var/mob/living/carbon/human/H = usr
-	if(!istype(H))
-		to_chat(usr, "<span class='warning'>You shouldn't have access to this verb. Report this as a bug to the github please.</span>")
+	set category = STATPANEL_MARTIALARTS
+	var/mob/living/carbon/human/human = usr
+	if(!istype(human))
+		to_chat(usr, span_warning("You shouldn't have access to this verb. Report this as a bug to the github please."))
 		return
-	H.mind.martial_art.give_explaination(H)
+	human.mind.martial_art.give_explaination(human)
 
 /mob/living/carbon/human/proc/dirslash_enabling()
-	set name = "Enable/Disable direction slash"
+	set name = "Атака по направлению"
 	set desc = "If direction slash is enabled, you can attack mobs, by clicking behind their backs"
-	set category = "Martial Arts"
+	set category = STATPANEL_MARTIALARTS
 	dirslash_enabled = !dirslash_enabled
 	to_chat(src, span_notice("Directrion slash is [dirslash_enabled? "enabled" : "disabled"] now."))
 
@@ -258,11 +299,11 @@
 /datum/martial_art/proc/explaination_footer(user)
 	return
 
-/datum/martial_art/proc/explaination_notice(user)
-	return to_chat(user, "<b><i>Combo steps can be provided only with empty hand!</b></i>")
-
 /datum/martial_art/proc/try_deflect(mob/user)
 	return prob(deflection_chance)
+
+/datum/martial_art/proc/explaination_notice(user)
+	return to_chat(user, "<b><i>Combo steps can be provided only with empty hand!</b></i>")
 
 /datum/martial_art/proc/intent_to_streak(intent)
 	switch(intent)
@@ -273,7 +314,24 @@
 		if(MARTIAL_COMBO_STEP_GRAB)
 			return "G"
 		if(MARTIAL_COMBO_STEP_HELP)
-			return "H"
+			return "human"
+
+
+/// Returns martial art grab resist chance for passed grab state.
+/datum/martial_art/proc/get_resist_chance(grab_state)
+	if(!grab_resist_chances)
+		return null
+	switch(grab_state)
+		if(GRAB_AGGRESSIVE)
+			if(!isnull(grab_resist_chances[MARTIAL_GRAB_AGGRESSIVE]))	// can be 0 its a vaild number
+				return grab_resist_chances[MARTIAL_GRAB_AGGRESSIVE]
+		if(GRAB_NECK)
+			if(!isnull(grab_resist_chances[MARTIAL_GRAB_NECK]))
+				return grab_resist_chances[MARTIAL_GRAB_NECK]
+		if(GRAB_KILL)
+			if(!isnull(grab_resist_chances[MARTIAL_GRAB_KILL]))
+				return grab_resist_chances[MARTIAL_GRAB_KILL]
+
 
 //ITEMS
 
@@ -350,10 +408,10 @@
 		return
 
 	if(!used)
-		var/mob/living/carbon/human/H = user
+		var/mob/living/carbon/human/human = user
 		var/datum/martial_art/plasma_fist/F = new/datum/martial_art/plasma_fist(null)
-		F.teach(H)
-		to_chat(H, "<span class='boldannounce'>You have learned the ancient martial art of Plasma Fist.</span>")
+		F.teach(human)
+		to_chat(human, span_boldannounceic("You have learned the ancient martial art of Plasma Fist."))
 		used = TRUE
 		update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
 
@@ -369,26 +427,40 @@
 		return
 	if(user.mind && (ischangeling(user) || isvampire(user))) //Prevents changelings and vampires from being able to learn it
 		if(ischangeling(user)) //Changelings
-			to_chat(user, "<span class ='warning'>We try multiple times, but we are not able to comprehend the contents of the scroll!</span>")
+			to_chat(user, span_warning("We try multiple times, but we are not able to comprehend the contents of the scroll!"))
 			return
 		else //Vampires
-			to_chat(user, "<span class ='warning'>Your blood lust distracts you too much to be able to concentrate on the contents of the scroll!</span>")
+			to_chat(user, span_warning("Your blood lust distracts you too much to be able to concentrate on the contents of the scroll!"))
 			return
 
 	if(istype(user.mind.martial_art, /datum/martial_art/the_sleeping_carp))
 		to_chat(user, span_warning("You realise, that you have learned everything from Carp Teachings and decided to not read the scroll."))
 		return
 
+	to_chat(user, span_sciradio("You have learned the ancient martial art of the Sleeping Carp! \
+					Your hand-to-hand combat has become much more effective, and you are now able to deflect any projectiles directed toward you. \
+					However, you are also unable to use any ranged weaponry. \
+					You can learn more about your newfound art by using the Recall Teachings verb in the Sleeping Carp tab."))
+
+
 	var/datum/martial_art/the_sleeping_carp/theSleepingCarp = new(null)
 	theSleepingCarp.teach(user)
 	user.temporarily_remove_item_from_inventory(src)
-	visible_message("<span class='warning'>[src] lights up in fire and quickly burns to ash.</span>")
+	visible_message(span_warning("[src] lights up in fire and quickly burns to ash."))
 	new /obj/effect/decal/cleanable/ash(get_turf(src))
 	qdel(src)
 
 /obj/item/CQC_manual
 	name = "old manual"
-	desc = "A small, black manual. There are drawn instructions of tactical hand-to-hand combat."
+	desc = "Небольшая книжка чёрного цвета. Это подробное руководство по тактике рукопашного боя."
+	ru_names = list(
+		NOMINATIVE = "старое руководство",
+		GENITIVE = "старого руководства",
+		DATIVE = "старому руководству",
+		ACCUSATIVE = "старое руководство",
+		INSTRUMENTAL = "старым руководством",
+		PREPOSITIONAL = "старом руководстве"
+	)
 	icon = 'icons/obj/library.dmi'
 	icon_state = "cqcmanual"
 
@@ -398,27 +470,35 @@
 
 	if(user.mind) //Prevents changelings and vampires from being able to learn it
 		if(ischangeling(user))
-			to_chat(user, "<span class='warning'>We try multiple times, but we simply cannot grasp the basics of CQC!</span>")
+			to_chat(user, span_warning("Как бы мы не пытались, у нас не получается понять даже основы CQC!"))
 			return
 		else if(isvampire(user)) //Vampires
-			to_chat(user, "<span class='warning'>Your blood lust distracts you from the basics of CQC!</span>")
+			to_chat(user, span_warning("Ваша жажда крови отвлекает вас от изучения CQC!"))
 			return
 		else if(HAS_TRAIT(user, TRAIT_PACIFISM))
-			to_chat(user, "<span class='warning'>The mere thought of combat, let alone CQC, makes your head spin!</span>")
+			to_chat(user, span_warning("От одной мысли о драке, не говоря уже о CQC, ваша голова идёт кругом!"))
 			return
 
-	to_chat(user, "<span class='boldannounce'>You remember the basics of CQC.</span>")
+	to_chat(user, span_boldannounceic("Вы быстро пробегаетесь глазами по страницам книги, запоминая основы CQC."))
 
 	var/datum/martial_art/cqc/CQC = new(null)
 	CQC.teach(user)
 	user.temporarily_remove_item_from_inventory(src)
-	visible_message("<span class='warning'>[src] beeps ominously, and a moment later it bursts up in flames.</span>")
+	visible_message(span_warning("[declent_ru(NOMINATIVE)] зловеще пищит, после чего вспыхивает ярким пламенем!"))
 	new /obj/effect/decal/cleanable/ash(get_turf(src))
 	qdel(src)
 
 /obj/item/CQC_manual/chef
 	name = "CQC Upgrade implant"
-	desc = "Gives you to remember what you always forget"
+	desc = "Небольшой шприц, содержащий в себе имплант. Даёт вам запомнить то, что вы всегда забываете."
+	ru_names = list(
+		NOMINATIVE = "имплант улучшения CQC",
+		GENITIVE = "импланта улучшения CQC",
+		DATIVE = "импланту улучшения CQC",
+		ACCUSATIVE = "имплант улучшения CQC",
+		INSTRUMENTAL = "имплантом улучшения CQC",
+		PREPOSITIONAL = "импланте улучшения CQC"
+	)
 	icon = 'icons/obj/items.dmi'
 	icon_state = "implanter1"
 	item_state = "syringe_0"
@@ -426,25 +506,41 @@
 /obj/item/CQC_manual/chef/attack_self(mob/living/carbon/human/user)
 	if(!istype(user))
 		return
-	if(user.mind && user.mind.assigned_role == JOB_TITLE_CHEF)
-		to_chat(user, "<span class='boldannounce'>You completely memorise the basics of CQC.</span>")
-		var/datum/martial_art/cqc/CQC = new(null)
-		CQC.teach(user)
-		user.temporarily_remove_item_from_inventory(src)
-		visible_message("<span class='warning'>[src] beeps ominously, and a moment later it blow up.</span>")
-		new /obj/effect/decal/cleanable/ash(get_turf(src))
-		qdel(src)
-	else
-		to_chat(user, "<span class='notice'>You implant yourself, but nanobots can't find their target. You feel sharp pain in head!</span>")
+
+	if(!(user.mind && user.mind.assigned_role == JOB_TITLE_CHEF))
+		to_chat(user, span_notice("Вы имплантируете себя, но наноботы не могут найти свою цель. Вы чувствуете острую головную боль!"))
 		if(isliving(user))
 			var/mob/living/L = user
-			L.adjustBrainLoss(20)
-			L.adjustFireLoss(20)
-		user.temporarily_remove_item_from_inventory(src)
-		visible_message("<span class='warning'>[src] beeps ominously, and a moment later it blow up!</span>")
-		playsound(get_turf(src),'sound/effects/explosion2.ogg', 100, 1)
-		new /obj/effect/decal/cleanable/ash(get_turf(src))
-		qdel(src)
+			L.apply_damages(burn = 20, brain = 20, spread_damage = TRUE)
+		use_implant(user)
+		return
+
+	if(ischangeling(user))
+		to_chat(user, span_warning("Мы имплантируем себя, но наноботы не успевают достичь своей цели и разрушаются."))
+		use_implant(user)
+		return
+
+	if(isvampire(user))
+		to_chat(user, span_warning("Вы имплантируете себя, но ваша кровь разрушает наноботов быстрее, чем они достигают своей цели."))
+		use_implant(user)
+		return
+
+	if(HAS_TRAIT(user, TRAIT_PACIFISM))
+		to_chat(user, span_warning("От одной мысли о драке, не говоря уже о CQC, голова идёт кругом! Вы не решаетесь вколоть в себя имплант."))
+		return
+
+	to_chat(user, span_boldannounceic("Вы полностью запоминаете основы CQC."))
+	var/datum/martial_art/cqc/CQC = new(null)
+	CQC.teach(user)
+	use_implant(user)
+
+/obj/item/CQC_manual/chef/proc/use_implant(mob/living/carbon/human/user)
+	user.temporarily_remove_item_from_inventory(src)
+	visible_message(span_warning("[declent_ru(NOMINATIVE)] зловеще пищит, после чего взрывается!"))
+	playsound(get_turf(src),'sound/effects/explosion2.ogg', 100, TRUE)
+	new /obj/effect/decal/cleanable/ash(get_turf(src))
+	qdel(src)
+
 
 /obj/item/mr_chang_technique
 	name = "«Aggressive Marketing Technique»"
@@ -455,12 +551,12 @@
 /obj/item/mr_chang_technique/attack_self(mob/living/carbon/human/user)
 	if(!istype(user) || !user)
 		return
-	to_chat(user, "<span class='boldannounce'>You remember the basics of Aggressive Marketing Technique.</span>")
+	to_chat(user, span_boldannounceic("You remember the basics of Aggressive Marketing Technique."))
 
 	var/datum/martial_art/mr_chang/mr_chang = new(null)
 	mr_chang.teach(user)
 	user.temporarily_remove_item_from_inventory(src)
-	visible_message("<span class='warning'>[src] beeps ominously, and a moment later it bursts up in flames.</span>")
+	visible_message(span_warning("[src] beeps ominously, and a moment later it bursts up in flames."))
 	new /obj/effect/decal/cleanable/ash(get_turf(src))
 	qdel(src)
 
@@ -473,12 +569,12 @@
 /obj/item/throwing_manual/attack_self(mob/living/carbon/human/user)
 	if(!istype(user) || !user)
 		return
-	to_chat(user, "<span class='boldannounce'>You remember the basics of knife throwing.</span>")
+	to_chat(user, span_boldannounceic("You remember the basics of knife throwing."))
 
 	var/datum/martial_art/throwing/MA = new
 	MA.teach(user)
 	user.temporarily_remove_item_from_inventory(src)
-	visible_message("<span class='warning'>[src] beeps ominously, and a moment later it bursts up in flames.</span>")
+	visible_message(span_warning("[src] beeps ominously, and a moment later it bursts up in flames."))
 	new /obj/effect/decal/cleanable/ash(get_turf(src))
 	qdel(src)
 
@@ -492,7 +588,7 @@
 	force_wielded = 24
 	throwforce = 20
 	throw_speed = 2
-	attack_verb = list("smashed", "slammed", "whacked", "thwacked")
+	attack_verb = list("сокрушил", "ударил", "огрел")
 	icon_state = "bostaff0"
 	block_chance = 50
 
@@ -501,61 +597,66 @@
 	icon_state = "bostaff[HAS_TRAIT(src, TRAIT_WIELDED)]"
 
 
-/obj/item/twohanded/bostaff/attack(mob/target, mob/living/user)
-	add_fingerprint(user)
-	if((CLUMSY in user.mutations) && prob(50))
-		to_chat(user, "<span class ='warning'>You club yourself over the head with [src].</span>")
-		user.Weaken(6 SECONDS)
+/obj/item/twohanded/bostaff/attack(mob/living/carbon/human/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
+	if(HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
+		to_chat(user, span_warning("You club yourself over the head with [src]."))
+		user.Knockdown(6 SECONDS)
 		if(ishuman(user))
-			var/mob/living/carbon/human/H = user
-			H.apply_damage(2*force, BRUTE, BODY_ZONE_HEAD)
+			user.apply_damage(2 * force, BRUTE, BODY_ZONE_HEAD)
 		else
-			user.take_organ_damage(2*force)
-		return
-	if(isrobot(target))
-		return ..()
-	if(!isliving(target))
-		return ..()
-	var/mob/living/carbon/C = target
-	if(C.stat)
-		to_chat(user, "<span class='warning'>It would be dishonorable to attack a foe while [C.p_they()] cannot retaliate.</span>")
-		return
-	if(HAS_TRAIT(user, TRAIT_PACIFISM))
-		to_chat(user, "<span class='warning'>You feel violence is not the answer.</span>")
-		return
-	switch(user.a_intent)
-		if(INTENT_DISARM)
-			if(!HAS_TRAIT(src, TRAIT_WIELDED))
-				return ..()
-			if(!ishuman(target))
-				return ..()
-			var/mob/living/carbon/human/H = target
-			var/list/fluffmessages = list("[user] clubs [H] with [src]!", \
-										  "[user] smacks [H] with the butt of [src]!", \
-										  "[user] broadsides [H] with [src]!", \
-										  "[user] smashes [H]'s head with [src]!", \
-										  "[user] beats [H] with front of [src]!", \
-										  "[user] twirls and slams [H] with [src]!")
-			H.visible_message("<span class='warning'>[pick(fluffmessages)]</span>", \
-								   "<span class='userdanger'>[pick(fluffmessages)]</span>")
-			playsound(get_turf(user), 'sound/effects/woodhit.ogg', 75, 1, -1)
-			H.adjustStaminaLoss(rand(13,20))
-			if(prob(10))
-				H.visible_message("<span class='warning'>[H] collapses!</span>", \
-									   "<span class='userdanger'>Your legs give out!</span>")
-				H.Weaken(8 SECONDS)
-			if(H.staminaloss && !H.IsSleeping())
-				var/total_health = (H.health - H.staminaloss)
-				if(total_health <= HEALTH_THRESHOLD_CRIT && !H.stat)
-					H.visible_message("<span class='warning'>[user] delivers a heavy hit to [H]'s head, knocking [H.p_them()] out cold!</span>", \
-										   "<span class='userdanger'>[user] knocks you unconscious!</span>")
-					H.SetSleeping(60 SECONDS)
-					H.adjustBrainLoss(25)
-			return
-		else
-			return ..()
+			user.take_organ_damage(2 * force)
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-/obj/item/twohanded/bostaff/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+	if(isrobot(target) || !ishuman(target) || user.a_intent != INTENT_DISARM || !HAS_TRAIT(src, TRAIT_WIELDED))
+		return ..()
+
+	. = ATTACK_CHAIN_PROCEED
+
+	if(target.stat)
+		to_chat(user, span_warning("It would be dishonorable to attack a foe while [target.p_they()] cannot retaliate."))
+		return .
+
+	if(HAS_TRAIT(user, TRAIT_PACIFISM) || GLOB.pacifism_after_gt)
+		to_chat(user, span_warning("You feel violence is not the answer."))
+		return .
+
+	. |= ATTACK_CHAIN_SUCCESS
+
+	var/list/fluffmessages = list(
+		"[user] clubs [target] with [src]!",
+		"[user] smacks [target] with the butt of [src]!",
+		"[user] broadsides [target] with [src]!",
+		"[user] smashes [target]'s head with [src]!",
+		"[user] beats [target] with front of [src]!",
+		"[user] twirls and slams [target] with [src]!",
+	)
+
+	target.visible_message(
+		span_warning("[pick(fluffmessages)]"),
+		span_userdanger("[pick(fluffmessages)]"),
+	)
+	playsound(loc, 'sound/effects/woodhit.ogg', 75, TRUE, -1)
+	target.apply_damage(rand(13, 20), STAMINA)
+
+	if(prob(10))
+		target.visible_message(
+			span_warning("[target] collapses!"),
+			span_userdanger("Your legs give out!"),
+		)
+		target.Knockdown(8 SECONDS)
+
+	else if(target.staminaloss && !target.IsSleeping())
+		var/total_health = (target.health - target.staminaloss)
+		if(total_health <= HEALTH_THRESHOLD_CRIT && !target.stat)
+			target.visible_message(
+				span_warning("[user] delivers a heavy hit to [target]'s head, knocking [target.p_them()] out cold!"),
+				span_userdanger("[user] knocks you unconscious!"),
+			)
+			target.SetSleeping(60 SECONDS)
+			target.apply_damage(25, BRAIN)
+
+
+/obj/item/twohanded/bostaff/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(HAS_TRAIT(src, TRAIT_WIELDED))
 		return ..()
 	return FALSE

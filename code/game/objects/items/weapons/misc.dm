@@ -23,7 +23,7 @@
 
 /obj/item/cane
 	name = "cane"
-	desc = "A cane used by a true gentlemen. Or a clown."
+	desc = "A cane used by a true gentleman. Or a clown."
 	icon_state = "cane"
 	item_state = "stick"
 	flags = CONDUCT
@@ -31,7 +31,7 @@
 	throwforce = 7.0
 	w_class = WEIGHT_CLASS_NORMAL
 	materials = list(MAT_METAL=50)
-	attack_verb = list("bludgeoned", "whacked", "disciplined", "thrashed", "Vaudevilled")
+	attack_verb = list("огрел", "проучил")
 
 /obj/item/cane/is_crutch()
 	return 2
@@ -41,31 +41,19 @@
 	desc = "A tube... of cardboard."
 	icon = 'icons/obj/items.dmi'
 	icon_state = "c_tube"
+	hitsound = 'sound/items/cardboard_tube.ogg'
 	throwforce = 1
+	force = 1
+	attack_verb = list("ударил", "стукнул")
 	w_class = WEIGHT_CLASS_TINY
 	throw_speed = 4
 	throw_range = 5
-
-
 
 /obj/item/fan
 	name = "desk fan"
 	icon = 'icons/obj/decorations.dmi'
 	icon_state = "fan"
 	desc = "A small desktop fan. The button seems to be stuck in the 'on' position."
-
-/*
-/obj/item/game_kit
-	name = "Gaming Kit"
-	icon = 'icons/obj/items.dmi'
-	icon_state = "game_kit"
-	var/selected = null
-	var/board_stat = null
-	var/data = ""
-	var/base_url = "http://svn.slurm.us/public/spacestation13/misc/game_kit"
-	item_state = "sheet-metal"
-	w_class = WEIGHT_CLASS_HUGE
-*/
 
 /obj/item/gift
 	name = "gift"
@@ -76,6 +64,22 @@
 	var/obj/item/gift = null
 	item_state = "gift"
 	w_class = WEIGHT_CLASS_BULKY
+
+
+/obj/item/gift/Destroy()
+	QDEL_NULL(gift)
+	return ..()
+
+
+/obj/item/gift/attack_self(mob/user)
+	if(gift)
+		gift.forceMove(drop_location())
+		user.put_in_active_hand(gift)
+		gift.add_fingerprint(user)
+	else
+		to_chat(user, span_notice("The gift was empty!"))
+	qdel(src)
+
 
 /obj/item/gift/emp_act(severity)
 	..()
@@ -135,13 +139,13 @@
 	throw_speed = 1
 	throw_range = 4
 	w_class = WEIGHT_CLASS_SMALL
-	attack_verb = list("called", "rang")
+	attack_verb = list("вызвал", "прозвонил")
 	hitsound = 'sound/weapons/ring.ogg'
 	var/cooldown = 0
 
 /obj/item/phone/attack_self(mob/user)
 	if(cooldown < world.time - 20)
-		playsound(user.loc, 'sound/weapons/ring.ogg', 50, 1)
+		playsound(user.loc, 'sound/weapons/ring.ogg', 50, TRUE)
 		cooldown = world.time
 
 /obj/item/nunchuck
@@ -176,20 +180,21 @@
 			active = TRUE
 			update_icon(UPDATE_ICON_STATE)
 
-/obj/item/nunchuck/attack(mob/living/target, mob/living/user, def_zone, add_melee_cooldown = FALSE)
+
+/obj/item/nunchuck/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!active)
 		return ..()
 	if(!user.temporarily_remove_item_from_inventory(src) || !user.put_in_inactive_hand(src))
 		user.drop_item_ground(src)
-		to_chat(user, span_warning("Вы ударили себя-же! Нужно иметь возможность перекинуть нунчаки в вторую руку."))
-		user.adjustStaminaLoss(30)
-		return
+		to_chat(user, span_warning("Вы ударили себя-же! Нужно иметь возможность перекинуть нунчаки во вторую руку."))
+		user.apply_damage(30, STAMINA)
+		return ATTACK_CHAIN_BLOCKED_ALL
 	if(user.a_intent == INTENT_HARM)
-		target.apply_damage(10, BRUTE, def_zone)
-		target.adjustStaminaLoss(10)
+		target.apply_damages(brute = 10, stamina = 10, def_zone = def_zone)
 	else
-		target.adjustStaminaLoss(15)
-	user.changeNext_move(4)
+		target.apply_damage(15, STAMINA)
+	user.changeNext_move(attack_speed * 0.5)
 	active = TRUE // it set in dropped() to false every time. Not best way for sure
 	update_icon(UPDATE_ICON_STATE)
 	return ..()
+

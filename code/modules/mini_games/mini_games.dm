@@ -20,7 +20,7 @@
 	anchored = TRUE
 	density = FALSE
 	invisibility = INVISIBILITY_MAXIMUM
-	opacity = 0
+	opacity = FALSE
 	layer = BELOW_MOB_LAYER
 	resistance_flags = INDESTRUCTIBLE
 
@@ -33,7 +33,7 @@
 			return
 		to_chat(O, span_ghostalert("[message][(enter_link) ? " [enter_link]" : ""]"))
 		if(ghost_sound)
-			O << sound(ghost_sound)
+			SEND_SOUND(O, sound(ghost_sound))
 		if(flashwindow)
 			window_flash(O.client)
 		if(source)

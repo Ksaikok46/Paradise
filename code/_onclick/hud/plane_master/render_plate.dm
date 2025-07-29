@@ -17,6 +17,22 @@
 	/// If we render into a critical plane master, or not
 	var/critical_target = FALSE
 
+/client/proc/on_render_plane_relay_qdeleted(atom/movable/render_plane_relay/source)
+	SIGNAL_HANDLER
+	if(!istype(source))
+		return
+	screen.RemoveAll(source)
+	UnregisterSignal(source, COMSIG_QDELETING)
+
+/client/proc/register_render_plane_relay(atom/movable/render_plane_relay/relay)
+	if(!istype(relay))
+		return
+	var/exist_check = (relay in screen)
+	screen += relay
+	if(exist_check)
+		return
+	RegisterSignal(relay, COMSIG_QDELETING, PROC_REF(on_render_plane_relay_qdeleted), override = TRUE)
+
 /**
  * ## Rendering plate
  *
@@ -76,6 +92,10 @@
 		<br>We apply a displacement effect from the gravity pulse plane too, so we can warp the game world."
 	plane = RENDER_PLANE_GAME
 	render_relay_planes = list(RENDER_PLANE_MASTER)
+
+/atom/movable/screen/plane_master/rendering_plate/game_plate/Initialize(mapload, datum/hud/hud_owner)
+	. = ..()
+	add_filter("displace", 1, displacement_map_filter(render_source = OFFSET_RENDER_TARGET(GRAVITY_PULSE_RENDER_TARGET, offset), size = 10))
 
 // Blackness renders weird when you view down openspace, because of transforms and borders and such
 // This is a consequence of not using lummy's grouped transparency, but I couldn't get that to work without totally fucking up
@@ -215,6 +235,9 @@
  * Other vars such as alpha will automatically be applied with the render source
  */
 /atom/movable/screen/plane_master/proc/generate_render_relays()
+#if MIN_COMPILER_VERSION > 516
+	#warn Fully change default relay_loc to "1,1"
+#endif
 	var/relay_loc = home?.relay_loc
 	if(!relay_loc)
 		log_runtime(EXCEPTION("Someone forgot to set relay_loc for plane_master_group."))
@@ -252,9 +275,7 @@
 	if(!length(relays) && !initial(render_target))
 		render_target = OFFSET_RENDER_TARGET(get_plane_master_render_base(name), offset)
 	if(!relay_loc)
-		relay_loc = home?.relay_loc
-		if(!relay_loc)
-			log_runtime(EXCEPTION("Someone forgot relay_loc while passing in generate_relay_to."))
+		relay_loc = (show_to?.byond_version > 515) ? "1,1" : "CENTER"
 		// If we're using a submap (say for a popup window) make sure we draw onto it
 		if(home?.map)
 			relay_loc = "[home.map]:[relay_loc]"
@@ -280,7 +301,9 @@
 	// Relays are sometimes generated early, before huds have a mob to display stuff to
 	// That's what this is for
 	if(show_to)
-		show_to.screen += relay
+		show_to.register_render_plane_relay(relay)
+	if(offsetting_flags & OFFSET_RELAYS_MATCH_HIGHEST && home.our_hud)
+		offset_relay(relay, home.our_hud.current_plane_offset)
 	return relay
 
 /// Breaks a connection between this plane master, and the passed in place
@@ -303,3 +326,40 @@
 			return relay
 
 	return null
+
+/**
+ * Offsets our relays in place using the given parameter by adjusting their plane and
+ * layer values, avoiding changing the layer for relays with custom-set layers.
+ *
+ * Used in [proc/build_planes_offset] to make the relays for non-offsetting planes
+ * match the highest rendering plane that matches the target, to avoid them rendering
+ * on the highest level above things that should be visible.
+ *
+ * Parameters:
+ * - new_offset: the offset we will adjust our relays to
+ */
+/atom/movable/screen/plane_master/proc/offset_relays_in_place(new_offset)
+	for(var/atom/movable/render_plane_relay/rpr in relays)
+		offset_relay(rpr, new_offset)
+
+/**
+ * Offsets a given render relay using the given parameter by adjusting its plane and
+ * layer values, avoiding changing the layer if it has a custom-set layer.
+ *
+ * Parameters:
+ * - rpr: the render plane relay we will offset
+ * - new_offset: the offset we will adjust it by
+ */
+/atom/movable/screen/plane_master/proc/offset_relay(atom/movable/render_plane_relay/rpr, new_offset)
+	var/base_relay_plane = PLANE_TO_TRUE(rpr.plane)
+	var/old_offset = PLANE_TO_OFFSET(rpr.plane)
+	rpr.plane = GET_NEW_PLANE(base_relay_plane, new_offset)
+
+	var/old_offset_plane = real_plane - (PLANE_RANGE * old_offset)
+	var/old_layer = (old_offset_plane + abs(LOWEST_EVER_PLANE * 30))
+	if(rpr.layer != old_layer) // Avoid overriding custom-set layers
+		return
+
+	var/offset_plane = real_plane - (PLANE_RANGE * new_offset)
+	var/new_layer = (offset_plane + abs(LOWEST_EVER_PLANE * 30))
+	rpr.layer = new_layer

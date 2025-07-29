@@ -17,13 +17,14 @@ Mineral Sheets
 
 GLOBAL_LIST_INIT(sandstone_recipes, list ( \
 	new/datum/stack_recipe("pile of dirt", /obj/machinery/hydroponics/soil, 3, time = 10, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe("sandstone door", /obj/structure/mineral_door/sandstone, 10, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe("sandstone door", /obj/structure/mineral_door/sandstone, 10, time = 4 SECONDS, one_per_turf = 1, on_floor = 1), \
 	null, \
-	new/datum/stack_recipe("Assistant Statue", /obj/structure/statue/sandstone/assistant, 5, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe("Assistant Statue", /obj/structure/statue/sandstone/assistant, 5, time = 4 SECONDS, one_per_turf = 1, on_floor = 1), \
 	null, \
-	new/datum/stack_recipe("Sandstone Plate", /obj/structure/bed/sandstone, 15, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe("Sandstone Plate", /obj/structure/bed/sandstone, 15, time = 4 SECONDS, one_per_turf = 1, on_floor = 1), \
 	null, \
 	new/datum/stack_recipe("Breakdown into sand", /obj/item/stack/ore/glass, 1, one_per_turf = 0, on_floor = 1), \
+	new/datum/stack_recipe("tribal oven", /obj/machinery/kitchen_machine/tribal_oven, 20, time = 4 SECONDS, one_per_turf = 1, on_floor = 1), \
 	))
 
 GLOBAL_LIST_INIT(silver_recipes, list ( \
@@ -141,6 +142,9 @@ GLOBAL_LIST_INIT(snow_recipes, list(
 	. = ..()
 	recipes = GLOB.sandstone_recipes
 
+/obj/item/stack/sheet/mineral/sandstone/fifty
+	amount = 50
+
 /*
  * Sandbags
  */
@@ -167,17 +171,24 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 	icon_state = "sandbag"
 	w_class = WEIGHT_CLASS_TINY
 
+
 /obj/item/emptysandbag/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/stack/ore/glass))
-		var/obj/item/stack/ore/glass/G = I
-		to_chat(user, "<span class='notice'>You fill the sandbag.</span>")
-		var/obj/item/stack/sheet/mineral/sandbags/S = new /obj/item/stack/sheet/mineral/sandbags(drop_location())
+		add_fingerprint(user)
+		var/obj/item/stack/ore/glass/sand = I
+		if(loc == user && !user.can_unEquip(src))
+			return ATTACK_CHAIN_PROCEED
+		if(!sand.use(1))
+			to_chat(user, span_warning("There is not enough sand."))
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, span_notice("You fill the sandbag."))
+		var/obj/item/stack/sheet/mineral/sandbags/sandbag = new(drop_location())
 		qdel(src)
-		if(Adjacent(user) && !issilicon(user))
-			user.put_in_hands(S, ignore_anim = FALSE)
-		G.use(1)
-	else
-		return ..()
+		user.put_in_hands(sandbag, ignore_anim = FALSE)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/item/stack/sheet/mineral/diamond
 	name = "diamond"
@@ -212,6 +223,9 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 	. = ..()
 	recipes = GLOB.uranium_recipes
 
+/obj/item/stack/sheet/mineral/uranium/fifty
+	amount = 50
+
 /obj/item/stack/sheet/mineral/plasma
 	name = "solid plasma"
 	icon_state = "sheet-plasma"
@@ -237,11 +251,13 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 		log_and_set_aflame(user, I)
 	return TRUE
 
-/obj/item/stack/sheet/mineral/plasma/attackby(obj/item/I, mob/living/user, params)
-	if(is_hot(I))
+
+/obj/item/stack/sheet/mineral/plasma/attackby(obj/item/I, mob/user, params)
+	if(I.get_heat())
 		log_and_set_aflame(user, I)
-	else
-		return ..()
+		return ATTACK_CHAIN_BLOCKED_ALL
+	return ..()
+
 
 /obj/item/stack/sheet/mineral/plasma/proc/log_and_set_aflame(mob/user, obj/item/I)
 	add_attack_logs(user, src, "Ignited [amount] amount, using [I]", ATKLOG_FEW)
@@ -268,6 +284,9 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 	. = ..()
 	recipes = GLOB.gold_recipes
 
+/obj/item/stack/sheet/mineral/gold/fifty
+	amount = 50
+
 /obj/item/stack/sheet/mineral/silver
 	name = "silver"
 	icon_state = "sheet-silver"
@@ -282,6 +301,9 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 /obj/item/stack/sheet/mineral/silver/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.silver_recipes
+
+/obj/item/stack/sheet/mineral/silver/fifty
+	amount = 50
 
 /obj/item/stack/sheet/mineral/bananium
 	name = "bananium"
@@ -367,6 +389,9 @@ GLOBAL_LIST_INIT(titanium_recipes, list(
 	materials = list(MAT_TITANIUM=2000, MAT_PLASMA=2000)
 	point_value = 45
 
+/obj/item/stack/sheet/mineral/plastitanium/fifty
+	amount = 50
+
 GLOBAL_LIST_INIT(plastitanium_recipes, list(
 	new/datum/stack_recipe("plas-titanium tile", /obj/item/stack/tile/mineral/plastitanium, 1, 4, 20),
 	//adding syndie crate recipe here - Furu
@@ -443,6 +468,9 @@ GLOBAL_LIST_INIT(plastitanium_recipes, list(
 	merge_type = /obj/item/stack/sheet/mineral/adamantine
 	wall_allowed = FALSE
 
+/obj/item/stack/sheet/mineral/adamantine/fifty
+	amount = 50
+
 /obj/item/stack/sheet/mineral/adamantine/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.adamantine_recipes
@@ -454,11 +482,14 @@ GLOBAL_LIST_INIT(plastitanium_recipes, list(
 	name = "mythril"
 	desc = "A rare mineral used in construction of chitin armor."
 	icon_state = "sheet-mythril"
-	item_state = "sheet-mythril"
+	//item_state = "sheet-mythril"
 	singular_name = "mythril sheet"
 	origin_tech = "materials=7"
 	merge_type = /obj/item/stack/sheet/mineral/mythril
 	wall_allowed = FALSE
+
+/obj/item/stack/sheet/mineral/mythril/fifty
+	amount = 50
 
 /*
  * Snow
@@ -466,11 +497,14 @@ GLOBAL_LIST_INIT(plastitanium_recipes, list(
 /obj/item/stack/sheet/mineral/snow
 	name = "snow"
 	icon_state = "sheet-snow"
-	item_state = "sheet-snow"
+	//item_state = "sheet-snow"
 	singular_name = "snow block"
 	force = 1
 	throwforce = 2
 	merge_type = /obj/item/stack/sheet/mineral/snow
+
+/obj/item/stack/sheet/mineral/snow/fifty
+	amount = 50
 
 /obj/item/stack/sheet/mineral/snow/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()

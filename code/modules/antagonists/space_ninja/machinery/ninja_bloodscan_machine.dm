@@ -67,39 +67,52 @@
 		ninja = user
 		to_chat(user, span_boldwarning("User: [ninja.real_name] registered. Ready to scan."))
 	if(objective.completed)
-		to_chat(user, span_info("Your mission is over, you don't need to use this machine anymore"))
+		to_chat(user, span_notice("Your mission is over, you don't need to use this machine anymore"))
 		return
 	ui_interact(user)
 
+
 /obj/machinery/ninja_bloodscan_machine/attackby(obj/item/I, mob/user, params)
-	. = ..()
+	if(user.a_intent == INTENT_HARM || !istype(I, /obj/item/reagent_containers/glass/beaker))
+		return ..()
+
+	. = ATTACK_CHAIN_PROCEED
+
 	if(!isninja(user))
 		to_chat(user, span_boldwarning("ERROR!!! UNAUTORISED USER!!!"))
-		return
+		return .
+
 	if(!objective || user != ninja)
 		to_chat(user, span_boldwarning("The machine won't accept any samples without a registered user. Please touch the machine's hand-scan terminal, to proceed forward."))
-		return
+		return .
+
 	if(objective.completed)
-		to_chat(user, span_info("Your mission is over, you don't need to use this machine anymore"))
-		return
-	if(istype(I, /obj/item/reagent_containers/glass/beaker))
-		if(!istype(I, /obj/item/reagent_containers/glass/beaker/vial))
-			to_chat(user, span_boldwarning("This machine only accept's small vial's. Beaker's won't fit."))
-			return
-		var/obj/item/reagent_containers/glass/beaker/vial/blood_vial = I
-		if(!length(blood_vial.reagents.reagent_list))
-			to_chat(user, span_info("Vial is empty..."))
-			return
-		var/datum/reagent/blood/blood_sample = locate(/datum/reagent/blood) in blood_vial.reagents.reagent_list
-		if(!istype(blood_sample) || length(blood_vial.reagents.reagent_list) > 1)
-			to_chat(user, span_boldwarning("The machine won't accept any other reagent's than the one prescribed by the clan. Which in your case is [span_redtext("BLOOD")]!"))
-			return
-		user.drop_transfer_item_to_loc(blood_vial, src)
-		vials += blood_vial
-		blood_samples += blood_sample
-		update_state_icon()
-		to_chat(user, span_info("You place [blood_vial] in the machine."))
-		return
+		to_chat(user, span_warning("Your mission is over, you don't need to use this machine anymore."))
+		return .
+
+	if(!istype(I, /obj/item/reagent_containers/glass/beaker/vial))
+		to_chat(user, span_warning("This machine only accept's small vial's. Beaker's won't fit."))
+		return .
+
+	var/obj/item/reagent_containers/glass/beaker/vial/blood_vial = I
+	if(!length(blood_vial.reagents.reagent_list))
+		to_chat(user, span_warning("Vial is empty."))
+		return .
+
+	var/datum/reagent/blood/blood_sample = locate(/datum/reagent/blood) in blood_vial.reagents.reagent_list
+	if(!istype(blood_sample) || length(blood_vial.reagents.reagent_list) > 1)
+		to_chat(user, span_boldwarning("The machine won't accept any other reagent's than the one prescribed by the clan. Which in your case is [span_redtext("BLOOD")]!"))
+		return .
+
+	if(!user.drop_transfer_item_to_loc(blood_vial, src))
+		return .
+
+	vials += blood_vial
+	blood_samples += blood_sample
+	update_state_icon()
+	to_chat(user, span_notice("You place [blood_vial] in the machine."))
+	return  ATTACK_CHAIN_BLOCKED_ALL
+
 
 /obj/machinery/ninja_bloodscan_machine/proc/start_scan()
 	if(!blood_samples || !vials)
@@ -189,13 +202,13 @@
 	var/obj/item/clothing/glasses/ninja/ninja_visor = ninja.glasses
 	var/obj/item/clothing/suit/space/space_ninja/ninja_suit = ninja.wear_suit
 	if(istype(ninja_visor))
-		to_chat(ninja, span_info("<B>На вашем визоре внезапно появляется новая инструкция... \
-		Кажется теперь защита от света так же защитит вас и от взгляда вампира!</B>"))
+		to_chat(ninja, span_notice("<b>На вашем визоре внезапно появляется новая инструкция... \
+		Кажется теперь защита от света так же защитит вас и от взгляда вампира!</b>"))
 		ninja_visor.vamp_protection_active = TRUE
 	if(istype(ninja_suit))
-		to_chat(ninja, span_info("<B>В ваш костюм были загружены новые скрипты... \
+		to_chat(ninja, span_notice("<b>В ваш костюм были загружены новые скрипты... \
 		Судя по их описанию они содержат инструкции благодаря которым костюм сможет \
-		частично защитить вас от некоторых способностей вампиров!</B>"))
+		частично защитить вас от некоторых способностей вампиров!</b>"))
 		ninja_suit.vamp_protection_active = TRUE
 	return
 
@@ -225,10 +238,10 @@
 	else
 		icon_state = "BSM_[state]"
 
-/obj/machinery/ninja_bloodscan_machine/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/ninja_bloodscan_machine/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "NinjaBloodScan", name, 500, 400, master_ui, state)
+		ui = new(user, src, "NinjaBloodScan", name)
 		ui.open()
 
 /obj/machinery/ninja_bloodscan_machine/ui_data(mob/user)

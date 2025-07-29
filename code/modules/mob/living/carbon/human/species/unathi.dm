@@ -14,8 +14,7 @@
 	brute_mod = 0.9
 	heatmod = 0.8
 	coldmod = 1.2
-	hunger_drain = 0.16
-	var/tail_strength = 1
+	hunger_drain_mod = 1.6
 
 	blurb = "A heavily reptillian species, Unathi (or 'Sinta as they call themselves) hail from the \
 	Uuosa-Eso system, which roughly translates to 'burning mother'.<br/><br/>Coming from a harsh, radioactive \
@@ -23,7 +22,10 @@
 	else, frequently even their own lives. They prefer warmer temperatures than most species and \
 	their native tongue is a heavy hissing laungage called Sinta'Unathi."
 
-	species_traits = list(LIPS, PIERCEIMMUNE)
+	inherent_traits = list(
+		TRAIT_HAS_LIPS,
+		TRAIT_PIERCEIMMUNE,
+	)
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS
 	bodyflags = HAS_TAIL | HAS_HEAD_ACCESSORY | HAS_BODY_MARKINGS | HAS_HEAD_MARKINGS | HAS_SKIN_COLOR | HAS_ALT_HEADS | TAIL_WAGGING | TAIL_OVERLAPPED
 	taste_sensitivity = TASTE_SENSITIVITY_SHARP
@@ -57,7 +59,7 @@
 		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/unathi,
 		INTERNAL_ORGAN_APPENDIX = /obj/item/organ/internal/appendix,
 		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi,	// 3 darksight.
-		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
+		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears/unathi,
 	)
 
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/unathi
@@ -90,22 +92,89 @@
 	disliked_food = FRIED
 	liked_food = MEAT | RAW | EGG | GROSS | FRUIT | VEGETABLES
 
+	age_sheet = list(
+		SPECIES_AGE_MIN = 12,
+		SPECIES_AGE_MAX = 70,
+		JOB_MIN_AGE_HIGH_ED = 22,
+		JOB_MIN_AGE_COMMAND = 22,
+	)
+
+
 /datum/species/unathi/handle_death(gibbed, mob/living/carbon/human/H)
 	H.stop_tail_wagging()
+
+
+/datum/species/unathi/on_species_gain(mob/living/carbon/human/H)
+	. = ..()
+	add_verb(H, list(
+		/mob/living/carbon/human/proc/emote_wag,
+		/mob/living/carbon/human/proc/emote_swag,
+		/mob/living/carbon/human/proc/emote_hiss_unathi,
+		/mob/living/carbon/human/proc/emote_roar,
+		/mob/living/carbon/human/proc/emote_threat,
+		/mob/living/carbon/human/proc/emote_whip,
+		/mob/living/carbon/human/proc/emote_whip_l))
+	var/datum/action/innate/tail_cut/lash = locate() in H.actions
+	if(!lash)
+		lash = new
+		lash.Grant(H)
+
+
+/datum/species/unathi/gain_muscles(mob/living/target, datum/strength_level/default, max_level, can_become_stronger)
+	..(target, target.gender == FEMALE ? default.next_level : default, max_level, can_become_stronger)
+
+
+/datum/species/unathi/on_species_loss(mob/living/carbon/human/H)
+	. = ..()
+	remove_verb(H, list(
+		/mob/living/carbon/human/proc/emote_wag,
+		/mob/living/carbon/human/proc/emote_swag,
+		/mob/living/carbon/human/proc/emote_hiss_unathi,
+		/mob/living/carbon/human/proc/emote_roar,
+		/mob/living/carbon/human/proc/emote_threat,
+		/mob/living/carbon/human/proc/emote_whip,
+		/mob/living/carbon/human/proc/emote_whip_l))
+	var/datum/action/innate/tail_cut/lash = locate() in H.actions
+	lash?.Remove(H)
+
+
+/datum/species/unathi/handle_life(mob/living/carbon/human/H)
+	..()
+	if(H.reagents.get_reagent_amount("zessulblood") < 5)	//unique unathi chemical, heals over time and increases shock reduction for 20
+		H.reagents.add_reagent("zessulblood", 1)
+	switch(H.bodytemperature)
+		if(200 to 260)
+			H.EyeBlurry(6 SECONDS)
+			if(prob(5))
+				to_chat(H, span_danger("Здесь холодно, голова раскалывается..."))
+		if(0 to 200)
+			H.AdjustDrowsy(6 SECONDS)
+			//"anabiosis. unathi falls asleep if body temp is too low" (с) captainnelly
+			//sorry Nelly, no anabiosis for ya without proper temperature regulation system
+			if(prob(5) && H.bodytemperature <= 170)
+				H.AdjustSleeping(4 SECONDS)
+				to_chat(H, span_danger("Слишком холодно, я засыпаю..."))
+
 
 /datum/species/unathi/ashwalker
 	name = SPECIES_ASHWALKER_BASIC
 	name_plural = "Ash Walkers"
 	inherent_factions = list("ashwalker")
 
-	blurb = "Пеплоходцы — рептильные гуманоиды, по-видимому, родственные унати. Но кажутся значительно менее развитыми. \
-	Они бродят по пустошам Лаваленда, поклоняются мёртвому городу и ловят ничего не подозревающих шахтёров."
+	blurb = "Пеплоходцы — рептильные гуманоиды, по-видимому, родственные унати. Но кажутся значительно менее развитыми. \
+	Они бродят по пустошам Лазиса, поклоняются мёртвому городу и ловят ничего не подозревающих шахтёров."
 
 	language = LANGUAGE_UNATHI
 	default_language = LANGUAGE_UNATHI
 
-	speed_mod = -0.80
-	species_traits = list(NOGUNS, LIPS, PIERCEIMMUNE)
+	speed_mod = -0.50
+
+	inherent_traits = list(
+		TRAIT_HAS_LIPS,
+		TRAIT_NO_GUNS,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_HEALS_FROM_ASH_TENDRIL,
+	)
 
 	has_organ = list(
 		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart/unathi,
@@ -114,25 +183,24 @@
 		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys/unathi,
 		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/unathi,
 		INTERNAL_ORGAN_APPENDIX = /obj/item/organ/internal/appendix,
-		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi,
-		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
+		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi/ash_walker,
+		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears/unathi,
 	)
 
 /datum/species/unathi/ashwalker/on_species_gain(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	var/datum/action/innate/ignite_unathi/fire = locate() in H.actions
 	if(!fire)
 		fire = new
 		fire.Grant(H)
-	RegisterSignal(H, COMSIG_MOVABLE_Z_CHANGED, PROC_REF(speedylegs))
+	RegisterSignal(H, COMSIG_MOVABLE_Z_CHANGED, PROC_REF(speedylegs), override = TRUE)
 	speedylegs(H)
 
 
 /datum/species/unathi/ashwalker/on_species_loss(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	var/datum/action/innate/ignite_unathi/fire = locate() in H.actions
-	if(fire)
-		fire.Remove(H)
+	fire?.Remove(H)
 	UnregisterSignal(H, COMSIG_MOVABLE_Z_CHANGED)
 
 
@@ -148,92 +216,58 @@
 //Ash walker shaman, worse defensive stats, but better at surgery and have a healing touch ability
 /datum/species/unathi/ashwalker/shaman
 	name = SPECIES_ASHWALKER_SHAMAN
-	species_traits = list(NOGUNS, LIPS, PIERCEIMMUNE, VIRUSIMMUNE)
+	inherent_traits = list(
+		TRAIT_HAS_LIPS,
+		TRAIT_NO_GUNS,
+		TRAIT_VIRUSIMMUNE,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_HEALS_FROM_ASH_TENDRIL,
+	)
 	brute_mod = 1.15
 	burn_mod = 1.15
-	speed_mod = -0.60 //less fast as ash walkers
+	speed_mod = -0.37 //less fast as ash walkers
 	punchdamagelow = 4
 	punchdamagehigh = 7
 	punchstunthreshold = 7 //still can stun people pretty often
-	toolspeedmod = 0.9 //they're smart and efficient unlike other lizards
-	var/obj/effect/proc_holder/spell/touch/healtouch/goodtouch
+	toolspeedmod = -0.1 //they're smart and efficient unlike other lizards
+	surgeryspeedmod = -0.1	//shaman is slightly better at surgeries
 
-//gives the heal spell
-/datum/species/unathi/ashwalker/shaman/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	..()
-	goodtouch = new /obj/effect/proc_holder/spell/touch/healtouch
-	C.AddSpell(goodtouch)
-	var/datum/action/innate/anvil_finder/finder = locate() in C.actions
+	has_organ = list(
+		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart/unathi,
+		INTERNAL_ORGAN_LUNGS = /obj/item/organ/internal/lungs/unathi/ash_walker,
+		INTERNAL_ORGAN_LIVER = /obj/item/organ/internal/liver/unathi,
+		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys/unathi,
+		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/unathi,
+		INTERNAL_ORGAN_APPENDIX = /obj/item/organ/internal/appendix,
+		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi/ash_walker_shaman,
+		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
+	)
+
+/datum/species/unathi/ashwalker/shaman/on_species_gain(mob/living/carbon/human/owner)
+	. = ..()
+	var/obj/effect/proc_holder/spell/touch/healtouch/healtouch = locate() in owner.mob_spell_list
+	if(!healtouch)
+		owner.AddSpell(new /obj/effect/proc_holder/spell/touch/healtouch)
+	var/datum/action/innate/shaman_gps/finder = locate() in owner.actions
 	if(!finder)
 		finder = new
-		finder.Grant(C)
-	var/datum/action/innate/ignite_unathi/fire = locate() in C.actions
+		finder.Grant(owner)
+	var/datum/action/innate/ignite_unathi/fire = locate() in owner.actions
 	if(!fire)
 		fire = new
-		fire.Grant(C)
+		fire.Grant(owner)
 
-//removes the heal spell
-/datum/species/unathi/ashwalker/shaman/on_species_loss(mob/living/carbon/C)
+
+/datum/species/unathi/ashwalker/shaman/on_species_loss(mob/living/carbon/human/owner)
 	. = ..()
-	if(goodtouch)
-		C.RemoveSpell(goodtouch)
-	var/datum/action/innate/anvil_finder/finder = locate() in C.actions
+	owner.RemoveSpell(/obj/effect/proc_holder/spell/touch/healtouch)
+	var/datum/action/innate/shaman_gps/finder = locate() in owner.actions
 	if(finder)
-		finder.Remove(C)
-	var/datum/action/innate/ignite_unathi/fire = locate() in C.actions
+		finder.Remove(owner)
+	var/datum/action/innate/shaman_gps/fire = locate() in owner.actions
 	if(fire)
-		fire.Remove(C)
+		fire.Remove(owner)
 
-/datum/species/unathi/on_species_gain(mob/living/carbon/human/H)
-	..()
-	H.verbs |= /mob/living/carbon/human/proc/emote_wag
-	H.verbs |= /mob/living/carbon/human/proc/emote_swag
-	H.verbs |= /mob/living/carbon/human/proc/emote_hiss_unathi
-	H.verbs |= /mob/living/carbon/human/proc/emote_roar
-	H.verbs |= /mob/living/carbon/human/proc/emote_threat
-	H.verbs |= /mob/living/carbon/human/proc/emote_whip
-	H.verbs |= /mob/living/carbon/human/proc/emote_whip_l
-	H.verbs |= /mob/living/carbon/human/proc/emote_rumble
-	var/datum/action/innate/tail_cut/lash = locate() in H.actions
-	if(!lash)
-		lash = new
-		lash.Grant(H)
-
-/datum/species/unathi/on_species_loss(mob/living/carbon/human/H)
-	..()
-	H.verbs -= /mob/living/carbon/human/proc/emote_wag
-	H.verbs -= /mob/living/carbon/human/proc/emote_swag
-	H.verbs -= /mob/living/carbon/human/proc/emote_hiss_unathi
-	H.verbs -= /mob/living/carbon/human/proc/emote_roar
-	H.verbs -= /mob/living/carbon/human/proc/emote_threat
-	H.verbs -= /mob/living/carbon/human/proc/emote_whip
-	H.verbs -= /mob/living/carbon/human/proc/emote_whip_l
-	H.verbs -= /mob/living/carbon/human/proc/emote_rumble
-
-	var/datum/action/innate/tail_cut/lash = locate() in H.actions
-	if(lash)
-		lash.Remove(H)
-
-/datum/species/unathi/handle_life(mob/living/carbon/human/H)
-	if(H.stat == DEAD)
-		return
-	..()
-	if(H.reagents.get_reagent_amount("zessulblood") < 5)         //unique unathi chemical, heals over time and increases shock reduction for 20
-		H.reagents.add_reagent("zessulblood", 1)
-	switch(H.bodytemperature)
-		if(200 to 260)
-			H.EyeBlurry(6 SECONDS)
-			if(prob(5))
-				to_chat(H, "<span class='danger'>Здесь холодно, голова раскалывается...</span>")
-		if(0 to 200)
-			H.AdjustDrowsy(6 SECONDS)
-			//"anabiosis. unathi falls asleep if body temp is too low" (с) captainnelly
-			//sorry Nelly, no anabiosis for ya without proper temperature regulation system
-			if(prob(5) && H.bodytemperature <= 170)
-				H.AdjustSleeping(4 SECONDS)
-				to_chat(H, "<span class='danger'>Слишком холодно, я засыпаю...</span>")
-		else
-			return
 
 /*
 draconids
@@ -251,7 +285,12 @@ They're basically just lizards with all-around marginally better stats and fire 
 	punchdamagelow = 9
 	punchdamagehigh = 18
 	punchstunthreshold = 18	//+8 claws of powergaming
-	species_traits = list(LIPS, PIERCEIMMUNE, RESISTHOT) //Dragons like fire
+	inherent_traits = list(
+		TRAIT_HAS_LIPS,
+		TRAIT_RESIST_HEAT,	// dragons like fire
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_ASHSTORM_IMMUNE,
+	)
 	no_equip = list(ITEM_SLOT_FEET) //everyone have to pay for
 	speed_mod = -0.25			//beeing slightly faster
 	has_organ = list(
@@ -265,34 +304,33 @@ They're basically just lizards with all-around marginally better stats and fire 
 		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
 	) //no need to b-r-e-a-t-h
 
-/datum/species/unathi/draconid/on_species_gain(mob/living/carbon/human/C, datum/species/old_species)
+
+/datum/species/unathi/draconid/on_species_gain(mob/living/carbon/human/owner)
 	. = ..()
-	var/obj/item/organ/external/head/head_organ = C.get_organ(BODY_ZONE_HEAD)
+	var/obj/item/organ/external/head/head_organ = owner.get_organ(BODY_ZONE_HEAD)
 	head_organ?.ha_style = "Drake"
-	C.change_eye_color("#A02720")
-	C.update_dna()
-	C.update_inv_head()
-	C.update_inv_wear_suit() //update sprites for digi legs
-	C.weather_immunities += "ash"	// += since we can get this from other sources
-	var/datum/action/innate/ignite_unathi/fire = locate() in C.actions
+	owner.change_eye_color("#A02720")
+	owner.update_dna()
+	owner.update_inv_head()
+	owner.update_inv_wear_suit() //update sprites for digi legs
+	var/datum/action/innate/ignite_unathi/fire = locate() in owner.actions
 	if(!fire)
 		fire = new
-		fire.Remove(C)
+		fire.Grant(owner)
 
 
-/datum/species/unathi/draconid/on_species_loss(mob/living/carbon/C)
+/datum/species/unathi/draconid/on_species_loss(mob/living/carbon/owner)
 	. = ..()
-	C.update_inv_head()
-	C.update_inv_wear_suit()
-	C.weather_immunities -= "ash"
-	var/datum/action/innate/ignite_unathi/fire = locate() in C.actions
-	if(fire)
-		fire.Grant(C)
+	owner.update_inv_head()
+	owner.update_inv_wear_suit()
+	var/datum/action/innate/ignite_unathi/fire = locate() in owner.actions
+	fire?.Remove(owner)
+
 
 //igniter. only for ashwalkers and drakonids because of """lore"""
 /datum/action/innate/ignite_unathi
-	name = "Ignite"
-	desc = "You form a fire in your mouth, fierce enough to... light a cigarette."
+	name = "Поджог"
+	desc = "Вы формируете небольшой сгусток пламени в вашей пасти, достаточный для... розжига костра."
 	icon_icon = 'icons/obj/cigarettes.dmi'
 	button_icon_state = "match_unathi"
 	var/cooldown = 0
@@ -302,38 +340,53 @@ They're basically just lizards with all-around marginally better stats and fire 
 /datum/action/innate/ignite_unathi/Activate()
 	var/mob/living/carbon/human/user = owner
 	if(world.time <= cooldown)
-		to_chat(user, span_warning("Your throat hurts too much to do it right now. Wait [round((cooldown - world.time) / 10)] seconds and try again."))
+		to_chat(user, span_warning("Ваша пасть болит из-за прошлой попытки. Подождите [round((cooldown - world.time) / 10)] секунд[declension_ru(round((cooldown - world.time) / 10), "у", "ы", "")] и попробуйте ещё раз"))
 		return
 	if((user.head?.flags_cover & HEADCOVERSMOUTH) || (user.wear_mask?.flags_cover & MASKCOVERSMOUTH) && !user.wear_mask?.up)
-		to_chat(user, span_warning("Your mouth is covered."))
+		user.balloon_alert(user, "ваша пасть закрыта!")
 		return
 	var/obj/item/match/unathi/fire = new(user.loc, src)
 	if(user.put_in_hands(fire))
-		to_chat(user, span_notice("You ignite a small flame in your mouth."))
+		to_chat(user, span_notice("Вы формируете огонь в вашей пасти."))
 		cooldown = world.time + cooldown_duration
 	else
 		qdel(fire)
-		to_chat(user, span_warning("You don't have any free hands."))
+		user.balloon_alert(user, "ваши руки заняты!")
 
-/datum/action/innate/anvil_finder
-	name = "Find World Anvil"
-	desc = "You call the Necropolis in order to find The World Anvil."
+/datum/action/innate/shaman_gps
+	name = "Помощь некрополя"
+	desc = "Вы используете силу Некрополя, чтобы узнать примерное местоположение точек интереса."
 	icon_icon = 'icons/mob/actions/actions_clockwork.dmi'
-	button_icon_state = "stun" //better than nothing
+	button_icon_state = "stun"
 
-/datum/action/innate/anvil_finder/Activate()
+/datum/action/innate/shaman_gps/Activate()
+	var/list/list_of_points = GLOB.lavaland_points_of_interest
+	if(list_of_points)
+		var/selected_poi = tgui_input_list(owner, "Выберите точку интереса", "Точки интереса", list_of_points)
+		addtimer(CALLBACK(GLOBAL_PROC, /proc/to_chat, owner, \
+							span_warning("Я чувствую, что [selected_poi] [get_direction(selected_poi)]")), 2 SECONDS)
+
+	if(!LAZYLEN(GLOB.lavaland_points_of_interest))
+		to_chat(owner, "Все церемониальные тотемы уничтожены.")
+		return
+
+	var/selected_poi = tgui_input_list(owner, "Выберите точку интереса", "точки интереса", GLOB.lavaland_points_of_interest)
+
+	if(!selected_poi)
+		return
+
 	addtimer(CALLBACK(GLOBAL_PROC, /proc/to_chat, owner, \
-							span_warning("Я чувствую, что Мировая Кузница [get_direction()]")), 2 SECONDS)
+							span_warning("Я чувствую, что [selected_poi] [get_direction(selected_poi)]")), 2 SECONDS)
 
-/datum/action/innate/anvil_finder/proc/get_direction()
-	for(var/obj/structure/world_anvil/Anvil in GLOB.anvils)
-		if(!Anvil)
-			. = "уничтожена."
-			return
-		var/turf/T = get_turf(Anvil)
-		if(owner.z == T.z) //"кузница находится где-то на северо-востоке" or whatever
-			. = "находится где-то на "
-			. += dir2rustext(get_dir(owner.loc, Anvil.loc))
-			. += "e."
-		else
-			. = "находится где-то далеко отсюда."
+/datum/action/innate/shaman_gps/proc/get_direction(obj/structure/selected_poi)
+	if(!selected_poi)
+		return "уничтожен."
+
+	var/turf/turf = get_turf(selected_poi)
+
+	if(owner.z != turf.z)
+		return "находится где-то далеко отсюда."
+
+	. = "находится где-то на "
+	. += dir2rustext(get_dir(owner.loc, selected_poi.loc))
+	. += "e."

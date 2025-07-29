@@ -23,6 +23,7 @@
 	var/selectable = MODULE_SELECTABLE_FULL
 	var/harmful = FALSE //Controls if equipment can be used to attack by a pacifist.
 	var/integrated = FALSE // Preventing modules from getting detached.
+	var/alert_category = "mecha_module" //change if you want custom alerts
 
 
 /obj/item/mecha_parts/mecha_equipment/proc/update_chassis_page()
@@ -42,12 +43,12 @@
 	if(chassis)
 		chassis.occupant_message(span_danger("The [src] is destroyed!"))
 		chassis.log_append_to_last("[src] is destroyed.",1)
-		if(istype(src, /obj/item/mecha_parts/mecha_equipment/weapon))
-			chassis.occupant << sound(chassis.weapdestrsound, volume = 50)
-		else
-			chassis.occupant << sound(chassis.critdestrsound, volume = 50)
+		SEND_SOUND(chassis.occupant, sound(get_destroy_sound(), volume = 50))
 		detach(chassis)
 	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/proc/get_destroy_sound()
+	return chassis.critdestrsound
 
 /obj/item/mecha_parts/mecha_equipment/proc/critfail()
 	if(chassis)
@@ -61,7 +62,7 @@
 	if(chassis.selected == src)
 		txt += "<b>[name]</b>"
 	else if(selectable == MODULE_SELECTABLE_FULL)
-		txt += "<a href='?src=[chassis.UID()];select_equip=\ref[src]'>[name]</a>"
+		txt += "<a href='byond://?src=[chassis.UID()];select_equip=\ref[src]'>[name]</a>"
 	else
 		txt += "[name]"
 
@@ -122,7 +123,7 @@
 	var/C = chassis.loc
 	set_ready_state(FALSE)
 	chassis.use_power(energy_drain)
-	. = do_after(chassis.occupant, equip_cooldown * gettoolspeedmod(chassis.occupant), target, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM)
+	. = do_after(chassis.occupant, equip_cooldown, target, DEFAULT_DOAFTER_IGNORE|DA_IGNORE_HELD_ITEM, category = DA_CAT_TOOL)
 	set_ready_state(TRUE)
 	if(!chassis || 	chassis.loc != C || src != chassis.selected || !(get_dir(chassis, target) & chassis.dir))
 		return FALSE
@@ -131,7 +132,7 @@
 	if(!chassis)
 		return
 	var/C = chassis.loc
-	. = do_after(chassis.occupant, delay * gettoolspeedmod(chassis.occupant), target)
+	. = do_after(chassis.occupant, delay, target, category = DA_CAT_TOOL)
 	if(!chassis || 	chassis.loc != C || src != chassis.selected || !(get_dir(chassis, target) & chassis.dir))
 		return FALSE
 
@@ -150,7 +151,8 @@
 /obj/item/mecha_parts/mecha_equipment/proc/attach(obj/mecha/M)
 	M.equipment += src
 	chassis = M
-	loc = M
+	if(loc != M)
+		forceMove(M)
 	M.log_message("[src] initialized.")
 	if(!M.selected)
 		M.selected = src
@@ -180,6 +182,9 @@
 		return
 	if(chassis.occupant)
 		remove_targeted_action()
+		if(chassis.selected == src)
+			if(selectable == MODULE_SELECTABLE_FULL)
+				chassis.occupant.clear_alert(alert_category)
 	detach_act()
 	moveto = moveto || get_turf(chassis)
 	if(Move(moveto))
@@ -198,9 +203,13 @@
 /obj/item/mecha_parts/mecha_equipment/proc/remove_targeted_action()
 	if(!selectable)
 		return
+
 	if(chassis.module_actions[src])
 		var/datum/action/innate/mecha/module_action = chassis.module_actions[src]
 		module_action.Remove(chassis.occupant)
+
+/obj/item/mecha_parts/mecha_equipment/proc/handle_occupant_exit()
+	return
 
 /obj/item/mecha_parts/mecha_equipment/Topic(href,href_list)
 	if(href_list["detach"])
@@ -223,10 +232,27 @@
 	return
 
 /obj/item/mecha_parts/mecha_equipment/proc/select_module()
+	select_set_alert()
 	chassis.selected = src
 	chassis.occupant_message(span_notice("You switch to [src]."))
 	chassis.visible_message("[chassis] raises [src]")
 	send_byjax(chassis.occupant, "exosuit.browser", "eq_list", chassis.get_equipment_list())
+
+/obj/item/mecha_parts/mecha_equipment/proc/select_set_alert()
+	if(selectable == MODULE_SELECTABLE_FULL)
+		var/mob/living/carbon/occupant = chassis.occupant
+		if(chassis.selected)
+			occupant.clear_alert(chassis.selected.alert_category)
+		return throw_default_alert(occupant)
+	return FALSE
+
+/obj/item/mecha_parts/mecha_equipment/proc/throw_default_alert(var/mob/living/carbon/occupant)
+	if(alert_category == "mecha_module")
+		var/atom/movable/screen/alert/empty_alert/default_alert = occupant.throw_alert(alert_category, /atom/movable/screen/alert/empty_alert, new_master = src)
+		default_alert.name = name
+		default_alert.desc = "Выбран модуль [src.name]"
+		return TRUE
+	return FALSE
 
 /obj/item/mecha_parts/mecha_equipment/proc/toggle_module()
 	return

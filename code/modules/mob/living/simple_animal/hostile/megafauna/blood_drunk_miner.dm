@@ -22,22 +22,31 @@ Difficulty: Medium
 
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner
 	name = "blood-drunk miner"
-	desc = "A miner destined to wander forever, engaged in an endless hunt."
+	desc = "Шахтёр, обречённый вечно скитаться в бесконечной охоте."
+	ru_names = list(
+		NOMINATIVE = "кровожадный шахтёр",
+		GENITIVE = "кровожадного шахтёра",
+		DATIVE = "кровожадному шахтёру",
+		ACCUSATIVE = "кровожадного шахтёра",
+		INSTRUMENTAL = "кровожадным шахтёром",
+		PREPOSITIONAL = "кровожадном шахтёре"
+	)
 	health = 900
 	maxHealth = 900
 	icon_state = "miner"
 	icon_living = "miner"
 	icon = 'icons/mob/lavaland/blood_drunk.dmi'
 	light_color = "#E4C7C5"
-	speak_emote = list("roars")
+	speak_emote = list("ревёт")
 	tts_seed = "Chen"
 	speed = 3
 	move_to_delay = 3
-	projectiletype = /obj/item/projectile/kinetic/miner
+	projectiletype = /obj/projectile/kinetic/miner
 	projectilesound = 'sound/weapons/kenetic_accel.ogg'
 	ranged = TRUE
 	ranged_cooldown_time = 16
 	pixel_x = -7
+	base_pixel_x = -7
 	crusher_loot = list(/obj/item/melee/energy/cleaving_saw, /obj/item/gun/energy/kinetic_accelerator, /obj/item/crusher_trophy/miner_eye, /obj/item/gem/phoron)
 	loot = list(/obj/item/melee/energy/cleaving_saw, /obj/item/gun/energy/kinetic_accelerator, /obj/item/gem/phoron)
 	wander = FALSE
@@ -52,7 +61,7 @@ Difficulty: Medium
 	var/dash_cooldown_to_use = 1.5 SECONDS
 	var/guidance = FALSE
 	var/transform_stop_attack = FALSE // stops the blood drunk miner from attacking after transforming his weapon until the next attack chain
-	deathmessage = "falls to the ground, decaying into glowing particles."
+	deathmessage = "падает на землю, обращаясь в пыль."
 	death_sound = "bodyfall"
 	footstep_type = FOOTSTEP_MOB_HEAVY
 	enraged_loot = /obj/item/disk/fauna_research/blood_drunk_miner
@@ -71,14 +80,30 @@ Difficulty: Medium
 
 /obj/item/clothing/suit/hooded/explorer/blood
 	name = "empowered explorer suit"
-	desc = "An armoured hood for exploring harsh environments. The sweet blood, oh, it sings to you."
+	desc = "Бронированный костюм, созданный для исследования и работы в суровых условиях. Сладкая кровь, ох-х, как она поёт для тебя."
+	ru_names = list(
+		NOMINATIVE = "усиленный костюм исследователя",
+		GENITIVE = "усиленного костюма исследователя",
+		DATIVE = "усиленному костюму исследователя",
+		ACCUSATIVE = "усиленный костюм исследователя",
+		INSTRUMENTAL = "усиленным костюмом исследователя",
+		PREPOSITIONAL = "усиленном костюме исследователя"
+	)
 	armor = list("melee" = 55, "bullet" = 35, "laser" = 25, "energy" = 25, "bomb" = 75, "bio" = 100, "rad" = 50, "fire" = 100, "acid" = 100)
 	hoodtype = /obj/item/clothing/head/hooded/explorer/blood
 	var/obj/effect/proc_holder/spell/blood_suit/blood_spell
 
 /obj/item/clothing/head/hooded/explorer/blood
 	name = "empowered explorer hood"
-	desc = "An armoured hood for exploring harsh environments. The sweet blood, oh, it sings to you."
+	desc = "Бронированный капюшон, созданный для исследования и работы в суровых условиях. Сладкая кровь, ох-х, как она поёт для тебя."
+	ru_names = list(
+		NOMINATIVE = "усиленный капюшон исследователя",
+		GENITIVE = "усиленного капюшона исследователя",
+		DATIVE = "усиленному капюшону исследователя",
+		ACCUSATIVE = "усиленный капюшон исследователя",
+		INSTRUMENTAL = "усиленным капюшоном исследователя",
+		PREPOSITIONAL = "усиленном капюшоне исследователя"
+	)
 	armor = list("melee" = 55, "bullet" = 35, "laser" = 25, "energy" = 25, "bomb" = 75, "bio" = 100, "rad" = 50, "fire" = 100, "acid" = 100)
 
 /obj/item/clothing/suit/hooded/explorer/blood/Initialize(mapload)
@@ -90,8 +115,8 @@ Difficulty: Medium
 	return ..()
 
 /obj/effect/proc_holder/spell/blood_suit
-	name = "Bloodlust"
-	desc = "The sweet blood. My swetty blood I love you!"
+	name = "Жажда крови"
+	desc = "Сладкая кровь. Моя сладкая кровь, я люблю тебя!"
 	base_cooldown = 20 SECONDS
 	clothes_req = FALSE
 	human_req = FALSE
@@ -100,7 +125,6 @@ Difficulty: Medium
 	stat_allowed = UNCONSCIOUS
 	sound = 'sound/misc/enter_blood.ogg'
 	action_icon_state = "bloodcrawl"
-	panel = "Blood Drunk"
 
 /obj/effect/proc_holder/spell/blood_suit/create_new_targeting()
 	return new /datum/spell_targeting/self
@@ -108,22 +132,23 @@ Difficulty: Medium
 /obj/effect/proc_holder/spell/blood_suit/cast(list/targets, mob/living/user = usr)
 	if(is_mining_level(user.z) || istype(get_area(user), /area/ruin/space/bubblegum_arena))
 		if(user.body_position == LYING_DOWN)
-			to_chat(user, span_colossus("Fight right now my bloody warrior!"))
+			to_chat(user, span_colossus("Сражайся, мой кровавый воин!"))
 		else
-			to_chat(user, span_colossus("The blood sings to me. How pretty!"))
-		user.say("Oh sweet blood. I hear you singing!")
+			to_chat(user, span_colossus("Кровь поёт для меня. Как прекрасно!"))
+		user.say("Ох, сладкая кровь. Я слышу твоё пение!")
 		user.SetWeakened(0)
 		user.SetStunned(0)
 		user.SetParalysis(0)
 		user.SetSleeping(0)
 		user.SetConfused(0)
 		user.SetImmobilized(0)
+		user.SetKnockdown(0)
 		user.adjustStaminaLoss(-100)
 		user.set_resting(FALSE, instant = TRUE)
 		user.get_up(instant = TRUE)
 	else
-		to_chat(user, span_colossus("COME BACK TO ME, BLOODY WARRIOR."))
-		user.say("I don't hear a blood's sing!")
+		to_chat(user, span_colossus("ВЕРНИСЬ КО МНЕ, КРОВАВЫЙ ВОИН!"))
+		user.say("Я не слышу пение крови!")
 		user.Stun(5 SECONDS)
 		user.Confused(20 SECONDS)
 		user.Slowed(20 SECONDS)
@@ -151,24 +176,24 @@ Difficulty: Medium
 	miner_saw = new /obj/item/melee/energy/cleaving_saw/miner(src)
 
 /datum/action/innate/megafauna_attack/dash
-	name = "Dash To Target"
+	name = "Рывок к цели"
 	icon_icon = 'icons/mob/actions/actions.dmi'
 	button_icon_state = "sniper_zoom"
-	chosen_message = "<span class='colossus'>You are now dashing to your target.</span>"
+	chosen_message = span_colossus("Вы рывком движетесь к цели.")
 	chosen_attack_num = 1
 
 /datum/action/innate/megafauna_attack/kinetic_accelerator
-	name = "Fire Kinetic Accelerator"
+	name = "Стрелять из кинетического ускорителя"
 	icon_icon = 'icons/obj/weapons/energy.dmi'
 	button_icon_state = "kineticgun"
-	chosen_message = "<span class='colossus'>You are now shooting your kinetic accelerator.</span>"
+	chosen_message = span_colossus("Вы стреляете из кинетического ускорителя.")
 	chosen_attack_num = 2
 
 /datum/action/innate/megafauna_attack/transform_weapon
-	name = "Transform Weapon"
+	name = "Трансформировать оружие"
 	icon_icon = 'icons/obj/lavaland/artefacts.dmi'
 	button_icon_state = "cleaving_saw"
-	chosen_message = "<span class='colossus'>You are now transforming your weapon.</span>"
+	chosen_message = span_colossus("Вы трансформируете своё оружие.")
 	chosen_attack_num = 3
 
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/OpenFire()
@@ -194,7 +219,7 @@ Difficulty: Medium
 	force_on = 10
 
 
-/obj/item/melee/energy/cleaving_saw/miner/attack(mob/living/target, mob/living/carbon/human/user)
+/obj/item/melee/energy/cleaving_saw/miner/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	target.add_status_effect_absorption(
 		source = "miner",
 		effect_type = list(WEAKEN, STUN, KNOCKDOWN),
@@ -204,21 +229,29 @@ Difficulty: Medium
 	return ..()
 
 
-/obj/item/projectile/kinetic/miner
+/obj/projectile/kinetic/miner
 	damage = 20
 	speed = 0.9
 	icon_state = "ka_tracer"
 	range = MINER_DASH_RANGE
 
-/obj/item/projectile/kinetic/miner/enraged
+/obj/projectile/kinetic/miner/enraged
 	damage = 35
 
-/mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/adjustHealth(amount, updating_health = TRUE)
-	if(!enraged)
+
+/mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/adjustHealth(
+	amount = 0,
+	updating_health = TRUE,
+	blocked = 0,
+	damage_type = BRUTE,
+	forced = FALSE,
+)
+	if(!enraged && amount > 0)
 		var/adjustment_amount = amount * 0.1
 		if(world.time + adjustment_amount > next_move)
 			changeNext_move(adjustment_amount) //attacking it interrupts it attacking, but only briefly
-	. = ..()
+	return ..()
+
 
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/death(gibbed)
 	if(health > 0)
@@ -226,7 +259,7 @@ Difficulty: Medium
 	new /obj/effect/temp_visual/dir_setting/miner_death(loc, dir)
 	return ..()
 
-/mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/Move(atom/newloc)
+/mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	if(dashing || (newloc && newloc.z == z && (islava(newloc) || ischasm(newloc)))) //we're not stupid!
 		return FALSE
 	. = ..()
@@ -249,8 +282,10 @@ Difficulty: Medium
 	if(isliving(target))
 		var/mob/living/L = target
 		if(L.stat == DEAD)
-			visible_message("<span class='danger'>[src] butchers [L]!</span>",
-			"<span class='userdanger'>You butcher [L], restoring your health!</span>")
+			visible_message(
+				span_danger("[capitalize(declent_ru(NOMINATIVE))] разрубает [L.declent_ru(ACCUSATIVE)]!"),
+				span_userdanger("Вы разрубаете [L.declent_ru(ACCUSATIVE)], восстанавливая своё здоровье!")
+			)
 			if(!is_station_level(z) || client) //NPC monsters won't heal while on station
 				if(guidance)
 					adjustHealth(-L.maxHealth)
@@ -279,10 +314,13 @@ Difficulty: Medium
 
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/enrage()
 	. = ..()
+	if(!.)
+		return
+
 	miner_saw = new /obj/item/melee/energy/cleaving_saw(src) //Real saw for real men.
 	dash_cooldown_to_use = 0.5 SECONDS //Becomes a teleporting shit.
 	ranged_cooldown_time = 5 //They got some cooldown mods.
-	projectiletype = /obj/item/projectile/kinetic/miner/enraged
+	projectiletype = /obj/projectile/kinetic/miner/enraged
 	maxHealth = 1800
 	health = 1800 //Bit more of a challenge.
 
@@ -353,11 +391,11 @@ Difficulty: Medium
 	dashing = TRUE
 	alpha = 0
 	animate(src, alpha = 255, time = 5)
-	SLEEP_CHECK_DEATH(2)
+	SLEEP_CHECK_DEATH(src, 2)
 	D.forceMove(step_forward_turf)
 	forceMove(target_turf)
 	playsound(target_turf, 'sound/weapons/punchmiss.ogg', 40, 1, -1)
-	SLEEP_CHECK_DEATH(1)
+	SLEEP_CHECK_DEATH(src, 1)
 	dashing = FALSE
 	return TRUE
 

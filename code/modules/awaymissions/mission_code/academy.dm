@@ -1,26 +1,27 @@
 //Academy Areas
 
 /area/awaymission/academy
-	name = "\improper Academy Asteroids"
+	name = "Academy Asteroids"
 	icon_state = "away"
 	report_alerts = FALSE
 	no_teleportlocs = TRUE
 	tele_proof = TRUE
+	requires_power = FALSE
 
 /area/awaymission/academy/headmaster
-	name = "\improper Academy Fore Block"
+	name = "Academy Fore Block"
 	icon_state = "away1"
 
 /area/awaymission/academy/classrooms
-	name = "\improper Academy Classroom Block"
+	name = "Academy Classroom Block"
 	icon_state = "away2"
 
 /area/awaymission/academy/academyaft
-	name = "\improper Academy Ship Aft Block"
+	name = "Academy Ship Aft Block"
 	icon_state = "away3"
 
 /area/awaymission/academy/academygate
-	name = "\improper Academy Gateway"
+	name = "Academy Gateway"
 	icon_state = "away4"
 
 //Academy Items
@@ -64,9 +65,6 @@
 	)
 
 /obj/effect/bump_teleporter/academy_no_mesons/process_special_effects(mob/living/target)
-	if(XRAY in target.mutations)
-		target.mutations.Remove(XRAY)
-		target.update_sight()
 	process_item_removal(target)
 
 /obj/effect/bump_teleporter/academy_no_mesons/proc/process_item_removal(mob/living/target)

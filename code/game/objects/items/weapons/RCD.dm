@@ -3,6 +3,8 @@
 	desc = "A device used to rapidly build and deconstruct walls, floors and airlocks."
 	icon = 'icons/obj/tools.dmi'
 	icon_state = "rcd"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	flags = CONDUCT
 	item_flags = NOBLUDGEON|NO_MAT_REDEMPTION
 	force = 0
@@ -64,8 +66,8 @@
 	var/region_min = REGION_GENERAL
 	var/region_max = REGION_COMMAND
 
-	var/fulltile_window = FALSE // Do we place fulltile windows?
-	var/window_type = /obj/structure/window/reinforced
+	var/fulltile_window = TRUE // Do we place fulltile windows?
+	var/window_type = /obj/structure/window/full/reinforced
 	var/floor_type = /turf/simulated/floor/plating
 	var/wall_type = /turf/simulated/wall
 	var/firelock_type = /obj/machinery/door/firedoor
@@ -129,8 +131,8 @@
 
 /obj/item/rcd/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>MATTER: [matter]/[max_matter] matter-units.</span>"
-	. += "<span class='notice'>MODE: [mode].</span>"
+	. += span_notice("MATTER: [matter]/[max_matter] matter-units.")
+	. += span_notice("MODE: [mode].")
 
 /obj/item/rcd/Destroy()
 	QDEL_NULL(spark_system)
@@ -167,28 +169,32 @@
 		return FALSE
 	return TRUE
 
-/obj/item/rcd/attackby(obj/item/W, mob/user, params)
-	if(!istype(W, /obj/item/rcd_ammo))
+
+/obj/item/rcd/attackby(obj/item/I, mob/user, params)
+	if(!istype(I, /obj/item/rcd_ammo))
 		return ..()
-	rcd_reload(W, user)
+	add_fingerprint(user)
+	rcd_reload(I, user)
+	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /obj/item/rcd/proc/rcd_reload(obj/item/rcd_ammo/rcd_ammo, mob/user)
 	if(matter >= max_matter)
-		to_chat(user, "<span class='notice'>The RCD can't hold any more matter-units.</span>")
+		to_chat(user, span_notice("The RCD can't hold any more matter-units."))
 		return
 
 	if(!user.drop_item_ground(rcd_ammo))
-		to_chat(user, "<span class='warning'>[rcd_ammo] is stuck to your hand!</span>")
+		to_chat(user, span_warning("[rcd_ammo] is stuck to your hand!"))
 		return
 
 	user.put_in_active_hand(rcd_ammo)
 	if(rcd_ammo.type == matter_type || rcd_ammo.type == matter_type_large)
 		matter = min(matter + rcd_ammo.ammoamt, max_matter)
 		qdel(rcd_ammo)
-		playsound(loc, 'sound/machines/click.ogg', 50, 1)
-		to_chat(user, "<span class='notice'>The RCD now holds [matter]/[max_matter] matter-units.</span>")
+		playsound(loc, 'sound/machines/click.ogg', 50, TRUE)
+		to_chat(user, span_notice("The RCD now holds [matter]/[max_matter] matter-units."))
 	else
-		to_chat(user, "<span class='warning'>This matter cartridge is incompatible with your RCD</span>")
+		to_chat(user, span_warning("This matter cartridge is incompatible with your RCD"))
 	SStgui.update_uis(src)
 
 /**
@@ -233,8 +239,8 @@
 			return
 		else
 			return
-	playsound(src, 'sound/effects/pop.ogg', 50, 0)
-	to_chat(user, "<span class='notice'>You change [src]'s mode to '[choice]'.</span>")
+	playsound(src, 'sound/effects/pop.ogg', 50, FALSE)
+	to_chat(user, span_notice("You change [src]'s mode to '[choice]'."))
 
 
 /obj/item/rcd/attack_self(mob/user)
@@ -244,10 +250,13 @@
 /obj/item/rcd/attack_self_tk(mob/user)
 	radial_menu(user)
 
-/obj/item/rcd/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.inventory_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/item/rcd/ui_state(mob/user)
+	return GLOB.inventory_state
+
+/obj/item/rcd/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "RCD", "Rapid Construction Device", 471, 673, master_ui, state)
+		ui = new(user, src, "RCD", "Rapid Construction Device")
 		ui.open()
 
 /obj/item/rcd/ui_data(mob/user)
@@ -300,13 +309,13 @@
 		if("door_type")
 			var/new_door_type = text2path(params["door_type"])
 			if(!(new_door_type in current_rcd_door_types))
-				message_admins("<span class='warning'>RCD Door HREF exploit</span> attempted by [ADMIN_FULLMONTY(usr)]!")
+				message_admins("[span_warning("RCD Door HREF exploit")] attempted by [ADMIN_FULLMONTY(usr)]!")
 				return FALSE
 			door_type = new_door_type
 
 		if("set_lock")
 			if(!allowed(usr))
-				to_chat(usr, "<span class='warning'>Access denied.</span>")
+				to_chat(usr, span_warning("Access denied."))
 				return FALSE
 			locked = params["new_lock"] == "lock" ? TRUE : FALSE
 
@@ -361,7 +370,7 @@
 			return FALSE
 
 
-/obj/item/rcd/afterattack(atom/target, mob/user, proximity)
+/obj/item/rcd/afterattack(atom/target, mob/user, proximity, params)
 	if(!proximity)
 		return
 	if(istype(target, /obj/item/rcd_ammo))
@@ -427,7 +436,10 @@
 /obj/item/rcd/proc/detonate_pulse()
 	if(is_taipan(z) || is_admin_level(z)) //Защищает тайпан и админские Z-lvla от взрыва RCD
 		return
-	audible_message("<span class='danger'><b>[src] begins to vibrate and buzz loudly!</b></span>", "<span class='danger'><b>[src] begins vibrating violently!</b></span>")
+	audible_message(
+		span_danger("<b>[src] begins to vibrate and buzz loudly!</b>"),
+		span_danger("<b>[src] begins vibrating violently!</b>")
+	)
 	// 5 seconds to get rid of it
 	addtimer(CALLBACK(src, PROC_REF(detonate_pulse_explode)), 50)
 
@@ -449,15 +461,18 @@
 	matter = RCD_MATTER_500
 	canRwall = TRUE
 
+/obj/item/rcd/combat/Initialize()
+	. = ..()
+	AddElement(/datum/element/high_value_item)
+
 /obj/item/rcd_ammo
 	name = "compressed matter cartridge"
 	desc = "Highly compressed matter for the RCD."
 	icon = 'icons/obj/weapons/ammo.dmi'
 	icon_state = "rcd"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	item_state = "rcdammo"
-	opacity = FALSE
-	density = FALSE
-	anchored = FALSE
 	origin_tech = "materials=3"
 	materials = list(MAT_METAL=16000, MAT_GLASS=8000)
 	var/ammoamt = 20

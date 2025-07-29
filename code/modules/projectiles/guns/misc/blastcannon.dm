@@ -50,20 +50,28 @@
 		icon_state = initial(icon_state)
 
 
-/obj/item/gun/blastcannon/attackby(obj/O, mob/user)
-	if(istype(O, /obj/item/transfer_valve))
-		var/obj/item/transfer_valve/T = O
-		if(!T.tank_one || !T.tank_two)
-			to_chat(user, "<span class='warning'>What good would an incomplete bomb do?</span>")
-			return FALSE
-		if(!user.drop_transfer_item_to_loc(T, src))
-			to_chat(user, "<span class='warning'>[T] seems to be stuck to your hand!</span>")
-			return FALSE
-		user.visible_message("<span class='warning'>[user] attaches [T] to [src]!</span>")
-		bomb = T
+/obj/item/gun/blastcannon/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/transfer_valve))
+		add_fingerprint(user)
+		var/obj/item/transfer_valve/valve = I
+		if(bomb)
+			to_chat(user, span_warning("The [name] already has [bomb] attached."))
+			return ATTACK_CHAIN_PROCEED
+		if(!valve.tank_one || !valve.tank_two)
+			to_chat(user, span_warning("What good would an incomplete bomb do?"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(valve, src))
+			return ..()
+		user.visible_message(
+			span_warning("[user] has attached [valve] to [src]."),
+			span_notice("You have attached [valve] to [src]."),
+		)
+		bomb = valve
 		update_appearance(UPDATE_NAME|UPDATE_DESC|UPDATE_ICON_STATE)
-		return TRUE
+		return ATTACK_CHAIN_BLOCKED_ALL
+
 	return ..()
+
 
 /obj/item/gun/blastcannon/proc/calculate_bomb()
 	if(!istype(bomb)||!istype(bomb.tank_one)||!istype(bomb.tank_two))
@@ -90,15 +98,15 @@
 	var/medium = power * 0.5
 	var/light = power
 	user.visible_message("<span class='danger'>[user] opens [bomb] on [user.p_their()] [name] and fires a blast wave at [target]!</span>","<span class='danger'>You open [bomb] on your [name] and fire a blast wave at [target]!</span>")
-	playsound(user, "explosion", 100, 1)
+	playsound(user, "explosion", 100, TRUE)
 	add_attack_logs(user, target, "Blast waved with power [heavy]/[medium]/[light].", ATKLOG_MOST)
-	var/obj/item/projectile/blastwave/BW = new(loc, heavy, medium, light)
+	var/obj/projectile/blastwave/BW = new(loc, heavy, medium, light)
 	BW.preparePixelProjectile(target, get_turf(target), user, params, 0)
 	BW.firer = user
 	BW.firer_source_atom = src
 	BW.fire()
 
-/obj/item/projectile/blastwave
+/obj/projectile/blastwave
 	name = "blast wave"
 	icon_state = "blastwave"
 	damage = 0
@@ -109,13 +117,13 @@
 	var/mediumr = 0
 	var/lightr = 0
 
-/obj/item/projectile/blastwave/New(loc, _h, _m, _l)
+/obj/projectile/blastwave/New(loc, _h, _m, _l)
 	..()
 	heavyr = _h
 	mediumr = _m
 	lightr = _l
 
-/obj/item/projectile/blastwave/Range()
+/obj/projectile/blastwave/Range()
 	..()
 	var/amount_destruction = 0
 	if(heavyr)
@@ -138,5 +146,5 @@
 	mediumr = max(mediumr - 1, 0)
 	lightr = max(lightr - 1, 0)
 
-/obj/item/projectile/blastwave/ex_act()
+/obj/projectile/blastwave/ex_act()
 	return

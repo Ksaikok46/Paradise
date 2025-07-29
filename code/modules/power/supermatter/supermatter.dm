@@ -42,6 +42,7 @@
 	var/gasefficency = 0.125
 
 	base_icon_state = "darkmatter_shard"
+	var/zap_sound_extrarange = 5
 
 	var/damage = 0
 	var/damage_archived = 0
@@ -107,7 +108,8 @@
 	//Having the SM run at a different rate then atmospherics causes odd behavior.
 	SSair.atmos_machinery += src
 	radio = new(src)
-	radio.listening = 0
+	radio.listening = FALSE
+	radio.follow_target = src
 	investigate_log("has been created.", INVESTIGATE_ENGINE)
 	supermatter_explosive_effects = new()
 	supermatter_explosive_effects.z = src.z
@@ -118,12 +120,12 @@
 		return
 
 	// Generic checks, similar to checks done by supermatter monitor program.
-	aw_normal = status_adminwarn_check(SUPERMATTER_NORMAL, aw_normal, "INFO: Supermatter crystal has been energised.<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
-	aw_notify = status_adminwarn_check(SUPERMATTER_NOTIFY, aw_notify, "INFO: Supermatter crystal is approaching unsafe operating temperature.<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
-	aw_warning = status_adminwarn_check(SUPERMATTER_WARNING, aw_warning, "WARN: Supermatter crystal is taking integrity damage!<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
-	aw_danger = status_adminwarn_check(SUPERMATTER_DANGER, aw_danger, "WARN: Supermatter integrity is below 75%!<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", TRUE)
-	aw_emerg = status_adminwarn_check(SUPERMATTER_EMERGENCY, aw_emerg, "CRIT: Supermatter integrity is below 50%!<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
-	aw_delam = status_adminwarn_check(SUPERMATTER_DELAMINATING, aw_delam, "CRIT: Supermatter is delaminating!<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", TRUE)
+	aw_normal = status_adminwarn_check(SUPERMATTER_NORMAL, aw_normal, "INFO: Supermatter crystal has been energised.<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_notify = status_adminwarn_check(SUPERMATTER_NOTIFY, aw_notify, "INFO: Supermatter crystal is approaching unsafe operating temperature.<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_warning = status_adminwarn_check(SUPERMATTER_WARNING, aw_warning, "WARN: Supermatter crystal is taking integrity damage!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_danger = status_adminwarn_check(SUPERMATTER_DANGER, aw_danger, "WARN: Supermatter integrity is below 75%!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", TRUE)
+	aw_emerg = status_adminwarn_check(SUPERMATTER_EMERGENCY, aw_emerg, "CRIT: Supermatter integrity is below 50%!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", FALSE)
+	aw_delam = status_adminwarn_check(SUPERMATTER_DELAMINATING, aw_delam, "CRIT: Supermatter is delaminating!<a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>(JMP)</a>.", TRUE)
 
 /obj/machinery/power/supermatter_shard/proc/status_adminwarn_check(min_status, current_state, message)
 	var/status = get_status()
@@ -170,7 +172,7 @@
 			var/stability = num2text(round((damage / explosion_point) * 100))
 
 			if(damage > emergency_point)
-				radio.autosay("[emergency_alert] Дестабилизация: [stability]%", src.name)
+				radio.autosay("[emergency_alert] Дестабилизация: [stability]%", name, null)
 				lastwarning = world.timeofday
 				if(!has_reached_emergency)
 					investigate_log("has reached the emergency point for the first time.", INVESTIGATE_ENGINE)
@@ -178,11 +180,11 @@
 					has_reached_emergency = 1
 
 			else if(damage >= damage_archived) // The damage is still going up
-				radio.autosay("[warning_alert] Дестабилизация: [stability]%", src.name)
+				radio.autosay("[warning_alert] Дестабилизация: [stability]%", name)
 				lastwarning = world.timeofday - 150
 
 			else                                                 // Phew, we're safe
-				radio.autosay("[safe_alert]", src.name)
+				radio.autosay("[safe_alert]", name)
 				emergency_lighting(0)
 				lastwarning = world.timeofday
 
@@ -268,7 +270,7 @@
 	//We are assuming here, that volume does not change here
 	removed.temperature += (thermal_power / heat_capacity)
 
-	removed.temperature = max(0, removed.temperature)
+	removed.temperature = max(TCMB, removed.temperature)
 
 	env.merge(removed)
 
@@ -301,7 +303,7 @@
 
 /obj/machinery/power/supermatter_shard
 
-/obj/machinery/power/supermatter_shard/bullet_act(var/obj/item/projectile/Proj)
+/obj/machinery/power/supermatter_shard/bullet_act(var/obj/projectile/Proj)
 	var/turf/L = loc
 	if(!istype(L))		// We don't run process() when we are in space
 		return 0	// This stops people from being able to really power up the supermatter
@@ -321,12 +323,13 @@
 
 /obj/machinery/power/supermatter_shard/singularity_act()
 	var/gain = 100
+	var/supermatter_sound = sound('sound/effects/supermatter.ogg')
 	investigate_log("consumed by singularity.", INVESTIGATE_ENGINE)
-	message_admins("<span class='danger'>Singularity has consumed a supermatter shard and can now become stage six</span> [ADMIN_COORDJMP(src)].")
-	visible_message("<span class='userdanger'>[src] is consumed by the singularity!</span>")
+	message_admins("[span_danger("Singularity has consumed a supermatter shard and can now become stage six")] [ADMIN_COORDJMP(src)].")
+	visible_message(span_userdanger("[src] is consumed by the singularity!"))
 	for(var/mob/M in GLOB.mob_list)
-		M << 'sound/effects/supermatter.ogg' //everyone gunna know bout this
-		to_chat(M, "<span class='boldannounce'>A horrible screeching fills your ears, and a wave of dread washes over you...</span>")
+		SEND_SOUND(M, supermatter_sound) //everyone goan know bout this
+		to_chat(M, span_boldannounceic("A horrible screeching fills your ears, and a wave of dread washes over you..."))
 	qdel(src)
 	return(gain)
 
@@ -343,18 +346,20 @@
 		var/touch_sm = pick(list("poke", "pet", "hug", "cuddle"))
 		user.visible_message(span_notice("[user] [touch_sm]s the supermatter!"), \
 								span_notice("You [touch_sm] the supermatter!"))
-		playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
+		playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 		return
 
-	user.visible_message("<span class=\"warning\">\The [user] reaches out and touches \the [src], inducing a resonance... [user.p_their(TRUE)] body starts to glow and bursts into flames before flashing into ash.</span>",\
-		"<span class=\"danger\">You reach out and touch \the [src]. Everything starts burning and all you can hear is ringing. Your last thought is \"That was not a wise decision.\"</span>",\
-		"<span class=\"warning\">You hear an uneartly ringing, then what sounds like a shrilling kettle as you are washed with a wave of heat.</span>")
+	user.visible_message(
+		span_warning("\The [user] reaches out and touches \the [src], inducing a resonance... [user.p_their(TRUE)] body starts to glow and bursts into flames before flashing into ash."),
+		span_danger("You reach out and touch \the [src]. Everything starts burning and all you can hear is ringing. Your last thought is \"That was not a wise decision.\""),
+		span_warning("You hear an uneartly ringing, then what sounds like a shrilling kettle as you are washed with a wave of heat.")
+	)
 
-	playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, 1)
+	playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, TRUE)
 
 	consume(user)
 
-/obj/machinery/power/supermatter_shard/proc/get_integrity()
+/obj/machinery/power/supermatter_shard/proc/get_internal_integrity()
 	var/integrity = damage / explosion_point
 	integrity = round(100 - integrity * 100)
 	integrity = integrity < 0 ? 0 : integrity
@@ -366,105 +371,116 @@
 			R.receive_pulse(power/10)
 	return
 
-/obj/machinery/power/supermatter_shard/attackby(obj/item/W as obj, mob/living/user as mob, params)
-	if(istype(W,/obj/item/wrench)) //allows wrench/unwrench shards
+
+/obj/machinery/power/supermatter_shard/attackby(obj/item/I, mob/living/user, params)
+	if(istype(I, /obj/item/scalpel/supermatter))
 		add_fingerprint(user)
-		if(!anchored)
-			set_anchored(TRUE)
-			WRENCH_ANCHOR_MESSAGE
-			playsound(src.loc,W.usesound, 75, 1)
-			if(isrobot(user))
-				var/mob/living/silicon/robot/U = user
-				var/datum/robot_component/A = U.get_armour()
-				if(A)
-					audible_message("<span class='warning'>[U] sounds an alarm! \"CRITICAL ERROR: Armour plate was broken.\"</span>")
-					playsound(loc, 'sound/machines/warning-buzzer.ogg', 75, TRUE)
-					A.destroy()
-				else
-					consume(U)
-			else
-				consume_wrench(W)
-			user.visible_message("<span class='danger'>As [user] tighten bolts of \the [src] with \a [W] the tool disappears</span>")
-		else if (anchored)
-			set_anchored(FALSE)
-			WRENCH_UNANCHOR_MESSAGE
-			playsound(src.loc,W.usesound, 75, 1)
-			if(isrobot(user))
-				var/mob/living/silicon/robot/U = user
-				var/datum/robot_component/A = U.get_armour()
-				if(A)
-					audible_message("<span class='warning'>[U] sounds an alarm! \"CRITICAL ERROR: Armour plate was broken.\"</span>")
-					playsound(loc, 'sound/machines/warning-buzzer.ogg', 75, TRUE)
-					A.destroy()
-				else
-					consume(U)
-			else
-				consume_wrench(W)
-			user.visible_message("<span class='danger'>As [user] loosen bolts of \the [src] with \a [W] the tool disappears</span>")
-	if(istype(W, /obj/item/scalpel/supermatter))
-		if(ishuman(user))
-			var/mob/living/carbon/human/M = user
-			var/obj/item/scalpel/supermatter/scalpel = W
-			to_chat(user, "<span class='notice'>You carefully begin to scrape [src] with [W]...</span>")
+		var/obj/item/scalpel/supermatter/scalpel = I
+		if(!scalpel.uses_left)
+			to_chat(user, span_warning("The [scalpel.name] isn't sharp enough anymore."))
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] starts to carefully scrape [src] with [I]."),
+			span_notice("You start to carefully scrape [src]..."),
+		)
+		if(!I.use_tool(src, user, 10 SECONDS, volume = 100) || !scalpel.uses_left)
+			return ATTACK_CHAIN_PROCEED
+		user.visible_message(
+			span_notice("[user] has extracted a sliver from [src], and it begins to react violently."),
+			span_notice("You have extracted a sliver from [src], and it begins to react violently."),
+		)
+		power += 200 //well...
+		var/turf/shard_loc = get_turf(src)
+		var/datum/gas_mixture/shard_env = shard_loc.return_air()
+		var/datum/gas_mixture/new_mixture = new
+		new_mixture.toxins = 10000
+		new_mixture.temperature += power * SHARD_CUT_COEF
+		shard_env.merge(new_mixture)
+		scalpel.uses_left--
+		if(!scalpel.uses_left)
+			to_chat(user, span_boldwarning("A tiny piece of [I] falls off, rendering it useless!"))
+		var/obj/item/nuke_core/supermatter_sliver/sliver = new(drop_location())
+		var/obj/item/retractor/supermatter/tongs = user.get_inactive_hand()
+		if(!istype(tongs) || tongs.sliver)
+			return ATTACK_CHAIN_PROCEED_SUCCESS
+		tongs.sliver = sliver
+		sliver.forceMove(tongs)
+		tongs.update_icon(UPDATE_ICON_STATE)
+		to_chat(user, span_notice("You have picked up [sliver] with [tongs]."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-			if(W.use_tool(src, M, 10 SECONDS, volume = 100))
-				if(scalpel.uses_left)
-					to_chat(M, "<span class='danger'>You extract a sliver from [src], and it begins to react violently!</span>")
-					power += 200 //well...
-					var/turf/shard_loc = get_turf(src)
-					var/datum/gas_mixture/shard_env = shard_loc.return_air()
-					var/datum/gas_mixture/new_mixture = new
-					new_mixture.toxins = 10000
-					new_mixture.temperature += src.power*SHARD_CUT_COEF
-					shard_env.merge(new_mixture)
-					scalpel.uses_left--
-					if(!scalpel.uses_left)
-						to_chat(user, "<span class='boldwarning'>A tiny piece of [W] falls off, rendering it useless!</span>")
-					var/obj/item/nuke_core/supermatter_sliver/S = new /obj/item/nuke_core/supermatter_sliver(drop_location())
+	if(istype(I, /obj/item/retractor/supermatter))
+		to_chat(user, span_warning("The [I.name] bounces off [src], you need to cut off a sliver first."))
+		return ATTACK_CHAIN_PROCEED
 
-					var/obj/item/retractor/supermatter/tongs = M.get_inactive_hand()
-					if(!istype(tongs))
-						return
-					if(tongs && !tongs.sliver)
-						tongs.sliver = S
-						S.forceMove(tongs)
-						tongs.icon_state = "supermatter_tongs_loaded"
-						tongs.item_state = "supermatter_tongs_loaded"
-						to_chat(M, "<span class='notice'>You pick up [S] with [tongs]!</span>")
-				else
-					to_chat(user, "<span class='warning'>You fail to extract a sliver from [src]! [W] isn't sharp enough anymore.</span>")
-		return
-	if(istype(W, /obj/item/retractor/supermatter))
-		to_chat(user, "<span class='notice'>[W] bounces off [src], you need to cut a sliver off first!</span>")
-	else if(!istype(W) || (W.item_flags & ABSTRACT) || !istype(user))
-		return
-	else if(user.drop_item_ground(W))
-		W.do_pickup_animation(src)
-		add_fingerprint(user)
-		consume(W)
-		user.visible_message("<span class='danger'>As [user] touches \the [src] with \a [W], silence fills the room...</span>",\
-			"<span class='userdanger'>You touch \the [src] with \the [W], and everything suddenly goes silent.\"</span>\n<span class='notice'>\The [W] flashes into dust as you flinch away from \the [src].</span>",\
-			"<span class='italics'>Everything suddenly goes silent.</span>")
+	if((I.item_flags & ABSTRACT) || !isliving(user))
+		return ATTACK_CHAIN_PROCEED
 
-		playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, 1)
+	. = ATTACK_CHAIN_BLOCKED_ALL
+	user.drop_item_ground(I, force = TRUE)
+	I.do_pickup_animation(src)
+	consume(I)
+	user.visible_message(
+		span_danger("As [user] touches [src] with [I], silence fills the room..."),
+		"[span_danger("You touch [src] with [I], and everything suddenly goes silent.")]\n[span_notice("The [I.name] flashes into dust as you flinch away from [src].")]",
+		span_italics("Everything suddenly goes silent."),
+	)
+	playsound(loc, 'sound/effects/supermatter.ogg', 50, TRUE)
+	user.apply_effect(150, IRRADIATE)
 
-		user.apply_effect(150, IRRADIATE)
+
+/obj/machinery/power/supermatter_shard/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	set_anchored(!anchored)
+	if(anchored)
+		user.visible_message(
+			span_warning("As [user] tightens bolts of [src] with [I], the tool disappears."),
+			span_warning("As you tighten bolts of [src], the tool disappears."),
+			span_italics("You hear a ratchet"),
+		)
+	else
+		user.visible_message(
+			span_warning("As [user] loosens bolts of [src] with [I], the tool disappears."),
+			span_warning("As you loosens bolts of [src], the tool disappears."),
+			span_italics("You hear a ratchet"),
+		)
+	if(isrobot(user))
+		var/mob/living/silicon/robot/robot = user
+		var/datum/robot_component/armor = robot.get_armour()
+		if(armor)
+			audible_message(span_warning("[robot] sounds an alarm! \"CRITICAL ERROR: Armour plate was broken.\""))
+			playsound(loc, 'sound/machines/warning-buzzer.ogg', 75, TRUE)
+			armor.destroy()
+		else
+			consume(robot)
+	else
+		consume_wrench(I)
+
 
 /obj/machinery/power/supermatter_shard/Bumped(atom/movable/moving_atom)
+	. = ..()
+	if(isprojectile(moving_atom))	// we update this in bullet_act()
+		return .
 	if(isnucleation(moving_atom))
 		nuclear_touch(moving_atom)
-		return
+		return .
 	if(isliving(moving_atom))
-		moving_atom.visible_message("<span class='danger'>\The [moving_atom] slams into \the [src] inducing a resonance... [moving_atom.p_their(TRUE)] body starts to glow and catch flame before flashing into ash.</span>",\
-		"<span class='userdanger'>You slam into \the [src] as your ears are filled with unearthly ringing. Your last thought is \"Oh, fuck.\"</span>",\
-		"<span class='italics'>You hear an unearthly noise as a wave of heat washes over you.</span>")
+		moving_atom.visible_message(
+			span_danger("\The [moving_atom] slams into \the [src] inducing a resonance... [moving_atom.p_their(TRUE)] body starts to glow and catch flame before flashing into ash."),\
+			span_userdanger("You slam into \the [src] as your ears are filled with unearthly ringing. Your last thought is \"Oh, fuck.\""),\
+			span_italics("You hear an unearthly noise as a wave of heat washes over you.")
+		)
 	else if(isobj(moving_atom) && !iseffect(moving_atom))
-		moving_atom.visible_message("<span class='danger'>\The [moving_atom] smacks into \the [src] and rapidly flashes to ash.</span>",\
-		"<span class='italics'>You hear a loud crack as you are washed with a wave of heat.</span>")
+		moving_atom.visible_message(
+			span_danger("\The [moving_atom] smacks into \the [src] and rapidly flashes to ash."),\
+			span_italics("You hear a loud crack as you are washed with a wave of heat.")
+		)
 	else
 		return
 
-	playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, 1)
+	playsound(get_turf(src), 'sound/effects/supermatter.ogg', 50, TRUE)
 
 	consume(moving_atom)
 
@@ -520,10 +536,10 @@
 		L.apply_effect(rads, IRRADIATE)
 		investigate_log("has irradiated [L] after consuming [AM].", INVESTIGATE_ENGINE)
 		if(src in view(L.client.maxview()))
-			L.show_message("<span class='danger'>As \the [src] slowly stops resonating, you find your skin covered in new radiation burns.</span>", 1,\
-				"<span class='danger'>The unearthly ringing subsides and you notice you have new radiation burns.</span>", 2)
+			L.show_message(span_danger("As \the [src] slowly stops resonating, you find your skin covered in new radiation burns."), 1,\
+				span_danger("The unearthly ringing subsides and you notice you have new radiation burns."), 2)
 		else
-			L.show_message("<span class='italics'>You hear an uneartly ringing and notice your skin is covered in fresh radiation burns.</span>", 2)
+			L.show_message(span_italics("You hear an uneartly ringing and notice your skin is covered in fresh radiation burns."), 2)
 
 /obj/machinery/power/supermatter_shard/proc/get_status()
 	var/turf/T = get_turf(src)
@@ -533,16 +549,16 @@
 	if(!air)
 		return SUPERMATTER_ERROR
 
-	if(get_integrity() < 25)
+	if(get_internal_integrity() < 25)
 		return SUPERMATTER_DELAMINATING
 
-	if(get_integrity() < 50)
+	if(get_internal_integrity() < 50)
 		return SUPERMATTER_EMERGENCY
 
-	if(get_integrity() < 75)
+	if(get_internal_integrity() < 75)
 		return SUPERMATTER_DANGER
 
-	if((get_integrity() < 100) || (air.temperature > CRITICAL_TEMPERATURE))
+	if((get_internal_integrity() < 100) || (air.temperature > CRITICAL_TEMPERATURE))
 		return SUPERMATTER_WARNING
 
 	if(air.temperature > (CRITICAL_TEMPERATURE * 0.8))
@@ -570,7 +586,7 @@
         post_status(STATUS_DISPLAY_TRANSFER_SHUTTLE_TIME)
 
 /obj/machinery/power/supermatter_shard/proc/supermatter_zap()
-	playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = 5)
+	playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, TRUE, extrarange = zap_sound_extrarange)
 	tesla_zap(src, 10, max(1000,power * damage / explosion_point))
 
 // SM shard that can't be moved for ruins and gates
@@ -579,11 +595,24 @@
 	desc = "A strangely translucent and iridescent crystal that looks like it used to be part of a larger structure. Apparently the structure is attached to the surface with industrial equipment, it cannot be unanchored with simple equipment. <span class='danger'>You get headaches just from looking at it.</span>"
 	anchored = TRUE
 
-/obj/machinery/power/supermatter_shard/anchored/attackby(obj/item/W as obj, mob/living/user as mob, params)
-	if(istype(W,/obj/item/wrench))
-		user.visible_message("<span class='danger'>As [user] tries to loose bolts of \the [src] with \a [W] but the tool disappears</span>")
-	consume_wrench(W)
+
+/obj/machinery/power/supermatter_shard/anchored/attackby(obj/item/I, mob/living/user, params)
+	consume_wrench(I)
 	user.apply_effect(150, IRRADIATE)
+	return ATTACK_CHAIN_BLOCKED_ALL
+
+
+/obj/machinery/power/supermatter_shard/anchored/wrench_act(mob/living/user, obj/item/I)
+	. = TRUE
+	if(!I.use_tool(src, user, volume = I.tool_volume))
+		return .
+	user.visible_message(
+		span_warning("As [user] tries to loose bolts of [src] with [I], the tool disappears."),
+		span_warning("As you try to loose bolts of [src], the tool disappears."),
+	)
+	consume_wrench(I)
+	user.apply_effect(150, IRRADIATE)
+
 
 /obj/machinery/power/supermatter_shard/proc/nuclear_touch(var/mob/living/user)
 	var/datum/species/nucleation/nuclear = user.dna.species
@@ -591,3 +620,11 @@
 		user.revive()
 		nuclear.touched_supermatter = TRUE
 		to_chat(user, span_userdanger("The wave of warm energy is overwhelming you. You feel calm."))
+
+/obj/effect/warp_effect/supermatter
+	plane = GRAVITY_PULSE_PLANE
+	appearance_flags = PIXEL_SCALE|LONG_GLIDE // no tile bound so you can see it around corners and so
+	icon = 'icons/effects/light_overlays/light_352.dmi'
+	icon_state = "light"
+	pixel_x = -176
+	pixel_y = -176

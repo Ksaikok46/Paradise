@@ -235,6 +235,22 @@
 	icon_state = "explosionfast"
 	duration = 4
 
+/obj/effect/temp_visual/blob
+	name = "blob"
+	icon_state = "blob_attack"
+	alpha = 140
+	randomdir = 0
+	duration = 6
+
+/obj/effect/temp_visual/explosion/florawave
+	icon_state = "florawave"
+	duration = 4
+
+/obj/effect/temp_visual/removing_flora
+	icon = 'icons/effects/effects.dmi'
+	icon_state = "greenshatter2"
+	duration = 2
+
 /obj/effect/temp_visual/heart
 	name = "heart"
 	icon = 'icons/mob/animal.dmi'
@@ -324,7 +340,7 @@
 		else
 			pixel_x = rand(-1,1)
 			pixel_y = rand(-1,1)
-	..()
+	return ..()
 
 /obj/effect/temp_visual/dir_setting/firing_effect/energy
 	icon_state = "firing_effect_energy"
@@ -430,3 +446,17 @@
 	pixel_x = rand(-10,10)
 	pixel_y = rand(-10,10)
 	animate(src, pixel_y = pixel_y + 32, alpha = 0, time = duration)
+
+/obj/effect/warp_effect
+	plane = GRAVITY_PULSE_PLANE
+	appearance_flags = PIXEL_SCALE|LONG_GLIDE
+	icon = 'icons/effects/seismic_stomp_effect.dmi'
+	icon_state = "stomp_effect"
+	pixel_y = -16
+	pixel_x = -16
+
+/obj/effect/warp_effect/ex_act(severity)
+	return
+
+/obj/effect/warp_effect/singularity_act()
+	return FALSE

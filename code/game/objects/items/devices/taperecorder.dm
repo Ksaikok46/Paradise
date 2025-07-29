@@ -9,8 +9,8 @@
 	materials = list(MAT_METAL = 60, MAT_GLASS = 30)
 	force = 2
 	throwforce = 0
-	drop_sound = 'sound/items/handling/taperecorder_drop.ogg'
-	pickup_sound = 'sound/items/handling/taperecorder_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/taperecorder_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/taperecorder_pickup.ogg'
 	tts_seed = "Xenia"
 	/// If its currently recording.
 	var/recording = FALSE
@@ -60,7 +60,7 @@
 				. += span_notice("[mytape] has [mytape.remaining_capacity] seconds remaining.") // to avoid having 0 minutes
 			else
 				. += span_notice("[mytape] has [seconds_to_time(mytape.remaining_capacity)] remaining.")
-		. += span_info("<b>Alt-Click</b> to access the tape.")
+		. += span_notice("<b>Alt-Click</b> to access the tape.")
 
 
 /obj/item/taperecorder/proc/update_sound()
@@ -86,12 +86,21 @@
 	return ..()
 
 
-/obj/item/taperecorder/attackby(obj/item/I, mob/user)
-	if(!mytape && istype(I, /obj/item/tape) && user.drop_transfer_item_to_loc(I, src))
+/obj/item/taperecorder/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/tape))
+		add_fingerprint(user)
+		if(mytape)
+			to_chat(user, span_warning("There is already [mytape] inserted!"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
 		mytape = I
 		to_chat(user, span_notice("You insert [I] into [src]."))
-		playsound(src, 'sound/items/taperecorder/taperecorder_close.ogg', 50, FALSE)
+		playsound(loc, 'sound/items/taperecorder/taperecorder_close.ogg', 50, FALSE)
 		update_icon(UPDATE_ICON_STATE)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
 
 
 /obj/item/taperecorder/attack_hand(mob/user)
@@ -113,32 +122,34 @@
 		record()
 
 
-/obj/item/taperecorder/AltClick(mob/living/user)
-	if(istype(user) && mytape && !user.incapacitated() && !HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) && Adjacent(user))
-		var/list/options = list( "Playback Tape" = image(icon = 'icons/obj/device.dmi', icon_state = "taperecorder_playing"),
-						"Print Transcript" = image(icon = 'icons/obj/bureaucracy.dmi', icon_state = "paper_words"),
-						"Eject Tape" = image(icon = 'icons/obj/device.dmi', icon_state = "[mytape.icon_state]")
-						)
-		var/choice = show_radial_menu(user, src, options, require_near = TRUE)
-		if(!choice || user.incapacitated())
-			return
-		switch(choice)
-			if("Playback Tape")
-				play(user)
-			if("Print Transcript")
-				print_transcript(user)
-			if("Eject Tape")
-				eject(user)
+/obj/item/taperecorder/click_alt(mob/living/user)
+	if(!mytape)
+		return NONE
 
+	var/list/options = list( "Playback Tape" = image(icon = 'icons/obj/device.dmi', icon_state = "taperecorder_playing"),
+					"Print Transcript" = image(icon = 'icons/obj/bureaucracy.dmi', icon_state = "paper_words"),
+					"Eject Tape" = image(icon = 'icons/obj/device.dmi', icon_state = "[mytape.icon_state]")
+					)
+	var/choice = show_radial_menu(user, src, options, require_near = TRUE)
+	if(!choice || user.incapacitated())
+		return CLICK_ACTION_BLOCKING
+	switch(choice)
+		if("Playback Tape")
+			play(user)
+		if("Print Transcript")
+			print_transcript(user)
+		if("Eject Tape")
+			eject(user)
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/taperecorder/proc/recorder_say(message, datum/tape_piece/record_datum)
 	if(record_datum)
 		tts_seed = record_datum.tts_seed
-		atom_say_verb = record_datum.message_verb || "says"
+		atom_say_verb = record_datum.message_verb || "говорит"
 		atom_say("[record_datum.message]")
 	else
 		tts_seed = initial(tts_seed)
-		atom_say_verb = "says"
+		atom_say_verb = "говорит"
 		atom_say("[message]")
 
 
@@ -308,7 +319,7 @@
 		return
 
 	recorder_say("Распечатка в процессе...")
-	playsound(loc, 'sound/goonstation/machines/printer_thermal.ogg', 50, 1)
+	playsound(loc, 'sound/goonstation/machines/printer_thermal.ogg', 50, TRUE)
 	flick("taperecorder_anim", src)
 
 	sleep(3 SECONDS) //prevent paper from being printed until the end of the animation
@@ -317,16 +328,16 @@
 
 	var/obj/item/paper/transcript = new /obj/item/paper(drop_location())
 
-	var/list/paper_info = list("<B>Transcript:</B><BR><BR>")
+	var/list/paper_info = list("<b>Transcript:</b><br><br>")
 	for(var/i = 1, length(mytape.storedinfo) >= i, i++)
 		var/datum/tape_piece/piece = mytape.storedinfo[i]
 		paper_info += "\[[time2text(piece.time * 10,"mm:ss")]\] "
 		if(piece.speaker_name)
 			paper_info += "[piece.speaker_name] "
 		if(piece.message_verb)
-			paper_info += "[piece.message_verb], \"[replace_characters(piece.message, list("+"))]\"<BR>"
+			paper_info += "[piece.message_verb], \"[replace_characters(piece.message, list("+"))]\"<br>"
 		else
-			paper_info += "[replace_characters(piece.message, list("+"))]<BR>"
+			paper_info += "[replace_characters(piece.message, list("+"))]<br>"
 
 	transcript.info = paper_info.Join("")
 	transcript.name = "paper- 'Transcript'"
@@ -346,8 +357,8 @@
 	materials = list(MAT_METAL = 20, MAT_GLASS = 5)
 	force = 1
 	throwforce = 0
-	drop_sound = 'sound/items/handling/tape_drop.ogg'
-	pickup_sound = 'sound/items/handling/tape_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/tape_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/tape_pickup.ogg'
 	var/max_capacity = 600
 	var/used_capacity = 0
 	var/remaining_capacity = 600
@@ -388,23 +399,22 @@
 	ruin()
 
 
-/obj/item/tape/attackby(obj/item/I, mob/user)
+/obj/item/tape/attackby(obj/item/I, mob/user, params)
 	if(is_pen(I))
 		rename_interactive(user, I)
-		return
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
 
 
 /obj/item/tape/screwdriver_act(mob/living/user, obj/item/I)
-	. = ..()
-	if(ruined)
-		if(!I.use_tool(src, user, 0, volume = I.tool_volume))
-			return
-		to_chat(user, span_notice("You start winding the tape back in."))
-		if(!do_after(user, 12 SECONDS * I.toolspeed, user))
-			return
-		to_chat(user, span_notice("You wind the tape back in!"))
-		fix()
+	. = TRUE
+	if(!ruined)
+		return .
+	to_chat(user, span_notice("You start winding the tape back in..."))
+	if(!I.use_tool(src, user, 12 SECONDS, volume = I.tool_volume) || !ruined)
+		return .
+	to_chat(user, span_notice("You wind the tape back in!"))
+	fix()
 
 
 /obj/item/tape/attack_self(mob/user)
@@ -431,8 +441,8 @@
 
 
 /obj/item/tape/verb/wipe()
-	set name = "Wipe Tape"
-	set category = "Object"
+	set name = "Стереть плёнку"
+	set category = STATPANEL_OBJECT
 	set src in view(1)
 
 	var/mob/living/carbon/user = usr

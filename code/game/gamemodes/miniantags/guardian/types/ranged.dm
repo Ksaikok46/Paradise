@@ -1,4 +1,4 @@
-/obj/item/projectile/guardian
+/obj/projectile/guardian
 	name = "crystal spray"
 	icon_state = "guardian"
 	damage = 20
@@ -10,7 +10,7 @@
 	melee_damage_lower = 10
 	melee_damage_upper = 10
 	damage_transfer = 1
-	projectiletype = /obj/item/projectile/guardian
+	projectiletype = /obj/projectile/guardian
 	ranged_cooldown_time = 5 //fast!
 	projectilesound = 'sound/effects/hit_on_shattered_glass.ogg'
 	ranged = 1
@@ -33,13 +33,13 @@
 		if(energy>=20)
 			ranged = 1
 		if(energy<=5)
-			to_chat(src, "<span class='danger'>Энергия на нуле. Стрельба заблокирована.</span>")
+			to_chat(src, span_danger("Энергия на нуле. Стрельба заблокирована."))
 			ranged = 0
 
-/mob/living/simple_animal/hostile/guardian/ranged/Stat()
-	..()
-	if(statpanel("Status"))
-		stat(null, "Запас энергии: [max(round(energy, 0.1), 0)]/150")
+/mob/living/simple_animal/hostile/guardian/ranged/get_status_tab_items()
+	var/list/status_tab_data = ..()
+	. = status_tab_data
+	status_tab_data[++status_tab_data.len] = list("Запас энергии:", "[max(round(energy, 0.1), 0)]/150")
 
 /mob/living/simple_animal/hostile/guardian/ranged/OpenFire(atom/A)
 	if(ranged)
@@ -58,7 +58,7 @@
 			alpha = 255
 			range = 13
 			incorporeal_move = INCORPOREAL_NONE
-			to_chat(src, "<span class='danger'>Вы переключились в боевой режим.</span>")
+			to_chat(src, span_danger("Вы переключились в боевой режим."))
 			toggle = FALSE
 		else
 			ranged = 0
@@ -69,10 +69,10 @@
 			alpha = 60
 			range = 255
 			incorporeal_move = INCORPOREAL_NORMAL
-			to_chat(src, "<span class='danger'>Вы переключились в режим разведки.</span>")
+			to_chat(src, span_danger("Вы переключились в режим разведки."))
 			toggle = TRUE
 	else
-		to_chat(src, "<span class='danger'>Нужно быть в хозяине для смены режимов!</span>")
+		to_chat(src, span_danger("Нужно быть в хозяине для смены режимов!"))
 
 /mob/living/simple_animal/hostile/guardian/ranged/ToggleLight()
 	var/msg
@@ -92,50 +92,65 @@
 
 	update_sight()
 
-	to_chat(src, "<span class='notice'>[msg]</span>")
+	to_chat(src, span_notice("[msg]"))
 
 /mob/living/simple_animal/hostile/guardian/ranged/verb/Snare()
-	set name = "Установить ловушку для слежки"
-	set category = "Guardian"
+	set name = "Установить ловушку"
+	set category = STATPANEL_GUARDIAN
 	set desc = "Установите невидимую ловушку, которая оповестит вас, когда по ней пройдут живые существа. Максимум 5"
 	if(snares.len <6)
 		var/turf/snare_loc = get_turf(loc)
-		var/obj/item/effect/snare/S = new /obj/item/effect/snare(snare_loc)
-		S.spawner = src
-		S.name = "[get_area(snare_loc)] trap ([rand(1, 1000)])"
-		snares |= S
-		to_chat(src, "<span class='danger'>Ловушка слежения установлена!</span>")
+		var/obj/item/effect/snare/snare = new(snare_loc, src)
+		snare.name = "[get_area(snare_loc)] trap ([rand(1, 1000)])"
+		snares |= snare
+		to_chat(src, span_danger("Ловушка слежения установлена!"))
 	else
-		to_chat(src, "<span class='danger'>У вас установлено слишком много ловушек. Сначала удалите некоторые.</span>")
+		to_chat(src, span_danger("У вас установлено слишком много ловушек. Сначала удалите некоторые."))
 
 /mob/living/simple_animal/hostile/guardian/ranged/verb/DisarmSnare()
-	set name = "Удалить ловушку для наблюдения"
-	set category = "Guardian"
-	set desc = "Обезвреживание нежелательных ловушек наблюдения."
-	var/picked_snare = input(src, "Выберите ловушку для обезвреживания", "Уничтожить ловушку") as null|anything in snares
+	set name = "Удалить ловушку"
+	set category = STATPANEL_GUARDIAN
+	set desc = "Обезвреживание нежелательных ловушек слежения."
+	var/picked_snare = tgui_input_list(src, "Выберите ловушку для обезвреживания", "Уничтожить ловушку", snares)
 	if(picked_snare)
 		snares -= picked_snare
 		qdel(picked_snare)
-		to_chat(src, "<span class='danger'>Ловушка убрана.</span>")
+		to_chat(src, span_danger("Ловушка убрана."))
+
 
 /obj/item/effect/snare
 	name = "snare"
 	desc = "You shouldn't be seeing this!"
-	var/mob/living/spawner
 	invisibility = 1
+	var/mob/living/simple_animal/hostile/guardian/guardian
+
+
+/obj/item/effect/snare/Initialize(mapload, mob/living/simple_animal/hostile/guardian/guardian)
+	. = ..()
+	src.guardian = guardian
+	if(guardian)
+		var/static/list/loc_connections = list(
+			COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+		)
+		AddElement(/datum/element/connect_loc, loc_connections)
+
+
+/obj/item/effect/snare/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(!isliving(arrived))
+		return
+
+	var/area/snare_area = get_area(loc)
+	to_chat(guardian, span_danger("[arrived.name] пересек Вашу ловушку в [snare_area.name]."))
+	if(guardian.summoner)
+		to_chat(guardian.summoner, span_danger("[arrived.name] пересек Вашу ловушку в [snare_area.name]."))
+
 
 /obj/effect/snare/singularity_act()
 	return
 
+
 /obj/effect/snare/singularity_pull()
 	return
 
-/obj/item/effect/snare/Crossed(AM as mob|obj, oldloc)
-	if(isliving(AM))
-		var/turf/snare_loc = get_turf(loc)
-		if(spawner)
-			to_chat(spawner, "<span class='danger'>[AM] пересек вашу ловушку в [get_area(snare_loc)].</span>")
-			if(istype(spawner, /mob/living/simple_animal/hostile/guardian))
-				var/mob/living/simple_animal/hostile/guardian/G = spawner
-				if(G.summoner)
-					to_chat(G.summoner, "<span class='danger'>[AM] пересек вашу ловушку в [get_area(snare_loc)].</span>")

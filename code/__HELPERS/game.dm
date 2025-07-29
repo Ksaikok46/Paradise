@@ -5,6 +5,12 @@
 //	var/turf/T = get_turf(A)
 //	return T ? T.loc : null
 
+#define MANUAL_PICK_MESSAGE(X) "Выберите игроков для спавна. Это будет продолжаться до тех пор, пока не останется призраков для выбора или пока [X] оставшихся слотов не будут заполнены."
+#define VETO_PICK_MESSAGE(X) "Выберите игроков. Это будет продолжаться до тех пор, пока не останется согласившихся призраков для выбора или пока [X] оставшихся слотов не будут заполнены."
+#define MANUAL_PICK_TITLE "Активные игроки"
+#define VETO_PICK_TITLE "Кандидаты"
+
+
 /proc/get_area_name(atom/X, format_text = FALSE)
 	var/area/A = isarea(X) ? X : get_area(X)
 	if(!A)
@@ -112,13 +118,16 @@
 			return FALSE
 	return TRUE
 
-/proc/get_dist_euclidian(atom/Loc1 as turf|mob|obj,atom/Loc2 as turf|mob|obj)
-	var/dx = Loc1.x - Loc2.x
-	var/dy = Loc1.y - Loc2.y
 
-	var/dist = sqrt(dx**2 + dy**2)
+///Returns the distance between two atoms
+/proc/get_dist_euclidean(atom/first_location, atom/second_location)
+	var/dx = first_location.x - second_location.x
+	var/dy = first_location.y - second_location.y
+
+	var/dist = sqrt(dx ** 2 + dy ** 2)
 
 	return dist
+
 
 /proc/circlerangeturfs(center=usr,radius=3)
 
@@ -242,8 +251,8 @@
 			Y1+=s
 			while(Y1!=Y2)
 				T=locate(X1,Y1,Z)
-				if(T.opacity)
-					return 0
+				if(IS_OPAQUE_TURF(T))
+					return FALSE
 				Y1+=s
 	else
 		var/m=(32*(Y2-Y1)+(PY2-PY1))/(32*(X2-X1)+(PX2-PX1))
@@ -258,16 +267,16 @@
 			else
 				X1+=signX //Line exits tile horizontally
 			T=locate(X1,Y1,Z)
-			if(T.opacity)
-				return 0
-	return 1
+			if(IS_OPAQUE_TURF(T))
+				return FALSE
+	return TRUE
 
-/proc/isInSight(var/atom/A, var/atom/B)
+/proc/isInSight(atom/A, atom/B)
 	var/turf/Aturf = get_turf(A)
 	var/turf/Bturf = get_turf(B)
 
 	if(!Aturf || !Bturf)
-		return 0
+		return FALSE
 
 	return inLineOfSight(Aturf.x, Aturf.y, Bturf.x, Bturf.y, Aturf.z)
 
@@ -373,14 +382,51 @@
 		add_to.images += image_to_show
 	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(remove_image_from_clients), image_to_show, show_to), duration, TIMER_CLIENT_TIME)
 
-/// Flicks an overlay to anyone who can view this atom
-/atom/proc/flick_overlay_view(image_to_show, duration)
-	var/list/viewing = list()
-	for(var/mob/viewer as anything in viewers(src))
-		if(viewer.client)
-			viewing += viewer.client
-	flick_overlay(image_to_show, viewing, duration)
+/**
+ * Helper atom that copies an appearance and exists for a period
+*/
+/atom/movable/flick_visual
 
+/atom/proc/on_flick_qdeleted(atom/movable/flick_visual/source)
+	SIGNAL_HANDLER
+	if(!istype(source))
+		return
+	var/atom/movable/lies_to_children = src
+	lies_to_children.vis_contents -= source
+	UnregisterSignal(source, COMSIG_QDELETING)
+
+/atom/proc/register_flick_visual(atom/movable/flick_visual/visual)
+	if(!istype(visual))
+		return
+	var/atom/movable/lies_to_children = src
+	lies_to_children.vis_contents += visual
+	RegisterSignal(visual, COMSIG_QDELETING, PROC_REF(on_flick_qdeleted))
+
+/// Takes the passed in MA/icon_state, mirrors it onto ourselves, and displays that in world for duration seconds
+/// Returns the displayed object, you can animate it and all, but you don't own it, we'll delete it after the duration
+/atom/proc/flick_overlay_view(mutable_appearance/display, duration)
+	if(!display)
+		return null
+
+	var/mutable_appearance/passed_appearance = \
+		istext(display) \
+			? mutable_appearance(icon, display, layer) \
+			: display
+
+	// If you don't give it a layer, we assume you want it to layer on top of this atom
+	// Because this is vis_contents, we need to set the layer manually (you can just set it as you want on return if this is a problem)
+	if(passed_appearance.layer == FLOAT_LAYER)
+		passed_appearance.layer = layer + 0.1
+	// This is faster then pooling. I promise
+	var/atom/movable/flick_visual/visual = new()
+	visual.appearance = passed_appearance
+	// I hate /area
+	register_flick_visual(visual)
+	QDEL_IN_CLIENT_TIME(visual, duration)
+	return visual
+
+/area/flick_overlay_view(mutable_appearance/display, duration)
+	return
 
 /proc/get_active_player_count()
 	// Get active players who are playing in the round
@@ -469,26 +515,67 @@
 	if(pressure <= LAVALAND_EQUIPMENT_EFFECT_PRESSURE)
 		. = TRUE
 
-/proc/pollCandidatesWithVeto(adminclient, adminusr, max_slots, Question, be_special_type, antag_age_check = FALSE, poll_time = 300, ignore_respawnability = FALSE, min_hours = FALSE, flashwindow = TRUE, check_antaghud = TRUE, source, role_cleanname)
-	var/list/willing_ghosts = SSghost_spawns.poll_candidates(Question, be_special_type, antag_age_check, poll_time, ignore_respawnability, min_hours, flashwindow, check_antaghud, source, role_cleanname)
+/proc/pollCandidatesWithVeto(client/adminclient, max_slots, Question, be_special_type, antag_age_check = FALSE, poll_time = 300, ignore_respawnability = FALSE, min_hours = FALSE, flashwindow = TRUE, check_antaghud = TRUE, source, role_cleanname, reason)
+	var/list/willing_ghosts = SSghost_spawns.poll_candidates(Question, be_special_type, antag_age_check, poll_time, ignore_respawnability, min_hours, flashwindow, check_antaghud, source, role_cleanname, reason)
 	var/list/selected_ghosts = list()
 	if(!willing_ghosts.len)
 		return selected_ghosts
 
 	var/list/candidate_ghosts = willing_ghosts.Copy()
 
-	to_chat(adminusr, "Candidate Ghosts:");
+	to_chat(adminclient, "Candidate Ghosts:");
 	for(var/mob/dead/observer/G in candidate_ghosts)
 		if(G.key && G.client)
-			to_chat(adminusr, "- [G] ([G.key])");
+			to_chat(adminclient, "- [G] ([G.key])");
 		else
 			candidate_ghosts -= G
-
 	for(var/i = max_slots, (i > 0 && candidate_ghosts.len), i--)
-		var/this_ghost = input("Pick players. This will go on until there either no more ghosts to pick from or the [i] remaining slot(s) are full.", "Candidates") as null|anything in candidate_ghosts
+		var/this_ghost = tgui_input_list(adminclient, VETO_PICK_MESSAGE(i), VETO_PICK_TITLE, candidate_ghosts)
+		if(!this_ghost)
+			continue
 		candidate_ghosts -= this_ghost
 		selected_ghosts += this_ghost
 	return selected_ghosts
+
+
+/proc/pick_candidates_manually(client/admin_client, teamsize)
+	var/list/possible_ghosts = list()
+	var/list/players_to_spawn = list()
+	for(var/mob/dead/observer/G in GLOB.player_list)
+		if(!G.client.is_afk())
+			if(!(G.mind && G.mind.current && G.mind.current.stat != DEAD))
+				possible_ghosts += G
+	for(var/i=teamsize,(i>0&&possible_ghosts.len),i--) //Decrease with every member selected.
+		var/candidate = tgui_input_list(admin_client, MANUAL_PICK_MESSAGE(i), MANUAL_PICK_TITLE, possible_ghosts) // auto-picks if only one candidate
+		if(candidate == null)
+			break;
+		possible_ghosts -= candidate
+		players_to_spawn += candidate
+	return players_to_spawn
+
+/proc/pick_candidates_all_types(client/admin_client, max_slot, question, be_special_type, antag_age_check = FALSE, poll_time = 300, ignore_respawnability = FALSE, min_hours = FALSE, flashwindow = TRUE, check_antaghud = TRUE, source, role_cleanname, reason)
+	var/type = tgui_alert(admin_client,"Как вы хотите выбрать членов команды? \n \
+	Случайно - призраки получат предложение занять роль. \
+	После его окончания, среди них будет рандомно выбрано [max_slot] кандидатов \n \
+	С вето - призраки получат предложение занять роль.\
+	После его окончания, вам необходимо среди них выбрать [max_slot] кандидатов \n \
+	Вручную - Вам необходимо выбрать [max_slot] кандидатов среди всех призраков. \
+	(не рекомендуется, вы можете выбрать игрока на роль против его воли).",
+	"Выберите способ.", list("Случайно", "С вето", "Вручную"))
+	switch(type)
+		if("Случайно")
+			return SSghost_spawns.poll_candidates(question, be_special_type, antag_age_check, poll_time, ignore_respawnability, min_hours, flashwindow, check_antaghud, source, role_cleanname, reason)
+		if("С вето")
+			return pollCandidatesWithVeto(admin_client, max_slot, question, be_special_type, antag_age_check, poll_time, ignore_respawnability, min_hours, flashwindow, check_antaghud, source, role_cleanname, reason)
+		if("Вручную")
+			return pick_candidates_manually(admin_client, max_slot)
+	return list()
+
+///sends a whatever to all playing players; use instead of to_chat(world, where needed)
+/proc/send_to_playing_players(thing)
+	for(var/player_mob in GLOB.player_list)
+		if(player_mob && !isnewplayer(player_mob))
+			to_chat(player_mob, thing)
 
 /proc/window_flash(client/C)
 	if(ismob(C))

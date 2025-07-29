@@ -3,15 +3,17 @@
 	var/lightsoutRange	= 25
 
 /datum/event/electrical_storm/announce()
-	GLOB.event_announcement.Announce("На борту станции зафиксирован электрический шторм. Пожалуйста, устраните потенциальные перегрузки электросетей.", "ВНИМАНИЕ: ЭЛЕКТРИЧЕСКИЙ ШТОРМ.")
+	GLOB.minor_announcement.announce("На борту станции зафиксирован электрический шторм. Пожалуйста, устраните потенциальные перегрузки электросетей.",
+									"Электрический шторм.",
+									'sound/AI/elec_storm.ogg'
+	)
 
 /datum/event/electrical_storm/start()
 	var/list/epicentreList = list()
 
 	for(var/i=1, i <= lightsoutAmount, i++)
 		var/list/possibleEpicentres = list()
-		for(var/thing in GLOB.landmarks_list)
-			var/obj/effect/landmark/newEpicentre = thing
+		for(var/obj/effect/landmark/newEpicentre in GLOB.landmarks_list)
 			if(newEpicentre.name == "lightsout" && !(newEpicentre in epicentreList))
 				possibleEpicentres += newEpicentre
 		if(possibleEpicentres.len)

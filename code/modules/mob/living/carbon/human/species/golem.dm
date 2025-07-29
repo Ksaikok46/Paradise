@@ -5,7 +5,15 @@
 	icobase = 'icons/mob/human_races/r_golem.dmi'
 	deform = 'icons/mob/human_races/r_golem.dmi'
 
-	species_traits = list(NO_BREATHE, NO_BLOOD, NO_PAIN, RADIMMUNE, NOGUNS, PIERCEIMMUNE, EMBEDIMMUNE)
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_BREATH,
+		TRAIT_NO_PAIN,
+		TRAIT_RADIMMUNE,
+		TRAIT_NO_GUNS,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_EMBEDIMMUNE,
+	)
 	dies_at_threshold = TRUE
 	speed_mod = 2
 	brute_mod = 0.45 //55% damage reduction
@@ -151,7 +159,7 @@
 	return golem_name
 
 /datum/species/golem/on_species_gain(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	if(H.mind)
 		H.mind.assigned_role = "Golem"
 		if(owner)
@@ -161,6 +169,10 @@
 	H.real_name = get_random_name()
 	H.name = H.real_name
 	to_chat(H, info_text)
+
+
+/datum/species/golem/gain_muscles(mob/living/target, default, max_level, can_become_stronger)
+	..(target, default, max_level, FALSE)
 
 
 /datum/species/golem/get_vision_organ(mob/living/carbon/human/user)
@@ -176,7 +188,7 @@
 	var/static/list/random_golem_types
 
 /datum/species/golem/random/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	..()
+	. = ..()
 	if(!random_golem_types)
 		random_golem_types = subtypesof(/datum/species/golem) - type
 		for(var/V in random_golem_types)
@@ -227,16 +239,16 @@
 		NEUTER = null
 		)
 	var/boom_warning = FALSE
-	var/datum/action/innate/ignite/ignite
+
 
 /datum/species/golem/plasma/handle_life(mob/living/carbon/human/H)
 	if(H.bodytemperature > 750)
 		if(!boom_warning && H.on_fire)
-			to_chat(H, "<span class='userdanger'>Вы чувствуете, что можете взорваться в любой момент!</span>")
+			to_chat(H, span_userdanger("Вы чувствуете, что можете взорваться в любой момент!"))
 			boom_warning = TRUE
 	else
 		if(boom_warning)
-			to_chat(H, "<span class='notice'>Вы чувствуете себя стабильней.</span>")
+			to_chat(H, span_notice("Вы чувствуете себя стабильней."))
 			boom_warning = FALSE
 
 	if(H.bodytemperature > 850 && H.on_fire && prob(25))
@@ -248,19 +260,23 @@
 		H.adjust_fire_stacks(1)
 	..()
 
-/datum/species/golem/plasma/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	..()
-	if(ishuman(C))
-		ignite = new
-		ignite.Grant(C)
 
-/datum/species/golem/plasma/on_species_loss(mob/living/carbon/C)
-	if(ignite)
-		ignite.Remove(C)
-	..()
+/datum/species/golem/plasma/on_species_gain(mob/living/carbon/human/H)
+	. = ..()
+	var/datum/action/innate/ignite/ignite = locate() in H.actions
+	if(!ignite)
+		ignite = new
+		ignite.Grant(H)
+
+
+/datum/species/golem/plasma/on_species_loss(mob/living/carbon/human/H)
+	. = ..()
+	var/datum/action/innate/ignite/ignite = locate() in H.actions
+	ignite?.Remove(H)
+
 
 /datum/action/innate/ignite
-	name = "Ignite"
+	name = "Поджог"
 	desc = "Подожгите себя и достигните взрыва!"
 	check_flags = AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
 	button_icon_state = "sacredflame"
@@ -269,9 +285,9 @@
 	if(ishuman(owner))
 		var/mob/living/carbon/human/H = owner
 		if(H.fire_stacks)
-			to_chat(owner, "<span class='notice'>Вы подожгли себя!</span>")
+			to_chat(owner, span_notice("Вы подожгли себя!"))
 		else
-			to_chat(owner, "<span class='warning'>Вы попытались поджечь себя, но неудачно!</span>")
+			to_chat(owner, span_warning("Вы попытались поджечь себя, но неудачно!"))
 		H.IgniteMob() //firestacks are already there passively
 
 //Harder to hurt
@@ -358,7 +374,7 @@
 	unarmed_type = /datum/unarmed_attack/golem/plasteel
 
 /datum/unarmed_attack/golem/plasteel
-	attack_verb = list("smash")
+	attack_verb = list("ударил")
 	attack_sound = 'sound/effects/meteorimpact.ogg'
 
 //More resistant to burn damage and immune to ashstorm
@@ -374,14 +390,17 @@
 		FEMALE = list("Дева"),
 		NEUTER = null
 		)
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_BREATH,
+		TRAIT_NO_PAIN,
+		TRAIT_RADIMMUNE,
+		TRAIT_NO_GUNS,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_EMBEDIMMUNE,
+		TRAIT_ASHSTORM_IMMUNE,
+	)
 
-/datum/species/golem/titanium/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	. = ..()
-	C.weather_immunities |= "ash"
-
-/datum/species/golem/titanium/on_species_loss(mob/living/carbon/C)
-	. = ..()
-	C.weather_immunities -= "ash"
 
 //Even more resistant to burn damage and immune to ashstorms and lava
 /datum/species/golem/plastitanium
@@ -396,16 +415,18 @@
 		FEMALE = list("Дева"),
 		NEUTER = null
 		)
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_BREATH,
+		TRAIT_NO_PAIN,
+		TRAIT_RADIMMUNE,
+		TRAIT_NO_GUNS,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_EMBEDIMMUNE,
+		TRAIT_ASHSTORM_IMMUNE,
+		TRAIT_LAVA_IMMUNE,
+	)
 
-/datum/species/golem/plastitanium/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	. = ..()
-	C.weather_immunities |= "lava"
-	C.weather_immunities |= "ash"
-
-/datum/species/golem/plastitanium/on_species_loss(mob/living/carbon/C)
-	. = ..()
-	C.weather_immunities -= "ash"
-	C.weather_immunities -= "lava"
 
 //Fast and regenerates... but can only speak like an abductor
 /datum/species/golem/alloy
@@ -426,20 +447,23 @@
 	chance_name_male = 80
 	chance_name_female = 30
 
+
 //Regenerates because self-repairing super-advanced alien tech
-/datum/species/golem/alloy/handle_life(mob/living/carbon/human/H)
-	if(H.stat == DEAD)
-		return
-	H.adjustBruteLoss(-2)
-	H.adjustFireLoss(-2)
-	H.adjustToxLoss(-2)
-	H.adjustOxyLoss(-2)
+/datum/species/golem/alloy/handle_life(mob/living/carbon/human/human)
+	var/update = NONE
+
+	update |= human.heal_overall_damage(2, 2, updating_health = FALSE)
+	update |= human.heal_damages(tox = 2, oxy = 2, updating_health = FALSE)
+
+	if(update)
+		human.updatehealth()
+
 
 /datum/species/golem/alloy/can_understand(mob/other) //Can understand everyone, but they can only speak over their mindlink
 	return TRUE
 
 /datum/species/golem/alloy/on_species_gain(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	LAZYREINITLIST(H.languages)
 	H.add_language(LANGUAGE_HIVE_GOLEM)
 	H.add_language(LANGUAGE_GREY) // still grey enouhg to speak in psi link
@@ -449,7 +473,16 @@
 	name = SPECIES_GOLEM_WOOD
 	golem_colour = rgb(158, 112, 75)
 	skinned_type = /obj/item/stack/sheet/wood
-	species_traits = list(NO_BREATHE, NO_BLOOD, NO_PAIN, RADIMMUNE, NOGUNS, PIERCEIMMUNE, EMBEDIMMUNE, IS_PLANT)
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_BREATH,
+		TRAIT_NO_PAIN,
+		TRAIT_PLANT_ORIGIN,
+		TRAIT_RADIMMUNE,
+		TRAIT_NO_GUNS,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_EMBEDIMMUNE,
+	)
 	//Can burn and take damage from heat
 	brute_mod = 0.7 //30% damage reduction down from 55%
 	burn_mod = 0.875
@@ -476,8 +509,6 @@
 	special_name_chance = 100
 
 /datum/species/golem/wood/handle_life(mob/living/carbon/human/H)
-	if(H.stat == DEAD)
-		return
 	var/light_amount = 0 //how much light there is in the place, affects receiving nutrition and healing
 	var/is_vamp = isvampire(H)
 	if(isturf(H.loc)) //else, there's considered to be no light
@@ -492,10 +523,11 @@
 			if(H.nutrition > NUTRITION_LEVEL_ALMOST_FULL)
 				H.set_nutrition(NUTRITION_LEVEL_ALMOST_FULL)
 		if(light_amount > 0.2 && !H.suiciding) //if there's enough light, heal
-			H.adjustBruteLoss(-1)
-			H.adjustFireLoss(-1)
-			H.adjustToxLoss(-1)
-			H.adjustOxyLoss(-1)
+			var/update = NONE
+			update |= H.heal_overall_damage(1, 1, updating_health = FALSE)
+			update |= H.heal_damages(tox = 1, oxy = 1, updating_health = FALSE)
+			if(update)
+				H.updatehealth()
 
 	if(!is_vamp && H.nutrition < NUTRITION_LEVEL_STARVING + 50)
 		H.adjustBruteLoss(2)
@@ -524,14 +556,13 @@
 	chance_name_neuter = 10
 	special_name_chance = 60
 
-/datum/species/golem/uranium/handle_life(mob/living/carbon/human/H)
-	for(var/mob/living/L in range(2, H))
-		if(ishuman(L))
-			var/mob/living/carbon/human/I = L
-			if(!(RADIMMUNE in I.dna.species.species_traits))
-				L.apply_effect(10, IRRADIATE)
-				if(prob(25)) //reduce spam
-					to_chat(L, "<span class='danger'>Вас окутывает мягкое зелёное свечение, исходящее от [H].</span>")
+/datum/species/golem/uranium/handle_life(mob/living/carbon/human/user)
+	for(var/mob/living/victim in range(2, user))
+		if(HAS_TRAIT(victim, TRAIT_RADIMMUNE))
+			continue
+		victim.apply_effect(10, IRRADIATE)
+		if(prob(25)) //reduce spam
+			to_chat(victim, span_danger("Вас окутывает мягкое зелёное свечение, исходящее от [user]."))
 	..()
 
 //Ventcrawler
@@ -543,7 +574,16 @@
 		FEMALE = list("Тарелка", "Посуда", "Утварь"),
 		NEUTER = null
 		)
-	ventcrawler_trait = TRAIT_VENTCRAWLER_NUDE
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_BREATH,
+		TRAIT_NO_PAIN,
+		TRAIT_RADIMMUNE,
+		TRAIT_NO_GUNS,
+		TRAIT_PIERCEIMMUNE,
+		TRAIT_EMBEDIMMUNE,
+		TRAIT_VENTCRAWLER_NUDE,
+	)
 	golem_colour = rgb(255, 255, 255)
 	skinned_type = /obj/item/stack/sheet/plastic
 	info_text = "Будучи <span class='danger'>пластиковым големом</span>, вы способны ползать по вентиляции, если вы раздеты."
@@ -570,19 +610,20 @@
 	special_name_chance = 30
 
 /datum/species/golem/sand/handle_death(gibbed, mob/living/carbon/human/H)
-	H.visible_message("<span class='danger'>[H] рассыпал[genderize_ru(H.gender,"ся","ась","ось","ись")] в кучу песка!</span>")
+	H.visible_message(span_danger("[H] рассыпал[genderize_ru(H.gender,"ся","ась","ось","ись")] в кучу песка!"))
 	for(var/obj/item/W in H)
 		H.drop_item_ground(W)
 	for(var/i=1, i <= rand(3, 5), i++)
 		new /obj/item/stack/ore/glass(get_turf(H))
 	qdel(H)
 
-/datum/species/golem/sand/bullet_act(obj/item/projectile/P, mob/living/carbon/human/H)
+/datum/species/golem/sand/bullet_act(obj/projectile/P, mob/living/carbon/human/H)
 	if(!(P.original == H && P.firer == H))
 		if(P.flag == "bullet" || P.flag == "bomb")
 			playsound(H, 'sound/effects/shovel_dig.ogg', 70, 1)
-			H.visible_message("<span class='danger'>[P.name] тонет в песчаном теле [H] без видимого вреда здоровью!</span>", \
-			"<span class='userdanger'>[P.name] тонет в песчаном теле [H] без видимого вреда здоровью!</span>")
+			H.visible_message(span_danger("[P.name] тонет в песчаном теле [H] без видимого вреда здоровью!"), \
+			span_userdanger("[P.name] тонет в песчаном теле [H] без видимого вреда здоровью!"), \
+			projectile_message = TRUE)
 			return FALSE
 	return TRUE
 
@@ -615,18 +656,19 @@
 
 /datum/species/golem/glass/handle_death(gibbed, mob/living/carbon/human/H)
 	playsound(H, "shatter", 70, 1)
-	H.visible_message("<span class='danger'>[H] разбил[genderize_ru(H.gender,"ся","ась","ось","ись")] в дребезги!</span>")
+	H.visible_message(span_danger("[H] разбил[genderize_ru(H.gender,"ся","ась","ось","ись")] в дребезги!"))
 	for(var/obj/item/W in H)
 		H.drop_item_ground(W)
 	for(var/i=1, i <= rand(3, 5), i++)
 		new /obj/item/shard(get_turf(H))
 	qdel(H)
 
-/datum/species/golem/glass/bullet_act(obj/item/projectile/P, mob/living/carbon/human/H)
+/datum/species/golem/glass/bullet_act(obj/projectile/P, mob/living/carbon/human/H)
 	if(!(P.original == H && P.firer == H)) //self-shots don't reflect
 		if(P.is_reflectable(REFLECTABILITY_ENERGY))
-			H.visible_message("<span class='danger'>[P.name] отражается от стеклянной кожи [H]!</span>", \
-			"<span class='userdanger'>[P.name] отражается от стеклянной кожи [H]!</span>")
+			H.visible_message(span_danger("[P.name] отражается от стеклянной кожи [H]!"), \
+			span_userdanger("[P.name] отражается от стеклянной кожи [H]!"), \
+			projectile_message = TRUE)
 
 			P.reflect_back(H)
 
@@ -653,14 +695,12 @@
 	special_name_chance = 50
 	chance_name_male = 90
 	chance_name_female = 20
-
-	var/datum/action/innate/unstable_teleport/unstable_teleport
 	var/teleport_cooldown = 100
 	var/last_teleport = 0
 	var/tele_range = 6
 
 /datum/species/golem/bluespace/proc/reactive_teleport(mob/living/carbon/human/H)
-	H.visible_message("<span class='warning'>[H] телепортировал[genderize_ru(H.gender,"ся","ась","ось","ись")]!</span>", "<span class='danger'>Вы дестабилизируетесь и телепортируетесь!</span>")
+	H.visible_message(span_warning("[H] телепортировал[genderize_ru(H.gender,"ся","ась","ось","ись")]!"), span_danger("Вы дестабилизируетесь и телепортируетесь!"))
 	var/list/turfs = new/list()
 	for(var/turf/T in orange(tele_range, H))
 		if(T.density)
@@ -695,30 +735,36 @@
 	if(world.time > last_teleport + teleport_cooldown && M != H &&  M.a_intent != INTENT_HELP)
 		reactive_teleport(H)
 
-/datum/species/golem/bluespace/spec_attacked_by(obj/item/I, mob/living/user, obj/item/organ/external/affecting, intent, mob/living/carbon/human/H)
-	..()
-	if(world.time > last_teleport + teleport_cooldown && user != H)
-		reactive_teleport(H)
 
-/datum/species/golem/bluespace/bullet_act(obj/item/projectile/P, mob/living/carbon/human/H)
+/datum/species/golem/bluespace/spec_proceed_attack_results(obj/item/I, mob/living/carbon/human/defender, mob/living/attacker, obj/item/organ/external/affecting)
+	. = ..()
+	if(world.time > last_teleport + teleport_cooldown && defender != attacker && reactive_teleport(defender))
+		. |= ATTACK_CHAIN_NO_AFTERATTACK
+
+
+/datum/species/golem/bluespace/bullet_act(obj/projectile/P, mob/living/carbon/human/H)
 	if(world.time > last_teleport + teleport_cooldown)
 		reactive_teleport(H)
 	return TRUE
 
-/datum/species/golem/bluespace/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	..()
-	if(ishuman(C))
+
+/datum/species/golem/bluespace/on_species_gain(mob/living/carbon/human/H)
+	. = ..()
+	var/datum/action/innate/unstable_teleport/unstable_teleport = locate() in H.actions
+	if(!unstable_teleport)
 		unstable_teleport = new
-		unstable_teleport.Grant(C)
+		unstable_teleport.Grant(H)
 		last_teleport = world.time
 
-/datum/species/golem/bluespace/on_species_loss(mob/living/carbon/C)
-	if(unstable_teleport)
-		unstable_teleport.Remove(C)
-	..()
+
+/datum/species/golem/bluespace/on_species_loss(mob/living/carbon/human/H)
+	. = ..()
+	var/datum/action/innate/unstable_teleport/unstable_teleport = locate() in H.actions
+	unstable_teleport?.Remove(H)
+
 
 /datum/action/innate/unstable_teleport
-	name = "Unstable Teleport"
+	name = "Нестабильный телепорт"
 	check_flags = AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
 	button_icon_state = "blink"
 	icon_icon = 'icons/mob/actions/actions.dmi'
@@ -736,13 +782,13 @@
 /datum/action/innate/unstable_teleport/Activate()
 	activated = TRUE
 	var/mob/living/carbon/human/H = owner
-	H.visible_message("<span class='warning'>[H] начинает вибрировать!</span>", "<span class='danger'>Вы начали заряжать своё блюспейс-ядро…</span>")
-	playsound(get_turf(H), 'sound/weapons/flash.ogg', 25, 1)
+	H.visible_message(span_warning("[H] начинает вибрировать!"), span_danger("Вы начали заряжать своё блюспейс-ядро…"))
+	playsound(get_turf(H), 'sound/weapons/flash.ogg', 25, TRUE)
 	addtimer(CALLBACK(src, PROC_REF(teleport), H), 15)
 
 /datum/action/innate/unstable_teleport/proc/teleport(mob/living/carbon/human/H)
 	activated = FALSE
-	H.visible_message("<span class='warning'>[H] телепортировал[genderize_ru(H.gender,"ся","ась","ось","ись")]!</span>", "<span class='danger'>Вы телепортировались!</span>")
+	H.visible_message(span_warning("[H] телепортировал[genderize_ru(H.gender,"ся","ась","ось","ись")]!"), span_danger("Вы телепортировались!"))
 	var/list/turfs = new/list()
 	for(var/turf/T in orange(tele_range, H))
 		if(isspaceturf(T))
@@ -768,7 +814,7 @@
 	UpdateButtonIcon() //action icon looks available again
 
 /datum/unarmed_attack/golem/bluespace
-	attack_verb = "bluespace punch"
+	attack_verb = list("блюспейс ударил")
 	attack_sound = 'sound/effects/phasein.ogg'
 
 //honk
@@ -787,6 +833,7 @@
 		NEUTER = null
 		)
 	unarmed_type = /datum/unarmed_attack/golem/bananium
+	default_genes = list(/datum/dna/gene/disability/comic)
 
 	var/last_honk = 0
 	var/honkooldown = 0
@@ -794,18 +841,24 @@
 	var/banana_cooldown = 100
 	var/active = null
 
+
 /datum/species/golem/bananium/on_species_gain(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	last_banana = world.time
 	last_honk = world.time
-	H.mutations.Add(COMIC)
 	H.equip_to_slot_or_del(new /obj/item/reagent_containers/food/drinks/bottle/bottleofbanana(H), ITEM_SLOT_POCKET_RIGHT)
 	H.equip_to_slot_or_del(new /obj/item/bikehorn(H), ITEM_SLOT_POCKET_LEFT)
 	H.AddElement(/datum/element/waddling)
 
-/datum/species/golem/bananium/on_species_loss(mob/living/carbon/C)
+
+/datum/species/golem/bananium/handle_dna(mob/living/carbon/human/H, remove = FALSE)
+	H.force_gene_block(GLOB.comicblock, !remove, TRUE, TRUE)
+
+
+/datum/species/golem/bananium/on_species_loss(mob/living/carbon/human/H)
 	. = ..()
-	C.RemoveElement(/datum/element/waddling)
+	H.RemoveElement(/datum/element/waddling)
+
 
 /datum/species/golem/bananium/get_random_name()
 	var/clown_name = pick(GLOB.clown_names)
@@ -818,13 +871,15 @@
 		new/obj/item/grown/bananapeel/specialpeel(get_turf(H))
 		last_banana = world.time
 
-/datum/species/golem/bananium/spec_attacked_by(obj/item/I, mob/living/user, obj/item/organ/external/affecting, intent, mob/living/carbon/human/H)
-	..()
-	if(world.time > last_banana + banana_cooldown && user != H)
-		new/obj/item/grown/bananapeel/specialpeel(get_turf(H))
+
+/datum/species/golem/bananium/spec_proceed_attack_results(obj/item/I, mob/living/carbon/human/defender, mob/living/attacker, obj/item/organ/external/affecting)
+	. = ..()
+	if(world.time > last_banana + banana_cooldown && defender != attacker)
+		new /obj/item/grown/bananapeel/specialpeel(get_turf(defender))
 		last_banana = world.time
 
-/datum/species/golem/bananium/bullet_act(obj/item/projectile/P, mob/living/carbon/human/H)
+
+/datum/species/golem/bananium/bullet_act(obj/projectile/P, mob/living/carbon/human/H)
 	if(world.time > last_banana + banana_cooldown)
 		new/obj/item/grown/bananapeel/specialpeel(get_turf(H))
 		last_banana = world.time
@@ -845,7 +900,7 @@
 	if(!active)
 		if(world.time > last_honk + honkooldown)
 			active = 1
-			playsound(get_turf(H), 'sound/items/bikehorn.ogg', 50, 1)
+			playsound(get_turf(H), 'sound/items/bikehorn.ogg', 50, TRUE)
 			last_honk = world.time
 			honkooldown = rand(20, 80)
 			active = null
@@ -855,7 +910,7 @@
 	playsound(get_turf(H), 'sound/misc/sadtrombone.ogg', 70, 0)
 
 /datum/unarmed_attack/golem/bananium
-	attack_verb = list("HONK")
+	attack_verb = list("хонкнул")
 	attack_sound = 'sound/items/airhorn2.ogg'
 	animation_type = ATTACK_EFFECT_DISARM
 	harmless = TRUE
@@ -880,7 +935,7 @@
 	return golem_name
 
 /datum/species/golem/tranquillite/on_species_gain(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	H.equip_to_slot_or_del(new 	/obj/item/clothing/head/beret(H), ITEM_SLOT_HEAD)
 	H.equip_to_slot_or_del(new 	/obj/item/reagent_containers/food/drinks/bottle/bottleofnothing(H), ITEM_SLOT_POCKET_RIGHT)
 	H.equip_to_slot_or_del(new 	/obj/item/cane(H), ITEM_SLOT_HAND_LEFT)
@@ -906,6 +961,7 @@
         FEMALE = list("Дева"),
         NEUTER = null
         )
+	speed_mod = 0
 	chance_name_male = 70
 	chance_name_female = 60
 	chance_name_neuter = 10
@@ -917,7 +973,7 @@
 		SSticker.mode.add_clocker(H.mind)
 
 /datum/species/golem/clockwork/handle_death(gibbed, mob/living/carbon/human/H)
-	H.visible_message("<span class='danger'>[H] crumbles into cogs and gears! Then leftovers suddenly dusts!</span>")
+	H.visible_message(span_danger("[H] crumbles into cogs and gears! Then leftovers suddenly dusts!"))
 	for(var/obj/item/W in H)
 		H.drop_item_ground(W)
 	new /obj/item/clockwork/clockgolem_remains(get_turf(H))

@@ -320,12 +320,12 @@
 
 /obj/structure/decorative_structures/corpse/Initialize()
 	START_PROCESSING(SSobj, src)
-	..()
+	. = ..()
 
 /obj/structure/decorative_structures/corpse/Destroy()
 	playsound(src, 'sound/goonstation/effects/gib.ogg', 30, 0)
 	var/turf/T = get_turf(src)
-	new /obj/effect/particle_effect/smoke/vomiting(T)
+	new /obj/effect/particle_effect/fluid/smoke/vomiting(T)
 	new /obj/item/reagent_containers/food/snacks/monstermeat/rotten/jumping(T)
 	new /obj/item/reagent_containers/food/snacks/monstermeat/rotten/jumping(T)
 	new /obj/item/reagent_containers/food/snacks/monstermeat/rotten/jumping(T)
@@ -337,7 +337,7 @@
 /obj/structure/decorative_structures/corpse/attack_hand(mob/living/user)
 	take_damage(pick(2,3), BRUTE, "melee")
 	playsound(src, (pick('sound/weapons/punch1.ogg','sound/weapons/punch2.ogg','sound/weapons/punch3.ogg','sound/weapons/punch4.ogg')), 20, 0)
-	user.visible_message("<span class='danger'>You punched something viscous! You hear a slimy sound.</span>")
+	user.visible_message(span_danger("You punched something viscous! You hear a slimy sound."))
 
 /obj/structure/decorative_structures/corpse/play_attack_sound()
 	return
@@ -345,7 +345,7 @@
 /obj/structure/decorative_structures/corpse/climb_on()
 	return
 
-/obj/structure/decorative_structures/corpse/Move()
+/obj/structure/decorative_structures/corpse/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
 	bloodtiles -= 1
 	if(bloodtiles >= 0 && prob(40))
@@ -357,9 +357,9 @@
 			var/obj/item/clothing/mask/M = H.wear_mask
 			if(M && (M.flags_cover & MASKCOVERSMOUTH))
 				continue
-			if(NO_BREATHE in H.dna.species.species_traits)
+			if(HAS_TRAIT(H, TRAIT_NO_BREATH))
 				continue //no puking if you can't smell!
-			to_chat(H, "<span class='warning'>You smell something foul...</span>")
+			to_chat(H, span_warning("You smell something foul..."))
 			H.fakevomit()
 
 ///// jumping meat for body explotion effect
@@ -369,25 +369,6 @@
 	src.throw_at(T, 2, 1)
 	..()
 
-///// vomit cause gas
-/obj/effect/particle_effect/smoke/vomiting
-	color = "#752424"
-	lifetime = 3
-
-/obj/effect/particle_effect/smoke/vomiting/process()
-	if(..())
-		for(var/mob/living/carbon/M in range(2,src))
-			smoke_mob(M)
-
-/obj/effect/particle_effect/smoke/vomiting/smoke_mob(mob/living/carbon/M)
-	if(..())
-		M.drop_from_active_hand()
-		M.vomit()
-		M.emote("cough")
-		return 1
-/datum/effect_system/smoke_spread/vomiting
-	effect_type = /obj/effect/particle_effect/smoke/vomiting
-
 ////// Bouquets
 
 /obj/item/decorations/bouquets
@@ -395,7 +376,7 @@
 	desc = "A bouquet of beautiful flowers, looks a little withered."
 	icon = 'icons/obj/weapons/bouquet.dmi'
 	icon_state = "mixedbouquet"
-	attack_verb = list("attacked", "slashed", "torn", "ripped", "cut", "smashed")
+	attack_verb = list("атаковал", "полоснул", "поранил", "порезал")
 	max_integrity = 20
 	force = 2
 	throwforce = 1
@@ -426,10 +407,15 @@
 	. = ..()
 	set_light(2, 1, COLOR_RED)
 
+
 /obj/structure/decorative_structures/cult_crystal/attackby(obj/item/I, mob/user, params)
+	. = ..()
+	if(ATTACK_CHAIN_CANCEL_CHECK(.))
+		return .
+	. |= ATTACK_CHAIN_SUCCESS
 	electrocute_mob(user, get_area(src), src, 0.5, TRUE)
 	to_chat(user, span_warning("When you touch it, you feel some dark energy."))
-	..()
+
 
 /obj/structure/decorative_structures/cult_crystal/attack_hand(mob/living/user)
 	electrocute_mob(user, get_area(src), src, 0.5, TRUE)
@@ -449,7 +435,8 @@
 		/obj/item/spellbook/oneuse/forcewall,
 		/obj/item/soulstone/anybody,
 	))
-	new /obj/effect/particle_effect/smoke/vomiting(T)
+
+	new /obj/effect/particle_effect/fluid/smoke/vomiting(T)
 	new /obj/effect/decal/cleanable/blood/gibs(T)
 	new /obj/effect/decal/cleanable/blood(T)
 	..()

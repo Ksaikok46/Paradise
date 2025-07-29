@@ -14,6 +14,7 @@
 	var/list/datum/reagent/addiction_list = new/list()
 	var/list/addiction_threshold_accumulated = new/list()
 	var/flags
+	var/locked = FALSE
 
 /datum/reagents/New(maximum = 100, temperature_minimum, temperature_maximum)
 	maximum_volume = maximum
@@ -137,9 +138,12 @@
 /datum/reagents/proc/copy_to(obj/target, amount = 1, multiplier = 1, preserve_data = TRUE, safety = FALSE)
 	if(!target)
 		return
-	if(!target.reagents || total_volume <= 0)
+	if(total_volume <= 0)
 		return
-	var/datum/reagents/R = target.reagents
+
+	var/datum/reagents/R =(istype(target, /datum/reagents))? target : target?.reagents
+	if(!R || !istype(R))
+		return
 	amount = min(min(amount, total_volume), R.maximum_volume - R.total_volume)
 	var/part = amount / total_volume
 	var/trans_data = null
@@ -222,6 +226,18 @@
 
 	return transfered
 
+/datum/reagents/proc/can_metabolize(mob/living/carbon/human/H, datum/reagent/R)
+	if(!H.dna.species || !H.dna.species.reagent_tag)
+		return FALSE
+	if((R.process_flags & SYNTHETIC) && (H.dna.species.reagent_tag & PROCESS_SYN))		//SYNTHETIC-oriented reagents require PROCESS_SYN
+		return TRUE
+	if((R.process_flags & ORGANIC) && (H.dna.species.reagent_tag & PROCESS_ORG))		//ORGANIC-oriented reagents require PROCESS_ORG
+		return TRUE
+	//Species with PROCESS_DUO are only affected by reagents that affect both organics and synthetics, like acid and hellwater
+	if((R.process_flags & ORGANIC) && (R.process_flags & SYNTHETIC) && (H.dna.species.reagent_tag & PROCESS_DUO))
+		return TRUE
+
+
 /datum/reagents/proc/metabolize(mob/living/M)
 	if(M)
 		temperature_reagents(M.bodytemperature - 30)
@@ -244,17 +260,7 @@
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
 			//Check if this mob's species is set and can process this type of reagent
-			var/can_process = FALSE
-			//If we somehow avoided getting a species or reagent_tag set, we'll assume we aren't meant to process ANY reagents (CODERS: SET YOUR SPECIES AND TAG!)
-			if(H.dna.species && H.dna.species.reagent_tag)
-				if((R.process_flags & SYNTHETIC) && (H.dna.species.reagent_tag & PROCESS_SYN))		//SYNTHETIC-oriented reagents require PROCESS_SYN
-					can_process = TRUE
-				if((R.process_flags & ORGANIC) && (H.dna.species.reagent_tag & PROCESS_ORG))		//ORGANIC-oriented reagents require PROCESS_ORG
-					can_process = TRUE
-				//Species with PROCESS_DUO are only affected by reagents that affect both organics and synthetics, like acid and hellwater
-				if((R.process_flags & ORGANIC) && (R.process_flags & SYNTHETIC) && (H.dna.species.reagent_tag & PROCESS_DUO))
-					can_process = TRUE
-
+			var/can_process = can_metabolize(H, R)
 			//If handle_reagents returns 0, it's doing the reagent removal on its own
 			var/species_handled = !(H.dna.species.handle_reagents(H, R))
 			can_process = can_process && !species_handled
@@ -276,6 +282,7 @@
 				R.overdose_start(M)
 			if(R.volume < R.overdose_threshold && R.overdosed)
 				R.overdosed = FALSE
+				R.overdose_end(M)
 			if(R.overdosed)
 				var/list/overdose_results = R.overdose_process(M, R.volume >= R.overdose_threshold * 2 ? 2 : 1)
 				if(overdose_results) // to protect against poorly-coded overdose procs
@@ -311,7 +318,7 @@
 					if(5)
 						update_flags |= R.addiction_act_stage5(M)
 			if(prob(20) && (world.timeofday > (R.last_addiction_dose + addiction_time))) //Each addiction lasts 8 minutes before it can end
-				to_chat(M, "<span class='notice'>You no longer feel reliant on [R.name]!</span>")
+				to_chat(M, span_notice("Вы больше не чувствуете зависимости от [R]!"))
 				addiction_list.Remove(R)
 				qdel(R)
 
@@ -455,16 +462,16 @@
 					var/list/seen = viewers(4, get_turf(my_atom))
 					for(var/mob/living/M in seen)
 						if(C.mix_message)
-							to_chat(M, "<span class='notice'>[bicon(my_atom)] [C.mix_message]</span>")
+							to_chat(M, span_notice("[bicon(my_atom)] [C.mix_message]"))
 
 					if(istype(my_atom, /obj/item/slime_extract))
 						var/obj/item/slime_extract/ME2 = my_atom
 						ME2.Uses--
 						if(ME2.Uses <= 0) // give the notification that the slime core is dead
 							for(var/mob/living/M in seen)
-								to_chat(M, "<span class='notice'>[bicon(my_atom)] The [my_atom]'s power is consumed in the reaction.</span>")
-								ME2.name = "used slime extract"
-								ME2.desc = "This extract has been used up."
+								to_chat(M, span_notice("[bicon(my_atom)] Мощность [my_atom.declent_ru(GENITIVE)] расходуется в реакции."))
+								ME2.name = "использованный экстракт слайма"
+								ME2.desc = "Этот экстракт уже был использован."
 
 					if(C.mix_sound)
 						playsound(get_turf(my_atom), C.mix_sound, 80, TRUE)
@@ -544,7 +551,7 @@
 			can_process = TRUE
 	return can_process
 
-/datum/reagents/proc/reaction(atom/A, method = REAGENT_TOUCH, volume_modifier = 1, show_message = TRUE)
+/datum/reagents/proc/reaction(atom/A, method = REAGENT_TOUCH, volume_modifier = 1, show_message = TRUE, ignore_protection = FALSE, def_zone)
 	var/react_type
 	if(isliving(A))
 		react_type = "LIVING"
@@ -561,33 +568,33 @@
 			var/obj/item/organ/external/head/affecting = H.get_organ(BODY_ZONE_HEAD)
 			if(affecting)
 				if(chem_temp > H.dna.species.heat_level_1)
-					var/mult = H.dna.species.heatmod
+					var/mult = H.dna.species.heatmod * H.physiology.heat_mod
 					if(H.reagent_safety_check())
 						if(mult > 0)
-							to_chat(H, "<span class='danger'>You are scalded by the hot chemicals!</span>")
-							affecting.receive_damage(0, round(log(chem_temp / 50) * 10))
-							H.emote("scream")
+							to_chat(H, span_danger("[genderize_ru(H.gender,"Ты обожжен","Ты обожжена","Вы обожжены","Вы обожжены")] горячими химикатами!"))
+							H.apply_damage(round(log(chem_temp / 50) * 10), BURN, def_zone = affecting)
+							INVOKE_ASYNC(H, TYPE_PROC_REF(/mob, emote), "scream")
 						H.adjust_bodytemperature(min(max((chem_temp - T0C) - 20, 5), 500))
 				else if(chem_temp < H.dna.species.cold_level_1)
-					var/mult = H.dna.species.coldmod
+					var/mult = H.dna.species.coldmod * H.physiology.cold_mod
 					if(H.reagent_safety_check(FALSE))
 						if(mult > 0)
-							to_chat(H, "<span class='danger'>You are frostbitten by the freezing cold chemicals!</span>")
-							affecting.receive_damage(0, round(log(T0C - chem_temp / 50) * 10))
-							H.emote("scream")
+							to_chat(H, span_danger("[genderize_ru(H.gender,"Ты получил","Ты получила","Вы получили","Вы получили")] обморожение от ледяных химикатов!"))
+							H.apply_damage(round(log(T0C - chem_temp / 50) * 10), BURN, def_zone = affecting)
+							INVOKE_ASYNC(H, TYPE_PROC_REF(/mob, emote), "scream")
 						H.adjust_bodytemperature(- min(max(T0C - chem_temp - 20, 5), 500))
 
 		if(method == REAGENT_INGEST)
 			if(chem_temp > H.dna.species.heat_level_1)
-				var/mult = H.dna.species.heatmod
+				var/mult = H.dna.species.heatmod * H.physiology.heat_mod
 				if(mult > 0)
-					to_chat(H, "<span class='danger'>You scald yourself trying to consume the boiling hot substance!</span>")
+					to_chat(H, span_danger("[genderize_ru(H.gender,"Ты обжёгся","Ты обожглась","Вы обожглись","Вы обожглись")], пытаясь употребить кипящее вещество!"))
 					H.adjustFireLoss(7)
 				H.adjust_bodytemperature(min(max((chem_temp - T0C) - 20, 5), 700))
 			else if(chem_temp < H.dna.species.cold_level_1)
-				var/mult = H.dna.species.coldmod
+				var/mult = H.dna.species.coldmod * H.physiology.cold_mod
 				if(mult > 0)
-					to_chat(H, "<span class='danger'>You frostburn yourself trying to consume the freezing cold substance!</span>")
+					to_chat(H, span_danger("[genderize_ru(H.gender,"Ты получил","Ты получила","Вы получили","Вы получили")] холодовой ожог, пытаясь употребить ледяное вещество!"))
 					H.adjustFireLoss(7)
 				H.adjust_bodytemperature(- min(max((T0C - chem_temp) - 20, 5), 700))
 
@@ -598,9 +605,24 @@
 				var/check = reaction_check(A, R)
 				if(!check)
 					continue
-				R.reaction_mob(A, method, R.volume * volume_modifier, show_message)
+
+				var/mob/living/L = A
+				var/protection = 0
+				if(method == REAGENT_TOUCH && !ignore_protection)
+					if(def_zone)
+						var/mob/living/carbon/human/H = L
+						if(istype(H))
+							protection = 1 - H.get_permeability_protection_organ(H.get_organ(def_zone))
+					else
+						protection = L.get_permeability_protection()
+					if(protection && show_message)
+						to_chat(L, span_alert("Ваша одежда защищает вас от реакции."))
+				var/reacting_volume = R.volume * volume_modifier * clamp(1 - protection + R.clothing_penetration, 0, 1)
+				R.reaction_mob(A, method, reacting_volume, show_message)
+
 			if("TURF")
 				R.reaction_turf(A, R.volume * volume_modifier, R.color)
+
 			if("OBJ")
 				R.reaction_obj(A, R.volume * volume_modifier)
 
@@ -612,11 +634,16 @@
 /datum/reagents/proc/add_reagent(reagent, amount, list/data=null, reagtemp = T20C, no_react = FALSE)
 	if(!isnum(amount))
 		return TRUE
+
 	update_total()
-	if(total_volume + amount > maximum_volume) amount = (maximum_volume - total_volume) //Doesnt fit in. Make it disappear. Shouldnt happen. Will happen.
+	if(total_volume + amount > maximum_volume) amount = (maximum_volume - total_volume) // Doesnt fit in. Make it disappear. Shouldnt happen. Will happen.
+
 	if(amount <= 0)
 		return FALSE
-	chem_temp = clamp((chem_temp * total_volume + reagtemp * amount) / (total_volume + amount), temperature_min, temperature_max) //equalize with new chems
+
+	chem_temp = clamp((chem_temp * total_volume + reagtemp * amount) / (total_volume + amount), temperature_min, temperature_max) // equalize with new chems
+	if(SEND_SIGNAL(src, COMSIG_EARLY_REAGENT_ADDED, reagent, amount, data, reagtemp, no_react, chem_temp) & COMPONENT_PREVENT_ADD_REAGENT)
+		return FALSE
 
 	var/list/cached_reagents = reagent_list
 	for(var/A in cached_reagents)
@@ -624,34 +651,43 @@
 		if(R.id == reagent)
 			R.volume += amount
 			update_total()
+
 			if(my_atom)
 				my_atom.on_reagent_change()
+
 			R.on_merge(data)
+
 			if(!no_react)
 				temperature_react()
 				handle_reactions()
+
 			return FALSE
 
-	var/datum/reagent/D = GLOB.chemical_reagents_list[reagent]
+	var/datum/reagent/D = (ispath(reagent))? new reagent() : GLOB.chemical_reagents_list[reagent]
 	if(D)
-
 		var/datum/reagent/R = new D.type()
 		cached_reagents += R
 		R.holder = src
 		R.volume = amount
 		R.on_new(data)
+
 		if(data)
 			R.data = data
 
 		if(isliving(my_atom))
-			R.on_mob_add(my_atom) //Must occur befor it could posibly run on_mob_delete
+			R.on_mob_add(my_atom) // Must occur befor it could posibly run on_mob_delete
+
 		update_total()
+
 		if(my_atom)
 			my_atom.on_reagent_change()
+
 		if(!no_react)
 			temperature_react()
 			handle_reactions()
+
 		return FALSE
+
 	else
 		warning("[my_atom] attempted to add a reagent called '[reagent]' which doesn't exist. ([usr])")
 
@@ -729,6 +765,15 @@
 
 /datum/reagents/proc/get_reagent(type)
 	. = locate(type) in reagent_list
+
+/datum/reagents/proc/get_reagent_by_id(id)
+	var/list/cached_reagents = reagent_list
+	for(var/A in cached_reagents)
+		var/datum/reagent/R = A
+		if(R.id == id)
+			return R
+
+	return
 
 /datum/reagents/proc/remove_all_type(reagent_type, amount, strict = FALSE, safety = TRUE) // Removes all reagent of X type. @strict set to 1 determines whether the childs of the type are included.
 	if(!isnum(amount))
@@ -822,7 +867,7 @@
 	var/list/out = list()
 	var/list/reagent_tastes = list() //in the form reagent_tastes["descriptor"] = strength
 	//mobs should get this message when either they cannot taste, the tastes are all too weak for them to detect, or the tastes somehow don't have any strength
-	var/no_taste_text = "something indescribable"
+	var/no_taste_text = "вкус чего-то неописуемого"
 	if(minimum_percent > 100)
 		return no_taste_text
 	for(var/datum/reagent/R in reagent_list)
@@ -840,18 +885,18 @@
 		var/percent = (reagent_tastes[taste_desc] / total_taste) * 100
 		if(percent < minimum_percent) //the lower the minimum percent, the more sensitive the message is
 			continue
-		var/intensity_desc = "a hint of"
+		var/intensity_desc = "едва заметный привкус"
 		if(percent > minimum_percent * 3 && percent != 100)
-			intensity_desc = "a strong flavor of"
+			intensity_desc = "привкус"
 		else if(percent > minimum_percent * 2 || percent == 100)
 			intensity_desc = ""
 
 		if(intensity_desc != "")
 			out += "[intensity_desc] [taste_desc]"
 		else
-			out += "[taste_desc]"
+			out += "вкус [taste_desc]"
 
-	return english_list(out, no_taste_text)
+	return russian_list(out, no_taste_text)
 
 ///////////////////////////////////////////////////////////////////////////////////
 

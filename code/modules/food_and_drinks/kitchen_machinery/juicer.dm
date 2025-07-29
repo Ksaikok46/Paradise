@@ -39,30 +39,33 @@
 	icon_state = "juicer"+num2text(!isnull(beaker))
 
 
-/obj/machinery/juicer/attackby(obj/item/O, mob/user, params)
-	if(istype(O,/obj/item/reagent_containers/glass) || \
-		istype(O,/obj/item/reagent_containers/food/drinks/drinkingglass))
-		if(beaker)
-			return 1
-		else
-			if(!user.drop_transfer_item_to_loc(O, src))
-				to_chat(user, "<span class='notice'>\the [O] is stuck to your hand, you cannot put it in \the [src]</span>")
-				return 0
-			add_fingerprint(user)
-			beaker = O
-			verbs += /obj/machinery/juicer/verb/detach
-			update_icon(UPDATE_ICON_STATE)
-			updateUsrDialog()
-			return 0
-	if(!is_type_in_list(O, allowed_items))
-		to_chat(user, "It doesn't look like that contains any juice.")
-		return 1
-	if(!user.drop_transfer_item_to_loc(O, src))
-		to_chat(user, "<span class='notice'>\the [O] is stuck to your hand, you cannot put it in \the [src]</span>")
-		return 0
+/obj/machinery/juicer/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
 	add_fingerprint(user)
+	if(istype(I, /obj/item/reagent_containers/glass) || istype(I, /obj/item/reagent_containers/food/drinks/drinkingglass))
+		if(beaker)
+			to_chat(user, span_warning("The [beaker.name] is already inside [src]."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		beaker = I
+		verbs += /obj/machinery/juicer/verb/detach
+		update_icon(UPDATE_ICON_STATE)
+		updateUsrDialog()
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(!is_type_in_list(I, allowed_items))
+		to_chat(user, span_warning("It doesn't look like [I.name] contains any juice."))
+		return ATTACK_CHAIN_PROCEED
+
+	if(!user.drop_transfer_item_to_loc(I, src))
+		return ..()
+
 	updateUsrDialog()
-	return 0
+	return ATTACK_CHAIN_BLOCKED_ALL
+
 
 /obj/machinery/juicer/attack_ai(mob/user)
 	return 0
@@ -85,7 +88,7 @@
 		for(var/obj/item/O in contents)
 			if(!istype(O,i))
 				continue
-			processing_chamber+= "some <B>[O]</B><BR>"
+			processing_chamber+= "some <b>[O]</b><br>"
 			break
 	if(!processing_chamber)
 		is_chamber_empty = 1
@@ -107,9 +110,9 @@
 [beaker_contents]<hr>
 "}
 	if(is_beaker_ready && !is_chamber_empty && !(stat & (NOPOWER|BROKEN)))
-		dat += "<A href='?src=[UID()];action=juice'>Turn on!<BR>"
+		dat += "<a href='byond://?src=[UID()];action=juice'>Turn on!<br>"
 	if(beaker)
-		dat += "<A href='?src=[UID()];action=detach'>Detach a beaker!<BR>"
+		dat += "<a href='byond://?src=[UID()];action=detach'>Detach a beaker!<br>"
 	var/datum/browser/popup = new(user, "juicer", name, 400, 400)
 	popup.set_content(dat)
 	popup.open(0)
@@ -131,8 +134,8 @@
 	return
 
 /obj/machinery/juicer/verb/detach()
-	set category = "Object"
-	set name = "Detach Beaker from the juicer"
+	set category = STATPANEL_OBJECT
+	set name = "Извлечь ёмкость"
 	set src in oview(1)
 	if(usr.stat != 0)
 		return
@@ -162,7 +165,7 @@
 		return
 	if(!beaker || beaker.reagents.total_volume >= beaker.reagents.maximum_volume)
 		return
-	playsound(loc, 'sound/machines/juicer.ogg', 50, 1)
+	playsound(loc, 'sound/machines/juicer.ogg', 50, TRUE)
 	for(var/obj/item/reagent_containers/food/snacks/O in contents)
 		var/r_id = get_juice_id(O)
 		beaker.reagents.add_reagent(r_id,get_juice_amount(O))

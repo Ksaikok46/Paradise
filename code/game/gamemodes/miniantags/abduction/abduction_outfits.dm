@@ -6,7 +6,7 @@
 	l_ear = /obj/item/radio/headset/abductor
 
 /datum/outfit/abductor/proc/get_team_console(team_number)
-	for(var/obj/machinery/abductor/console/C in GLOB.machines)
+	for(var/obj/machinery/abductor/console/C in SSmachines.get_by_type(/obj/machinery/abductor/console))
 		if(C.team == team_number)
 			return C
 
@@ -44,7 +44,7 @@
 	gloves = /obj/item/clothing/gloves/abductor_agent
 
 	backpack_contents = list(
-		/obj/item/abductor_baton = 1,
+		/obj/item/melee/baton/abductor = 1,
 		/obj/item/gun/energy/alien = 1,
 		/obj/item/abductor/silencer = 1
 		)

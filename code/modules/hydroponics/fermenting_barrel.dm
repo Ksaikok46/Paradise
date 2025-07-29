@@ -1,6 +1,14 @@
 /obj/structure/fermenting_barrel
 	name = "wooden barrel"
-	desc = "A large wooden barrel. You can ferment fruits and such inside it, or just use it to hold liquid."
+	desc = "Большая дубовая бочка. Можно использовать для брожения фруктов или просто хранения жидкостей."
+	ru_names = list(
+		NOMINATIVE = "деревянная бочка",
+		GENITIVE = "деревянной бочки",
+		DATIVE = "деревянной бочке",
+		ACCUSATIVE = "деревянную бочку",
+		INSTRUMENTAL = "деревянной бочкой",
+		PREPOSITIONAL = "деревянной бочке"
+	)
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "barrel"
 	density = TRUE
@@ -17,7 +25,7 @@
 
 /obj/structure/fermenting_barrel/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>It is currently [open ? "open, letting you pour liquids in." : "closed, letting you draw liquids from the tap."]</span>"
+	. += span_notice("Сейчас бочка [open ? "открыта – можно наливать жидкости." : "закрыта - можно набирать жидкость через кран."]")
 
 /obj/structure/fermenting_barrel/proc/makeWine(obj/item/reagent_containers/food/snacks/grown/G)
 	if(G.reagents)
@@ -38,31 +46,34 @@
 	qdel(G)
 	playsound(src, 'sound/effects/bubbles.ogg', 50, TRUE)
 
+
 /obj/structure/fermenting_barrel/attackby(obj/item/I, mob/user, params)
-	var/obj/item/reagent_containers/food/snacks/grown/G = I
-	if(istype(G))
-		if(!G.can_distill)
-			to_chat(user, "<span class='warning'>You can't distill this into anything...</span>")
-			return FALSE
-		else if(!user.drop_transfer_item_to_loc(G, src))
-			to_chat(user, "<span class='warning'>[G] is stuck to your hand!</span>")
-			return FALSE
+	if(istype(I, /obj/item/reagent_containers/food/snacks/grown))
 		add_fingerprint(user)
-		to_chat(user, "<span class='notice'>You place [G] into [src] to start the fermentation process.</span>")
-		addtimer(CALLBACK(src, PROC_REF(makeWine), G), rand(80, 120) * speed_multiplier)
-	else if(I.is_refillable())
-		return FALSE // To refill via afterattack proc
-	else
-		return ..()
+		var/obj/item/reagent_containers/food/snacks/grown/grown = I
+		if(!grown.can_distill)
+			to_chat(user, span_warning("Вы не можете перегнать [grown.declent_ru(ACCUSATIVE)] во что-то полезное."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(grown, src))
+			return ..()
+		to_chat(user, span_notice("Вы положили [grown.declent_ru(ACCUSATIVE)] в [declent_ru(ACCUSATIVE)] для брожения."))
+		addtimer(CALLBACK(src, PROC_REF(makeWine), grown), rand(8 SECONDS, 12 SECONDS) * speed_multiplier)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(I.is_refillable())
+		return ATTACK_CHAIN_PROCEED // To refill via afterattack proc
+
+	return ..()
+
 
 /obj/structure/fermenting_barrel/attack_hand(mob/user)
 	open = !open
 	if(open)
 		container_type = REFILLABLE | AMOUNT_VISIBLE
-		to_chat(user, "<span class='notice'>You open [src], letting you fill it.</span>")
+		to_chat(user, span_notice("Вы открываете [declent_ru(ACCUSATIVE)], чтобы наполнить её."))
 	else
 		container_type = DRAINABLE | AMOUNT_VISIBLE
-		to_chat(user, "<span class='notice'>You close [src], letting you draw from its tap.</span>")
+		to_chat(user, span_notice("Вы закрываете [declent_ru(ACCUSATIVE)], теперь можно набирать жидкость через кран."))
 	update_icon(UPDATE_ICON_STATE)
 
 /obj/structure/fermenting_barrel/crowbar_act(mob/living/user, obj/item/I)
@@ -96,3 +107,4 @@
 	reqs = list(/obj/item/stack/sheet/wood = 30)
 	time = 50
 	category = CAT_PRIMAL
+	subcategory = CAT_MISC2

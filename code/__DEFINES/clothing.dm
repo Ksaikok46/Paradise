@@ -84,9 +84,9 @@
 #define ITEM_FLAG_TWOEARS (1<<2)
 
 // accessory slots
-#define ACCESSORY_SLOT_DECOR 1
-#define ACCESSORY_SLOT_UTILITY 2
-#define ACCESSORY_SLOT_ARMBAND 3
+#define ACCESSORY_SLOT_DECOR (1<<0)
+#define ACCESSORY_SLOT_UTILITY (1<<1)
+#define ACCESSORY_SLOT_ARMBAND (1<<2)
 
 //Cant seem to find a mob bitflags area other than the powers one
 
@@ -109,6 +109,10 @@
 #define FULL_BODY		(HEAD|UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS)
 #define TAIL			(1<<12)
 #define WING			(1<<13)
+
+//defines for the index of hands
+#define LEFT_HANDS 1
+#define RIGHT_HANDS 2
 
 // bitflags for the percentual amount of protection a piece of clothing which covers the body part offers.
 // Used with human/proc/get_heat_protection() and human/proc/get_cold_protection()
@@ -145,10 +149,10 @@
 #define MUZZLE_MUTE_ALL 2 // Completely mutes you.
 
 //MATERIAL CLASS FOR RACE EAT
-#define MATERIAL_CLASS_NONE     0
-#define MATERIAL_CLASS_CLOTH    1
-#define MATERIAL_CLASS_TECH		2
-#define MATERIAL_CLASS_SOAP		3
+#define MATERIAL_CLASS_NONE     (1<<0)
+#define MATERIAL_CLASS_CLOTH    (1<<1)
+#define MATERIAL_CLASS_TECH		(1<<2)
+#define MATERIAL_CLASS_SOAP		(1<<3)
 
 
 //These defines used in sprites, keep in touch with "Slot defines" above if needed

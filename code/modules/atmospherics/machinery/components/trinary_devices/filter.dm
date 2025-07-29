@@ -17,6 +17,7 @@
 	icon = 'icons/obj/pipes_and_stuff/atmospherics/atmos/filter.dmi'
 	icon_state = "map"
 	can_unwrench = TRUE
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING | ALLOW_SILICON_REACH
 	/// The amount of pressure the filter wants to operate at.
 	var/target_pressure = ONE_ATMOSPHERE
 	/// The type of gas we want to filter. Valid values that go here are from the `FILTER` defines at the top of the file.
@@ -45,17 +46,11 @@
 	toggle()
 	return ..()
 
-/obj/machinery/atmospherics/trinary/filter/AltClick(mob/living/user)
-	if(!ishuman(usr) && !issilicon(usr))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, span_warning("You can't do that right now!"))
-		return
-	if(!in_range(src, user) && !issilicon(user))
-		return
+/obj/machinery/atmospherics/trinary/filter/click_alt(mob/living/user)
 	set_max()
+	return CLICK_ACTION_SUCCESS
 
-/obj/machinery/atmospherics/trinary/filter/AIAltClick()
+/obj/machinery/atmospherics/trinary/filter/ai_click_alt()
 	set_max()
 	return ..()
 
@@ -197,10 +192,10 @@
 	add_fingerprint(user)
 	ui_interact(user)
 
-/obj/machinery/atmospherics/trinary/filter/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/atmospherics/trinary/filter/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "AtmosFilter", name, 380, 140, master_ui, state)
+		ui = new(user, src, "AtmosFilter", name)
 		ui.open()
 
 /obj/machinery/atmospherics/trinary/filter/ui_data(mob/user)
@@ -245,12 +240,16 @@
 	if(.)
 		investigate_log("was set to [target_pressure] kPa by [key_name_log(usr)]", INVESTIGATE_ATMOS)
 
-/obj/machinery/atmospherics/trinary/filter/attackby(obj/item/W, mob/user, params)
-	if(is_pen(W))
-		rename_interactive(user, W)
-		return
-	else
-		return ..()
+
+/obj/machinery/atmospherics/trinary/filter/attackby(obj/item/I, mob/user, params)
+	. = ..()
+
+	if(ATTACK_CHAIN_CANCEL_CHECK(.))
+		return .
+
+	. |= ATTACK_CHAIN_SUCCESS
+	rename_interactive(user, I)
+
 
 #undef FILTER_NOTHING
 #undef FILTER_TOXINS

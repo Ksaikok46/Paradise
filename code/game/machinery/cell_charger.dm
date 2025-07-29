@@ -1,3 +1,5 @@
+#define CELL_CHARGE_AMOUNT 175 // Beeb-
+
 /obj/machinery/cell_charger
 	name = "cell charger"
 	desc = "It charges power cells."
@@ -9,8 +11,24 @@
 	active_power_usage = 60
 	power_channel = EQUIP
 	pass_flags = PASSTABLE
+	/// The item that is being charged
 	var/obj/item/stock_parts/cell/charging = null
+	/// Rechargin multiplier
+	var/recharge_coeff = 1
+	// State of recharged cell, used for icon
 	var/chargelevel = -1
+
+/obj/machinery/cell_charger/Initialize(mapload)
+	. = ..()
+	component_parts = list()
+	component_parts += new /obj/item/circuitboard/cell_charger(null)
+	component_parts += new /obj/item/stock_parts/capacitor(null)
+	RefreshParts()
+	update_icon()
+
+/obj/machinery/cell_charger/RefreshParts()
+	for(var/obj/item/stock_parts/capacitor/capacitor in component_parts)
+		recharge_coeff = capacitor.rating
 
 /obj/machinery/cell_charger/deconstruct()
 	if(charging)
@@ -23,7 +41,7 @@
 
 
 /obj/machinery/cell_charger/update_icon_state()
-	icon_state = "ccharger[charging ? 1 : 0]"
+	icon_state = "ccharger[charging ? 1 : 0][panel_open ? "open" : ""]"
 
 
 /obj/machinery/cell_charger/update_overlays()
@@ -41,35 +59,53 @@
 	if(charging)
 		. += span_notice("Current charge: [round(charging.percent(), 1)]%")
 
+
 /obj/machinery/cell_charger/attackby(obj/item/I, mob/user, params)
-	if(istype(I, /obj/item/stock_parts/cell))
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(iscell(I))
+		add_fingerprint(user)
 		if(stat & BROKEN)
 			to_chat(user, span_warning("[src] is broken!"))
-			return
+			return ATTACK_CHAIN_PROCEED
+		if(panel_open)
+			to_chat(user, span_warning("Сначала закройте панель техобслуживания."))
+			return ATTACK_CHAIN_PROCEED
 		if(!anchored)
 			to_chat(user, span_warning("[src] isn't attached to the ground!"))
-			return
+			return ATTACK_CHAIN_PROCEED
 		if(charging)
 			to_chat(user, span_warning("There is already a cell in the charger!"))
-			return
-		else
-			var/area/a = loc.loc // Gets our locations location, like a dream within a dream
-			if(!isarea(a))
-				return
-			if(a.power_equip == 0) // There's no APC in this area, don't try to cheat power!
-				to_chat(user, span_warning("[src] blinks red as you try to insert the cell!"))
-				return
-			if(!user.drop_transfer_item_to_loc(I, src))
-				return
+			return ATTACK_CHAIN_PROCEED
+		var/area/our_area = get_area(src)
+		if(!our_area)
+			return ATTACK_CHAIN_PROCEED
+		if(our_area.power_equip == 0) // There's no APC in this area, don't try to cheat power!
+			to_chat(user, span_warning("[src] blinks red as you try to insert the cell!"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		charging = I
+		user.visible_message(
+			span_notice("[user] inserts a cell into the charger."),
+			span_notice("You insert a cell into the charger."),
+		)
+		check_level()
+		update_icon()
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-			add_fingerprint(user)
+	return ..()
 
-			charging = I
-			user.visible_message("[user] inserts a cell into the charger.", span_notice("You insert a cell into the charger."))
-			check_level()
-			update_icon()
-	else
-		return ..()
+/obj/machinery/cell_charger/screwdriver_act(mob/user, obj/item/I)
+	if(charging)
+		to_chat(user, span_warning("Remove the cell first!"))
+	if(default_deconstruction_screwdriver(user, "ccharger0open", "ccharger0", I))
+		return TRUE
+
+/obj/machinery/cell_charger/crowbar_act(mob/user, obj/item/I)
+	if(default_deconstruction_crowbar(user, I))
+		return TRUE
 
 /obj/machinery/cell_charger/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -133,8 +169,8 @@
 	if(charging.percent() >= 100)
 		return
 
-	use_power(200)		//this used to use CELLRATE, but CELLRATE is fucking awful. feel free to fix this properly!
-	charging.give(175)	//inefficiency.
+	use_power(250 * recharge_coeff)
+	charging.give(250 * recharge_coeff - 50) //inefficiency.
 
 	if(check_level())
 		update_icon(UPDATE_OVERLAYS)

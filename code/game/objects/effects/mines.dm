@@ -8,23 +8,38 @@
 	var/triggered = 0
 	var/faction = "syndicate"
 
-/obj/effect/mine/proc/mineEffect(mob/living/victim)
-	to_chat(victim, "<span class='danger'>*click*</span>")
 
-/obj/effect/mine/Crossed(atom/movable/AM, oldloc)
-	if(!isliving(AM))
+/obj/effect/mine/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+
+/obj/effect/mine/proc/mineEffect(mob/living/victim)
+	to_chat(victim, span_danger("*click*"))
+
+
+/obj/effect/mine/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(!isliving(arrived))
 		return
-	var/mob/living/M = AM
-	if(faction && (faction in M.faction))
+
+	if(arrived.movement_type & MOVETYPES_NOT_TOUCHING_GROUND)
 		return
-	if(M.movement_type & MOVETYPES_NOT_TOUCHING_GROUND)
+
+	if(faction && (faction in arrived.faction))
 		return
-	triggermine(M)
+
+	triggermine(arrived)
+
 
 /obj/effect/mine/proc/triggermine(mob/living/victim)
 	if(triggered)
 		return
-	visible_message("<span class='danger'>[victim] sets off [bicon(src)] [src]!</span>")
+	visible_message(span_danger("[victim] sets off [bicon(src)] [src]!"))
 	do_sparks(3, 1, src)
 	mineEffect(victim)
 	triggered = 1
@@ -69,10 +84,8 @@
 
 /obj/effect/mine/dnascramble/mineEffect(mob/living/victim)
 	victim.apply_effect(radiation_amount, IRRADIATE, 0)
-	if(ishuman(victim))
-		var/mob/living/carbon/human/V = victim
-		if(NO_DNA in V.dna.species.species_traits)
-			return
+	if(HAS_TRAIT(victim, TRAIT_NO_DNA))
+		return
 	randmutb(victim)
 	victim.check_genes()
 
@@ -89,7 +102,7 @@
 	gas_type = LINDA_SPAWN_HEAT | LINDA_SPAWN_TOXINS
 
 /obj/effect/mine/gas/n2o
-	name = "\improper N2O mine"
+	name = "N2O mine"
 	gas_type = LINDA_SPAWN_N2O
 
 /obj/effect/mine/sound
@@ -97,7 +110,7 @@
 	var/sound = 'sound/items/bikehorn.ogg'
 
 /obj/effect/mine/sound/mineEffect(mob/living/victim)
-	playsound(loc, sound, 100, 1)
+	playsound(loc, sound, 100, TRUE)
 
 /obj/effect/mine/sound/bwoink
 	name = "bwoink mine"
@@ -132,8 +145,8 @@
 /obj/effect/mine/pickup/bloodbath/mineEffect(mob/living/carbon/victim)
 	if(!istype(victim) || !victim.client)
 		return
-	to_chat(victim, "<span class='reallybig redtext'>RIP AND TEAR</span>")
-	victim << 'sound/misc/e1m1.ogg'
+	to_chat(victim, span_redtext(span_reallybig("RIP AND TEAR")))
+	SEND_SOUND(victim, sound('sound/misc/e1m1.ogg'))
 	var/old_color = victim.client.color
 	var/red_splash = list(1,0,0,0.8,0.2,0, 0.8,0,0.2,0.1,0,0)
 	var/pure_red = list(0,0,0,0,0,0,0,0,0,1,0,0)
@@ -156,7 +169,7 @@
 	spawn(10)
 		animate(victim.client,color = old_color, time = duration)//, easing = SINE_EASING|EASE_OUT)
 	spawn(duration)
-		to_chat(victim, "<span class='notice'>Your bloodlust seeps back into the bog of your subconscious and you regain self control.</span>")
+		to_chat(victim, span_notice("Your bloodlust seeps back into the bog of your subconscious and you regain self control."))
 		qdel(chainsaw)
 		qdel(src)
 
@@ -168,7 +181,7 @@
 /obj/effect/mine/pickup/healing/mineEffect(mob/living/carbon/victim)
 	if(!victim.client || !istype(victim))
 		return
-	to_chat(victim, "<span class='notice'>You feel great!</span>")
+	to_chat(victim, span_notice("You feel great!"))
 	victim.revive()
 
 

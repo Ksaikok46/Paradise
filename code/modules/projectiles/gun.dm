@@ -4,7 +4,7 @@
 	icon = 'icons/obj/weapons/projectile.dmi'
 	icon_state = "detective"
 	item_state = "gun"
-	appearance_flags = TILE_BOUND|PIXEL_SCALE|KEEP_TOGETHER
+	appearance_flags = TILE_BOUND|PIXEL_SCALE|KEEP_TOGETHER|LONG_GLIDE
 	flags =  CONDUCT
 	slot_flags = ITEM_SLOT_BELT
 	materials = list(MAT_METAL=2000)
@@ -13,16 +13,16 @@
 	throw_speed = 3
 	throw_range = 5
 	force = 5
-	origin_tech = "combat=1"
-	needs_permit = 1
-	attack_verb = list("struck", "hit", "bashed")
-	pickup_sound = 'sound/items/handling/gun_pickup.ogg'
-	drop_sound = 'sound/items/handling/gun_drop.ogg'
+	origin_tech = "materials=3;combat=3"
+	needs_permit = TRUE
+	attack_verb = list("ударил")
+	pickup_sound = 'sound/items/handling/pickup/gun_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/gun_drop.ogg'
 
 	var/fire_sound = "gunshot"
 	var/magin_sound = 'sound/weapons/gun_interactions/smg_magin.ogg'
 	var/magout_sound = 'sound/weapons/gun_interactions/smg_magout.ogg'
-	var/fire_sound_text = "gunshot" //the fire sound that shows in chat messages: laser blast, gunshot, etc.
+	var/fire_sound_text = "выстрел" //the fire sound that shows in chat messages: laser blast, gunshot, etc.
 	var/suppressed = 0					//whether or not a message is displayed when fired
 	var/can_suppress = 0
 	var/can_unsuppress = 1
@@ -102,6 +102,9 @@
 
 	light_on = FALSE
 
+	/// Responsible for the range of the throwing back when shooting at point blank range
+	var/pb_knockback = 0
+
 
 /obj/item/gun/Initialize()
 	. = ..()
@@ -129,15 +132,15 @@
 /obj/item/gun/examine(mob/user)
 	. = ..()
 	if(unique_reskin)
-		. += "<span class='info'>Alt-click it to reskin it.</span>"
+		. += span_notice("Alt-click it to reskin it.")
 	if(unique_rename)
-		. += "<span class='info'>Use a pen on it to rename it.</span>"
+		. += span_notice("Use a pen on it to rename it.")
 	if(bayonet)
-		. += "<span class='notice'>It has \a [bayonet] [can_bayonet ? "" : "permanently "]affixed to it.</span>"
+		. += span_notice("It has \a [bayonet] [can_bayonet ? "" : "permanently "]affixed to it.")
 		if(can_bayonet) //if it has a bayonet and this is false, the bayonet is permanent.
-			. += "<span class='info'>[bayonet] looks like it can be <b>unscrewed</b> from [src].</span>"
+			. += span_notice("[bayonet] looks like it can be [span_bold("unscrewed")] from [src].")
 	else if(can_bayonet)
-		. += "<span class='notice'>It has a <b>bayonet</b> lug on it.</span>"
+		. += span_notice("[capitalize(bayonet.declent_ru(NOMINATIVE))] можно [span_bold("открутить")] от [declent_ru(GENITIVE)].")
 
 
 /obj/item/gun/proc/update_gun_skins()
@@ -166,8 +169,8 @@
 	return TRUE
 
 /obj/item/gun/proc/shoot_with_empty_chamber(mob/living/user)
-	to_chat(user, span_danger("*click*"))
-	playsound(user, 'sound/weapons/empty.ogg', 100, 1)
+	to_chat(user, span_danger("*клик*"))
+	playsound(user, 'sound/weapons/empty.ogg', 100, TRUE)
 
 /obj/item/gun/proc/shoot_live_shot(mob/living/user, atom/target, pointblank = FALSE, message = TRUE)
 	if(recoil)
@@ -185,9 +188,14 @@
 		playsound(user, fire_sound, 50, TRUE)
 		if(message)
 			if(pointblank)
-				user.visible_message("<span class='danger'>[user] fires [src] point blank at [target]!</span>", "<span class='danger'>You fire [src] point blank at [target]!</span>", "<span class='italics'>You hear \a [fire_sound_text]!</span>")
+				user.visible_message(span_danger("[user] стреля[pluralize_ru(user.gender,"ет","ют")] из [declent_ru(GENITIVE)] в упор в [target]!"), span_danger("[pluralize_ru(user.gender,"Ты стреляешь","Вы стреляете")] из [declent_ru(GENITIVE)] в упор в [target]!"), span_italics("Вы слышите \a [fire_sound_text]!"), projectile_message = TRUE)
+				if(pb_knockback > 0 && isliving(target))
+					var/mob/living/living_target = target
+					if(!(living_target.move_resist > MOVE_FORCE_NORMAL)) //no knockbacking prince of terror or somethin
+						var/atom/throw_target = get_edge_target_turf(living_target, user.dir)
+						living_target.throw_at(throw_target, pb_knockback, 2)
 			else
-				user.visible_message("<span class='danger'>[user] fires [src]!</span>", "<span class='danger'>You fire [src]!</span>", "You hear \a [fire_sound_text]!")
+				user.visible_message(span_danger("[user] стреля[pluralize_ru(user.gender,"ет","ют")] из [declent_ru(GENITIVE)]!"), span_danger("[pluralize_ru(user.gender,"Ты стреляешь","Вы стреляете")] из [declent_ru(GENITIVE)]!"), "Вы слышите [fire_sound_text]!", projectile_message = TRUE)
 	if(chambered.muzzle_flash_effect)
 		var/obj/effect/temp_visual/target_angled/muzzle_flash/effect = new chambered.muzzle_flash_effect(get_turf(src), target, muzzle_flash_time)
 		effect.alpha = min(255, muzzle_strength * 255)
@@ -217,22 +225,22 @@
 
 	if(flag)
 		if(user.zone_selected == "mouth")
-			handle_suicide(user, target, params)
+			if(target == user && HAS_TRAIT(user, TRAIT_BADASS))
+				user.visible_message(span_danger("[user] сдул[genderize_ru(user.gender,"","а","о","и")] дым с дула [declent_ru(GENITIVE )]. Как же [genderize_ru(user.gender,"он хорош","она хороша","оно хорошо","они хороши")]!"))
+			else
+				handle_suicide(user, target, params)
 			return
 
-
 	//Exclude lasertag guns from the CLUMSY check.
-	if(clumsy_check)
-		if(istype(user))
-			if((CLUMSY in user.mutations) && prob(40))
-				to_chat(user, "<span class='userdanger'>You shoot yourself in the foot with \the [src]!</span>")
-				var/shot_leg = pick(BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT)
-				process_fire(user, user, 0, params, zone_override = shot_leg)
-				user.drop_from_active_hand()
-				return
+	if(clumsy_check && HAS_TRAIT(user, TRAIT_CLUMSY) && prob(40))
+		to_chat(user, span_userdanger("Вы случайно прострелили себе ногу из [declent_ru(GENITIVE )]!"))
+		var/shot_leg = pick(BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT)
+		process_fire(user, user, 0, params, zone_override = shot_leg)
+		user.drop_from_active_hand()
+		return
 
-	if(weapon_weight == WEAPON_HEAVY && user.get_inactive_hand())
-		to_chat(user, "<span class='userdanger'>You need both hands free to fire \the [src]!</span>")
+	if(weapon_weight == WEAPON_HEAVY && (user.get_inactive_hand() || !user.has_inactive_hand() || (user.pulling && user.pull_hand != PULL_WITHOUT_HANDS)))
+		to_chat(user, span_userdanger("Для стрельбы из [declent_ru(GENITIVE )] нужны две свободные руки!"))
 		return
 
 	//DUAL WIELDING
@@ -244,7 +252,8 @@
 			if(G == src || G.weapon_weight >= WEAPON_MEDIUM)
 				continue
 			else if(G.can_trigger_gun(user))
-				bonus_spread += dual_wield_spread * G.weapon_weight
+				if(!HAS_TRAIT(user, TRAIT_BADASS))
+					bonus_spread += dual_wield_spread * G.weapon_weight
 				loop_counter++
 				addtimer(CALLBACK(G, PROC_REF(process_fire), target, user, 1, params, null, bonus_spread), loop_counter)
 
@@ -257,7 +266,7 @@
 			return FALSE
 
 		if(restricted_species && restricted_species.len && !is_type_in_list(user.dna.species, restricted_species))
-			to_chat(user, span_danger("[src] is incompatible with your biology!"))
+			to_chat(user, span_danger("[capitalize(declent_ru(NOMINATIVE))] несовместим с вашей биологией!"))
 			return FALSE
 
 	if(!can_shoot(user)) //Just because you can pull the trigger doesn't mean it can't shoot.
@@ -293,7 +302,7 @@
 	if(burst_size > 1)
 		if(chambered && chambered.harmful)
 			if(HAS_TRAIT(user, TRAIT_PACIFISM) || GLOB.pacifism_after_gt) // If the user has the pacifist trait, then they won't be able to fire [src] if the round chambered inside of [src] is lethal.
-				to_chat(user, "<span class='warning'>[src] is lethally chambered! You don't want to risk harming anyone...</span>")
+				to_chat(user, span_warning("В [declent_ru(ACCUSATIVE)] заряжены смертельные патроны! Лучше не рисковать..."))
 				return
 		firing_burst = 1
 		for(var/i = 1 to burst_size)
@@ -326,7 +335,7 @@
 		if(chambered)
 			if(HAS_TRAIT(user, TRAIT_PACIFISM) || GLOB.pacifism_after_gt) // If the user has the pacifist trait, then they won't be able to fire [src] if the round chambered inside of [src] is lethal.
 				if(chambered.harmful) // Is the bullet chambered harmful?
-					to_chat(user, "<span class='warning'>[src] is lethally chambered! You don't want to risk harming anyone...</span>")
+					to_chat(user, span_warning("В [declent_ru(ACCUSATIVE)] заряжены смертельные патроны! Лучше не рисковать..."))
 					return
 			sprd = round((pick(1,-1)) * (randomized_gun_spread + randomized_bonus_spread))
 			if(!chambered.fire(target = target, user = user, params = params, distro = null, quiet = suppressed, zone_override = zone_override, spread = sprd, firer_source_atom = src))
@@ -360,77 +369,84 @@
 			if (malf_counter <= 0 && prob(50))
 				user.drop_item_ground(user.tkgrabbed_objects[src])
 				new /obj/effect/decal/cleanable/ash(loc)
-				to_chat(user, "<span class='userdanger'>WOAH! [src] blows up!</span>")
-				playsound(user, 'sound/effects/explosion1.ogg', 30, 1)
+				to_chat(user, span_userdanger("БА-БАХ! [capitalize(declent_ru(NOMINATIVE))] взрывается!"))
+				playsound(user, 'sound/effects/explosion1.ogg', 30, TRUE)
 				qdel(src)
 				return FALSE
 			return TRUE
 		if(malf_counter <= 0 && prob(50))
 			new /obj/effect/decal/cleanable/ash(user.loc)
-			user.take_organ_damage(0,30)
+			user.take_organ_damage(0, 30)
 			user.flash_eyes()
-			to_chat(user, "<span class='userdanger'>WOAH! [src] blows up in your hands!</span>")
-			playsound(user, 'sound/effects/explosion1.ogg', 30, 1)
+			to_chat(user, span_userdanger("БА-БАХ! [capitalize(declent_ru(NOMINATIVE))] взрывается у вас в руках!"))
+			playsound(user, 'sound/effects/explosion1.ogg', 30, TRUE)
 			qdel(src)
 			return FALSE
 		if(prob(40 - (malf_counter > 0 ? round(malf_counter / self_shot_divisor) : 0)))
-			playsound(user, fire_sound, 30, 1)
-			to_chat(user, "<span class='userdanger'>[src] blows up in your face!</span>")
-			user.take_organ_damage(0,10)
+			playsound(user, fire_sound, 30, TRUE)
+			to_chat(user, span_userdanger("[capitalize(declent_ru(NOMINATIVE))] взрывается прямо у вас перед лицом!"))
+			user.take_organ_damage(0, 10)
 			return FALSE
 
-/obj/item/gun/attack(mob/M, mob/user)
-	if(user.a_intent == INTENT_HARM) //Flogging
-		if(bayonet)
-			M.attackby(bayonet, user)
-		else
-			return ..()
 
-/obj/item/gun/attack_obj(obj/O, mob/user, params)
-	if(user.a_intent == INTENT_HARM)
-		if(bayonet)
-			O.attackby(bayonet, user)
-			return
+/obj/item/gun/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+	if(user.a_intent != INTENT_HARM)
+		return ATTACK_CHAIN_BLOCKED
+	if(bayonet) //Flogging
+		bayonet.melee_attack_chain(user, target, params)
+		return ATTACK_CHAIN_BLOCKED_ALL
+	return ..()
+
+
+/obj/item/gun/attack_obj(obj/object, mob/user, params)
+	if(bayonet)
+		bayonet.melee_attack_chain(user, object, params)
+		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
 
 /obj/item/gun/attackby(obj/item/I, mob/user, params)
+	if(is_pen(I))
+		if(!unique_rename)
+			add_fingerprint(user)
+			to_chat(user, span_warning("Вы не можете переименовать [declent_ru(ACCUSATIVE)]!"))
+			return ATTACK_CHAIN_BLOCKED_ALL
+		var/new_name = rename_interactive(user, I, use_prefix = FALSE)
+		if(!isnull(new_name))
+			to_chat(user, span_notice("Вы оружию имя \"[name]\". Познакомьтесь со своим новым другом."))
+		return ATTACK_CHAIN_BLOCKED
+
 	if(istype(I, /obj/item/flashlight/seclite))
-		if(can_flashlight)
-			if(!gun_light)
-				if(!user.drop_transfer_item_to_loc(I, src))
-					return
-				to_chat(user, span_notice("You click [I] into place on [src]."))
-				set_gun_light(I)
-			else
-				to_chat(user, span_warning("There is already [gun_light] attached to [src]!"))
-		else
-			to_chat(user, span_warning("You cannot attach [I] to [src]!"))
+		add_fingerprint(user)
+		if(!can_flashlight)
+			to_chat(user, span_warning("Вы не можете прикрепить [I.declent_ru(ACCUSATIVE)] к [declent_ru(DATIVE)]!"))
+			return ATTACK_CHAIN_PROCEED
+		if(gun_light)
+			to_chat(user, span_warning("На [declent_ru(PREPOSITIONAL )] уже установлен [gun_light.declent_ru(NOMINATIVE)]!"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		to_chat(user, span_notice("Вы закрепляете [I.declent_ru(ACCUSATIVE)] на [declent_ru(ACCUSATIVE)]."))
+		set_gun_light(I)
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-	else if(is_pen(I))
-		if(unique_rename)
-			var/t = rename_interactive(user, I, use_prefix = FALSE)
-			if(!isnull(t))
-				to_chat(user, span_notice("You name the gun '[name]'. Say hello to your new friend."))
-		else
-			to_chat(user, span_warning("You cannot rename [src]!"))
-
-	else if(istype(I, /obj/item/kitchen/knife))
+	if(istype(I, /obj/item/kitchen/knife))
+		add_fingerprint(user)
 		var/obj/item/kitchen/knife/knife = I
 		//ensure the gun has an attachment point available and that the knife is compatible with it.
 		if(!can_bayonet || !knife.bayonet_suitable)
-			to_chat(user, span_warning("You cannot attach [knife] to [src]!"))
-			return
+			to_chat(user, span_warning("Вы не можете прикрепить [knife.declent_ru(ACCUSATIVE)] к [declent_ru(DATIVE)]!"))
+			return ATTACK_CHAIN_PROCEED
 		if(bayonet)
-			to_chat(user, span_warning("There is already [knife] attached to [src]!"))
-			return
+			to_chat(user, span_warning("На [declent_ru(PREPOSITIONAL )] уже есть [knife.declent_ru(NOMINATIVE)]!"))
+			return ATTACK_CHAIN_PROCEED
 		if(!user.drop_transfer_item_to_loc(knife, src))
-			return
-		to_chat(user, span_notice("You attach [knife] to [src]'s bayonet lug."))
+			return ..()
+		to_chat(user, span_notice("Вы устанавливаете [knife.declent_ru(ACCUSATIVE)] на штыковой упор [declent_ru(GENITIVE )]."))
 		set_bayonet(knife)
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-	else
-		return ..()
+	return ..()
 
 
 /obj/item/gun/screwdriver_act(mob/user, obj/item/I)
@@ -438,16 +454,16 @@
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
 	if(gun_light && can_flashlight)
-		to_chat(user, span_notice("You unscrew [gun_light] from [src]."))
+		to_chat(user, span_notice("Вы откручиваете [gun_light] от [declent_ru(ACCUSATIVE)]."))
 		set_gun_light(null)
 	else if(bayonet && can_bayonet) //if it has a bayonet, and the bayonet can be removed
-		to_chat(user, span_notice("You unscrew [bayonet] from [src]."))
+		to_chat(user, span_notice("Вы снимаете [bayonet] с [declent_ru(ACCUSATIVE)]."))
 		set_bayonet(null)
 
 
 /obj/item/gun/proc/toggle_gunlight_verb()
-	set name = "Toggle Gun Light"
-	set category = "Object"
+	set name = "Оружейный фонарик"
+	set category = STATPANEL_OBJECT
 	set desc = "Click to toggle your weapon's attached flashlight."
 
 	toggle_gunlight(usr)
@@ -459,14 +475,14 @@
 
 	if(user && !isturf(user.loc))
 		if(!silent)
-			to_chat(user, span_warning("You cannot toggle the gun light while in [user.loc]!"))
+			to_chat(user, span_warning("Вы не можете переключить фонарь, находясь в [user.loc]!"))
 		return
 
 	gun_light.on = !gun_light.on
 	if(!silent)
 		playsound(loc, 'sound/weapons/empty.ogg', 100, TRUE)
 		if(user)
-			to_chat(user, span_notice("You toggle the gun light [gun_light.on ? "on": "off"]."))
+			to_chat(user, span_notice("Вы переключаете фонарь: [gun_light.on ? "вкл": "выкл"]."))
 	gun_light.set_light_on(gun_light.on)
 	update_icon(UPDATE_OVERLAYS)
 	update_equipped_item(update_speedmods = FALSE)
@@ -516,7 +532,7 @@
 /obj/item/gun/extinguish_light(force = FALSE)
 	if(gun_light?.on)
 		toggle_gunlight(silent = TRUE)
-		visible_message(span_danger("[src]'s light fades and turns off."))
+		visible_message(span_danger("Фонарь [declent_ru(GENITIVE)] гаснет."))
 
 
 /// Sets gun's bayonet and do all the necessary updates
@@ -535,7 +551,7 @@
 			bayonet.forceMove(src)
 
 		var/overlay_type = "bayonet"	//Generic state.
-		if(bayonet.icon_state in icon_states('icons/obj/weapons/bayonets.dmi'))	//Snowflake state?
+		if(icon_exists('icons/obj/weapons/bayonets.dmi', bayonet.icon_state))	//Snowflake state?
 			overlay_type = bayonet.icon_state
 		bayonet_overlay = mutable_appearance('icons/obj/weapons/bayonets.dmi', overlay_type)
 		bayonet_overlay.pixel_x = bayonet_x_offset
@@ -558,13 +574,14 @@
 		azoom.Remove(user)
 
 
-/obj/item/gun/AltClick(mob/user)
+/obj/item/gun/click_alt(mob/user)
 	if(!unique_reskin || current_skin || loc != user)
-		return ..()
+		return NONE
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, span_warning("You can't do that right now!"))
-		return ..()
+		to_chat(user, span_warning("Вы не можете сделать это сейчас!"))
+		return CLICK_ACTION_BLOCKING
 	reskin_gun(user)
+	return CLICK_ACTION_SUCCESS
 
 
 /obj/item/gun/proc/reskin_gun(mob/user)
@@ -578,7 +595,7 @@
 
 	if(choice && reskin_radial_check(user) && !current_skin)
 		current_skin = skin_options[choice]
-		to_chat(user, "Your gun is now skinned as [choice]. Say hello to your new friend.")
+		to_chat(user, "Теперь [pluralize_ru(user.gender,"твое","ваше")] оружие имеет облик [choice]. Познакомь[pluralize_ru(user.gender,"ся","тесь")] с новым дизайном.")
 		update_icon()
 		update_equipped_item(update_speedmods = FALSE)
 
@@ -597,29 +614,29 @@
 		return
 
 	if(user == target)
-		target.visible_message("<span class='warning'>[user] sticks [src] in [user.p_their()] mouth, ready to pull the trigger...</span>", \
-			"<span class='userdanger'>You stick [src] in your mouth, ready to pull the trigger...</span>")
+		target.visible_message(span_warning("[user] вставляет ствол [declent_ru(GENITIVE)] себе в рот, готовясь нажать на спуск..."), \
+							span_userdanger("[pluralize_ru(user.gender,"Ты вставляешь","Вы вставляеете")] ствол [declent_ru(GENITIVE)] себе в рот, готовясь нажать на спуск..."))
 	else
-		target.visible_message("<span class='warning'>[user] points [src] at [target]'s head, ready to pull the trigger...</span>", \
-			"<span class='userdanger'>[user] points [src] at your head, ready to pull the trigger...</span>")
+		target.visible_message(span_warning("[user] направляет [declent_ru(ACCUSATIVE)] в голову [target], готовясь выстрелить..."), \
+							span_userdanger("[user] направляет [declent_ru(ACCUSATIVE)] [pluralize_ru(target.gender,"тебе","вам")] в голову, готовясь выстрелить!"))
 
 	semicd = 1
 
 	if(!do_after(user, 12 SECONDS, target, NONE) || user.zone_selected != BODY_ZONE_PRECISE_MOUTH)
 		if(user)
 			if(user == target)
-				user.visible_message("<span class='notice'>[user] decided life was worth living.</span>")
+				user.visible_message(span_notice("[user] решает, что жить всё-таки хочется."))
 			else if(target && target.Adjacent(user))
-				target.visible_message("<span class='notice'>[user] has decided to spare [target]'s life.</span>", "<span class='notice'>[user] has decided to spare your life!</span>")
+				target.visible_message(span_notice("[user] решает пощадить [target]."), span_notice("[user] решает оставить [pluralize_ru(target.gender,"тебя","вас")] в живых!"))
 		semicd = 0
 		return
 
 	semicd = 0
 
-	target.visible_message("<span class='warning'>[user] pulls the trigger!</span>", "<span class='userdanger'>[user] pulls the trigger!</span>")
+	target.visible_message(span_warning("[user] нажимает на спусковой крючок!"), span_userdanger("[user] нажимает на спусковой крючок!"))
 
 	if(chambered && chambered.BB)
-		chambered.BB.damage *= 5
+		chambered.BB.damage *= 15
 
 	process_fire(target, user, 1, params)
 
@@ -628,7 +645,7 @@
 /////////////
 
 /datum/action/toggle_scope_zoom
-	name = "Toggle Scope"
+	name = "Масштаб"
 	check_flags = AB_CHECK_CONSCIOUS|AB_CHECK_HANDS_BLOCKED|AB_CHECK_INCAPACITATED
 	button_icon_state = "sniper_zoom"
 	var/obj/item/gun/gun = null
@@ -672,9 +689,23 @@
 
 		user.client.pixel_x = world.icon_size*_x
 		user.client.pixel_y = world.icon_size*_y
+
+		for(var/mob/dead/observer/observe in user.inventory_observers)
+			if(!observe.client)
+				LAZYREMOVE(user.inventory_observers, observe)
+				continue
+			observe.client.pixel_x = world.icon_size*_x
+			observe.client.pixel_y = world.icon_size*_y
 	else
 		user.client.pixel_x = 0
 		user.client.pixel_y = 0
+
+		for(var/mob/dead/observer/observe in user.inventory_observers)
+			if(!observe.client)
+				LAZYREMOVE(user.inventory_observers, observe)
+				continue
+			observe.client.pixel_x = 0
+			observe.client.pixel_y = 0
 
 
 //Proc, so that gun accessories/scopes/etc. can easily add zooming.

@@ -3,100 +3,76 @@
 //Oh god what the fuck I am not good at computer
 /obj/item/book/manual
 	icon = 'icons/obj/library.dmi'
-	due_date = 0 // Game time in 1/10th seconds
-	unique = 1   // 0 - Normal book, 1 - Should not be treated as normal book, unable to be copied, unable to be modified
+	due_date = 0
+	unique = TRUE
 	has_drm = TRUE // No reuploading. Piracy is a crime
+	dat = {"
+
+		<html><meta charset="UTF-8"><head>
+		</head>
+
+		<body>
+		If you see this - hello! Please write a report to NXB Janitor about \"issue #164-e\", they know what to do next.
+		</body>
+
+		</html>
+
+		"}
+	/// Put name of wiki page to open frame to. If none set - it will not link any wiki.
+	var/wiki_title = ""
+
+/obj/item/book/manual/Initialize(mapload)
+	. = ..()
+	if(!wiki_title || !CONFIG_GET(string/wikiurl)) //it means, manual doesnt rely on wiki, or we dont have wiki
+		return
+	dat = {"
+
+		<html><meta charset="UTF-8"><head>
+		</head>
+
+		<body>
+		<iframe width='100%' height='97%' src="[CONFIG_GET(string/wikiurl)]/index.php?action=render&title=[wiki_title]" frameborder="0" id="main_frame"></iframe>
+		</body>
+
+		</html>
+
+		"}
 
 
 /obj/item/book/manual/engineering_construction
 	name = "Руководство по Ремонту и Строительству"
 	icon_state ="bookEngineering"
-	author = "Инженерная Энциклопедия"		 // Who wrote the thing, can be changed by pen or PC. It is not automatically assigned
+	author = "Инженерная Энциклопедия"
 	title = "Руководство по Ремонту и Строительству"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_строительству" frameborder="0" id="main_frame"></iframe>
-		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_строительству"
 
 /obj/item/book/manual/engineering_particle_accelerator
 	name = "Тесла Двигатель: Руководство Пользователя"
 	icon_state ="bookParticleAccelerator"
-	author = "Инженерная Энциклопедия"		 // Who wrote the thing, can be changed by pen or PC. It is not automatically assigned
+	author = "Инженерная Энциклопедия"
 	title = "Тесла Двигатель: Руководство Пользователя"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Тесла-двигатель" frameborder="0" id="main_frame"></iframe>
-		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Тесла-двигатель"
 
 /obj/item/book/manual/supermatter_engine
 	name = "Двигатель на Суперматерии: Руководство Пользователя"
-	icon_state = "bookParticleAccelerator"   //TEMP FIXME
+	icon_state = "bookSupermatter"
 	author = "Инженерная Энциклопедия"
 	title = "Двигатель на Суперматерии: Руководство Пользователя"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Двигатель_Суперматерии" frameborder="0" id="main_frame"></iframe>
-		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Двигатель_Суперматерии"
 
 /obj/item/book/manual/engineering_hacking
 	name = "Взлом"
 	icon_state ="bookHacking"
-	author = "Инженерная Энциклопедия"		 // Who wrote the thing, can be changed by pen or PC. It is not automatically assigned
+	author = "Инженерная Энциклопедия"
 	title = "Взлом"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_взлому" frameborder="0" id="main_frame"></iframe>
-		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_взлому"
 
 /obj/item/book/manual/engineering_singularity_safety
 	name = "Сингулярный Двигатель: Руководство Пользователя"
 	icon_state ="bookEngineeringSingularitySafety"
-	author = "Инженерная Энциклопедия"		 // Who wrote the thing, can be changed by pen or PC. It is not automatically assigned
+	author = "Инженерная Энциклопедия"
 	title = "Сингулярный Двигатель: Руководство Пользователя"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Сингулярный_двигатель" frameborder="0" id="main_frame"></iframe>
-		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Сингулярный_двигатель"
 
 /obj/item/book/manual/hydroponics_pod_people
 	name = "The Human Harvest - From seed to market"
@@ -137,7 +113,7 @@
 /obj/item/book/manual/medical_cloning
 	name = "Cloning techniques of the 26th century"
 	icon_state ="bookCloning"
-	author = "Medical Journal, volume 3"		 // Who wrote the thing, can be changed by pen or PC. It is not automatically assigned
+	author = "Medical Journal, volume 3"
 	title = "Cloning techniques of the 26th century"
 //big pile of shit below.
 
@@ -154,7 +130,7 @@
 				</head>
 				<body>
 
-				<H3>How to Clone People</H3>
+				<h3>How to Clone People</h3>
 				So theres 50 dead people lying on the floor, chairs are spinning like no tomorrow and you havent the foggiest idea of what to do? Not to worry! This guide is intended to teach you how to clone people and how to do it right, in a simple step-by-step process! If at any point of the guide you have a mental meltdown, genetics probably isnt for you and you should get a job-change as soon as possible before youre sued for malpractice.
 
 				<ol>
@@ -216,7 +192,7 @@
 /obj/item/book/manual/ripley_build_and_repair
 	name = "APLU \"Ripley\" Construction and Operation Manual"
 	icon_state ="book"
-	author = "Weyland-Yutani Corp"		 // Who wrote the thing, can be changed by pen or PC. It is not automatically assigned
+	author = "Weyland-Yutani Corp"
 	title = "APLU \"Ripley\" Construction and Operation Manual"
 //big pile of shit below.
 
@@ -288,6 +264,7 @@
 				<h2>Operation</h2>
 				Coming soon...
 			"}
+
 
 /obj/item/book/manual/experimentor
 	name = "Mentoring your Experiments"
@@ -684,17 +661,7 @@
 	force = 4 //advanced magistrate tactics
 	author = "Nanotrasen"
 	title = "Космический Закон"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Космический_Закон" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Космический_Закон"
 
 /obj/item/book/manual/security_space_law/black
 	name = "Космический Закон - Ограниченное Издание"
@@ -707,17 +674,7 @@
 	icon_state ="bookEngineering2"
 	author = "Инженерная Энциклопедия"
 	title = "Руководство по Инженерии"
-	dat = {"
-
-		<html><meta charset="UTF-8"><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_инженерии" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_инженерии"
 
 /obj/item/book/manual/chef_recipes
 	name = "Рецепты от шеф-повара: Введение"
@@ -725,167 +682,57 @@
 	icon_state = "cooked_book"
 	author = "NanoTrasen"
 	title = "Рецепты от шеф-повара: Введение"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде"
 
 /obj/item/book/manual/chef_recipes/part_one
 	name = "Рецепты от шеф-повара: Основные ингредиенты и приправы"
 	title = "Рецепты от шеф-повара: Основные ингредиенты и приправы"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Основные_ингредиенты_и_приправы" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Основные_ингредиенты_и_приправы"
 
 /obj/item/book/manual/chef_recipes/part_two
 	name = "Рецепты от шеф-повара: Тесто и хлеб"
 	title = "Рецепты от шеф-повара: Тесто и хлеб"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Тесто_и_базовый_хлеб" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Тесто_и_базовый_хлеб"
 
 /obj/item/book/manual/chef_recipes/part_three
 	name = "Рецепты от шеф-повара: Мясные блюда"
 	title = "Рецепты от шеф-повара: Мясные блюда"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Мясные_блюда" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Мясные_блюда"
 
 /obj/item/book/manual/chef_recipes/part_four
 	name = "Рецепты от шеф-повара: Рыба, морепродукты, суши"
 	title = "Рецепты от шеф-повара: Рыба, морепродукты, суши"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Рыба,_морепродукты,_суши" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Рыба,_морепродукты,_суши"
 
 /obj/item/book/manual/chef_recipes/part_five
 	name = "Рецепты от шеф-повара: Бутерброды"
 	title = "Рецепты от шеф-повара: Бутерброды"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Бутерброды" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Бутерброды"
 
 /obj/item/book/manual/chef_recipes/part_six
 	name = "Рецепты от шеф-повара: Паста и пицца"
 	title = "Рецепты от шеф-повара: Паста и пицца"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Паста_и_пицца" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Паста_и_пицца"
 
 /obj/item/book/manual/chef_recipes/part_seven
 	name = "Рецепты от шеф-повара: Супы, салаты и гарниры"
 	title = "Рецепты от шеф-повара: Супы, салаты и гарниры"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Супы,_салаты_и_гарниры" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Супы,_салаты_и_гарниры"
 
 /obj/item/book/manual/chef_recipes/part_eight
 	name = "Рецепты от шеф-повара: Хлебобулочные изделия и десерты"
 	title = "Рецепты от шеф-повара: Хлебобулочные изделия и десерты"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Хлебобулочные_изделия_и_десерты" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Хлебобулочные_изделия_и_десерты"
 
 /obj/item/book/manual/chef_recipes/part_nine
 	name = "Рецепты от шеф-повара: Шоколадки и конфеты"
 	title = "Рецепты от шеф-повара: Шоколадки и конфеты"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Шоколадки_и_конфеты" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Шоколадки_и_конфеты"
 
 /obj/item/book/manual/chef_recipes/part_ten
 	name = "Рецепты от шеф-повара: Остальные рецепты"
 	title = "Рецепты от шеф-повара: Остальные рецепты"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Остальные_рецепты" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Остальные_рецепты"
 
 /obj/item/book/manual/barman_recipes
 	name = "Рецепты Бармена: Введение"
@@ -893,137 +740,47 @@
 	icon_state = "barbook"
 	author = "Сэр Джон Роуз"
 	title = "Рецепты Бармена: Введение"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_напиткам" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_напиткам"
 
 /obj/item/book/manual/barman_recipes/part_one
 	name = "Рецепты Бармена: Ассортимент бухломата"
 	title = "Рецепты Бармена: Ассортимент бухломата"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Ассортимент_бухломата" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Ассортимент_бухломата"
 
 /obj/item/book/manual/barman_recipes/part_two
 	name = "Рецепты Бармена: Раздатчик выпивки"
 	title = "Рецепты Бармена: Раздатчик выпивки"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Раздатчик_выпивки" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Раздатчик_выпивки"
 
 /obj/item/book/manual/barman_recipes/part_three
 	name = "Рецепты Бармена: Фонтан газировки"
 	title = "Рецепты Бармена: Фонтан газировки"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Фонтан_газировки" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Фонтан_газировки"
 
 /obj/item/book/manual/barman_recipes/part_four
 	name = "Рецепты Бармена: Рецепты бутылочницы"
 	title = "Рецепты Бармена: Рецепты бутылочницы"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Рецепты_Бутылочницы" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Рецепты_Бутылочницы"
 
 /obj/item/book/manual/barman_recipes/part_five
 	name = "Рецепты Бармена: Алкогольные напитки и коктейли"
 	title = "Рецепты Бармена: Алкогольные напитки и коктейли"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Алкогольные_напитки_и_коктейли" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Алкогольные_напитки_и_коктейли"
 
 /obj/item/book/manual/barman_recipes/part_six
 	name = "Рецепты Бармена: Напитки на основе синтанола"
 	title = "Рецепты Бармена: Напитки на основе синтанола"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Напитки_на_основе_синтанола" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Напитки_на_основе_синтанола"
 
 /obj/item/book/manual/barman_recipes/part_seven
 	name = "Рецепты Бармена: Безалкогольные напитки"
 	title = "Рецепты Бармена: Безалкогольные напитки"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Безалкогольные_напитки" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Безалкогольные_напитки"
 
 /obj/item/book/manual/barman_recipes/part_eight
 	name = "Рецепты Бармена: Напитки из ингредиентов с кухни"
 	title = "Рецепты Бармена: Напитки из ингредиентов с кухни"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Руководство_по_еде_и_напиткам/Напитки_из_ингредиентов_с_кухни" frameborder="0" id="main_frame"></iframe>        </body>
-
-		</html>
-
-		"}
+	wiki_title = "Руководство_по_еде_и_напиткам/Напитки_из_ингредиентов_с_кухни"
 
 /obj/item/book/manual/detective
 	name = "The Film Noir: Proper Procedures for Investigations"
@@ -1131,68 +888,68 @@
 					<li><a href="#HES">Heat Exchange Systems</a></li>
 					<li><a href="#Final">Final Checks</a></li>
 				</ol>
-				<br><BR>
+				<br><br>
 
-				<h1><a name="Forward"><U><B>HOW TO NOT SUCK QUITE SO HARD AT ATMOSPHERICS</B></U></a></h1><BR>
-				<I>Or: What the fuck does a "passive gate" do?</I><BR><BR>
+				<h1><a name="Forward"><u><b>HOW TO NOT SUCK QUITE SO HARD AT ATMOSPHERICS</b></u></a></h1><br>
+				<i>Or: What the fuck does a "passive gate" do?</i><br><br>
 
 				Alright. It has come to my attention that a variety of people are unsure of what a "pipe" is and what it does.
 				Apparently there is an unnatural fear of these arcane devices and their "gases". Spooky, spooky. So,
 				this will tell you what every device constructable by an ordinary pipe dispenser within atmospherics actually does.
 				You are not going to learn what to do with them to be the super best person ever, or how to play guitar with passive gates,
-				or something like that. Just what stuff does.<BR><BR>
+				or something like that. Just what stuff does.<br><br>
 
 
-				<h1><a name="Basic"><B>Basic Pipes</B></a></h1><BR>
-				<I>The boring ones.</I><BR>
+				<h1><a name="Basic"><b>Basic Pipes</b></a></h1><br>
+				<i>The boring ones.</i><br>
 				TMost ordinary pipes are pretty straightforward. They hold gas. If gas is moving in a direction for some reason, gas will flow in that direction.
-				That's about it. Even so, here's all of your wonderful pipe options.<BR>
+				That's about it. Even so, here's all of your wonderful pipe options.<br>
 
-				<li><I>Straight pipes:</I> They're pipes. One-meter sections. Straight line. Pretty simple. Just about every pipe and device is based around this
+				<li><i>Straight pipes:</i> They're pipes. One-meter sections. Straight line. Pretty simple. Just about every pipe and device is based around this
 				standard one-meter size, so most things will take up as much space as one of these.</li>
-				<li><I>Bent pipes:</I> Pipes with a 90 degree bend at the half-meter mark. My goodness.</li>
-				<li><I>Pipe manifolds:</I> Pipes that are essentially a "T" shape, allowing you to connect three things at one point.</li>
-				<li><I>4-way manifold:</I> A four-way junction.</li>
-				<li><I>Pipe cap:</I> Caps off the end of a pipe. Open ends don't actually vent air, because of the way the pipes are assembled, so, uh. Use them to decorate your house or something.</li>
-				<li><I>Manual Valve:</I> A valve that will block off airflow when turned. Can't be used by the AI or cyborgs, because they don't have hands.</li>
-				<li><I>Manual T-Valve:</I> Like a manual valve, but at the center of a manifold instead of a straight pipe.</li><BR><BR>
+				<li><i>Bent pipes:</i> Pipes with a 90 degree bend at the half-meter mark. My goodness.</li>
+				<li><i>Pipe manifolds:</i> Pipes that are essentially a "T" shape, allowing you to connect three things at one point.</li>
+				<li><i>4-way manifold:</i> A four-way junction.</li>
+				<li><i>Pipe cap:</i> Caps off the end of a pipe. Open ends don't actually vent air, because of the way the pipes are assembled, so, uh. Use them to decorate your house or something.</li>
+				<li><i>Manual Valve:</i> A valve that will block off airflow when turned. Can't be used by the AI or cyborgs, because they don't have hands.</li>
+				<li><i>Manual T-Valve:</i> Like a manual valve, but at the center of a manifold instead of a straight pipe.</li><br><br>
 
-				<h1><a name="Insulated"><B>Insulated Pipes</B></a></h1><BR>
-				<I>Special Public Service Announcement.</I><BR>
-				Our regular pipes are already insulated. These are completely worthless. Punch anyone who uses them.<BR><BR>
+				<h1><a name="Insulated"><b>Insulated Pipes</b></a></h1><br>
+				<i>Special Public Service Announcement.</i><br>
+				Our regular pipes are already insulated. These are completely worthless. Punch anyone who uses them.<br><br>
 
-				<h1><a name="Devices"><B>Devices: </B></a></h1><BR>
-				<I>They actually do something.</I><BR>
+				<h1><a name="Devices"><b>Devices: </b></a></h1><br>
+				<i>They actually do something.</i><br>
 				This is usually where people get frightened, </font><font face="Verdana" color=black>afraid, and start calling on their gods and/or cowering in fear. Yes, I can see you doing that right now.
-				Stop it. It's unbecoming. Most of these are fairly straightforward.<BR>
+				Stop it. It's unbecoming. Most of these are fairly straightforward.<br>
 
-				<li><I>Gas Pump:</I> Take a wild guess. It moves gas in the direction it's pointing (marked by the red line on one end). It moves it based on pressure, the maximum output being 4500 kPa (kilopascals).
+				<li><i>Gas Pump:</i> Take a wild guess. It moves gas in the direction it's pointing (marked by the red line on one end). It moves it based on pressure, the maximum output being 4500 kPa (kilopascals).
 				Ordinary atmospheric pressure, for comparison, is 101.3 kPa, and the minimum pressure of room-temperature pure oxygen needed to not suffocate in a matter of minutes is 16 kPa
 				(though 18 is preferred using internals, for various reasons).</li>
-				<li><I>Volume pump:</I> This pump goes based on volume, instead of pressure, and the possible maximum pressure it can create in the pipe on the recieving end is double the gas pump because of this,
+				<li><i>Volume pump:</i> This pump goes based on volume, instead of pressure, and the possible maximum pressure it can create in the pipe on the recieving end is double the gas pump because of this,
 				clocking in at an incredible 9000 kPa. If a pipe with this is destroyed or damaged, and this pressure of gas escapes, it can be incredibly dangerous depending on the size of the pipe filled.
 				Don't hook this to the distribution loop, or you will make babies cry and the Chief Engineer brutally beat you.</li>
-				<li><I>Passive gate:</I> This is essentially a cap on the pressure of gas allowed to flow in a specific direction.
+				<li><i>Passive gate:</i> This is essentially a cap on the pressure of gas allowed to flow in a specific direction.
 				When turned on, instead of actively pumping gas, it measures the pressure flowing through it, and whatever pressure you set is the maximum: it'll cap after that.
 				In addition, it only lets gas flow one way. The direction the gas flows is opposite the red handle on it, which is confusing to people used to the red stripe on pumps pointing the way.</li>
-				<li><I>Unary vent:</I> The basic vent used in rooms. It pumps gas into the room, but can't suck it back out. Controlled by the room's air alarm system.</li>
-				<li><I>Scrubber:</I> The other half of room equipment. Filters air, and can suck it in entirely in what's called a "panic siphon". Actvating a panic siphon without very good reason will kill someone. Don't do it.</li>
-				<li><I>Meter:</I> A little box with some gagues and numbers. Fasten it to any pipe or manifold, and it'll read you the pressure in it. Very useful.</li>
-				<li><I>Gas mixer:</I> Two sides are input, one side is output. Mixes the gases pumped into it at the ratio defined. The side perpendicular to the other two is "node 2", for reference.
+				<li><i>Unary vent:</i> The basic vent used in rooms. It pumps gas into the room, but can't suck it back out. Controlled by the room's air alarm system.</li>
+				<li><i>Scrubber:</i> The other half of room equipment. Filters air, and can suck it in entirely in what's called a "panic siphon". Actvating a panic siphon without very good reason will kill someone. Don't do it.</li>
+				<li><i>Meter:</i> A little box with some gagues and numbers. Fasten it to any pipe or manifold, and it'll read you the pressure in it. Very useful.</li>
+				<li><i>Gas mixer:</i> Two sides are input, one side is output. Mixes the gases pumped into it at the ratio defined. The side perpendicular to the other two is "node 2", for reference.
 				Can output this gas at pressures from 0-4500 kPa.</li>
-				<li><I>Gas filter:</I> Essentially the opposite of a gas mixer. One side is input. The other two sides are output. One gas type will be filtered into the perpendicular output pipe,
+				<li><i>Gas filter:</i> Essentially the opposite of a gas mixer. One side is input. The other two sides are output. One gas type will be filtered into the perpendicular output pipe,
 				the rest will continue out the other side. Can also output from 0-4500 kPa.</li>
 
-				<h1><a name="HES"><B>Heat Exchange Systems</B></a></h1><BR>
-				<I>Will not set you on fire.</I><BR>
+				<h1><a name="HES"><b>Heat Exchange Systems</b></a></h1><br>
+				<i>Will not set you on fire.</i><br>
 				These systems are used to transfer heat only between two pipes. They will not move gases or any other element, but will equalize the temperature (eventually). Note that because of how gases work (remember: pv=nRt),
-				a higher temperature will raise pressure, and a lower one will lower temperature.<BR>
+				a higher temperature will raise pressure, and a lower one will lower temperature.<br>
 
-				<li><I>Pipe:</I> This is a pipe that will exchange heat with the surrounding atmosphere. Place in fire for superheating. Place in space for supercooling.</li>
-				<li><I>Bent Pipe:</I> Take a wild guess.</li>
-				<li><I>Junction:</I><I>Junction:</I>The point where you connect your normal pipes to heat exchange pipes. Not necessary for heat exchangers, but necessary for H/E pipes/bent pipes.</li>
-				<li><I>Heat Exchanger:</I> These funky-looking bits attach to an open pipe end. Put another heat exchanger directly across from it, and you can transfer heat across two pipes without having to have the gases touch.
-				This normally shouldn't exchange with the ambient air, despite being totally exposed. Just don't ask questions...</li><BR>
+				<li><i>Pipe:</i> This is a pipe that will exchange heat with the surrounding atmosphere. Place in fire for superheating. Place in space for supercooling.</li>
+				<li><i>Bent Pipe:</i> Take a wild guess.</li>
+				<li><i>Junction:</i><i>Junction:</i>The point where you connect your normal pipes to heat exchange pipes. Not necessary for heat exchangers, but necessary for H/E pipes/bent pipes.</li>
+				<li><i>Heat Exchanger:</i> These funky-looking bits attach to an open pipe end. Put another heat exchanger directly across from it, and you can transfer heat across two pipes without having to have the gases touch.
+				This normally shouldn't exchange with the ambient air, despite being totally exposed. Just don't ask questions...</li><br>
 
 
 				That's about it for pipes. Go forth, armed with this knowledge, and try not to break, burn down, or kill anything. Please.</font>
@@ -1227,19 +984,19 @@
 					<li><a href="#Hardsuit">Putting on a Hardsuit</a></li>
 					<li><a href="#Final">Final Checks</a></li>
 				</ol>
-				<br><BR>
+				<br><br>
 
-				<h1><a name="Forward">EVA Gear and You: Not Spending All Day Inside</a></h1><BR>
-				<I>Or: How not to suffocate because there's a hole in your shoes</I><BR><BR>
+				<h1><a name="Forward">EVA Gear and You: Not Spending All Day Inside</a></h1><br>
+				<i>Or: How not to suffocate because there's a hole in your shoes</i><br><br>
 
 				EVA gear. Wonderful to use. It's useful for mining, engineering, and occasionally just surviving, if things are that bad. Most people have EVA training,
 				but apparently there are some on a space station who don't. This guide should give you a basic idea of how to use this gear, safely. It's split into two sections:
-				 Civilian suits and hardsuits.<BR><BR>
+				 Civilian suits and hardsuits.<br><br>
 
-				<h1><a name="Civilian">Civilian Suits</a></h1><BR>
-				<I>The bulkiest things this side of Alpha Centauri</I><BR>
+				<h1><a name="Civilian">Civilian Suits</a></h1><br>
+				<i>The bulkiest things this side of Alpha Centauri</i><br>
 				These suits are the grey ones that are stored in EVA. They're the more simple to get on, but are also a lot bulkier, and provide less protection from environmental hazards such as radiaion or physical impact.
-				As Medical, Engineering, Security, and Mining all have hardsuits of their own, these don't see much use, but knowing how to put them on is quite useful anyways.<BR><BR>
+				As Medical, Engineering, Security, and Mining all have hardsuits of their own, these don't see much use, but knowing how to put them on is quite useful anyways.<br><br>
 
 				First, take the suit. It should be in three pieces: A top, a bottom, </font><font face="Verdana" color=black>and a helmet. Put the bottom on first, shoes and the like will fit in it. If you have magnetic boots, however,
 				put them on on top of the suit's feet. Next, get the top on, as you would a shirt. It can be somewhat awkward putting these pieces on, due to the makeup of the suit,
@@ -1247,23 +1004,23 @@
 				The red indicators around the waist of the lower half will turn green when this is done correctly. Next, put on whatever breathing apparatus you're using, be it a gas mask or a breath mask. Make sure the oxygen tube is fastened into it.
 				Put on the helmet now, straight forward, and make sure the tube goes into the small opening specifically for internals. Again, fasten seals around the neck, a small indicator light in the inside of the helmet should go from red to off when all is fastened.
 				There is a small slot on the side of the suit where an emergency oxygen tank or</font><font face="Verdana" color=black> extended emergency oxygen tank will fit,
-				but it is reccomended to have a full-sized tank on your back for EVA.<BR><BR>
+				but it is reccomended to have a full-sized tank on your back for EVA.<br><br>
 
-				<h1><a name="Hardsuit">Hardsuits</a></h1><BR>
-				<I>Heavy, uncomfortable, still the best option.</I><BR>
-				These suits come in Engineering, Mining, and the Armory. There's also a couple Medical Hardsuits in EVA. These provide a lot more protection than the standard suits.<BR><BR>
+				<h1><a name="Hardsuit">Hardsuits</a></h1><br>
+				<i>Heavy, uncomfortable, still the best option.</i><br>
+				These suits come in Engineering, Mining, and the Armory. There's also a couple Medical Hardsuits in EVA. These provide a lot more protection than the standard suits.<br><br>
 
 				Similarly to the other suits, these are split into three parts. Fastening the pant and top are mostly the same as the other spacesuits, with the exception that these are a bit heavier,
 				though not as bulky. The helmet goes on differently, with the air tube feeing into the suit and out a hole near the left shoulder, while the helmet goes on turned ninety degrees counter-clockwise,
 				and then is screwed in for one and a quarter full rotations clockwise, leaving the faceplate directly in front of you. There is a small button on the right side of the helmet that activates the helmet light.
-				The tanks that fasten onto the side slot are emergency tanks, as</font><font face="Verdana" color=black> well as full-sized oxygen tanks, leaving your back free for a backpack or satchel.<BR><BR>
+				The tanks that fasten onto the side slot are emergency tanks, as</font><font face="Verdana" color=black> well as full-sized oxygen tanks, leaving your back free for a backpack or satchel.<br><br>
 
-				<h1><a name="Final">FINAL CHECKS:</a></h1><BR>
+				<h1><a name="Final">FINAL CHECKS:</a></h1><br>
 				<li>Are all seals fastened correctly?</li>
 				<li>Do you either have shoes on under the suit, or magnetic boots on over it?</li>
 				<li>Do you have a mask on and internals on the suit or your back?</li>
 				<li>Do you have a way to communicate with the station in case something goes wrong?</li>
-				<li>Do you have a second person watching if this is a training session?</li><BR>
+				<li>Do you have a second person watching if this is a training session?</li><br>
 
 				If you don't have any further issues, go out and do whatever is necessary.</font>
 
@@ -1298,18 +1055,18 @@
 					<li><a href="#when">When to Fax?</a></li>
 					<li><a href="#how">How to Fax?</a></li>
 				</ol>
-				<br><BR>
+				<br><br>
 
-				<h1><a name="what"><U><B>What's a Fax?</B></U></a></h1><BR>
-				<li>Faxes are your main method of communicating with the Trurl, better known as Central Command.</li>
-				<li>Faxes allow personnel on the station to maintain open lines of communication with the Trurl, allowing for vital information to flow both ways.</li>
+				<h1><a name="what"><u><b>What's a Fax?</b></u></a></h1><br>
+				<li>Faxes are your main method of communicating with the АКН Трурль, better known as Central Command.</li>
+				<li>Faxes allow personnel on the station to maintain open lines of communication with the АКН Трурль, allowing for vital information to flow both ways.</li>
 				<li>Being written communications, proper grammar, syntax and typography is required, in addition to a signature and, if applicable, a stamp. Failure to sign faxes will lead to an automatic rejection.</li>
 				<li>We at Nanotrasen provide Fax Machines to every Head of Staff, in addition to the Magistrate, Nanotrasen Representative, and Internal Affairs Agents.</li>
-				<li>This means that we trust the recipients of these fax machines to only use them in the proper circumstances (see <B>When to Fax?</B>).</li>
+				<li>This means that we trust the recipients of these fax machines to only use them in the proper circumstances (see <b>When to Fax?</b>).</li>
 
-				<h1><a name="when"><B>When to Fax?</B></a></h1><BR>
+				<h1><a name="when"><b>When to Fax?</b></a></h1><br>
 				<li>While it is up to the discretion of each individual person to decide when to fax Central Command, there are some simple guidelines on when to do this.</li>
-				<li>Firstly, any situation that can reasonably be solved on-site, <I>should</I> be handled on-site. Knowledge of Standard Operating Procedure is <B>mandatory</B> for everyone with access to a fax machine.</li>
+				<li>Firstly, any situation that can reasonably be solved on-site, <i>should</i> be handled on-site. Knowledge of Standard Operating Procedure is <b>mandatory</b> for everyone with access to a fax machine.</li>
 				<li>Resolving issues on-site not only leads to more expedient problem-solving, it also frees up company resources and provides valuable work experience for all parties involved.</li>
 				<li>This means that you should work with the Heads of Staff concerning personnel and workplace issues, and attempt to resolve situations with them. If, for whatever reason, the relevent Head of Staff is not available or receptive, consider speaking with the Captain and/or Nanotrasen Representative.</li>
 				<li>If, for whatever reason, these issues cannot be solved on-site, either due to incompetence or just plain refusal to cooperate, faxing Central Command becomes a viable option.</li>
@@ -1318,14 +1075,14 @@
 				<li>Fourthly, do not issue faxes asking for sentences. You have an entire Security department and an associated Detective, not to mention on-site Space Law manuals.</li>
 				<li>Lastly, please pay attention to context. If the station is facing a massive emergency, such as a Class 7-10 Blob Organism, most, if not all, non-relevant faxes will be duly ignored.</li>
 
-				<h1><a name="how"><B>How to Fax?</B></a></h1><BR>
+				<h1><a name="how"><b>How to Fax?</b></a></h1><br>
 				<li>Sending a fax is simple. Simply insert your ID into the fax machine, then log in.</li>
 				<li>Once logged in, insert a piece of paper and select the destination from the provided list. Remember, you can rename your fax from within the fax machine's menu.</li>
 				<li>You can send faxes to any other fax machine on the station, which can be a very useful tool when you need to issue broad communications to all of the Heads of Staff.</li>
 				<li>To send a fax to Central Command, simply select the correct destination, and send the fax. Keep in mind, the communication arrays need to recharge after sending a fax to Central Command, so make sure you sent everything you need.</li>
 				<li>Lastly, paper bundles can also be faxed as a single item, so feel free to bundle up all relevant documentation and send it in at once.</li>
 
-				</ol><BR>
+				</ol><br>
 				</body>
 				</html>
 
@@ -1337,17 +1094,7 @@
 	icon_state = "sop_science"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Научного Отдела"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Standard_Operating_Procedure_(Science)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Исследование)"
 
 /obj/item/book/manual/sop_medical
 	name = "Стандартные Рабочие Процедуры Медицинского Отдела"
@@ -1355,17 +1102,7 @@
 	icon_state = "sop_medical"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Медицинского Отдела"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Standard_Operating_Procedure_(Medical)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Медицина)"
 
 /obj/item/book/manual/sop_engineering
 	name = "Стандартные Рабочие Процедуры Инженерного Отдела"
@@ -1373,17 +1110,7 @@
 	icon_state = "sop_engineering"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Инженерного Отдела"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Standard_Operating_Procedure_(Engineering)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Инженерия)"
 
 /obj/item/book/manual/sop_service
 	name = "Стандартные Рабочие Процедуры Отдела Обслуживания"
@@ -1391,17 +1118,7 @@
 	icon_state = "sop_service"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Отдела Обслуживания"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Стандартные_рабочие_процедуры_(Сервис)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Сервис)"
 
 /obj/item/book/manual/sop_supply
 	name = "Стандартные Рабочие Процедуры Отдела Снабжения"
@@ -1409,17 +1126,7 @@
 	icon_state = "sop_cargo"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Отдела Снабжения"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Стандартные_рабочие_процедуры_(Снабжение)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Снабжение)"
 
 /obj/item/book/manual/sop_security
 	name = "Стандартные Рабочие Процедуры Службы Безопасности"
@@ -1427,17 +1134,7 @@
 	icon_state = "sop_security"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Службы Безопасности"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Standard_Operating_Procedure_(Security)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Охрана)"
 
 /obj/item/book/manual/sop_legal
 	name = "Правовые Стандартные Рабочие Процедуры"
@@ -1445,17 +1142,7 @@
 	icon_state = "sop_legal"
 	author = "Nanotrasen"
 	title = "Правовые Стандартные Рабочие Процедуры"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Legal_Standard_Operating_Procedure" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Закон)"
 
 /obj/item/book/manual/sop_general
 	name = "Стандартные Рабочие Процедуры"
@@ -1463,17 +1150,7 @@
 	icon_state = "sop"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Standard_Operating_Procedure" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_Рабочие_Процедуры"
 
 /obj/item/book/manual/sop_command
 	name = "Стандартные Рабочие Процедуры Коммандования"
@@ -1481,14 +1158,4 @@
 	icon_state = "sop_command"
 	author = "Nanotrasen"
 	title = "Стандартные Рабочие Процедуры Коммандования"
-	dat = {"
-
-		<html><head>
-		</head>
-
-		<body>
-		<iframe width='100%' height='97%' src="https://wiki.ss220.space/index.php?action=render&title=Standard_Operating_Procedure_(Command)" frameborder="0" id="main_frame"></iframe>		</body>
-
-		</html>
-
-		"}
+	wiki_title = "Стандартные_рабочие_процедуры_(Командование)"

@@ -1,96 +1,87 @@
-#define VAULT_TOXIN "Toxin Adaptation"
-#define VAULT_NOBREATH "Lung Enhancement"
-#define VAULT_FIREPROOF "Thermal Regulation"
-#define VAULT_STUNTIME "Neural Repathing"
-#define VAULT_ARMOUR "Hardened Skin"
-#define VAULT_SPEED "Leg Muscle Stimulus"
-#define VAULT_QUICK "Arm Muscle Stimulus"
+#define VAULT_TOXIN "Устойчивость к токсинам"
+#define VAULT_NOBREATH "Улучшение лёгких"
+#define VAULT_FIREPROOF "Терморегуляция"
+#define VAULT_STUNTIME "Нейронное восстановление"
+#define VAULT_ARMOUR "Каменная кожа"
+#define VAULT_SPEED "Стимулятор мышц ног"
+#define VAULT_QUICK "Стимуляция мышц рук"
 
 /obj/item/dna_upgrader
 	name = "dna upgrader"
-	desc = "test"
+	desc = "Кто-то мог бы сказать, что для такой сильной модификации необходимо выполнить цель станции... Дураки!"
+	ru_names = list(
+		NOMINATIVE = "модификатор ДНК",
+		GENITIVE = "модификатора ДНК",
+		DATIVE = "модификатору ДНК",
+		ACCUSATIVE = "модификатор ДНК",
+		INSTRUMENTAL = "модификатором ДНК",
+		PREPOSITIONAL = "модификаторе ДНК"
+	)
 	icon = 'icons/obj/hypo.dmi'
 	icon_state = "dnaupgrader"
 	var/used = FALSE
 
-
 /obj/item/dna_upgrader/update_icon_state()
 	icon_state = "dnaupgrader[used ? "0" : ""]"
-
 
 /obj/item/dna_upgrader/update_name(updates = ALL)
 	. = ..()
 	name = used ? "used [initial(name)]" : initial(name)
 
-
 /obj/item/dna_upgrader/attack_self(mob/user)
 	if(!used)
-		ui_interact(user)
+		choose_genes(user)
 	else
-		to_chat(user, span_notice("Looks like it is already used."))
+		balloon_alert(user, "уже используется!")
 
-/obj/item/dna_upgrader/ui_interact(mob/user, ui_key, datum/tgui/ui, force_open, datum/tgui/master_ui, datum/ui_state/state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
-
-	if(!ui)
-		ui = new(user, src, ui_key, "DNAModifyer", name, 400, 150, master_ui, state)
-		ui.open()
-
-/obj/item/dna_upgrader/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
-
-	if(..())
+/obj/item/dna_upgrader/proc/choose_genes(mob/user)
+	var/choosen_mod = tgui_input_list(user, "Выберите модификацию", name, list(VAULT_TOXIN, VAULT_NOBREATH, VAULT_FIREPROOF, VAULT_STUNTIME, VAULT_ARMOUR, VAULT_SPEED, VAULT_QUICK), ui_state = GLOB.not_incapacitated_state)
+	if(!choosen_mod)
 		return
-
-	switch(action)
-		if("gene")
-			var/mob/living/carbon/human/H = ui.user
-			var/datum/species/S = H.dna.species
-			if(NO_DNA in S.species_traits)
-				to_chat(H, "<span class='warning'>Error, no DNA detected.</span>")
-				return
-			var/modification = params["modification"]
-			switch(modification)
-				if(VAULT_TOXIN)
-					to_chat(H, "<span class='notice'>You feel resistant to airborne toxins.</span>")
-					var/obj/item/organ/internal/lungs/L = H.get_int_organ(/obj/item/organ/internal/lungs)
-					if(L)
-						L.tox_breath_dam_min = 0
-						L.tox_breath_dam_max = 0
-					S.species_traits |= VIRUSIMMUNE
-				if(VAULT_NOBREATH)
-					to_chat(H, "<span class='notice'>Your lungs feel great.</span>")
-					S.species_traits |= NO_BREATHE
-				if(VAULT_FIREPROOF)
-					to_chat(H, "<span class='notice'>You feel fireproof.</span>")
-					S.burn_mod *= 0.5
-					S.species_traits |= RESISTHOT
-				if(VAULT_STUNTIME)
-					to_chat(H, "<span class='notice'>Nothing can keep you down for long.</span>")
-					S.stun_mod *= 0.5
-					S.stamina_mod *= 0.5
-					H.stam_regen_start_modifier *= 0.5
-				if(VAULT_ARMOUR)
-					to_chat(H, "<span class='notice'>You feel tough.</span>")
-					S.brute_mod *= 0.7
-					S.burn_mod *= 0.7
-					S.tox_mod *= 0.7
-					S.oxy_mod *= 0.7
-					S.clone_mod *= 0.7
-					S.brain_mod *= 0.7
-					S.stamina_mod *= 0.7
-					S.species_traits |= PIERCEIMMUNE
-				if(VAULT_SPEED)
-					to_chat(H, "<span class='notice'>You feel very fast and agile.</span>")
-					H.add_movespeed_modifier(/datum/movespeed_modifier/dna_vault_speedup)
-				if(VAULT_QUICK)
-					to_chat(H, "<span class='notice'>Your arms move as fast as lightning.</span>")
-					H.next_move_modifier = 0.5
-			ui.close()
-			H.gene_stability += 25
-			to_chat(H, span_notice("You feel like your body rebasing."))
-			used = TRUE
-			update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
-			return TRUE
+	var/mob/living/carbon/human/H = user
+	if(HAS_TRAIT(H, TRAIT_NO_DNA))
+		balloon_alert(H, "ДНК не обнаружена!")
+		return
+	switch(choosen_mod)
+		if(VAULT_TOXIN)
+			to_chat(H, span_notice("Вы ощущаете устойчивость к инфекциям, передающимся воздушно-капельным путём."))
+			var/obj/item/organ/internal/lungs/L = H.get_int_organ(/obj/item/organ/internal/lungs)
+			if(L)
+				L.tox_breath_dam_min = 0
+				L.tox_breath_dam_max = 0
+			ADD_TRAIT(H, TRAIT_VIRUSIMMUNE, name)
+		if(VAULT_NOBREATH)
+			to_chat(H, span_notice("Вы чувствуете, что ваши лёгкие работают лучше."))
+			ADD_TRAIT(H, TRAIT_NO_BREATH, name)
+		if(VAULT_FIREPROOF)
+			to_chat(H, span_notice("Вы ощущаете себя невосприимчивым к огню."))
+			H.physiology.burn_mod *= 0.5
+			ADD_TRAIT(H, TRAIT_RESIST_HEAT, name)
+		if(VAULT_STUNTIME)
+			to_chat(H, span_notice("Вы ощущаете, что ничто не может надолго вывести вас из равновесия."))
+			H.physiology.stun_mod *= 0.5
+			H.physiology.stamina_mod *= 0.5
+			H.stam_regen_start_modifier *= 0.5
+		if(VAULT_ARMOUR)
+			to_chat(H, span_notice("Вы чувствуете себя крепче."))
+			H.physiology.brute_mod *= 0.7
+			H.physiology.burn_mod *= 0.7
+			H.physiology.tox_mod *= 0.7
+			H.physiology.oxy_mod *= 0.7
+			H.physiology.clone_mod *= 0.7
+			H.physiology.brain_mod *= 0.7
+			H.physiology.stamina_mod *= 0.7
+			ADD_TRAIT(H, TRAIT_PIERCEIMMUNE, name)
+		if(VAULT_SPEED)
+			to_chat(H, span_notice("Вы ощущаете невероятную скорость и лёгкость."))
+			H.add_movespeed_modifier(/datum/movespeed_modifier/dna_vault_speedup)
+		if(VAULT_QUICK)
+			to_chat(H, span_notice("Ваши руки двигаются с молниеносной скоростью."))
+			H.next_move_modifier *= 0.5
+	H.gene_stability += 25
+	to_chat(H, span_notice("Вы ощущаете, как ваше тело изменяется."))
+	used = TRUE
+	update_appearance(UPDATE_ICON_STATE|UPDATE_NAME)
 
 #undef VAULT_TOXIN
 #undef VAULT_NOBREATH

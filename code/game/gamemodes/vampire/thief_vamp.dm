@@ -10,8 +10,8 @@
 	var/list/datum/mind/pre_vampires = list()
 
 /datum/game_mode/thief/vampire/announce()
-	to_chat(world, "<B>The current game mode is - Thief+Vampire!</B>")
-	to_chat(world, "<B>На станции зафиксирована деятельность гильдии воров и вампиров. Не дайте вампирам достичь успеха и не допустите кражу дорогостоящего оборудования!</B>")
+	to_chat(world, "<b>The current game mode is - Thief+Vampire!</b>")
+	to_chat(world, "<b>На станции зафиксирована деятельность гильдии воров и вампиров. Не дайте вампирам достичь успеха и не допустите кражу дорогостоящего оборудования!</b>")
 
 
 /datum/game_mode/thief/vampire/pre_setup()
@@ -36,5 +36,5 @@
 
 /datum/game_mode/thief/vampire/post_setup()
 	for(var/datum/mind/vampire in pre_vampires)
-		vampire.add_antag_datum(/datum/antagonist/vampire)
+		vampire.add_antag_datum(/datum/antagonist/vampire/new_vampire)
 	..()

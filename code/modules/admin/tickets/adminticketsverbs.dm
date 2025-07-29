@@ -3,26 +3,25 @@
 /client/proc/openAdminTicketUI()
 
 	set name = "Open Admin Ticket Interface"
-	set category = "Admin"
+	set category = STATPANEL_ADMIN_TICKETS
 
-	if(!check_rights(R_ADMIN))
+	if(!check_rights(R_ADMIN|R_MOD))
 		return
 
 	SStickets.showUI(usr)
 
 /client/proc/resolveAllAdminTickets()
 	set name = "Resolve All Open Admin Tickets"
-	set category = null
 
 	if(!check_rights(R_ADMIN))
 		return
 
-	if(alert("Are you sure you want to resolve ALL open admin tickets?","Resolve all open admin tickets?","Yes","No") != "Yes")
+	if(tgui_alert(usr, "Are you sure you want to resolve ALL open admin tickets?", "Resolve all open admin tickets?", list("Yes", "No")) != "Yes")
 		return
 
 	SStickets.resolveAllOpenTickets()
 
 /client/verb/openAdminUserUI()
-	set name = "My Admin Tickets"
-	set category = "Admin"
+	set name = "Админ запросы"
+	set category = STATPANEL_ADMIN_TICKETS
 	SStickets.userDetailUI(usr)

@@ -20,6 +20,7 @@ SUBSYSTEM_DEF(nightshift)
 		flags |= SS_NO_FIRE
 	if(CONFIG_GET(flag/randomize_shift_time))
 		GLOB.gametime_offset = rand(0, 23) HOURS
+	return SS_INIT_SUCCESS
 
 
 /datum/controller/subsystem/nightshift/fire(resumed = FALSE)
@@ -29,13 +30,16 @@ SUBSYSTEM_DEF(nightshift)
 
 
 /datum/controller/subsystem/nightshift/proc/announce(message)
-	GLOB.priority_announcement.Announce(message, new_sound = 'sound/misc/announce_dig.ogg', new_title = "Автоматическое оповещение: Освещение.")
+	GLOB.minor_announcement.announce(message,
+									new_title = ANNOUNCE_NIGHTSHIFT_RU,
+									new_sound = 'sound/misc/notice2.ogg'
+	)
 
 
 /datum/controller/subsystem/nightshift/proc/check_nightshift(check_canfire=FALSE)
 	if(check_canfire && !can_fire)
 		return
-	var/emergency = GLOB.security_level >= SEC_LEVEL_RED
+	var/emergency = SSsecurity_level.get_current_level_as_number() >= SEC_LEVEL_RED
 	var/announcing = TRUE
 	var/time = station_time()
 	var/night_time = (time < nightshift_end_time) || (time > nightshift_start_time)
@@ -44,7 +48,7 @@ SUBSYSTEM_DEF(nightshift)
 		if(night_time)
 			announcing = FALSE
 			if(!emergency)
-				announce("Система ночного освещения снова работает в штатном режиме.")
+				announce("Система ночного освещения снова работает в штатном режиме.")
 			else
 				announce("Система ночного освещения отключена в связи с наличием существенной угрозы для станции. Пожалуйста, сохраняйте спокойствие.")
 	if(emergency)
@@ -57,11 +61,11 @@ SUBSYSTEM_DEF(nightshift)
 	nightshift_active = active
 	if(announce)
 		if(active)
-			announce("Добрый вечер, экипаж. Для снижения энергопотребления и стимуляции циркадных ритмов некоторых видов освещ+ение на борту станции переведено в ночной режим.")
+			announce("Добрый вечер, экипаж. Для снижения энергопотребления и стимуляции циркадных ритмов некоторых видов освещение на борту станции переведено в ночной режим.")
 		else
-			announce("Доброе утро, экипаж. В связи с наступлением дневного времени освещ+ение на борту станции переведено в дневной режим.")
+			announce("Доброе утро, экипаж. В связи с наступлением дневного времени освещ+ение на борту станции переведено в дневной режим.")
 	for(var/A in GLOB.apcs)
 		var/obj/machinery/power/apc/APC = A
-		if(is_station_level(APC.z) || is_taipan(APC.z) && GLOB.security_level == SEC_LEVEL_GREEN)
+		if(is_station_level(APC.z) || is_taipan(APC.z) && SSsecurity_level.get_current_level_as_number() == SEC_LEVEL_GREEN)
 			APC.set_nightshift(active)
 			CHECK_TICK

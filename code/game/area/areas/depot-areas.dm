@@ -3,6 +3,8 @@
 	name = "Suspicious Supply Depot"
 	icon_state = "dark"
 	tele_proof = 1
+	area_flags = NONE
+	holomap_should_draw = FALSE
 
 /area/syndicate_depot/core
 	icon_state = "red"
@@ -231,8 +233,7 @@
 	if(!silent)
 		announce_here("Depot Code BLUE", reason)
 		var/list/possible_bot_spawns = list()
-		for(var/thing in GLOB.landmarks_list)
-			var/obj/effect/landmark/L = thing
+		for(var/obj/effect/landmark/L in GLOB.landmarks_list)
 			if(L.name == "syndi_depot_bot")
 				possible_bot_spawns |= L
 		if(possible_bot_spawns.len)
@@ -263,8 +264,7 @@
 			comms_online = TRUE
 	if(comms_online)
 		spawn(0)
-			for(var/thing in GLOB.landmarks_list)
-				var/obj/effect/landmark/L = thing
+			for(var/obj/effect/landmark/L in GLOB.landmarks_list)
 				if(prob(50))
 					if(L.name == "syndi_depot_backup")
 						var/mob/living/simple_animal/hostile/syndicate/melee/autogib/depot/space/S = new /mob/living/simple_animal/hostile/syndicate/melee/autogib/depot/space(get_turf(L))
@@ -298,7 +298,7 @@
 		var/log_msg = "[key_name(user)] has triggered the depot self destruct at [A.name] ([T.x],[T.y],[T.z])"
 		message_admins(log_msg)
 		add_game_logs(log_msg, user)
-		playsound(user, 'sound/machines/alarm.ogg', 100, 0, 0)
+		playsound(user, 'sound/machines/alarm.ogg', 100, FALSE, 0)
 	else
 		add_game_logs("Depot self destruct activated.")
 	if(reactor)
@@ -358,8 +358,7 @@
 /area/syndicate_depot/core/proc/shields_up()
 	if(shield_list.len)
 		return
-	for(var/thing in GLOB.landmarks_list)
-		var/obj/effect/landmark/L = thing
+	for(var/obj/effect/landmark/L in GLOB.landmarks_list)
 		if(L.name == "syndi_depot_shield")
 			var/obj/machinery/shieldwall/syndicate/S = new /obj/machinery/shieldwall/syndicate(L.loc)
 			shield_list += S.UID()

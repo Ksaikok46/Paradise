@@ -1004,6 +1004,17 @@
 	construction_time = 20 SECONDS
 	category = list("Exosuit Equipment")
 
+/datum/design/medbeamgun
+	name = "Exosuit Medical Equipment (Mecha Medbeam)"
+	id = "mech_medical_beamgun"
+	build_type = MECHFAB
+	build_path = /obj/item/mecha_parts/mecha_equipment/medical/beamgun
+	req_tech = list("biotech" = 7, "bluespace" = 7, "powerstorage" = 7)
+	materials = list(MAT_METAL=5000,MAT_DIAMOND=600,MAT_GLASS=600,MAT_GOLD=600,MAT_URANIUM=300,MAT_BLUESPACE=650)
+	construction_time = 20 SECONDS
+	category = list("Exosuit Equipment")
+
+
 /datum/design/improved_exosuit_control_system
     name = "Exosuit Common Equipment (Control System Upgrade)"
     id = "mech_improved_exosuit_control_system"
@@ -1033,6 +1044,17 @@
 	req_tech = list("materials" = 5, "combat" = 4)
 	build_path = /obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster
 	materials = list(MAT_METAL=20000,MAT_SILVER=5000)
+	construction_time = 10 SECONDS
+	category = list("Exosuit Equipment")
+
+/datum/design/mech_cage
+	name = "Клетка SCS-3"
+	desc = "Модуль для экзокостюмов, используемый для задержания и заключения преступников."
+	id = "mech_cage"
+	build_type = MECHFAB
+	req_tech = (list("materials" = 7, "combat" = 7))
+	build_path = /obj/item/mecha_parts/mecha_equipment/cage
+	materials = list(MAT_METAL=10000, MAT_TITANIUM=4000, MAT_SILVER=2000, MAT_DIAMOND=1000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Equipment")
 
@@ -1100,6 +1122,17 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 3)
 	build_path = /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser/disabler
+	materials = list(MAT_METAL=10000)
+	construction_time = 10 SECONDS
+	category = list("Exosuit Equipment")
+
+/datum/design/mech_scattershot_riot
+	name = "Exosuit Non-lethal Weapon (LBX AC 9 \"Riot Scattershot\")"
+	desc = "Allows for the construction of LBX AC 9."
+	id = "mech_scattershot_riot"
+	build_type = MECHFAB
+	req_tech = list("combat" = 3, "materials" = 3)
+	build_path = /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot/riot
 	materials = list(MAT_METAL=10000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Equipment")
@@ -1813,7 +1846,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 5, "materials" = 5, "programming" = 5)
 	build_path = /obj/item/paintkit/ripley_titansfist
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1823,7 +1856,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 5, "materials" = 5, "programming" = 5)
 	build_path = /obj/item/paintkit/ripley_mercenary
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1833,7 +1866,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "toxins" = 5)
 	build_path = /obj/item/paintkit/ripley_red
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1843,7 +1876,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "programming" = 5)
 	build_path = /obj/item/paintkit/firefighter_Hauler
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1853,7 +1886,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "programming" = 5, "toxins" = 5)
 	build_path = /obj/item/paintkit/firefighter_zairjah
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1863,7 +1896,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 5, "materials" = 5, "programming" = 5)
 	build_path = /obj/item/paintkit/firefighter_combat
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1873,7 +1906,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 5, "materials" = 5, "programming" = 5,"toxins" = 5)
 	build_path = /obj/item/paintkit/firefighter_Reaper
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1883,7 +1916,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "programming" = 5,"toxins" = 5)
 	build_path = /obj/item/paintkit/firefighter_aluminizer
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1893,7 +1926,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 5, "materials" = 5, "programming" = 5)
 	build_path = /obj/item/paintkit/ripley_nt
-	materials = list(MAT_METAL=20000, MAT_PLASMA=2000, MAT_GLASS= 2000)
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 2000, MAT_GLASS = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1903,7 +1936,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "toxins" = 5)
 	build_path = /obj/item/paintkit/clarke_orangey
-	materials = list(MAT_METAL=20000, MAT_DIAMOND=2000, MAT_URANIUM= 2000)
+	materials = list(MAT_METAL = 20000, MAT_DIAMOND = 2000, MAT_URANIUM = 2000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1913,7 +1946,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 4, "engineering" = 5, "materials" = 5, "toxins" = 5)
 	build_path = /obj/item/paintkit/clarke_spiderclarke
-	materials = list(MAT_METAL=20000, MAT_DIAMOND=2000, MAT_URANIUM= 2000)
+	materials = list(MAT_METAL = 20000, MAT_DIAMOND = 2000, MAT_URANIUM = 2000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1923,7 +1956,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "programming" = 5,"biotech" = 5)
 	build_path = /obj/item/paintkit/odysseus_hermes
-	materials = list(MAT_METAL=20000, MAT_DIAMOND=2000, MAT_URANIUM= 2000)
+	materials = list(MAT_METAL = 20000, MAT_DIAMOND = 2000, MAT_URANIUM = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1933,7 +1966,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 5, "materials" = 5, "programming" = 5, "toxins" = 5)
 	build_path = /obj/item/paintkit/odysseus_death
-	materials = list(MAT_METAL=20000, MAT_DIAMOND=2000, MAT_URANIUM= 2000)
+	materials = list(MAT_METAL = 20000, MAT_DIAMOND = 2000, MAT_URANIUM = 2000)
 	construction_time = 10 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1943,7 +1976,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 4, "engineering" = 5, "materials" = 5, "programming" = 4)
 	build_path = /obj/item/paintkit/gygax_alt
-	materials = list(MAT_METAL=30000, MAT_DIAMOND=3000, MAT_URANIUM= 3000)
+	materials = list(MAT_METAL = 30000, MAT_DIAMOND = 3000, MAT_URANIUM = 3000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1953,7 +1986,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 5, "engineering" = 4, "materials" = 4, "programming" = 6)
 	build_path = /obj/item/paintkit/gygax_pobeda
-	materials = list(MAT_METAL=30000, MAT_DIAMOND=3000, MAT_URANIUM= 3000)
+	materials = list(MAT_METAL = 30000, MAT_DIAMOND = 3000, MAT_URANIUM = 3000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1963,7 +1996,7 @@
 	build_type = MECHFAB
 	req_tech = list("biotech" = 4, "engineering" = 4, "materials" = 5, "programming" = 3 )
 	build_path = /obj/item/paintkit/gygax_white
-	materials = list(MAT_METAL=30000, MAT_DIAMOND=3000, MAT_URANIUM= 3000)
+	materials = list(MAT_METAL = 30000, MAT_DIAMOND = 3000, MAT_URANIUM = 3000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1973,7 +2006,7 @@
 	build_type = MECHFAB
 	req_tech = list("engineering" = 5, "materials" = 5, "programming" = 6,"biotech" = 6, "toxins" = 6)
 	build_path = /obj/item/paintkit/gygax_medgax
-	materials = list(MAT_METAL=30000, MAT_DIAMOND=3000, MAT_URANIUM= 3000)
+	materials = list(MAT_METAL = 30000, MAT_DIAMOND = 3000, MAT_URANIUM = 3000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1983,7 +2016,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 5, "materials" = 6, "programming" = 5, "syndicate" = 3)
 	build_path = /obj/item/paintkit/gygax_syndie
-	materials = list(MAT_METAL=30000, MAT_DIAMOND=3000, MAT_URANIUM= 3000)
+	materials = list(MAT_METAL = 30000, MAT_DIAMOND = 3000, MAT_URANIUM = 3000)
 	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -1993,7 +2026,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 6, "materials" = 6, "programming" = 6)
 	build_path = /obj/item/paintkit/gygax_pirate
-	materials = list(MAT_METAL=30000, MAT_DIAMOND=3000, MAT_URANIUM= 3000)
+	materials = list(MAT_METAL = 30000, MAT_DIAMOND = 3000, MAT_URANIUM = 3000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2003,7 +2036,7 @@
 	build_type = MECHFAB
 	req_tech = list("materials" = 6, "biotech" = 6)
 	build_path = /obj/item/paintkit/durand_unathi
-	materials = list(MAT_METAL=40000, MAT_DIAMOND=4000, MAT_URANIUM= 4000)
+	materials = list(MAT_METAL = 40000, MAT_DIAMOND = 4000, MAT_URANIUM = 4000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2013,7 +2046,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 6, "materials" = 6, "programming" = 6)
 	build_path = /obj/item/paintkit/durand_shire
-	materials = list(MAT_METAL=40000, MAT_DIAMOND=4000, MAT_URANIUM= 4000)
+	materials = list(MAT_METAL = 40000, MAT_DIAMOND = 4000, MAT_URANIUM = 4000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2023,7 +2056,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 6, "materials" = 6, "programming" = 6)
 	build_path = /obj/item/paintkit/durand_pirate
-	materials = list(MAT_METAL=40000, MAT_DIAMOND=4000, MAT_URANIUM= 4000)
+	materials = list(MAT_METAL = 40000, MAT_DIAMOND = 4000, MAT_URANIUM = 4000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2033,7 +2066,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 6, "materials" = 6, "programming" = 6)
 	build_path = /obj/item/paintkit/durand_nt
-	materials = list(MAT_METAL=40000, MAT_DIAMOND=4000, MAT_URANIUM= 4000)
+	materials = list(MAT_METAL = 40000, MAT_DIAMOND = 4000, MAT_URANIUM = 4000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2043,7 +2076,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 6, "materials" = 6, "programming" = 6, "toxins" = 6)
 	build_path = /obj/item/paintkit/durand_soviet
-	materials = list(MAT_METAL=40000, MAT_DIAMOND=4000, MAT_URANIUM= 4000)
+	materials = list(MAT_METAL = 40000, MAT_DIAMOND = 4000, MAT_URANIUM = 4000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2053,7 +2086,7 @@
 	build_type = MECHFAB
 	req_tech = list("combat" = 6, "engineering" = 6, "materials" = 6, "programming" = 6)
 	build_path = /obj/item/paintkit/durand_executor
-	materials = list(MAT_METAL=40000, MAT_DIAMOND=4000, MAT_SILVER= 4000)
+	materials = list(MAT_METAL = 40000, MAT_DIAMOND = 4000, MAT_SILVER = 4000)
 	construction_time = 30 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2063,7 +2096,7 @@
 	build_type = MECHFAB
 	req_tech = list("bluespace" = 6, "engineering" = 6, "materials" = 6, "programming" = 6, "toxins" = 5)
 	build_path = /obj/item/paintkit/phazon_imperion
-	materials = list(MAT_METAL=50000, MAT_DIAMOND=4000, MAT_BLUESPACE=4000)
+	materials = list(MAT_METAL = 50000, MAT_DIAMOND = 4000, MAT_BLUESPACE = 4000)
 	construction_time = 40 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2073,7 +2106,7 @@
 	build_type = MECHFAB
 	req_tech = list("bluespace" = 6, "engineering" = 6, "materials" = 6, "programming" = 6, "toxins" = 5)
 	build_path = /obj/item/paintkit/phazon_janus
-	materials = list(MAT_METAL=50000, MAT_DIAMOND=4000, MAT_BLUESPACE=4000)
+	materials = list(MAT_METAL = 50000, MAT_DIAMOND = 4000, MAT_BLUESPACE = 4000)
 	construction_time = 40 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2083,7 +2116,7 @@
 	build_type = MECHFAB
 	req_tech = list("bluespace" = 6, "engineering" = 6, "materials" = 6, "toxins" = 5)
 	build_path = /obj/item/paintkit/phazon_plazmus
-	materials = list(MAT_METAL=50000, MAT_DIAMOND=4000, MAT_PLASMA=5000)
+	materials = list(MAT_METAL = 50000, MAT_DIAMOND = 4000, MAT_PLASMA = 5000)
 	construction_time = 40 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2093,7 +2126,7 @@
 	build_type = MECHFAB
 	req_tech = list("bluespace" = 7, "engineering" = 7, "materials" = 7, "toxins" = 6)
 	build_path = /obj/item/paintkit/phazon_blanco
-	materials = list(MAT_METAL=50000, MAT_DIAMOND=4000, MAT_BLUESPACE=4000)
+	materials = list(MAT_METAL = 50000, MAT_DIAMOND = 4000, MAT_BLUESPACE = 4000)
 	construction_time = 40 SECONDS
 	category = list("Exosuit Paintkits")
 
@@ -2103,6 +2136,16 @@
 	build_type = MECHFAB
 	req_tech = list("bluespace" = 7, "engineering" = 7, "materials" = 7, "toxins" = 6)
 	build_path = /obj/item/paintkit/phazon_nt
-	materials = list(MAT_METAL=50000, MAT_DIAMOND=4000, MAT_BLUESPACE=4000)
+	materials = list(MAT_METAL = 50000, MAT_DIAMOND = 4000, MAT_BLUESPACE = 4000)
 	construction_time = 40 SECONDS
+	category = list("Exosuit Paintkits")
+
+/datum/design/paint_ashed
+	name = "Ashed \"Mechs\""
+	id = "p_ashed"
+	build_type = MECHFAB
+	req_tech = list("engineering" = 5, "materials" = 6)
+	build_path = /obj/item/paintkit/ashed
+	materials = list(MAT_METAL = 20000, MAT_PLASMA = 8000, MAT_GLASS = 8000)
+	construction_time = 20 SECONDS
 	category = list("Exosuit Paintkits")

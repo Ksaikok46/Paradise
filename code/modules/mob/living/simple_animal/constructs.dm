@@ -1,8 +1,8 @@
 /mob/living/simple_animal/hostile/construct
 	name = "Construct"
 	real_name = "Construct"
-	speak_emote = list("hisses")
-	emote_hear = list("wails","screeches")
+	speak_emote = list("шипит")
+	emote_hear = list("визжит", "воет")
 	tts_seed = "Acolyte"
 	response_help  = "thinks better of touching"
 	response_disarm = "flails at"
@@ -15,7 +15,6 @@
 	see_invisible = SEE_INVISIBLE_HIDDEN_RUNES
 	attack_sound = 'sound/weapons/punch1.ogg'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	minbodytemp = 0
 	faction = list("cult")
 	pressure_resistance = 100
 	universal_speak = TRUE
@@ -48,12 +47,18 @@
 	for(var/spell in construct_spells)
 		AddSpell(new spell(null))
 
-	set_light(2, 3, l_color = SSticker.cultdat ? SSticker.cultdat.construct_glow : LIGHT_COLOR_BLOOD_MAGIC)
+	set_light_range_power_color(2, 3, SSticker.cultdat ? SSticker.cultdat.construct_glow : LIGHT_COLOR_BLOOD_MAGIC)
 
 /mob/living/simple_animal/hostile/construct/Initialize(mapload)
 	. = ..()
 	add_traits(list(TRAIT_HEALS_FROM_CULT_PYLONS, TRAIT_HEALS_FROM_HOLY_PYLONS, TRAIT_NO_FLOATING_ANIM), INNATE_TRAIT)
 	AddElement(/datum/element/simple_flying)
+
+/mob/living/simple_animal/hostile/construct/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		minbodytemp = 223, \
+	)
 
 /mob/living/simple_animal/hostile/construct/death(gibbed)
 	. = ..()
@@ -90,7 +95,7 @@
 /mob/living/simple_animal/hostile/construct/narsie_act()
 	return
 
-/mob/living/simple_animal/hostile/construct/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, safety = FALSE, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE)
+/mob/living/simple_animal/hostile/construct/electrocute_act(shock_damage, source, siemens_coeff = 1, flags = NONE, jitter_time = 10 SECONDS, stutter_time = 6 SECONDS, stun_duration = 4 SECONDS)
 	return FALSE
 
 /////////////////Juggernaut///////////////
@@ -122,19 +127,21 @@
 	force_threshold = 11
 	playstyle_string = "<b>You are a Juggernaut. Though slow, your shell can withstand extreme punishment, \
 						create shield walls, rip apart enemies and walls alike, and even deflect energy weapons.</b>"
+	hud_type = /datum/hud/construct/armoured
 
 /mob/living/simple_animal/hostile/construct/armoured/hostile //actually hostile, will move around, hit things
 	AIStatus = AI_ON
 	environment_smash = 1 //only token destruction, don't smash the cult wall NO STOP
 
-/mob/living/simple_animal/hostile/construct/armoured/bullet_act(var/obj/item/projectile/P)
+/mob/living/simple_animal/hostile/construct/armoured/bullet_act(var/obj/projectile/P)
 	if(P.is_reflectable(REFLECTABILITY_ENERGY))
 		var/reflectchance = 80 - round(P.damage/3)
 		if(prob(reflectchance))
 			if((P.damage_type == BRUTE || P.damage_type == BURN))
 				adjustBruteLoss(P.damage * 0.5)
-			visible_message("<span class='danger'>The [P.name] gets reflected by [src]'s shell!</span>", \
-							"<span class='userdanger'>The [P.name] gets reflected by [src]'s shell!</span>")
+			visible_message(span_danger("The [P.name] gets reflected by [src]'s shell!"), \
+							span_userdanger("The [P.name] gets reflected by [src]'s shell!"),
+							projectile_message = TRUE)
 
 			P.reflect_back(src, list(0, 0, -1, 1, -2, 2, -2, 2, -2, 2, -3, 3, -3, 3))
 
@@ -172,6 +179,7 @@
 	retreat_distance = 2 //AI wraiths will move in and out of combat
 	playstyle_string = "<b>You are a Wraith. Though relatively fragile, you are fast, deadly, and even able to phase through walls.</b>"
 	tts_seed = "Kelthuzad"
+	hud_type = /datum/hud/construct/wraith
 
 /mob/living/simple_animal/hostile/construct/wraith/hostile //actually hostile, will move around, hit things
 	AIStatus = AI_ON
@@ -223,6 +231,7 @@
 						use magic missile, repair allied constructs (by clicking on them), \
 						<i>and, most important of all,</i> create new constructs by producing soulstones to capture souls, \
 						and shells to place those soulstones into.</b>"
+	hud_type = /datum/hud/construct/builder
 
 
 /mob/living/simple_animal/hostile/construct/builder/Found(atom/A) //what have we found here?
@@ -246,7 +255,7 @@
 	if(isliving(target))
 		var/mob/living/L = target
 		if(isconstruct(L) && L.health >= L.maxHealth) //is this target an unhurt construct? stop trying to heal it
-			LoseTarget()
+			lose_target()
 			return 0
 		if(L.health <= melee_damage_lower+melee_damage_upper) //ey bucko you're hurt as fuck let's go hit you
 			retreat_distance = null
@@ -293,7 +302,7 @@
 	icon_living = "behemoth"
 	maxHealth = 750
 	health = 750
-	speak_emote = list("rumbles")
+	speak_emote = list("грохочет")
 	response_harm = "harmlessly punches"
 	harm_intent_damage = 0
 	melee_damage_lower = 50
@@ -304,6 +313,7 @@
 	attack_sound = 'sound/weapons/punch4.ogg'
 	force_threshold = 11
 	construct_type = "behemoth"
+	hud_type = /datum/hud/construct/armoured
 	var/energy = 0
 	var/max_energy = 1000
 
@@ -334,11 +344,12 @@
 							/obj/effect/proc_holder/spell/aoe/conjure/build/floor,
 							/obj/effect/proc_holder/spell/smoke/disable)
 	retreat_distance = 2 //AI harvesters will move in and out of combat, like wraiths, but shittier
-	playstyle_string = "<B>You are a Harvester. You are not strong, but your powers of domination will assist you in your role: \
-						Bring those who still cling to this world of illusion back to the master so they may know Truth.</B>"
+	playstyle_string = "<b>You are a Harvester. You are not strong, but your powers of domination will assist you in your role: \
+						Bring those who still cling to this world of illusion back to the master so they may know Truth.</b>"
+	hud_type = /datum/hud/construct/harvester
 
 
-/mob/living/simple_animal/hostile/construct/harvester/Process_Spacemove(movement_dir = NONE)
+/mob/living/simple_animal/hostile/construct/harvester/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	return TRUE
 
 

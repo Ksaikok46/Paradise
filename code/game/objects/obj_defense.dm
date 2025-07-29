@@ -11,13 +11,7 @@
 	if(damage_amount < DAMAGE_PRECISION)
 		return
 	. = damage_amount
-	obj_integrity = max(obj_integrity - damage_amount, 0)
-	//BREAKING FIRST
-	if(integrity_failure && obj_integrity <= integrity_failure)
-		obj_break(damage_flag)
-	//DESTROYING SECOND
-	if(obj_integrity <= 0)
-		obj_destruction(damage_flag)
+	update_integrity(obj_integrity - damage_amount, damage_flag)
 
 ///returns the damage value of the attack after processing the obj's various armor protections
 /obj/proc/run_obj_armor(damage_amount, damage_type, damage_flag = 0, attack_dir, armour_penetration = 0)
@@ -33,7 +27,51 @@
 		armor_protection = armor.getRating(damage_flag)
 	if(armor_protection)		//Only apply weak-against-armor/hollowpoint effects if there actually IS armor.
 		armor_protection = clamp(armor_protection - armour_penetration, min(armor_protection, 0), 100)
-	return round(damage_amount * (100 - armor_protection)*0.01, DAMAGE_PRECISION)
+	return round(damage_amount * (100 - armor_protection) * 0.01, DAMAGE_PRECISION)
+
+
+/// Proc for recovering atom_integrity. Returns the amount repaired by
+/obj/proc/repair_damage(amount)
+	if(amount <= 0) // We only recover here
+		return
+	var/new_integrity = min(max_integrity, obj_integrity + amount)
+	. = new_integrity - obj_integrity
+
+	update_integrity(new_integrity)
+
+
+/// Handles the integrity of an obj changing. This must be called instead of changing integrity directly.
+/obj/proc/update_integrity(new_value, damage_flag = MELEE)
+	SHOULD_NOT_OVERRIDE(TRUE)
+	var/old_value = obj_integrity
+	new_value = max(0, new_value)
+	if(obj_integrity == new_value)
+		return
+	obj_integrity = new_value
+	//BREAKING FIRST
+	if(integrity_failure && obj_integrity <= integrity_failure)
+		obj_break(damage_flag)
+	//DESTROYING SECOND
+	if(obj_integrity <= 0)
+		obj_destruction(damage_flag)
+	on_update_integrity(old_value, new_value)
+	return new_value
+
+/// Handle updates to your obj's integrity
+/obj/proc/on_update_integrity(old_value, new_value)
+	SHOULD_NOT_SLEEP(TRUE)
+	SHOULD_CALL_PARENT(TRUE)
+	SEND_SIGNAL(src, COMSIG_OBJ_INTEGRITY_CHANGED, old_value, new_value)
+
+/// This mostly exists to keep obj_integrity private. Might be useful in the future.
+/obj/proc/get_integrity()
+	SHOULD_BE_PURE(TRUE)
+	return obj_integrity
+
+/// Similar to get_integrity, but returns the percentage as [0-1] instead.
+/obj/proc/get_integrity_percentage()
+	SHOULD_BE_PURE(TRUE)
+	return round(obj_integrity / max_integrity, 0.01)
 
 ///the sound played when the obj is damaged.
 /obj/proc/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
@@ -63,19 +101,23 @@
 		if(3)
 			take_damage(rand(10, 90), BRUTE, "bomb", 0)
 
-/obj/bullet_act(obj/item/projectile/P)
+/obj/bullet_act(obj/projectile/P)
 	. = ..()
 	playsound(src, P.hitsound, 50, TRUE)
-	visible_message("<span class='danger'>[src] is hit by \a [P]!</span>")
+	visible_message(span_danger(pick(list("[capitalize(declent_ru(NOMINATIVE))] пораж[genderize_ru(gender,"ён","ена","ено","ены")] [P.declent_ru(INSTRUMENTAL)]!", "[P.declent_ru(NOMINATIVE)] попадает в [declent_ru(ACCUSATIVE)]!"))), projectile_message = TRUE)
 	if(!QDELETED(src)) //Bullet on_hit effect might have already destroyed this object
 		take_damage(P.damage, P.damage_type, P.flag, 0, turn(P.dir, 180), P.armour_penetration)
 
+
 /obj/blob_act(obj/structure/blob/B)
+	if(!..() || (obj_flags & IGNORE_BLOB_ACT))
+		return
 	if(isturf(loc))
 		var/turf/T = loc
 		if((T.intact && level == 1) || T.transparent_floor == TURF_TRANSPARENT) //the blob doesn't destroy thing below the floor
 			return
-	take_damage(400, BRUTE, "melee", 0, get_dir(src, B))
+	take_damage(400, BRUTE, MELEE, 0, get_dir(src, B))
+
 
 /obj/proc/attack_generic(mob/user, damage_amount = 0, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, armor_penetration = 0) //used by attack_alien, attack_animal, and attack_slime
 	user.do_attack_animation(src)
@@ -86,14 +128,33 @@
 	if(attack_generic(user, user.obj_damage, BRUTE, "melee", 0, user.armour_penetration))
 		playsound(loc, 'sound/weapons/slash.ogg', 100, TRUE)
 
+/obj/attack_basic_mob(mob/living/basic/user)
+	if(!user.melee_damage && !user.obj_damage) //No damage
+		user.emote("custom", message = "[user.friendly_verb_continuous] [src].")
+		return FALSE
+
+	if(GLOB.pacifism_after_gt || HAS_TRAIT(user, TRAIT_PACIFISM))
+		to_chat(user, span_notice("Немного подумав, Вы решаете не трогать [declent_ru(ACCUSATIVE)]."))
+		return FALSE
+
+	else
+		if(user.obj_damage)
+			. = attack_generic(user, user.obj_damage, user.melee_damage_type, MELEE, TRUE, user.armour_penetration)
+		else
+			. = attack_generic(user, user.melee_damage, user.melee_damage_type, MELEE, TRUE, user.armour_penetration)
+		if(.)
+			playsound(src, 'sound/effects/meteorimpact.ogg', 100, TRUE)
 
 /obj/attack_animal(mob/living/simple_animal/M)
 	if((M.a_intent == INTENT_HELP && M.ckey) || (!M.melee_damage_upper && !M.obj_damage))
-		M.custom_emote(EMOTE_VISIBLE, "[M.friendly] [src].")
-		return FALSE
+		if(!M.can_use_machinery(src))
+			M.custom_emote(EMOTE_VISIBLE, "[M.friendly] [src].")
+			return FALSE
+
+		interact(M)
 
 	if(GLOB.pacifism_after_gt || HAS_TRAIT(M, TRAIT_PACIFISM))
-		to_chat(M, span_notice("Немного подумав, Вы решаете не трогать [src]."))
+		to_chat(M, span_notice("Немного подумав, Вы решаете не трогать [declent_ru(ACCUSATIVE)]."))
 		return FALSE
 
 	var/play_soundeffect = !M.environment_smash
@@ -140,7 +201,7 @@
 				return 0
 			else
 				return 0
-	M.visible_message("<span class='danger'>[M.name] hits [src]!</span>", "<span class='danger'>You hit [src]!</span>")
+	M.visible_message(span_danger("[M.name] hits [src]!"), span_danger("You hit [src]!"))
 	return take_damage(M.force*3, mech_damtype, "melee", play_soundeffect, get_dir(src, M)) // multiplied by 3 so we can hit objs hard but not be overpowered against mobs.
 
 /obj/singularity_act()
@@ -234,9 +295,9 @@ GLOBAL_DATUM_INIT(acid_overlay, /mutable_appearance, mutable_appearance('icons/e
 
 ///what happens when the obj's integrity reaches zero.
 /obj/proc/obj_destruction(damage_flag)
-	if(damage_flag == "acid")
+	if(damage_flag == ACID)
 		acid_melt()
-	else if(damage_flag == "fire")
+	else if(damage_flag == FIRE)
 		burn()
 	else
 		deconstruct(FALSE)
@@ -245,13 +306,14 @@ GLOBAL_DATUM_INIT(acid_overlay, /mutable_appearance, mutable_appearance('icons/e
 /obj/proc/modify_max_integrity(new_max, can_break = TRUE, damage_type = BRUTE, new_failure_integrity = null)
 	var/current_integrity = obj_integrity
 	var/current_max = max_integrity
-
+	
+	max_integrity = new_max
+	
 	if(current_integrity != 0 && current_max != 0)
 		var/percentage = current_integrity / current_max
 		current_integrity = max(1, round(percentage * new_max))	//don't destroy it as a result
-		obj_integrity = current_integrity
+		update_integrity(current_integrity)
 
-	max_integrity = new_max
 
 	if(new_failure_integrity != null)
 		integrity_failure = new_failure_integrity
@@ -261,6 +323,19 @@ GLOBAL_DATUM_INIT(acid_overlay, /mutable_appearance, mutable_appearance('icons/e
 		return TRUE
 	return FALSE
 
-///returns how much the object blocks an explosion. Used by subtypes.
-/obj/proc/GetExplosionBlock()
-	CRASH("Unimplemented GetExplosionBlock()")
+///Only tesla coils, vehicles, and grounding rods currently call this because mobs are already targeted over all other objects, but this might be useful for more things later.
+/obj/proc/zap_buckle_check(strength)
+	if(has_buckled_mobs())
+		for(var/m in buckled_mobs)
+			var/mob/living/buckled_mob = m
+			buckled_mob.electrocute_act((clamp(round(strength * 1.25e-3), 10, 90) + rand(-5, 5)), src, flags = SHOCK_TESLA)
+
+/obj/handle_flamer_fire(src, damage, delta_time)
+	flamer_fire_act(damage)
+
+/obj/flamer_fire_act(damage)
+	if(resistance_flags & FIRE_PROOF)
+		resistance_flags &= ~FIRE_PROOF
+	if(armor.getRating(FIRE) > 50)
+		armor = armor.setRating(fire_value = 50)
+	return ..()

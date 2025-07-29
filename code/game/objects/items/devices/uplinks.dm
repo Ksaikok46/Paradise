@@ -24,7 +24,7 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 	/// Allows or blocks ordering of certain items. Specified on initialization by different uplink types.
 	var/uplink_type = UPLINK_TYPE_TRAITOR
 	/// If set, the uplink will show the option to become a contractor through this variable.
-	var/datum/antagonist/contractor/contractor
+	var/datum/antagonist/traitor/traitor
 	/// Whether the uplink is jammed and cannot be used to order items.
 	var/is_jammed = FALSE
 
@@ -39,6 +39,7 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 
 /obj/item/uplink/Destroy()
 	GLOB.world_uplinks -= src
+	traitor = null
 	return ..()
 
 
@@ -73,7 +74,15 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 				continue
 			if(length(uplink_item.race) && !uplink_item.race.Find(race) && uplink_type != UPLINK_TYPE_ADMIN)
 				continue
-			cats[cats.len]["items"] += list(list("name" = sanitize(uplink_item.name), "desc" = sanitize(uplink_item.description()), "cost" = uplink_item.cost, "hijack_only" = uplink_item.hijack_only, "obj_path" = ref(uplink_item), "refundable" = uplink_item.refundable))
+			cats[cats.len]["items"] += list(list("name" = sanitize(uplink_item.name),
+												"desc" = sanitize(uplink_item.description()),
+												"cost" = uplink_item.cost,
+												"hijack_only" = uplink_item.hijack_only,
+												"obj_path" = ref(uplink_item),
+												"refundable" = uplink_item.refundable,
+												"uid" = uplink_item.UID()
+												)
+											)
 
 	uplink_cats = cats
 
@@ -102,19 +111,35 @@ GLOBAL_LIST_EMPTY(world_uplinks)
  */
 /obj/item/uplink/proc/buy(datum/uplink_item/uplink_item, mob/buyer)
 	if(is_jammed)
-		to_chat(buyer, span_warning("[src] seems to be jammed - it cannot be used here!"))
+		to_chat(buyer, span_warning("[declent_ru(NOMINATIVE)], похоже, заблокирован - нельзя использовать!"))
 		return FALSE
 	if(!uplink_item)
 		return FALSE
 	if(uplink_item.limited_stock == 0)
-		to_chat(buyer, span_warning("You have redeemed this discount already."))
+		to_chat(buyer, span_warning("Вы уже использовали это предложение."))
 		return FALSE
 	uplink_item.buy(src, buyer)
-	if(uplink_item.limited_stock > 0) // only decrement it if it's actually limited
-		uplink_item.limited_stock--
 	SStgui.update_uis(src)
 	return TRUE
 
+
+/obj/item/uplink/proc/mass_purchase(datum/uplink_item/uplink_item, mob/user, quantity = 1)
+	// jamming check happens in ui_act
+	if(!uplink_item)
+		return
+	if(quantity <= 0)
+		return
+	if(uplink_item.limited_stock == 0)
+		return
+	if(uplink_item.limited_stock > 0 && uplink_item.limited_stock < quantity)
+		quantity = uplink_item.limited_stock
+	var/list/bought_things = list()
+	for(var/i in 1 to quantity)
+		var/item = uplink_item.buy(src, user, put_in_hands = FALSE)
+		if(isnull(item))
+			break
+		bought_things += item
+	return bought_things
 
 /**
  * Handles refunding of the item in user's active hand.
@@ -124,21 +149,27 @@ GLOBAL_LIST_EMPTY(world_uplinks)
  */
 /obj/item/uplink/proc/refund(mob/user)
 	var/obj/item/hold_item = user.get_active_hand()
-	if(!hold_item) // Make sure there's actually something in the hand before even bothering to check
+	if(!hold_item || !hold_item.check_uplink_validity()) // Make sure there's actually something in the hand before even bothering to check
 		return FALSE
 
 	for(var/datum/uplink_item/uplink_item as anything in uplink_items)
 		var/path = uplink_item.refund_path || uplink_item.item
-		var/cost = uplink_item.refund_amount || uplink_item.cost
-		if(hold_item.type == path && uplink_item.refundable && hold_item.check_uplink_validity())
-			uses += cost
-			used_TC -= cost
-			to_chat(user, span_notice("[hold_item] refunded."))
-			qdel(hold_item)
-			return
+		if(hold_item.type != path || !uplink_item.refundable)
+			continue
+
+		var/cost =  uplink_item.cost
+
+		if(uplink_item.item_to_refund_cost?[hold_item.UID()])
+			cost = uplink_item.item_to_refund_cost[hold_item.UID()]
+
+		uses += cost
+		used_TC -= cost
+		to_chat(user, span_notice("[hold_item] возвращён."))
+		qdel(hold_item)
+		return
 
 	// If we are here, we didnt refund
-	to_chat(user, span_warning("[hold_item] is not refundable."))
+	to_chat(user, span_warning("[hold_item] не подлежит возврату."))
 
 
 // HIDDEN UPLINK - Can be stored in anything but the host item has to have a trigger for it.
@@ -157,6 +188,12 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 	desc = "There is something wrong if you're examining this."
 	/// Whether uplink is currently open.
 	var/active = FALSE
+	/// An assoc list of references (the variable called reference on an uplink item) and its value being how many of the item
+	var/list/shopping_cart
+	/// A cached version of shopping_cart containing all the data for the tgui side
+	var/list/cached_cart
+	/// A list of 3 categories and item indexes in uplink_cats, to show as recommendedations
+	var/list/lucky_numbers
 
 
 /obj/item/uplink/hidden/Initialize(mapload)
@@ -196,18 +233,20 @@ GLOBAL_LIST_EMPTY(world_uplinks)
  */
 /obj/item/uplink/hidden/proc/check_trigger(mob/user, value, target)
 	if(is_jammed)
-		to_chat(user, span_warning("[src] seems to be jammed - it cannot be used here!"))
+		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))], похоже, заблокирован - нельзя использовать!"))
 		return FALSE
 	if(value == target)
 		trigger(user)
 		return TRUE
 	return FALSE
 
+/obj/item/uplink/hidden/ui_state(mob/user)
+	return GLOB.inventory_state
 
-/obj/item/uplink/hidden/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.inventory_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/item/uplink/hidden/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "Uplink", name, 900, 600, master_ui, state)
+		ui = new(user, src, "Uplink", "Аплинк")
 		ui.open()
 
 
@@ -216,15 +255,24 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 
 	data["crystals"] = uses
 	data["modal"] = ui_modal_data(src)
+	data["cart"] = generate_tgui_cart()
+	data["cart_price"] = calculate_cart_tc()
+	data["lucky_numbers"] = lucky_numbers
 
-	if(contractor)
-		var/list/contractor_data = list(
-			available = uses >= contractor.tc_cost && world.time < contractor.offer_deadline,
-			affordable = uses >= contractor.tc_cost,
-			accepted = !isnull(contractor.contractor_uplink),
-			time_left = contractor.offer_deadline - world.time,
-		)
-		data["contractor"] = contractor_data
+	if(!traitor?.contractor_pending)
+		return data
+
+	var/datum/contractor_pending/pending = traitor.contractor_pending
+	var/list/contractor_data = list(
+		available = uses >= CONTRACTOR_COST && world.time < pending.offer_deadline && \
+		(SSticker?.mode?.contractor_accepted< CONTRACTOR_MAX_ACCEPTED || pending.is_admin_forced),
+		affordable = uses >= CONTRACTOR_COST,
+		accepted = traitor.owner.has_antag_datum(/datum/antagonist/contractor),
+		time_left = pending.offer_deadline - world.time,
+			available_offers = CONTRACTOR_MAX_ACCEPTED - SSticker?.mode?.contractor_accepted,
+		is_admin_forced = pending.is_admin_forced,
+	)
+	data["contractor"] = contractor_data
 
 	return data
 
@@ -235,6 +283,8 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 	// Actual items
 	if(!uplink_cats)
 		generate_item_lists(user)
+	if(!lucky_numbers) // Make sure these are generated AFTER the categories, otherwise shit will get messed up
+		shuffle_lucky_numbers()
 	data["cats"] = uplink_cats
 
 	// Exploitable info
@@ -254,13 +304,40 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 
 	return data
 
+/obj/item/uplink/hidden/proc/calculate_cart_tc()
+	. = 0
+	for(var/reference in shopping_cart)
+		var/datum/uplink_item/item = locate(reference) in uplink_items
+		var/purchase_amt = shopping_cart[reference]
+		. += item.cost * purchase_amt
+
+/obj/item/uplink/hidden/proc/generate_tgui_cart(update = FALSE)
+	if(!update)
+		return cached_cart
+
+	if(!length(shopping_cart))
+		shopping_cart = null
+		cached_cart = null
+		return cached_cart
+
+	cached_cart = list()
+	for(var/reference in shopping_cart)
+		var/datum/uplink_item/I = locate(reference) in uplink_items
+		cached_cart += list(list(
+			"name" = sanitize(I.name),
+			"desc" = sanitize(I.description()),
+			"cost" = I.cost,
+			"hijack_only" = I.hijack_only,
+			"obj_path" = ref(I),
+			"amount" = shopping_cart[reference],
+			"limit" = I.limited_stock))
 
 /obj/item/uplink/hidden/interact(mob/user)
 
 	ui_interact(user)
 
 
-/obj/item/uplink/hidden/ui_act(action, list/params)
+/obj/item/uplink/hidden/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	if(..())
 		return
 
@@ -274,17 +351,101 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 			uses += hidden_crystals
 			hidden_crystals = 0
 			SStgui.close_uis(src)
+			for(var/reference in shopping_cart)
+				if(shopping_cart[reference] == 0) // I know this isn't lazy, but this should runtime on purpose if we can't access this for some reason
+					remove_from_cart(reference)
 
 		if("refund")
-			refund(usr)
+			refund(ui.user)
 
 		if("buyRandom")
 			var/datum/uplink_item/uplink_item = chooseRandomItem()
-			return buy(uplink_item, usr)
+			return buy(uplink_item, ui.user)
 
 		if("buyItem")
 			var/datum/uplink_item/uplink_item = locate(params["item"]) in uplink_items
-			return buy(uplink_item, usr)
+			return buy(uplink_item, ui.user)
+
+		if("add_to_cart")
+			var/datum/uplink_item/uplink_item = locate(params["item"]) in uplink_items
+			if(LAZYIN(shopping_cart, params["item"]))
+				to_chat(ui.user, span_warning("[uplink_item.name] уже в корзине!"))
+				return
+			var/startamount = 1
+			if(uplink_item.limited_stock == 0)
+				startamount = 0
+			LAZYSET(shopping_cart, params["item"], startamount)
+			generate_tgui_cart(TRUE)
+
+		if("remove_from_cart")
+			remove_from_cart(params["item"])
+
+		if("set_cart_item_quantity")
+			var/amount = text2num(params["quantity"])
+			LAZYSET(shopping_cart, params["item"], max(amount, 0))
+			generate_tgui_cart(TRUE)
+
+		if("purchase_cart")
+			if(!LAZYLEN(shopping_cart)) // sanity check
+				return
+			if(calculate_cart_tc() > uses)
+				to_chat(ui.user, span_warning("[capitalize(declent_ru(NOMINATIVE))] вибрирует, в нём недостаточно телекристаллов!"))
+				return
+			if(is_jammed)
+				to_chat(ui.user, span_warning("[capitalize(declent_ru(NOMINATIVE))], похоже, заблокирован - нельзя использовать!"))
+				return
+
+			// Buying of the uplink stuff
+			var/list/bought_things = list()
+			for(var/reference in shopping_cart)
+				var/datum/uplink_item/item = locate(reference) in uplink_items
+				var/purchase_amt = shopping_cart[reference]
+				if(purchase_amt <= 0)
+					continue
+				bought_things += mass_purchase(item, ui.user, purchase_amt)
+
+			// Check how many of them are items
+			var/list/obj/item/items_for_crate = list()
+			for(var/obj/item/thing in bought_things)
+				// because sometimes you can buy items like crates from surpluses and stuff
+				// the crates will already be on the ground, so we dont need to worry about them
+				if(isitem(thing))
+					items_for_crate += thing
+
+			// If we have more than 2 of them, put them in a crate
+			if(length(items_for_crate) > 2)
+				var/obj/structure/closet/crate/C = new(get_turf(src))
+				for(var/obj/item/item as anything in items_for_crate)
+					item.forceMove(C)
+			// Otherwise, just put the items in their hands
+			else if(length(items_for_crate))
+				for(var/obj/item/item as anything in items_for_crate)
+					ui.user.put_in_any_hand_if_possible(item)
+
+			empty_cart()
+			SStgui.update_uis(src)
+
+		if("empty_cart")
+			empty_cart()
+
+		if("shuffle_lucky_numbers")
+			// lets see paul allen's random uplink item
+			shuffle_lucky_numbers()
+
+/obj/item/uplink/hidden/proc/shuffle_lucky_numbers()
+	lucky_numbers = list()
+	for(var/i in 1 to 4)
+		var/cate_number = rand(1, length(uplink_cats))
+		var/item_number = rand(1, length(uplink_cats[cate_number]["items"]))
+		lucky_numbers += list(list("cat" = cate_number - 1, "item" = item_number - 1)) // dm lists are 1 based, js lists are 0 based, gotta -1
+
+/obj/item/uplink/hidden/proc/remove_from_cart(item_reference) // i want to make it eventually remove all instances
+	LAZYREMOVE(shopping_cart, item_reference)
+	generate_tgui_cart(TRUE)
+
+/obj/item/uplink/hidden/proc/empty_cart()
+	shopping_cart = null
+	generate_tgui_cart(TRUE)
 
 
 /**
@@ -305,8 +466,8 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 		if(UI_MODAL_ANSWER)
 			if(id == "become_contractor")
 				if(text2num(params["answer"]))
-					var/datum/antagonist/contractor/C = usr?.mind?.has_antag_datum(/datum/antagonist/contractor)
-					C?.become_contractor(usr, src)
+					var/datum/antagonist/traitor/traitor = usr?.mind?.has_antag_datum(/datum/antagonist/traitor)
+					traitor?.contractor_pending?.become_contractor(usr, src)
 				return
 	return FALSE
 
@@ -350,22 +511,25 @@ GLOBAL_LIST_EMPTY(world_uplinks)
 	return 100
 
 
-/obj/item/radio/uplink/nuclear/Initialize(mapload)
-	. = ..()
-	GLOB.nuclear_uplink_list += src
-
-
-/obj/item/radio/uplink/nuclear/Destroy()
-	GLOB.nuclear_uplink_list -= src
-	return ..()
-
-
 /obj/item/radio/uplink/nuclear/choose_uplink()
 	return UPLINK_TYPE_NUCLEAR
 
 
+/obj/item/radio/uplink/nuclear/loneop/get_uses_amount()
+	return ..() + count_nuke_uses()
+
 /obj/item/radio/uplink/sst/choose_uplink()
 	return UPLINK_TYPE_SST
+
+/proc/count_nuke_uses()
+	var/danger = GLOB.player_list.len
+	var/temp_danger = (danger + 9)
+	danger = temp_danger - temp_danger % 10
+	danger *= NUKESCALINGMODIFIER
+	return round(danger/ NUKERS_COUNT) + danger % NUKERS_COUNT
+
+/obj/item/radio/uplink/sst/get_uses_amount()
+	return ..() + count_nuke_uses()
 
 
 /obj/item/radio/uplink/admin/choose_uplink()

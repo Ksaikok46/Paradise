@@ -231,7 +231,7 @@
 /obj/machinery/magnetic_controller/LateInitialize()
 	..()
 	if(autolink)
-		// GLOB.machines is populated in /machinery/Initialize
+		// SSmachines  is populated in /machinery/Initialize
 		// so linkage gets delayed until that one finished.
 		link_magnets()
 
@@ -245,10 +245,10 @@
 
 /obj/machinery/magnetic_controller/proc/link_magnets()
 	magnets = list()
-	for(var/obj/machinery/magnetic_module/module in GLOB.machines)
+	for(var/obj/machinery/magnetic_module/module in SSmachines.get_by_type(/obj/machinery/magnetic_module))
 		if(module.freq == frequency && module.code == code)
 			magnets += module
-			RegisterSignal(module, COMSIG_PARENT_QDELETING, PROC_REF(on_magnet_del), TRUE)
+			RegisterSignal(module, COMSIG_QDELETING, PROC_REF(on_magnet_del), TRUE)
 
 
 /obj/machinery/magnetic_controller/proc/on_magnet_del(magnet)
@@ -258,7 +258,7 @@
 
 /obj/machinery/magnetic_controller/process()
 	if(!length(magnets) && autolink)
-		for(var/obj/machinery/magnetic_module/module in GLOB.machines)
+		for(var/obj/machinery/magnetic_module/module in SSmachines.get_by_type(/obj/machinery/magnetic_module))
 			if(module.freq == frequency && module.code == code)
 				magnets += module
 
@@ -271,12 +271,12 @@
 	if(stat & (BROKEN|NOPOWER))
 		return
 	user.set_machine(src)
-	var/dat = {"<meta charset="UTF-8"><B>Magnetic Control Console</B><BR><BR>"}
+	var/dat = {"<b>Magnetic Control Console</b><br><br>"}
 	if(!autolink)
 		dat += {"
-		Frequency: <a href='?src=[UID()];operation=setfreq'>[frequency]</a><br>
-		Code: <a href='?src=[UID()];operation=setfreq'>[code]</a><br>
-		<a href='?src=[UID()];operation=probe'>Probe Generators</a><br>
+		Frequency: <a href='byond://?src=[UID()];operation=setfreq'>[frequency]</a><br>
+		Code: <a href='byond://?src=[UID()];operation=setfreq'>[code]</a><br>
+		<a href='byond://?src=[UID()];operation=probe'>Probe Generators</a><br>
 		"}
 
 	if(length(magnets))
@@ -285,15 +285,17 @@
 		var/i = 0
 		for(var/obj/machinery/magnetic_module/module as anything in magnets)
 			i++
-			dat += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;< \[[i]\] (<a href='?src=[UID()];radio-op=togglepower'>[module.on ? "On":"Off"]</a>) | Electricity level: <a href='?src=[UID()];radio-op=minuselec'>-</a> [module.electricity_level] <a href='?src=[UID()];radio-op=pluselec'>+</a>; Magnetic field: <a href='?src=[UID()];radio-op=minusmag'>-</a> [module.magnetic_field] <a href='?src=[UID()];radio-op=plusmag'>+</a><br>"
+			dat += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;< \[[i]\] (<a href='byond://?src=[UID()];radio-op=togglepower'>[module.on ? "On":"Off"]</a>) | Electricity level: <a href='byond://?src=[UID()];radio-op=minuselec'>-</a> [module.electricity_level] <a href='byond://?src=[UID()];radio-op=pluselec'>+</a>; Magnetic field: <a href='byond://?src=[UID()];radio-op=minusmag'>-</a> [module.magnetic_field] <a href='byond://?src=[UID()];radio-op=plusmag'>+</a><br>"
 
 	add_fingerprint(user)
-	dat += "<br>Speed: <a href='?src=[UID()];operation=minusspeed'>-</a> [speed] <a href='?src=[UID()];operation=plusspeed'>+</a><br>"
-	dat += "Path: {<a href='?src=[UID()];operation=setpath'>[path]</a>}<br>"
-	dat += "Moving: <a href='?src=[UID()];operation=togglemoving'>[moving ? "Enabled":"Disabled"]</a>"
+	dat += "<br>Speed: <a href='byond://?src=[UID()];operation=minusspeed'>-</a> [speed] <a href='byond://?src=[UID()];operation=plusspeed'>+</a><br>"
+	dat += "Path: {<a href='byond://?src=[UID()];operation=setpath'>[path]</a>}<br>"
+	dat += "Moving: <a href='byond://?src=[UID()];operation=togglemoving'>[moving ? "Enabled":"Disabled"]</a>"
 
 
-	user << browse(dat, "window=magnet;size=400x500")
+	var/datum/browser/popup = new(user, "magnet", "Magnetic Control Console", 400, 500)
+	popup.set_content(dat)
+	popup.open(TRUE)
 	onclose(user, "magnet")
 
 
@@ -344,7 +346,7 @@
 				if(speed <= 0)
 					speed = 1
 			if("setpath")
-				var/newpath = sanitize(copytext_char(input(usr, "Please define a new path!",,path) as text|null,1,MAX_MESSAGE_LEN))
+				var/newpath = tgui_input_text(usr, "Please define a new path!",,path, max_length = MAX_MESSAGE_LEN)
 				if(newpath && newpath != "")
 					moving = FALSE // stop moving
 					path = newpath

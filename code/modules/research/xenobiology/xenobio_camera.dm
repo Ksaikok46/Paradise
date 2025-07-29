@@ -36,7 +36,15 @@
 
 /obj/machinery/computer/camera_advanced/xenobio
 	name = "slime management console"
-	desc = "A computer used for remotely handling slimes."
+	ru_names = list(
+		NOMINATIVE = "консоль управления слаймами",
+		GENITIVE = "консоли управления слаймами",
+		DATIVE = "консоли управления слаймами",
+		ACCUSATIVE = "консоль управления слаймами",
+		INSTRUMENTAL = "консолью управления слаймами",
+		PREPOSITIONAL = "консоли управления слаймами"
+	)
+	desc = "Компьютер, используемый для удаленного взаимодействия со слаймами."
 	networks = list("SS13")
 	circuit = /obj/item/circuitboard/xenobiology
 	icon_screen = "slime_comp"
@@ -152,21 +160,22 @@
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/insert_potion(obj/item/slimepotion/slime/potion)
 	clear_potion()
-	potion.forceMove(src)
+	if(potion.loc != src)
+		potion.forceMove(src)
 	current_potion = potion
-	RegisterSignal(current_potion, COMSIG_PARENT_QDELETING, PROC_REF(clear_potion))
+	RegisterSignal(current_potion, COMSIG_QDELETING, PROC_REF(clear_potion))
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/clear_potion()
 	if(!QDELETED(current_potion))
 		current_potion.forceMove(drop_location())
-		UnregisterSignal(current_potion, COMSIG_PARENT_QDELETING)
+		UnregisterSignal(current_potion, COMSIG_QDELETING)
 	current_potion = null
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/capture_slime(mob/living/simple_animal/slime/slime)
 	slime.visible_message("<span class='notice'>[slime] vanishes in a flash of light!</span>")
 	slime.forceMove(src)
 	stored_slimes += slime
-	RegisterSignal(slime, COMSIG_PARENT_QDELETING, PROC_REF(clear_slime))
+	RegisterSignal(slime, COMSIG_QDELETING, PROC_REF(clear_slime))
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/release_slime(mob/living/simple_animal/slime/slime, release_spot)
 	slime.visible_message("<span class='notice'>[slime] warps in!</span>")
@@ -174,7 +183,7 @@
 	slime.forceMove(release_spot)
 
 /obj/machinery/computer/camera_advanced/xenobio/proc/clear_slime(mob/living/simple_animal/slime/slime)
-	UnregisterSignal(slime, COMSIG_PARENT_QDELETING)
+	UnregisterSignal(slime, COMSIG_QDELETING)
 	stored_slimes -= slime
 
 /obj/machinery/computer/camera_advanced/xenobio/attack_hand(mob/user)
@@ -182,34 +191,45 @@
 		return
 	return ..()
 
-/obj/machinery/computer/camera_advanced/xenobio/attackby(obj/item/O, mob/user, params)
-	if(istype(O, /obj/item/reagent_containers/food/snacks/monkeycube))
-		if(user.drop_transfer_item_to_loc(O, src))
-			add_fingerprint(user)
-			monkeys++
-			to_chat(user, "<span class='notice'>You feed [O] to [src]. It now has [monkeys] monkey cubes stored.</span>")
-			qdel(O)
-		return
-	if(istype(O, /obj/item/slimepotion/slime))
-		if(!user.drop_item_ground(O))
-			return
+
+/obj/machinery/computer/camera_advanced/xenobio/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(I, /obj/item/reagent_containers/food/snacks/monkeycube))
 		add_fingerprint(user)
-		to_chat(user, span_notice("You load [O] in the console's potion slot[current_potion ? ", replacing the one that was there before" : ""]."))
-		insert_potion(O, user)
-		return
-	if(istype(O, /obj/item/storage/bag/bio) || istype(O, /obj/item/storage/box/monkeycubes))
-		var/obj/item/storage/P = O
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		monkeys++
+		to_chat(user, span_notice("You have loaded [I] into the food compartment. It now contains <b>[monkeys]</b> monkey cubes stored."))
+		qdel(I)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/slimepotion/slime))
+		add_fingerprint(user)
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		to_chat(user, span_notice("You have loaded [I] into the potion slot[current_potion ? ", replacing the one that was there before" : ""]."))
+		insert_potion(I, user)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/storage/bag/bio) || istype(I, /obj/item/storage/box/monkeycubes))
+		add_fingerprint(user)
+		var/obj/item/storage/storage = I
 		var/loaded = 0
-		for(var/obj/item/reagent_containers/food/snacks/monkeycube/MC in P.contents)
-			loaded = 1
+		for(var/obj/item/reagent_containers/food/snacks/monkeycube/monkeycube in storage.contents)
+			loaded++
 			monkeys++
-			P.remove_from_storage(MC)
-			qdel(MC)
-		if(loaded)
-			add_fingerprint(user)
-			to_chat(user, "<span class='notice'>You fill [src] with the monkey cubes stored in [O]. [src] now has [monkeys] monkey cubes stored.</span>")
-		return
+			storage.remove_from_storage(monkeycube)
+			qdel(monkeycube)
+		if(!loaded)
+			to_chat(user, span_warning("The [storage.name] has no monkey cubes stored."))
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, span_notice("You have loaded <b>[loaded]</b> monkey cubes into the food compartment. It now contains <b>[monkeys]</b> monkey cubes stored."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
 	return ..()
+
 
 /obj/machinery/computer/camera_advanced/xenobio/multitool_act(mob/user, obj/item/I)
 	. = TRUE
@@ -225,7 +245,7 @@
 
 // === SLIME ACTION DATUMS ====
 /datum/action/innate/slime_place
-	name = "Place Slimes"
+	name = "Разместить слаймов"
 	button_icon_state = "slime_down"
 
 /datum/action/innate/slime_place/Activate()
@@ -236,16 +256,16 @@
 	var/obj/machinery/computer/camera_advanced/xenobio/X = target
 
 	if(iswallturf(remote_eye.loc))
-		to_chat(owner, "You can't place slime here.")
+		to_chat(owner, "Вы не можете разместить слайма здесь.")
 		return
 	if(GLOB.cameranet.checkTurfVis(remote_eye.loc))
 		for(var/mob/living/simple_animal/slime/S in X.stored_slimes)
 			X.release_slime(S, remote_eye.loc)
 	else
-		to_chat(owner, "<span class='notice'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(owner, span_notice("Цель не рядом с камерой. Действие невозможно."))
 
 /datum/action/innate/slime_pick_up
-	name = "Pick up Slime"
+	name = "Подобрать слайма"
 	button_icon_state = "slime_up"
 
 /datum/action/innate/slime_pick_up/Activate()
@@ -264,10 +284,10 @@
 					S.Feedstop(silent = TRUE)
 				X.capture_slime(S)
 	else
-		to_chat(owner, "<span class='notice'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(owner, span_notice("Цель не рядом с камерой. Действие невозможно."))
 
 /datum/action/innate/feed_slime
-	name = "Feed Slimes"
+	name = "Кормить слаймов"
 	button_icon_state = "monkey_down"
 
 /datum/action/innate/feed_slime/Activate()
@@ -279,25 +299,25 @@
 
 	if(GLOB.cameranet.checkTurfVis(remote_eye.loc))
 		if(LAZYLEN(SSmobs.cubemonkeys) >= CONFIG_GET(number/cubemonkey_cap))
-			to_chat(owner, "<span class='warning'>Bluespace harmonics prevent the spawning of more than [CONFIG_GET(number/cubemonkey_cap)] monkeys on the station at one time!</span>")
+			to_chat(owner, span_warning("Блюспейс-гармония не позволяют создать более [CONFIG_GET(number/cubemonkey_cap)] мартышек на станции одновременно!"))
 			return
 		if(iswallturf(remote_eye.loc))
-			to_chat(owner, "You can't place monkey here.")
+			to_chat(owner, "Вы не можете разместить мартышку здесь.")
 			return
 		if(!X.monkeys)
-			to_chat(owner, "[X] doesn't have monkeys.")
+			to_chat(owner, "[capitalize(X.declent_ru(NOMINATIVE))] не содержит мартышек.")
 			return
 		if(X.monkeys >= 1)
 			var/mob/living/carbon/human/lesser/monkey/food = new /mob/living/carbon/human/lesser/monkey(remote_eye.loc)
 			SSmobs.cubemonkeys += food
 			food.LAssailant = C
 			X.monkeys--
-			to_chat(owner, "[X] now has [X.monkeys] monkeys left.")
+			to_chat(owner, "В [X.declent_ru(GENITIVE)] осталось [X.monkeys] мартыш[declension_ru(X.monkeys,"ка","ки","ек")].")
 	else
-		to_chat(owner, "<span class='notice'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(owner, span_notice("Цель не рядом с камерой. Действие невозможно."))
 
 /datum/action/innate/monkey_recycle
-	name = "Recycle Monkeys"
+	name = "Утилизировать мартышек"
 	button_icon_state = "monkey_up"
 
 /datum/action/innate/monkey_recycle/Activate()
@@ -309,20 +329,20 @@
 	var/obj/machinery/monkey_recycler/recycler = X.connected_recycler
 
 	if(!recycler)
-		to_chat(owner, "<span class='notice'>There is no connected monkey recycler.  Use a multitool to link one.</span>")
+		to_chat(owner, span_notice("Нет подключенного утилизатора мартышек. Используйте мультитул для привязки."))
 		return
 	if(GLOB.cameranet.checkTurfVis(remote_eye.loc))
 		for(var/mob/living/carbon/human/M in remote_eye.loc)
-			if(issmall(M) && M.stat)
-				M.visible_message("[M] vanishes as [M.p_theyre()] reclaimed for recycling!")
+			if(is_monkeybasic(M) && M.stat)
+				M.visible_message("[capitalize(M)] исчезает, [genderize_ru(M.gender,"он","она","оно","они")] отправлен[genderize_ru(M.gender,"","а","о","ы")] на переработку!")
 				recycler.use_power(500)
 				X.monkeys = round(X.monkeys + recycler.cube_production/recycler.required_grind, 0.1)
 				qdel(M)
 	else
-		to_chat(owner, "<span class='notice'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(owner, span_notice("Цель не рядом с камерой. Действие невозможно."))
 
 /datum/action/innate/slime_scan
-	name = "Scan Slime"
+	name = "Сканировать слайма"
 	button_icon_state = "slime_scan"
 
 /datum/action/innate/slime_scan/Activate()
@@ -335,10 +355,10 @@
 		for(var/mob/living/simple_animal/slime/S in remote_eye.loc)
 			slime_scan(S, C)
 	else
-		to_chat(owner, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(owner, span_warning("Цель не рядом с камерой. Действие невозможно."))
 
 /datum/action/innate/feed_potion
-	name = "Apply Potion"
+	name = "Применить зелье"
 	button_icon_state = "slime_potion"
 
 /datum/action/innate/feed_potion/Activate()
@@ -350,7 +370,7 @@
 	var/obj/machinery/computer/camera_advanced/xenobio/X = target
 
 	if(QDELETED(X.current_potion))
-		to_chat(owner, "<span class='warning'>No potion loaded.</span>")
+		to_chat(owner, span_warning("Зелье не загружено."))
 		return
 
 	if(GLOB.cameranet.checkTurfVis(remote_eye.loc))
@@ -358,22 +378,22 @@
 			X.current_potion.attack(S, C)
 			break
 	else
-		to_chat(owner, "<span class='notice'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(owner, span_notice("Цель не рядом с камерой. Действие невозможно."))
 
 /datum/action/innate/hotkey_help
-	name = "Hotkey Help"
+	name = "Горячие клавиши"
 	button_icon_state = "hotkey_help"
 
 /datum/action/innate/hotkey_help/Activate()
 	if(!target || !isliving(owner))
 		return
 	var/obj/machinery/computer/camera_advanced/xenobio/X = owner.machine
-	to_chat(owner, "<b>Click shortcuts:</b>")
-	to_chat(owner, "Shift-click a slime to pick it up, or the floor to drop all held slimes.")
-	to_chat(owner, "Ctrl-click a slime to scan it.")
-	to_chat(owner, "Alt-click a slime to feed it a potion.")
-	to_chat(owner, "Ctrl-click or a dead monkey to recycle it, or the floor to place a new monkey.")
-	to_chat(owner, "[X] now has [X.monkeys] monkeys left.")
+	to_chat(owner, "<b>Горячие клавиши:</b>")
+	to_chat(owner, "Shift+ЛКМ по слайму – подобрать, по полу – выбросить всех.")
+	to_chat(owner, "Ctrl+ЛКМ по слайму – сканировать.")
+	to_chat(owner, "Alt+ЛКМ по слайму – накормить зельем.")
+	to_chat(owner, "Ctrl+ЛКМ по мертвой мартышке – утилизировать, по полу – разместить новую.")
+	to_chat(owner, "В [X.declent_ru(GENITIVE)] сейчас [X.monkeys] мартыш[declension_ru(X.monkeys,"ка","ки","ек")].")
 
 //
 // Alternate clicks for slime, monkey and open turf if using a xenobio console
@@ -384,8 +404,9 @@
 	..()
 
 //Feeds a potion to slime
-/mob/living/simple_animal/slime/AltClick(mob/user)
+/mob/living/simple_animal/slime/click_alt(mob/user)
 	SEND_SIGNAL(user, COMSIG_XENO_SLIME_CLICK_ALT, src)
+	return CLICK_ACTION_SUCCESS
 
 //Picks up slime
 /mob/living/simple_animal/slime/ShiftClick(mob/user)
@@ -404,14 +425,14 @@
 
 //Pick up monkey
 /mob/living/carbon/human/CtrlClick(mob/user)
-	if(issmall(src))
+	if(is_monkeybasic(src))
 		SEND_SIGNAL(user, COMSIG_XENO_MONKEY_CLICK_CTRL, src)
 	..()
 
 // Scans slime
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoSlimeClickCtrl(mob/living/user, mob/living/simple_animal/slime/S)
 	if(!GLOB.cameranet.checkTurfVis(S.loc))
-		to_chat(user, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
 	var/mob/living/C = user
 	var/mob/camera/aiEye/remote/xenobio/E = C.remote_control
@@ -422,14 +443,14 @@
 //Feeds a potion to slime
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoSlimeClickAlt(mob/living/user, mob/living/simple_animal/slime/S)
 	if(!GLOB.cameranet.checkTurfVis(S.loc))
-		to_chat(user, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
 	var/mob/living/C = user
 	var/mob/camera/aiEye/remote/xenobio/E = C.remote_control
 	var/obj/machinery/computer/camera_advanced/xenobio/X = E.origin
 	var/area/mobarea = get_area(S.loc)
 	if(!X.current_potion)
-		to_chat(C, "<span class='warning'>No potion loaded.</span>")
+		to_chat(C, span_warning("Зелье не загружено."))
 		return
 	if(mobarea.name == E.allowed_area || mobarea.xenobiology_compatible)
 		X.current_potion.attack(S, C)
@@ -437,7 +458,7 @@
 //Picks up slime
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoSlimeClickShift(mob/living/user, mob/living/simple_animal/slime/S)
 	if(!GLOB.cameranet.checkTurfVis(S.loc))
-		to_chat(user, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
 	var/mob/living/C = user
 	var/mob/camera/aiEye/remote/xenobio/E = C.remote_control
@@ -445,10 +466,10 @@
 	var/area/mobarea = get_area(S.loc)
 	if(mobarea.name == E.allowed_area || mobarea.xenobiology_compatible)
 		if(length(X.stored_slimes) >= MAX_SLIME_IN_CONSOLE)
-			to_chat(C, "<span class='warning'>Slime storage is full.</span>")
+			to_chat(user, span_warning("Хранилище слаймов переполнено."))
 			return
 		if(S.ckey)
-			to_chat(C, "<span class='warning'>The slime wiggled free!</span>")
+			to_chat(user, span_warning("Слайм выскользнул!"))
 			return
 		if(S.buckled)
 			S.Feedstop(silent = TRUE)
@@ -457,14 +478,14 @@
 //Place slimes
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoTurfClickShift(mob/living/user, turf/T)
 	if(!GLOB.cameranet.checkTurfVis(T))
-		to_chat(user, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
 	var/mob/living/C = user
 	var/mob/camera/aiEye/remote/xenobio/E = C.remote_control
 	var/obj/machinery/computer/camera_advanced/xenobio/X = E.origin
 	var/area/turfarea = get_area(T)
 	if(iswallturf(T))
-		to_chat(user, "You can't place slime here.")
+		to_chat(user, "Вы не можете разместить слайма здесь.")
 		return
 	if(turfarea.name == E.allowed_area || turfarea.xenobiology_compatible)
 		for(var/mob/living/simple_animal/slime/S in X.stored_slimes)
@@ -473,20 +494,20 @@
 //Place monkey
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoTurfClickCtrl(mob/living/user, turf/T)
 	if(!GLOB.cameranet.checkTurfVis(T))
-		to_chat(user, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
 	if(LAZYLEN(SSmobs.cubemonkeys) >= CONFIG_GET(number/cubemonkey_cap))
-		to_chat(user, "<span class='warning'>Bluespace harmonics prevent the spawning of more than [CONFIG_GET(number/cubemonkey_cap)] monkeys on the station at one time!</span>")
+		to_chat(user, span_warning("Блюспейс-гармония не позволяют создать более [CONFIG_GET(number/cubemonkey_cap)] мартышек на станции одновременно!"))
 		return
 	if(iswallturf(T))
-		to_chat(user, "You can't place monkey here.")
+		to_chat(user, "Вы не можете разместить мартышку здесь.")
 		return
 	var/mob/living/C = user
 	var/mob/camera/aiEye/remote/xenobio/E = C.remote_control
 	var/obj/machinery/computer/camera_advanced/xenobio/X = E.origin
 	var/area/turfarea = get_area(T)
 	if(!X.monkeys)
-		to_chat(user, "[X] doesn't have monkeys.")
+		to_chat(user, "В [X.declent_ru(GENITIVE)] нет мартышек!")
 		return
 	if(turfarea.name == E.allowed_area || turfarea.xenobiology_compatible)
 		if(X.monkeys >= 1)
@@ -495,7 +516,7 @@
 			SSmobs.cubemonkeys += food
 			X.monkeys--
 			X.monkeys = round(X.monkeys, 0.1)
-			to_chat(user, "[X] now has [X.monkeys] monkeys left.")
+			to_chat(user, "В [X.declent_ru(GENITIVE)] осталось [X.monkeys] мартыш[declension_ru(X.monkeys,"ка","ки","ек")].")
 
 //Pick up monkey
 /obj/machinery/computer/camera_advanced/xenobio/proc/XenoMonkeyClickCtrl(mob/living/user, mob/living/carbon/human/M)
@@ -503,18 +524,18 @@
 	if(!istype(monkey_turf))
 		return
 	if(!GLOB.cameranet.checkTurfVis(monkey_turf))
-		to_chat(user, "<span class='warning'>Target is not near a camera. Cannot proceed.</span>")
+		to_chat(user, span_warning("Цель не рядом с камерой. Действие невозможно."))
 		return
 	var/mob/camera/aiEye/remote/xenobio/E = user.remote_control
 	var/obj/machinery/computer/camera_advanced/xenobio/X = E.origin
 	var/area/mobarea = get_area(M.loc)
 	var/obj/machinery/monkey_recycler/recycler = X.connected_recycler
 	if(!recycler)
-		to_chat(user, "<span class='notice'>There is no connected monkey recycler. Use a multitool to link one.</span>")
+		to_chat(user, span_notice("Нет подключенного утилизатора мартышек. Используйте мультитул для связи."))
 		return
 	if(mobarea.name == E.allowed_area || mobarea.xenobiology_compatible)
-		if(issmall(M) && M.stat)
-			M.visible_message("[M] vanishes as [M.p_theyre()] reclaimed for recycling!")
+		if(is_monkeybasic(M) && M.stat)
+			M.visible_message("[capitalize(M)] исчезает, [genderize_ru(M.gender,"он","она","оно","они")] отправлен[genderize_ru(M.gender,"","а","о","ы")] на переработку!")
 			recycler.use_power(500)
 			X.monkeys = round(X.monkeys + recycler.cube_production/recycler.required_grind, 0.1)
 			qdel(M)

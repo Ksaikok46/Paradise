@@ -15,6 +15,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_BELT
 	origin_tech = "materials=2;magnets=1;bluespace=2"
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING | NEED_DEXTERITY
 	/// Whether the GPS is on.
 	var/tracking = TRUE
 	/// The tag that is visible to other GPSes.
@@ -56,27 +57,21 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	update_icon(UPDATE_OVERLAYS)
 	addtimer(CALLBACK(src, PROC_REF(reboot)), EMP_DISABLE_TIME)
 
-/obj/item/gps/AltClick(mob/living/user)
-	if(!Adjacent(user))
-		return
-	if(!iscarbon(usr) && !isrobot(usr))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
-		return
+/obj/item/gps/click_alt(mob/living/user)
 	toggle_gps(user)
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/gps/proc/toggle_gps(mob/living/user)
 	if(emped)
-		to_chat(user, "<span class='warning'>It's busted!</span>")
+		to_chat(user, span_warning("Оно сломано!"))
 		return
 
 	tracking = !tracking
 	update_icon(UPDATE_OVERLAYS)
 	if(tracking)
-		to_chat(user, "[src] is now tracking, and visible to other GPS devices.")
+		to_chat(user, "[capitalize(src.declent_ru(NOMINATIVE))] теперь отслеживается и виден другим GPS устройствам.")
 	else
-		to_chat(user, "[src] is no longer tracking, or visible to other GPS devices.")
+		to_chat(user, "[capitalize(src.declent_ru(NOMINATIVE))] больше не отслеживается и не виден другим GPS устройствам.")
 	SStgui.update_uis(src)
 
 /obj/item/gps/ui_data(mob/user)
@@ -138,10 +133,13 @@ GLOBAL_LIST_EMPTY(GPS_list)
 /obj/item/gps/ui_host()
 	return parent ? parent : src
 
-/obj/item/gps/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.inventory_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/item/gps/ui_state(mob/user)
+	return GLOB.inventory_state
+
+/obj/item/gps/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "GPS", "GPS", 450, 700)
+		ui = new(user, src, "GPS", "GPS")
 		ui.open()
 
 /obj/item/gps/ui_act(action, list/params)
@@ -201,6 +199,12 @@ GLOBAL_LIST_EMPTY(GPS_list)
 /obj/item/gps/cyborg/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, CYBORG_ITEM_TRAIT)
+
+/obj/item/gps/cyborg/New(gpstag = "gps-b", upgraded = FALSE, tracking = TRUE)
+	. = ..()
+	src.gpstag = gpstag
+	src.upgraded = upgraded
+	src.tracking = tracking
 
 
 /obj/item/gps/cyborg/upgraded
@@ -277,9 +281,22 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	icon_state = "cart-mine"
 	w_class = WEIGHT_CLASS_TINY
 
-/obj/item/gps/attackby(obj/item/C as obj)
-	if(istype(C, /obj/item/gpsupgrade) && !upgraded)
+
+/obj/item/gps/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/gpsupgrade))
+		add_fingerprint(user)
+		if(upgraded)
+			to_chat(user, span_warning("[capitalize(src.declent_ru(NOMINATIVE))] уже улучшен."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		to_chat(user, span_notice("Вы улучшили [src.declent_ru(ACCUSATIVE)]."))
 		upgraded = TRUE
-		qdel(C)
+		SStgui.update_uis(src)
+		qdel(I)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 #undef EMP_DISABLE_TIME

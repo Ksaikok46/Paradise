@@ -3,6 +3,8 @@
 	desc = "Danger. Very robust."
 	icon = 'icons/obj/storage.dmi'
 	icon_state = "red"
+	righthand_file = 'icons/mob/inhands/tools_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/tools_lefthand.dmi'
 	item_state = "toolbox_red"
 	flags = CONDUCT
 	force = 10.0
@@ -12,35 +14,31 @@
 	w_class = WEIGHT_CLASS_BULKY
 	materials = list(MAT_METAL = 500)
 	origin_tech = "combat=1;engineering=1"
-	attack_verb = list("robusted")
+	attack_verb = list("заробастил")
 	use_sound = 'sound/effects/toolbox.ogg'
 	hitsound = 'sound/weapons/smash.ogg'
-	drop_sound = 'sound/items/handling/toolbox_drop.ogg'
-	pickup_sound = 'sound/items/handling/toolbox_pickup.ogg'
+	drop_sound = 'sound/items/handling/drop/toolbox_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/toolbox_pickup.ogg'
 	var/blurry_chance = 5
 
 /obj/item/storage/toolbox/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/falling_hazard, damage = force, hardhat_safety = TRUE, crushes = FALSE, impact_sound = hitsound)
 
-/obj/item/storage/toolbox/attack(mob/living/carbon/human/H, mob/living/carbon/user)
+
+/obj/item/storage/toolbox/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
-
-	if(!istype(H))
-		return
-
+	if(!ATTACK_CHAIN_SUCCESS_CHECK(.))
+		return .
+	if(!ishuman(target))
+		return .
 	if(user.zone_selected != BODY_ZONE_PRECISE_EYES && user.zone_selected != BODY_ZONE_HEAD)
-		return
-
+		return .
 	if(!prob(blurry_chance))
-		return
+		return .
+	target.AdjustEyeBlurry(8 SECONDS)
+	to_chat(target, span_danger("You feel a buzz in your head and your vision gets blurry."))
 
-	if(force && (HAS_TRAIT(user, TRAIT_PACIFISM) || GLOB.pacifism_after_gt))
-		to_chat(user, span_warning("You don't want to harm other living beings!"))
-		return
-
-	H.AdjustEyeBlurry(8 SECONDS)
-	to_chat(H, span_danger("You feel a buzz in your head and your vision gets blurry."))
 
 /obj/item/storage/toolbox/emergency
 	name = "emergency toolbox"
@@ -106,6 +104,16 @@
 
 /obj/item/storage/toolbox/syndicate
 	name = "suspicious looking toolbox"
+	desc = "Опасный и прочный."
+	ru_names = list(
+		NOMINATIVE = "подозрительный ящик для инструментов",
+		GENITIVE = "подозрительного ящика для инструментов",
+		DATIVE = "подозрительному ящику для инструментов",
+		ACCUSATIVE = "подозрительный ящик для инструментов",
+		INSTRUMENTAL = "подозрительным ящиком для инструментов",
+		PREPOSITIONAL = "подозрительном ящике для инструментов"
+	)
+	gender = MALE
 	icon_state = "syndicate"
 	item_state = "toolbox_syndi"
 	origin_tech = "combat=2;syndicate=1;engineering=2"
@@ -125,7 +133,16 @@
 
 /obj/item/storage/toolbox/syndisuper
 	name = "exteremely suspicious looking toolbox"
-	desc = "Danger. Robust - his second name."
+	desc = "Чрезвычайно опасный и очень прочный."
+	ru_names = list(
+		NOMINATIVE = "очень подозрительный ящик для инструментов",
+		GENITIVE = "очень подозрительного ящика для инструментов",
+		DATIVE = "очень подозрительному ящику для инструментов",
+		ACCUSATIVE = "очень подозрительный ящик для инструментов",
+		INSTRUMENTAL = "очень подозрительным ящиком для инструментов",
+		PREPOSITIONAL = "очень подозрительном ящике для инструментов"
+	)
+	gender = MALE
 	icon_state = "syndicate"
 	item_state = "toolbox_syndi"
 	origin_tech = "combat=5;syndicate=1;engineering=5"
@@ -140,7 +157,7 @@
 	new /obj/item/crowbar/power(src)
 	new /obj/item/multitool/cyborg(src)
 	new /obj/item/stack/cable_coil(src, MAXCOIL)
-	new /obj/item/clothing/gloves/combat(src)
+	new /obj/item/clothing/gloves/combat/swat/syndicate(src)
 	new /obj/item/clothing/glasses/sunglasses(src)
 
 /obj/item/storage/toolbox/fakesyndi
@@ -174,7 +191,7 @@
 	max_w_class = WEIGHT_CLASS_NORMAL
 	max_combined_w_class = 28
 	storage_slots = 28
-	attack_verb = list("robusted", "crushed", "smashed")
+	attack_verb = list("заробастил", "сокрушил")
 
 /obj/item/storage/toolbox/brass/prefilled/populate_contents()
 	new /obj/item/screwdriver/brass(src)
@@ -224,3 +241,88 @@
 /obj/item/storage/toolbox/surgery/empty/populate_contents()
 	return
 
+/obj/item/storage/toolbox/surgery/advanced
+	name = "Advanced Laser Surgery Kit"
+	desc = "Содержит в себе хирургические инструменты. Имеет зелёные неоновые накладки."
+	icon_state = "surgerykit_advanced"
+	item_state = "surgerykit_advanced"
+
+/obj/item/storage/toolbox/surgery/advanced/populate_contents()
+	new /obj/item/scalpel/laser/laser3(src)
+	new /obj/item/hemostat/laser(src)
+	new /obj/item/retractor/laser(src)
+	new /obj/item/surgicaldrill/laser(src)
+	new /obj/item/circular_saw/laser(src)
+	new /obj/item/bonesetter/laser(src)
+	new /obj/item/bonegel(src)
+	new /obj/item/FixOVein(src)
+
+
+/obj/item/storage/toolbox/surgery/advanced/empty/populate_contents()
+	return
+
+/obj/item/storage/toolbox/surgery/alien
+	name = "Alien Surgery Kit"
+	desc = "Содержит в себе хирургические инструменты. Выглядит очень футуристично."
+	icon_state = "surgerykit_alien"
+	item_state = "surgerykit_alien"
+
+/obj/item/storage/toolbox/surgery/alien/populate_contents()
+	new /obj/item/scalpel/alien(src)
+	new /obj/item/hemostat/alien(src)
+	new /obj/item/retractor/alien(src)
+	new /obj/item/circular_saw/alien(src)
+	new /obj/item/surgicaldrill/alien(src)
+	new /obj/item/cautery/alien(src)
+	new /obj/item/bonegel/alien(src)
+	new /obj/item/bonesetter/alien(src)
+	new /obj/item/FixOVein/alien(src)
+
+/obj/item/storage/toolbox/surgery/alien/empty/populate_contents()
+	return
+
+/obj/item/storage/toolbox/surgery/ashwalker
+	name = "surgery bag"
+	desc = "Небольшой кожанный футляр, хранящий в себе различные хирургические предметы. От него исходит едва заметный запах... пепла?"
+	ru_names = list(
+		NOMINATIVE = "хирургический саквояж",
+		GENITIVE = "хирургического саквояжа",
+		DATIVE = "хирургическому саквояжу",
+		ACCUSATIVE = "хирургический саквояж",
+		INSTRUMENTAL = "хирургическим саквояжем",
+		PREPOSITIONAL = "хирургическом саквояже"
+	)
+	icon_state = "surgery_bag"
+	flags = NONE
+	force = 2
+	throwforce = 4
+
+/obj/item/storage/toolbox/surgery/ashwalker/populate_contents()
+	new /obj/item/scalpel/primitive_scalpel(src)
+	new /obj/item/hemostat/primitive_hemostat(src)
+	new /obj/item/retractor/primitive_retractor(src)
+	new /obj/item/primitive_saw(src)
+	new /obj/item/cautery/primitive_cautery(src)
+	new /obj/item/bonegel/primitive_bonegel(src)
+	new /obj/item/FixOVein/primitive_FixOVein(src)
+	new /obj/item/bonesetter/primitive_bonesetter(src)
+
+/obj/item/storage/toolbox/surgery/ashwalker/empty/populate_contents()
+	return
+
+/obj/item/storage/toolbox/green
+	name = "artistic toolbox"
+	desc = "Металлический контейнер, созданный для хранения различных инструментов, в том числе художественных принадлежностей."
+	ru_names = list(
+		NOMINATIVE = "артистический ящик для инструментов",
+		GENITIVE = "артистического ящика для инструментов",
+		DATIVE = "артистическому ящику для инструментов",
+		ACCUSATIVE = "артистический ящик для инструментов",
+		INSTRUMENTAL = "артистическим ящиком для инструментов",
+		PREPOSITIONAL = "артистическом ящике для инструментов"
+	)
+	icon_state = "green"
+	item_state = "toolbox_green"
+	icon = 'icons/goonstation/objects/objects.dmi'
+	lefthand_file = 'icons/goonstation/mob/inhands/items_lefthand.dmi'
+	righthand_file = 'icons/goonstation/mob/inhands/items_righthand.dmi'

@@ -19,10 +19,12 @@
 		/obj/item/melee/baton, /obj/item/restraints/handcuffs, /obj/item/tank,
 		/obj/item/stock_parts/cell, /obj/item/grenade/plastic/c4/ninja)
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
-	armor = list("melee" = 40, "bullet" = 30, "laser" = 20,"energy" = 30, "bomb" = 30, "bio" = 100, "rad" = 30, "fire" = 100, "acid" = 100)
+	armor = list("melee" = 40, "bullet" = 30, "laser" = 20,"energy" = 30, "bomb" = 30, "bio" = 100, "rad" = 100, "fire" = 100, "acid" = 100)
 	strip_delay = 12
+	permeability_coefficient = 1
 	min_cold_protection_temperature = SPACE_SUIT_MIN_TEMP_PROTECT
 	flags_inv = HIDEGLOVES|HIDEJUMPSUIT|HIDETAIL
+	flags_inv_transparent = HIDEGLOVES|HIDEJUMPSUIT
 	actions = list()
 	action_icon = list()
 	action_icon_state = list()
@@ -56,7 +58,7 @@
 	/// The suit's spark system, used for... sparking.
 	var/datum/effect_system/spark_spread/spark_system
 	/// The suit's smoke system. For the tactical smoke escapes and other smokey things!
-	var/datum/effect_system/smoke_spread/bad/smoke_system
+	var/datum/effect_system/fluid_spread/smoke/bad/smoke_system
 
 	/// The katana registered with the suit, used for recalling and catching the katana.  Set when the ninja outfit is created.
 	var/obj/item/melee/energy_katana/energyKatana
@@ -268,13 +270,13 @@
 		return
 	if(!ninja == affecting)
 		return
-	. += "All systems operational. Current energy capacity: <B>[cell.charge]</B>.\n"
+	. += "All systems operational. Current energy capacity: <b>[cell.charge]</b>.\n"
 	if(locate(/datum/action/item_action/advanced/ninja/ninja_stealth) in actions)
-		. += "The Cloak-Tech Device is <B>[stealth?"active":"inactive"]</B>.\n"
+		. += "The Cloak-Tech Device is <b>[stealth?"active":"inactive"]</b>.\n"
 	if(locate(/datum/action/item_action/advanced/ninja/ninja_chameleon) in actions)
-		. += "The Kitsune - Adaptive Chameleon Device is <B>[disguise_active?"active":"inactive"]</B>.\n"
+		. += "The Kitsune - Adaptive Chameleon Device is <b>[disguise_active?"active":"inactive"]</b>.\n"
 	if(locate(/datum/action/item_action/advanced/ninja/ninja_spirit_form) in actions)
-		. += "Spirit Form Prototype Module is <B>[spirited?"active":"inactive"]</B>.\n"
+		. += "Spirit Form Prototype Module is <b>[spirited?"active":"inactive"]</b>.\n"
 	if(locate(/datum/action/item_action/advanced/ninja/ninjaboost) in actions)
 		. += "[a_boost.charge_counter ? "Integrated Adrenaline Injector is available to use.":"There is no adrenaline boost available. Try refilling the suit with uranium sheets."]\n"
 	if(locate(/datum/action/item_action/advanced/ninja/ninjaheal) in actions)
@@ -296,11 +298,11 @@
 	if(!mapload)
 
 	//Shuttle Init
-		for(var/obj/machinery/computer/shuttle/ninja/shuttle in GLOB.machines)
+		for(var/obj/machinery/computer/shuttle/ninja/shuttle in SSmachines.get_by_type(/obj/machinery/computer/shuttle/ninja))
 			shuttle_controller = shuttle
 
 	//Cloning Init
-		for(var/obj/machinery/ninja_clonepod/clonepod in GLOB.machines)
+		for(var/obj/machinery/ninja_clonepod/clonepod in SSmachines.get_by_type(/obj/machinery/ninja_clonepod))
 			cloning_ref = clonepod
 
 		if(!cloning_ref)
@@ -356,9 +358,9 @@
 	// Проверка во избежание потенциальных абузов инвиза
 	// Как например если после сканирования t-ray сканером сразу выключить инвиз...
 	// Что приводило к бесплатному инвизу.
-	if(ninja.alpha == NINJA_ALPHA_INVISIBILITY || ninja.alpha == NINJA_ALPHA_SPIRIT_FORM)
+	if(ninja.alpha_get(ALPHA_SOURCE_NINJA) == standartize_alpha(NINJA_ALPHA_INVISIBILITY) || ninja.alpha_get(ALPHA_SOURCE_NINJA) == standartize_alpha(NINJA_ALPHA_SPIRIT_FORM))
 		if(!stealth && !spirited)
-			ninja.alpha = NINJA_ALPHA_NORMAL
+			ninja.alpha_set(standartize_alpha(NINJA_ALPHA_NORMAL), ALPHA_SOURCE_NINJA)
 	//Safe checks to prevent potential abuse of power.
 	if(!is_teleport_allowed(ninja.z) && spirited)
 		to_chat(ninja, span_warning("This place forcibly stabilizes your body somehow! You can't use \"Spirit Form\" there!"))
@@ -382,12 +384,9 @@
 			if(disguise_active) // If chameleon is active.
 				used_power += s_acost
 			if(spirited) // If spirit form is active.
-				if(istype(ninja.r_hand, /obj/item/grab))
-					ninja.drop_item_ground(ninja.r_hand, force = TRUE)
+				if(ninja.pulling && ninja.grab_state > GRAB_PASSIVE)
 					to_chat(ninja, span_warning("You can't hold anyone that tight, when \"Spirit Form\" is active!"))
-				if(istype(ninja.l_hand, /obj/item/grab))
-					ninja.drop_item_ground(ninja.l_hand, force = TRUE)
-					to_chat(ninja, span_warning("You can't hold anyone that tight, when \"Spirit Form\" is active!"))
+					ninja.stop_pulling()
 				used_power += cell.maxcharge * s_spirit_form__percent_cost //that shit is NOT cheap
 			if(cell.charge < used_power) // Проверка на случай когда он не может отнять энергию до нуля и в итоге вечно торчит в инвизе/форме духа/хамелионе
 				cell.charge = 0
@@ -403,18 +402,18 @@
 
 	ninja.adjust_bodytemperature(BODYTEMP_NORMAL - ninja.bodytemperature)
 
-/obj/item/clothing/suit/space/space_ninja/ui_action_click(mob/ninja, action)
+/obj/item/clothing/suit/space/space_ninja/ui_action_click(mob/ninja, datum/action/action, leftclick)
 	if(!isninja(ninja) && !anyone)
-		to_chat(ninja, span_danger("<B>fÄTaL ÈÈRRoR</B>: 382200-*#00CÖDE <B>RED</B>\nUNAUHORIZED USÈ DETÈCeD\nCoMMÈNCING SUB-R0UIN3 13...\nTÈRMInATING U-U-USÈR..."))
+		to_chat(ninja, span_danger("<b>fÄTaL ÈÈRRoR</b>: 382200-*#00CÖDE <b>RED</b>\nUNAUHORIZED USÈ DETÈCeD\nCoMMÈNCING SUB-R0UIN3 13...\nTÈRMInATING U-U-USÈR..."))
 		ninja.dust()
 		return FALSE
-	if(action == /datum/action/item_action/advanced/ninja/SpiderOS)
+	if(istype(action, /datum/action/item_action/advanced/ninja/SpiderOS))
 		ui_interact(ninja)
 		return TRUE
 	if(!s_initialized)
 		to_chat(ninja, span_warning("<b>ERROR</b>: suit offline. Please activate suit."))
 		return FALSE
-	switch(action)
+	switch(action.type)
 		if(/datum/action/item_action/advanced/ninja/ninja_autodust)
 			ninja_toggle_autodust()
 			return TRUE
@@ -512,11 +511,11 @@
 	//Покраска дыма
 	switch(color_choice)
 		if("red")
-			smoke_system.color = "#af0033"
+			smoke_system.effect_type = /obj/effect/particle_effect/fluid/smoke/bad/red
 		if("blue")
-			smoke_system.color = "#88aaff"
+			smoke_system.effect_type = /obj/effect/particle_effect/fluid/smoke/bad/blue
 		if("green")
-			smoke_system.color = "#00ff00"
+			smoke_system.effect_type = /obj/effect/particle_effect/fluid/smoke/bad/green
 
 	var/datum/action/item_action/action
 	for(action in ninja.actions)
@@ -651,9 +650,9 @@
 /obj/item/clothing/suit/space/space_ninja/proc/toggle_ninja_nodrop(obj/item/ninja_clothing)
 	var/prev_has = HAS_TRAIT_FROM(ninja_clothing, TRAIT_NODROP, NINJA_TRAIT)
 	if(prev_has)
-		REMOVE_TRAIT(src, TRAIT_NODROP, NINJA_TRAIT)
+		REMOVE_TRAIT(ninja_clothing, TRAIT_NODROP, NINJA_TRAIT)
 	else
-		ADD_TRAIT(src, TRAIT_NODROP, NINJA_TRAIT)
+		ADD_TRAIT(ninja_clothing, TRAIT_NODROP, NINJA_TRAIT)
 	current_initialisation_text = "[prev_has ? "Разблокировка" : "Блокировка"]: [ninja_clothing.name]... Успех"
 	playsound(ninja_clothing.loc, 'sound/items/piston.ogg', 10, TRUE)
 	sleep(10)
@@ -702,7 +701,7 @@
 					for(var/mob/living/carbon/other_mob in view(7,ninja))
 						if(other_mob == ninja)
 							continue
-						to_chat(other_mob, span_info(random_subtle_text))
+						to_chat(other_mob, span_notice(random_subtle_text))
 			if(2)
 				if(stealth_ambient_chance >= 40)
 					for(var/mob/living/carbon/other_mob in view(7,ninja))

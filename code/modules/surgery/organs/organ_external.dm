@@ -89,7 +89,7 @@
 	var/list/embedded_objects
 
 	/// Whether bodypart has an open incision from surgery
-	var/open = 0
+	var/open = ORGAN_CLOSED
 	/// Whether bodypart needs to be opened with a saw to access the internal organs. Can be a string with encasing description
 	var/encased = FALSE
 	/// Reference to item hidden in this bodypart after cavity surgery
@@ -105,15 +105,16 @@
 	light_on = FALSE
 
 
-/obj/item/organ/external/New(mob/living/carbon/holder)
-	..()
+/obj/item/organ/external/Initialize(mapload, special = ORGAN_MANIPULATION_NOEFFECT)
+	. = ..()
 
 	if(dna?.species)
 		icobase = dna.species.icobase
 		deform = dna.species.deform
-	if(ishuman(holder))
-		replaced(holder, ORGAN_MANIPULATION_NOEFFECT)
-		sync_colour_to_human(holder)
+
+	if(ishuman(loc))
+		replaced(loc, special)
+		sync_colour_to_human(loc)
 		properly_attached = TRUE
 
 	if(is_robotic())
@@ -181,8 +182,10 @@
 		return
 
 	var/obj/item/organ/external/replaced = owner.bodyparts_by_name[limb_zone]
+
 	if(!isnull(replaced))
 		replaced.remove(target, ORGAN_MANIPULATION_NOEFFECT)
+
 	owner.bodyparts_by_name[limb_zone] = src
 	owner.bodyparts |= src
 
@@ -227,9 +230,9 @@
 	//Robotic limbs explode if sabotaged.
 	if(is_robotic() && sabotaged && !special)
 		organ_owner.visible_message(
-			span_danger("[organ_owner]'s [name] explodes violently!"),
-			span_danger("Your [name] explodes!"),
-			span_danger("You hear an explosion!"),
+			span_danger("[capitalize(declent_ru(NOMINATIVE))] [organ_owner] взрыва[pluralize_ru(gender, "ет", "ют")]ся!"),
+			span_danger("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] взрыва[pluralize_ru(gender, "ет", "ют")]ся!"),
+			span_danger("Вы слышите взрыв!"),
 		)
 		explosion(get_turf(organ_owner), -1, -1, 2, 3, cause = "Organ Sabotage")
 		do_sparks(5, FALSE, organ_owner)
@@ -251,32 +254,75 @@
 			   DAMAGE PROCS
 ****************************************************/
 
-/obj/item/organ/external/receive_damage(brute, burn, sharp, used_weapon = null, list/forbidden_limbs = list(), ignore_resists = FALSE, updating_health = TRUE, silent = FALSE)
-	if(owner?.status_flags & GODMODE)
+
+/**
+ * Applies damage to external organs.
+ *
+ * Arguments:
+ * * brute - Amount of brute damage to apply.
+ * * burn - Amount of burn damage to apply.
+ * * blocked - Percent modifier to damage. 100 = 100% less damage dealt, 50% = 50% less damage dealt.
+ * * sharp - Sharpness of the weapon.
+ * * used_weapon - Item that is attacking [src].
+ * * forbidden_limbs - Mostly for local usage, required to properly spread incoming damage. Proc will ignore any owner's bodyparts in this list.
+ * * forced - "Force" exactly the damage dealt. This means it skips any damage modifiers. Also will not apply fractures or internal bleedings.
+ * * updating_health - If TRUE calls update health on success.
+ * * silent - If TRUE will not spam red messages in chat.
+ *
+ * Returns `TRUE` if bodypart damage state was changed, `FALSE` otherwise
+ */
+/obj/item/organ/external/proc/external_receive_damage(
+	brute = 0,
+	burn = 0,
+	blocked = 0,
+	sharp = FALSE,
+	used_weapon = null,
+	list/forbidden_limbs = null,
+	forced = FALSE,
+	updating_health = TRUE,
+	silent = FALSE,
+)
+	if(owner && HAS_TRAIT(owner, TRAIT_GODMODE))
 		return FALSE
 
-	if(tough && !ignore_resists)
-		brute = max(0, brute - 5)
-		burn = max(0, burn - 4)
+	var/brute_was = brute_dam
+	var/burn_was = burn_dam
 
+	if(!forced)
+		if(tough)
+			brute = max(0, brute - 5)
+			burn = max(0, burn - 4)
+
+		if(brute <= 0 && burn <= 0)
+			return FALSE
+
+		brute *= brute_mod
+		burn *= burn_mod
+		brute *= ((100 - clamp(blocked + (owner?.get_blocking_resistance(brute, BRUTE, src, sharp, used_weapon) || 0), 0, 100)) / 100)
+		burn *= ((100 - clamp(blocked + (owner?.get_blocking_resistance(burn, BURN, src, sharp, used_weapon) || 0), 0, 100)) / 100)
+		if(owner)
+			brute *= owner.get_incoming_damage_modifier(brute, BRUTE, limb_zone, sharp, used_weapon)
+			burn *= owner.get_incoming_damage_modifier(burn, BURN, limb_zone, sharp, used_weapon)
+
+		// High brute damage or sharp objects may damage internal organs; distributed damage doesn't inflict it
+		if(LAZYLEN(internal_organs) && (brute_dam >= max_damage || (((sharp && brute >= LIMB_SHARP_THRESH_INT_DMG) || brute >= LIMB_THRESH_INT_DMG) && prob(LIMB_DMG_PROB))))
+			var/obj/item/organ/internal/internal_organ = pick(internal_organs)
+			// Pass full damage if an internal organ is dead
+			var/internal_damage = min(internal_organ.max_damage - internal_organ.damage, brute * 0.5)
+			if(internal_damage)
+				internal_organ.internal_receive_damage(internal_damage)
+				brute -= internal_damage
+
+	brute = round(brute, DAMAGE_PRECISION)
+	burn = round(burn, DAMAGE_PRECISION)
 	if(brute <= 0 && burn <= 0)
 		return FALSE
 
-	if(!ignore_resists)
-		brute *= brute_mod
-		burn *= burn_mod
-
-	// High brute damage or sharp objects may damage internal organs; distributed damage doesn't inflict it
-	if(!ignore_resists && LAZYLEN(internal_organs) && (brute_dam >= max_damage || (((sharp && brute >= LIMB_SHARP_THRESH_INT_DMG) || brute >= LIMB_THRESH_INT_DMG) && prob(LIMB_DMG_PROB))))
-		var/obj/item/organ/internal/internal_organ = pick(internal_organs)
-		// Pass full damage if an internal organ is dead
-		var/internal_damage = min(internal_organ.max_damage - internal_organ.damage, brute * 0.5)
-		if(internal_damage)
-			internal_organ.receive_damage(internal_damage)
-			brute -= internal_damage
+	var/original_brute = brute
+	var/original_burn = burn
 
 	if(!silent && brute && has_fracture() && owner?.has_pain() && prob(40))
-		owner.emote("scream")	// Getting hit on broken hand hurts
+		INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, emote), "scream")	// Getting hit on broken hand hurts
 	else if(brute && prob((brute + burn) * 4))
 		remove_splint(splint_break = TRUE, silent = silent)	// Taking damage to splinted limbs removes the splints
 
@@ -285,7 +331,7 @@
 	else
 		add_autopsy_data(null, brute + burn)
 
-	if(!ignore_resists)
+	if(!forced && owner)
 		// See if internal bleeding/fracture has place; distributed damage doesn't inflict it
 		try_internal_bleeding(brute, silent)
 		try_fracture(brute, silent)
@@ -295,8 +341,8 @@
 
 	// Make sure we don't exceed the maximum damage a limb can take before dismembering
 	if((brute_dam + burn_dam + brute + burn) < max_damage)
-		brute_dam += brute
-		burn_dam += burn
+		brute_dam = round(brute_dam + brute, DAMAGE_PRECISION)
+		burn_dam = round(burn_dam + burn, DAMAGE_PRECISION)
 	else
 		// If we can't inflict the full amount of damage, spread the damage in other ways
 		// How much damage can we actually cause?
@@ -304,7 +350,7 @@
 		if(remaining_health)
 			if(brute > 0)
 				// Inflict all brute damage we can
-				brute_dam = min(brute_dam + brute, brute_dam + remaining_health)
+				brute_dam = round(min(brute_dam + brute, brute_dam + remaining_health), DAMAGE_PRECISION)
 				var/temp = remaining_health
 				// How much more damage can we inflict
 				remaining_health = max(0, remaining_health - brute)
@@ -313,7 +359,7 @@
 
 			if(burn > 0 && remaining_health)
 				// Inflict all burn damage we can
-				burn_dam = min(burn_dam + burn, burn_dam + remaining_health)
+				burn_dam = round(min(burn_dam + burn, burn_dam + remaining_health), DAMAGE_PRECISION)
 				// How much burn damage is left to inflict
 				burn = max(0, burn - remaining_health)
 
@@ -327,20 +373,20 @@
 			if(LAZYLEN(children))
 				var/all_children_forbidden = TRUE
 				for(var/obj/item/organ/external/childpart as anything in children)
-					if(!(childpart in forbidden_limbs))
+					if(!LAZYIN(forbidden_limbs, childpart))
 						all_children_forbidden = FALSE
 						possible_points += childpart
 				if(all_children_forbidden)
-					forbidden_limbs |= src
+					LAZYOR(forbidden_limbs, src)
 			else
-				forbidden_limbs |= src
+				LAZYOR(forbidden_limbs, src)
 
-			if(length(forbidden_limbs))
+			if(LAZYLEN(forbidden_limbs))
 				possible_points -= forbidden_limbs
 
 			// If everything is damaged, no damage
 			var/can_distribute = TRUE
-			if(owner && length(forbidden_limbs) == length(owner.bodyparts_by_name))
+			if(owner && LAZYLEN(forbidden_limbs) == length(owner.bodyparts_by_name))
 				can_distribute = FALSE
 
 			// Return damage to upper body if nothing is available
@@ -351,7 +397,7 @@
 				// And pass the pain around
 				var/obj/item/organ/external/picked_part = pick(possible_points)
 				// If the damage was reduced before, don't reduce it again
-				picked_part.receive_damage(brute, burn, sharp, used_weapon, forbidden_limbs, ignore_resists = TRUE, updating_health = FALSE, silent = silent)
+				picked_part.external_receive_damage(brute, burn, blocked, sharp, used_weapon, forbidden_limbs, TRUE, FALSE, silent)
 
 			// We've ensured all damage to the mob is retained, now let's drop it, if necessary
 			var/limb_dropped = FALSE
@@ -361,10 +407,14 @@
 				limb_dropped = TRUE
 
 			// If limb took enough damage, try to cut or tear it off.
-			if(!limb_dropped && sharp && owner && loc == owner && !cannot_amputate && prob(brute / 2))
-				droplimb(silent = silent)
+			if(!limb_dropped && sharp && owner && loc == owner && !cannot_amputate)
+				if(original_brute && prob(original_brute / 2))
+					droplimb(clean = FALSE, disintegrate = DROPLIMB_SHARP, silent = silent)
+					limb_dropped = TRUE
+				if(!limb_dropped && original_burn && prob(original_burn / 2))
+					droplimb(clean = FALSE, disintegrate = DROPLIMB_BURN, silent = silent)
 
-	if(updating_health)
+	if(updating_health && (QDELETED(src) || loc != organ_owner || brute_dam != brute_was || burn_dam != burn_was))
 		organ_owner?.updatehealth("limb receive damage")
 
 	return update_state()
@@ -372,20 +422,27 @@
 
 /obj/item/organ/external/proc/heal_damage(brute, burn, internal = FALSE, robo_repair = FALSE, updating_health = TRUE)
 	if(is_robotic() && !robo_repair)
-		return
+		return FALSE
 
-	brute_dam = max(brute_dam - brute, 0)
-	burn_dam  = max(burn_dam - burn, 0)
+	var/brute_was = brute_dam
+	var/burn_was = burn_dam
+	brute_dam = max(round(brute_dam - brute, DAMAGE_PRECISION), 0)
+	burn_dam  = max(round(burn_dam - burn, DAMAGE_PRECISION), 0)
+	if(brute_dam == brute_was && burn_dam == burn_was)
+		updating_health = FALSE
 
 	if(internal)
-		status &= ~ORGAN_BROKEN
-		perma_injury = 0
+		mend_fracture()
+		stop_internal_bleeding()
 
 	if(updating_health)
 		owner.updatehealth("limb heal damage")
 
 	return update_state()
 
+
+/obj/item/organ/external/blob_act()
+	external_receive_damage(max_damage, forced = TRUE)
 
 /obj/item/organ/external/emp_act(severity)
 	if(!is_robotic() || emp_proof)
@@ -394,24 +451,42 @@
 		switch(severity)
 			if(1)
 				// 44 total burn damage with 11 augmented limbs
-				receive_damage(0, 8)
+				if(owner)
+					owner.apply_damage(8, BURN, def_zone = src)
+				else
+					external_receive_damage(0, 8)
 			if(2)
 				// 22 total burn damage with 11 augmented limbs
-				receive_damage(0, 6)
+				if(owner)
+					owner.apply_damage(6, BURN, def_zone = src)
+				else
+					external_receive_damage(0, 6)
 	else if(emp_resistant) // IPC limbs
 		switch(severity)
 			if(1)
 				// 5.28 (9 * 0.66 burn_mod) burn damage, 65.34 damage with 11 limbs.
-				receive_damage(0, 9)
+				if(owner)
+					owner.apply_damage(9, BURN, def_zone = src)
+				else
+					external_receive_damage(0, 9)
 			if(2)
 				// 3.63 (5 * 0.66 burn_mod) burn damage, 39.93 damage with 11 limbs.
-				receive_damage(0, 5.5)
+				if(owner)
+					owner.apply_damage(5.5, BURN, def_zone = src)
+				else
+					external_receive_damage(0, 5.5)
 	else // Basic prosthetic limbs
 		switch(severity)
 			if(1)
-				receive_damage(0, 20)
+				if(owner)
+					owner.apply_damage(20, BURN, def_zone = src)
+				else
+					external_receive_damage(0, 20)
 			if(2)
-				receive_damage(0, 7)
+				if(owner)
+					owner.apply_damage(7, BURN, def_zone = src)
+				else
+					external_receive_damage(0, 7)
 
 
 /*
@@ -504,6 +579,8 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(germ_level < INFECTION_LEVEL_TWO)
 		return ..()
 
+	var/germs_amount = 1 * (owner.dna.species.germs_growth_mod * owner.physiology.germs_growth_mod)
+
 	if(germ_level >= INFECTION_LEVEL_TWO)
 		//spread the infection to internal organs
 		var/obj/item/organ/internal/target_organ = null	//make internal organs become infected one at a time instead of all at once
@@ -521,19 +598,19 @@ Note that amputating the affected organ does in fact remove the infection from t
 			target_organ = safepick(candidate_organs)
 
 		if(target_organ)
-			target_organ.germ_level += owner.dna.species.germs_growth_rate
+			target_organ.germ_level += germs_amount
 
 		//spread the infection to child and parent organs
 		for(var/obj/item/organ/external/childpart as anything in children)
 			if(childpart.germ_level < germ_level && !childpart.is_robotic() && (childpart.germ_level < INFECTION_LEVEL_ONE * 2 || prob(30)))
-				childpart.germ_level += owner.dna.species.germs_growth_rate
+				childpart.germ_level += germs_amount
 
 		if(parent && parent.germ_level < germ_level && !parent.is_robotic() && (parent.germ_level < INFECTION_LEVEL_ONE * 2 || prob(30)))
-			parent.germ_level += owner.dna.species.germs_growth_rate
+			parent.germ_level += germs_amount
 
 	if(germ_level >= INFECTION_LEVEL_THREE)
 		necrotize()
-		germ_level += owner.dna.species.germs_growth_rate
+		germ_level += germs_amount
 		owner.adjustToxLoss(1)
 
 
@@ -542,7 +619,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 		return FALSE
 	if(brute_dam + burn_dam + inflicted_damage <= min_broken_damage)
 		return FALSE
-	if(!prob(inflicted_damage * FRAGILITY(owner)))
+	if(!prob(inflicted_damage * owner.dna.species.bonefragility * owner.physiology.bone_fragility))
 		return FALSE
 	if(fracture(silent))
 		add_attack_logs(owner, null, "Suffered fracture to [src](Damage: [inflicted_damage], Organ HP: [max_damage - (brute_dam + burn_dam) ])")
@@ -596,33 +673,33 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(!owner || cannot_amputate)
 		return
 
-	if(owner.status_flags & GODMODE)
+	if(HAS_TRAIT(owner, TRAIT_GODMODE))
 		return
 
 	if(!silent)
 		switch(disintegrate)
 			if(DROPLIMB_SHARP)
 				if(!clean)
-					var/gore_sound = "[is_robotic() ? "tortured metal" : "ripping tendons and flesh"]"
+					var/gore_sound = "[is_robotic() ? "скрежета металла" : "разрывающейся на куски плоти"]"
 					owner.visible_message(
-						span_danger("[owner]'s [name] flies off in an arc!"),
-						span_userdanger("Your [name] goes flying off!"),
-						span_italics("You hear a terrible sound of [gore_sound]."),
+						span_danger("[capitalize(declent_ru(NOMINATIVE))] [owner] отрыва[pluralize_ru(gender, "ет", "ют")]ся!"),
+						span_userdanger("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] отрыва[pluralize_ru(gender, "ет", "ют")]ся!"),
+						span_italics("Вы слышите звук [gore_sound]!"),
 					)
 			if(DROPLIMB_BURN)
-				var/gore = "[is_robotic() ? "" : " of burning flesh"]"
+				var/gore_sound = "[is_robotic() ? "бульканья расплавленного металла" : "шипения горящей плоти"]"
 				owner.visible_message(
-					span_danger("[owner]'s [name] flashes away into ashes!"),
-					span_userdanger("Your [name] flashes away into ashes!"),
-					span_italics("You hear a crackling sound[gore]."),
+					span_danger("[capitalize(declent_ru(NOMINATIVE))] [owner] испепеля[pluralize_ru(gender, "ет", "ют")]ся!"),
+					span_userdanger("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] испепеля[pluralize_ru(gender, "ет", "ют")]ся!"),
+					span_italics("Вы слышите звук [gore_sound]!"),
 				)
 			if(DROPLIMB_BLUNT)
-				var/gore = "[is_robotic() ? "": " in shower of gore"]"
-				var/gore_sound = "[is_robotic() ? "rending sound of tortured metal" : "sickening splatter of gore"]"
+				var/gore = "[is_robotic() ? "брызги масла и куски скомканного металла": "брызги крови и ошмётки плоти"]"
+				var/gore_sound = "[is_robotic() ? "разламывающегося металла" : "отрываемой плоти"]"
 				owner.visible_message(
-					span_danger("[owner]'s [name] explodes[gore]!"),
-					span_userdanger("Your [name] explodes[gore]!"),
-					span_italics("You hear the [gore_sound].")
+					span_danger("[capitalize(declent_ru(NOMINATIVE))] [owner] отрыва[pluralize_ru(gender, "ет", "ют")]ся, оставляя после себя [gore]!"),
+					span_userdanger("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] отрыва[pluralize_ru(gender, "ет", "ют")]ся, оставляя после себя [gore]!"),
+					span_italics("Вы слышите звук [gore_sound]!")
 				)
 
 	var/mob/living/carbon/human/victim = owner //Keep a reference for post-removed().
@@ -637,13 +714,12 @@ Note that amputating the affected organ does in fact remove the infection from t
 			for(var/obj/item/organ/external/childpart as anything in children) //Factor in the children's brute and burn into how much will transfer
 				total_brute += childpart.brute_dam
 				total_burn += childpart.burn_dam
-			parent.receive_damage(total_brute, total_burn, ignore_resists = TRUE, silent = silent) //Transfer the full damage to the parent, bypass limb damage reduction.
+			parent.external_receive_damage(total_brute, total_burn, forced = TRUE, updating_health = FALSE, silent = silent) //Transfer the full damage to the parent, bypass limb damage reduction.
 		parent = null
-		dir = SOUTH
+		setDir(SOUTH)
 
 	if(victim)
 		victim.updatehealth("droplimb")
-		victim.UpdateDamageIcon()
 		victim.regenerate_icons()
 
 	switch(disintegrate)
@@ -696,7 +772,10 @@ Note that amputating the affected organ does in fact remove the infection from t
 				thing.forceMove(drop_location())
 
 	if(organ_spilled && !silent)
-		organ_owner.visible_message(span_danger("[organ_owner]'s internal organs spill out onto the floor!"))
+		organ_owner.visible_message(
+			span_danger("Внутренности [organ_owner] выпадают на землю со шлёпающим звуком!"),
+			span_userdanger("Ваши внутренности выпадают на землю со шлёпающим звуком!")
+		)
 
 	open = ORGAN_ORGANIC_OPEN
 	return TRUE
@@ -711,21 +790,27 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 
 /obj/item/organ/external/attackby(obj/item/I, mob/user, params)
-	if(I.sharp)
+	if(is_sharp(I))
 		add_fingerprint(user)
 		if(!length(contents))
-			to_chat(user, span_warning("There is nothing left inside [src]!"))
-			return
-
+			balloon_alert(user, "внутри ничего нет!")
+			return ATTACK_CHAIN_PROCEED
 		playsound(loc, 'sound/weapons/slice.ogg', 50, TRUE, -1)
 		user.visible_message(
-			span_warning("[user] begins to cut open [src]."),
-			span_notice("You begin to cut open [src]..."),
+			span_warning("[user] начина[pluralize_ru(user.gender, "ет", "ют")] вырезать внутренности из [declent_ru(GENITIVE)]."),
+			span_notice("Вы начинаете вырезать внутренности из [declent_ru(GENITIVE)]."),
 		)
-		if(do_after(user, 5 SECONDS, src) && length(contents) && !QDELETED(src) && !QDELETED(user))
-			drop_organs()
-	else
-		return ..()
+		if(!do_after(user, 5 SECONDS, src, category = DA_CAT_SURGERY) || !length(contents))
+			return ATTACK_CHAIN_PROCEED
+		playsound(loc, 'sound/weapons/slice.ogg', 50, TRUE, -1)
+		user.visible_message(
+			span_warning("[user] выреза[pluralize_ru(user.gender, "ет", "ют")] внутренности из [declent_ru(GENITIVE)]."),
+			span_notice("Вы вырезаете внутренности из [declent_ru(GENITIVE)]."),
+		)
+		drop_organs()
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
 
 
 /**
@@ -801,34 +886,36 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(holder.handcuffed && (limb_zone in list(BODY_ZONE_L_ARM, BODY_ZONE_R_ARM, BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND)))
 		if(!silent)
 			holder.visible_message(
-				"[holder.handcuffed.name] falls off of [holder.name].",
-				"[holder.handcuffed.name] falls off you.",
+				span_warning("[capitalize(holder.handcuffed.declent_ru(NOMINATIVE))] спадыва[pluralize_ru(holder.handcuffed.gender, "ет", "ют")] с [holder.name]."),
+				span_warning("[capitalize(holder.handcuffed.declent_ru(NOMINATIVE))] спадыва[pluralize_ru(holder.handcuffed.gender, "ет", "ют")] с вас.")
 			)
 		holder.drop_item_ground(holder.handcuffed)
 
 	if(holder.legcuffed && (limb_zone in list(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG, BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT)))
 		if(!silent)
 			holder.visible_message(
-				"[holder.legcuffed.name] falls off of [holder.name].",
-				"[holder.legcuffed.name] falls off you.",
+				span_warning("[capitalize(holder.legcuffed.declent_ru(NOMINATIVE))] спадыва[pluralize_ru(holder.legcuffed.gender, "ет", "ют")] с [holder.name]."),
+				span_warning("[capitalize(holder.legcuffed.declent_ru(NOMINATIVE))] спадыва[pluralize_ru(holder.legcuffed.gender, "ет", "ют")] с вас.")
 			)
 		holder.drop_item_ground(holder.legcuffed)
 
 
 /obj/item/organ/external/proc/internal_bleeding(silent = FALSE)
-	if(owner?.status_flags & GODMODE)
-		return FALSE
+	if(owner)
+		if(HAS_TRAIT(owner, TRAIT_GODMODE))
+			return FALSE
+		if(HAS_TRAIT(owner, TRAIT_NO_BLOOD))
+			return FALSE
 	if(is_robotic())
-		return FALSE
-	if(dna && (NO_BLOOD in dna.species.species_traits))
 		return FALSE
 	if(has_internal_bleeding() || cannot_internal_bleed)
 		return FALSE
 
 	status |= ORGAN_INT_BLEED
+	INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, emote), "scream")
 
 	if(owner && !silent)
-		owner.custom_pain("You feel something rip in your [name]!")
+		owner.custom_pain("Вы чувствуете, как что-то разорвалось внутри ваш[genderize_ru(gender, "его", "ей", "его", "их")] [declent_ru(GENITIVE)]!")
 
 	return TRUE
 
@@ -838,9 +925,9 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 
 /obj/item/organ/external/proc/stop_internal_bleeding()
-	if(is_robotic())
+	if(owner && HAS_TRAIT(owner, TRAIT_NO_BLOOD))
 		return FALSE
-	if(dna && (NO_BLOOD in dna.species.species_traits))
+	if(is_robotic())
 		return FALSE
 	if(!has_internal_bleeding())
 		return FALSE
@@ -853,7 +940,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 /obj/item/organ/external/proc/fracture(silent = FALSE)
 	if(!CONFIG_GET(flag/bones_can_break))
 		return FALSE
-	if(owner?.status_flags & GODMODE)
+	if(owner && HAS_TRAIT(owner, TRAIT_GODMODE))
 		return FALSE
 	if(is_robotic())
 		return FALSE
@@ -861,25 +948,27 @@ Note that amputating the affected organ does in fact remove the infection from t
 		return FALSE
 
 	if(owner && !silent)
+		owner.custom_pain("Вы чувствуете, как что-то сломалось внутри ваш[genderize_ru(gender, "его", "ей", "его", "их")] [declent_ru(GENITIVE)]!")
 		owner.visible_message(
-			span_warning("You hear a loud cracking sound coming from \the [owner]."),
-			span_danger("Something feels like it shattered in your [name]!"),
-			span_italics("You hear a sickening crack."),
+			span_warning("Вы слышите громкий хруст, исходящий от [owner]."),
+			null,
+			span_italics("Вы слышите громкий хруст."),
 		)
 
 		playsound(owner, "bonebreak", 150, TRUE)
 
 		if(owner.has_pain())
-			owner.emote("scream")
+			INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, emote), "scream")
 
 	status |= ORGAN_BROKEN
-	broken_description = pick("broken", "fracture", "hairline fracture")
+	broken_description = pick("Смещение кости", "Перелом", "Микротрещина")
 	perma_injury = brute_dam
 
 	// Fractures have a chance of getting you out of restraints
 	if(prob(25))
 		release_restraints(silent = silent)
 
+	SEND_SIGNAL(owner, COMSIG_CARBON_RECEIVE_FRACTURE)
 	return TRUE
 
 
@@ -929,16 +1018,16 @@ Note that amputating the affected organ does in fact remove the infection from t
 		if(splint_break)
 			owner.Stun(4 SECONDS)
 			if(owner.has_pain() && !silent)
-				owner.emote("scream")
+				INVOKE_ASYNC(owner, TYPE_PROC_REF(/mob, emote), "scream")
 				owner.visible_message(
-					span_danger("[owner] screams in pain as [owner.p_their()] splint pops off their [name]!"),
-					span_userdanger("You scream in pain as your splint pops off your [name]!"),
-					span_italics("You hear a loud scream!")
+					span_danger("Шина спадает с [declent_ru(GENITIVE)] [owner], заставляя [genderize_ru(owner.gender, "его", "её", "его", "их")] кричать от боли!"),
+					span_userdanger("Шина спадает с ваш[genderize_ru(gender, "его", "ей", "его", "их")] [declent_ru(GENITIVE)], заставляя вас кричать от боли!"),
+					span_italics("Вы слышите глухой звук падения чего-то, сопровождающийся громким криком!")
 				)
 			else if(!silent)
 				owner.visible_message(
-					span_danger("The splint on [owner]'s [name] unravels!"),
-					span_userdanger("The splint on your [name] unravels!"),
+					span_danger("Шина на [declent_ru(PREPOSITIONAL)] [owner] распутывается и спадает!"),
+					span_userdanger("Шина на ваш[genderize_ru(gender, "ем", "ей", "ем", "их")] [declent_ru(PREPOSITIONAL)] распутывается и спадает!"),
 				)
 
 	return TRUE
@@ -994,7 +1083,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(owner)
 		owner.update_body()
 		if(!silent)
-			to_chat(owner, span_notice("You can't feel your [name] anymore..."))
+			to_chat(owner, span_danger("Вы перестаёте чувствовать ваш[genderize_ru(gender, "", "у", "е", "и")] [declent_ru(ACCUSATIVE)]!"))
 		if(vital)
 			owner.death()
 
@@ -1009,7 +1098,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 
 /obj/item/organ/external/proc/mutate(silent = FALSE)
-	if(owner?.status_flags & GODMODE)
+	if(owner && HAS_TRAIT(owner, TRAIT_GODMODE))
 		return
 	if(is_robotic())
 		return
@@ -1020,7 +1109,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(owner)
 		owner.update_body(rebuild_base = TRUE) //Forces all bodyparts to update in order to correctly render the deformed sprite.
 		if(!silent)
-			to_chat(owner, span_warning("Something is not right with your [name]..."))
+			to_chat(owner, span_warning("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] ощуща[pluralize_ru(gender, "ет", "ют")]ся неествественным[pluralize_ru(gender, "", "и")] и чужеродным[pluralize_ru(gender, "", "и")]."))
 
 
 /obj/item/organ/external/proc/unmutate(silent = FALSE)
@@ -1033,7 +1122,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(owner)
 		owner.update_body(rebuild_base = TRUE) //Forces all bodyparts to update in order to correctly return them to normal.
 		if(!silent)
-			to_chat(owner, span_warning("Your [name] is shaped normally again."))
+			to_chat(owner, span_warning("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] приход[pluralize_ru(gender, "ит", "ят")] в норму, а чувство неествественности уходит."))
 
 
 /obj/item/organ/external/proc/is_mutated()
@@ -1065,14 +1154,14 @@ Note that amputating the affected organ does in fact remove the infection from t
 		return FALSE
 
 	if(owner)
-		if(owner.status_flags & GODMODE)
+		if(HAS_TRAIT(owner, TRAIT_GODMODE))
 			return FALSE
 
 		if(!silent)
 			owner.visible_message(
-				span_warning("You hear a sickening sound coming from \the [owner]'s [name] as it turns into a mangled mess!"),
-				span_userdanger("Your [name] becomes a mangled mess!"),
-				span_italics("You hear a sickening sound.")
+				span_warning("[capitalize(declent_ru(NOMINATIVE))] [owner] превраща[pluralize_ru(gender, "ет", "ют")]ся в кровавую кашу, издавая тошнотворный звук!"),
+				span_userdanger("Ваш[genderize_ru(gender, "", "а", "е", "и")] [declent_ru(NOMINATIVE)] превраща[pluralize_ru(gender, "ет", "ют")]ся в кровавую кашу!"),
+				span_italics("Вы слышите тошнотворный звук.")
 			)
 
 	status |= ORGAN_DISFIGURED
@@ -1096,7 +1185,7 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 
 /obj/item/organ/external/proc/infection_check()
-	if(owner?.status_flags & GODMODE)
+	if(owner && HAS_TRAIT(owner, TRAIT_GODMODE))
 		return FALSE
 	var/total_damage = brute_dam + burn_dam
 	if(total_damage)
@@ -1134,6 +1223,9 @@ Note that amputating the affected organ does in fact remove the infection from t
 	if(R)
 		force_icon = R.icon
 		name = "[R.company] [initial(name)]"
+		if(ru_names)
+			for(var/i = 1; i <= 6; i++)
+				ru_names[i] = "[initial(ru_names[i])] [R.company]"
 		desc = "[R.desc]"
 
 

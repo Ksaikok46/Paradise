@@ -33,7 +33,7 @@
 /obj/item/organ/internal/cyberimp/arm/examine(mob/user)
 	. = ..()
 	. += span_notice("[src] is assembled in the [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm configuration.")
-	. += span_info("You can use a screwdriver to reassemble it.")
+	. += span_notice("You can use a screwdriver to reassemble it.")
 
 /obj/item/organ/internal/cyberimp/arm/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -73,7 +73,7 @@
 	if(emp_proof)
 		return
 	if(prob(15/severity) && owner)
-		to_chat(owner, span_warning("[src] is hit by EMP!"))
+		to_chat(owner, span_warning("[src.declent_ru(NOMINATIVE)] поражён ЭМИ импульсом!"))
 		// give the owner an idea about why his implant is glitching
 		Retract()
 	..()
@@ -100,14 +100,14 @@
 	if(!active_item || (active_item in src))
 		return FALSE
 
-	owner.visible_message(span_notice("[owner] retracts [active_item] back into [owner.p_their()] [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
-		span_notice("[active_item] snaps back into your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
-		span_italics("You hear a short mechanical noise."))
+	owner.visible_message(span_notice("[owner] убира[pluralize_ru(owner.gender,"ет","ют")] [active_item.declent_ru(ACCUSATIVE)] обратно в [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
+		span_notice("[capitalize(active_item.declent_ru(NOMINATIVE))] втягивается в вашу [parent_organ_zone == BODY_ZONE_R_ARM ? "правую" : "левую"] руку."),
+		span_italics("Слышен короткий механический щелчок."))
 
 	owner.drop_item_ground(active_item, force = TRUE, silent = TRUE)
 	active_item.forceMove(src)
 	active_item = null
-	playsound(get_turf(owner), src.sound_off, 50, 1)
+	playsound(get_turf(owner), src.sound_off, 50, TRUE)
 	return TRUE
 
 /obj/item/organ/internal/cyberimp/arm/proc/Extend(obj/item/augment)
@@ -143,9 +143,9 @@
 	owner.visible_message(span_notice("[owner] extends [active_item] from [owner.p_their()] [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
 		span_notice("You extend [active_item] from your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
 		span_italics("You hear a short mechanical noise."))
-	playsound(get_turf(owner), src.sound_on, 50, 1)
+	playsound(get_turf(owner), src.sound_on, 50, TRUE)
 
-/obj/item/organ/internal/cyberimp/arm/ui_action_click()
+/obj/item/organ/internal/cyberimp/arm/ui_action_click(mob/user, datum/action/action, leftclick)
 	if(crit_fail || (!active_item && !contents.len))
 		to_chat(owner, span_warning("The implant doesn't respond. It seems to be broken..."))
 		return
@@ -188,7 +188,7 @@
 	if(prob(30/severity) && owner && !crit_fail)
 		Retract()
 		owner.visible_message(span_danger("A loud bang comes from [owner]\'s [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm!"))
-		playsound(get_turf(owner), 'sound/weapons/flashbang.ogg', 100, 1)
+		playsound(get_turf(owner), 'sound/weapons/flashbang.ogg', 100, TRUE)
 		to_chat(owner, span_userdanger("You feel an explosion erupt inside your [parent_organ_zone == BODY_ZONE_R_ARM ? "right" : "left"] arm as your implant breaks!"))
 		owner.adjust_fire_stacks(20)
 		owner.IgniteMob()
@@ -207,12 +207,6 @@
 
 /obj/item/organ/internal/cyberimp/arm/gun/laser/l
 	parent_organ_zone = BODY_ZONE_L_ARM
-
-/obj/item/organ/internal/cyberimp/arm/gun/laser/Initialize(mapload)
-	. = ..()
-	var/obj/item/organ/internal/cyberimp/arm/gun/laser/laserphasergun = locate(/obj/item/gun/energy/laser/mounted) in contents
-	laserphasergun.icon = icon //No invisible laser guns kthx
-	laserphasergun.icon_state = icon_state
 
 /obj/item/organ/internal/cyberimp/arm/gun/taser
 	name = "arm-mounted taser implant"
@@ -248,6 +242,7 @@
 /obj/item/organ/internal/cyberimp/arm/atmostoolset
 	name = "integrated atmos toolset implant"
 	desc = "A stripped-down version of engineering cyborg toolset, designed to be installed on subject's arm. Contains all neccessary tools for atmos-techs."
+	icon_state = "atmos_arm_implant"
 	origin_tech = "materials=3;engineering=4;biotech=3;powerstorage=4"
 	contents = newlist(/obj/item/holosign_creator/atmos, /obj/item/rpd, /obj/item/analyzer, /obj/item/destTagger, /obj/item/extinguisher/mini,
 		/obj/item/pipe_painter, /obj/item/wrench/cyborg, /obj/item/weldingtool/largetank/cyborg)
@@ -376,6 +371,7 @@
 /obj/item/organ/internal/cyberimp/arm/surgery
 	name = "surgical toolset implant"
 	desc = "A set of surgical tools hidden behind a concealed panel on the user's arm"
+	icon_state = "surgical_arm_implant"
 	contents = newlist(/obj/item/retractor/augment, /obj/item/hemostat/augment, /obj/item/cautery/augment, /obj/item/bonesetter/augment, /obj/item/scalpel/augment, /obj/item/circular_saw/augment, /obj/item/bonegel/augment, /obj/item/FixOVein/augment, /obj/item/surgicaldrill/augment)
 	origin_tech = "materials=3;engineering=3;biotech=3;programming=2;magnets=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/storage.dmi')
@@ -388,6 +384,7 @@
 /obj/item/organ/internal/cyberimp/arm/janitorial
 	name = "janitorial toolset implant"
 	desc = "A set of janitorial tools hidden behind a concealed panel on the user's arm"
+	icon_state = "janitor_arm_implant"
 	contents = newlist(/obj/item/mop/advanced, /obj/item/soap, /obj/item/lightreplacer, /obj/item/holosign_creator/janitor, /obj/item/melee/flyswatter, /obj/item/reagent_containers/spray/cleaner/safety)
 	origin_tech = "materials=3;engineering=4;biotech=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/clothing/belts.dmi')
@@ -400,6 +397,7 @@
 /obj/item/organ/internal/cyberimp/arm/botanical
 	name = "botanical toolset implant"
 	desc = "A set of botanical tools hidden behind a concealed panel on the user's arm"
+	icon_state = "botanical_arm_implant"
 	contents = newlist(/obj/item/plant_analyzer, /obj/item/cultivator, /obj/item/hatchet, /obj/item/shovel/spade, /obj/item/wirecutters, /obj/item/wrench)
 	origin_tech = "materials=3;engineering=4;biotech=3"
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/clothing/belts.dmi')
@@ -445,14 +443,14 @@
 	if(drawing_power)
 		to_chat(user, span_warning("You're already charging."))
 		return
-	user.changeNext_move(CLICK_CD_MELEE)
+	user.changeNext_move(attack_speed)
 	var/obj/machinery/power/apc/A = target
 	var/mob/living/carbon/human/H = user
 	if(H.get_int_organ(/obj/item/organ/internal/cell))
 		if(A.emagged || A.stat & BROKEN)
 			do_sparks(3, 1, A)
 			to_chat(H, span_warning("The APC power currents surge erratically, damaging your chassis!"))
-			H.adjustFireLoss(10,0)
+			H.adjustFireLoss(10)
 		else if(A.cell && A.cell.charge > 0)
 			if(H.nutrition >= NUTRITION_LEVEL_WELL_FED)
 				to_chat(user, span_warning("You are already fully charged!"))
@@ -493,7 +491,7 @@
 	name = "telebaton implant"
 	desc = "Telescopic baton implant. Does what it says on the tin" // A better description
 
-	contents = newlist(/obj/item/melee/classic_baton)
+	contents = newlist(/obj/item/melee/baton)
 	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/items.dmi')
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "baton")
 

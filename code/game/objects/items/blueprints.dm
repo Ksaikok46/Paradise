@@ -8,7 +8,7 @@
 	name = "area modification item"
 	icon = 'icons/obj/items.dmi'
 	icon_state = "blueprints"
-	attack_verb = list("attacked", "bapped", "hit")
+	attack_verb = list("атаковал", "стукнул", "ударил")
 	/// Whether someone is currently using us
 	var/currently_used = FALSE
 	/// Fluff name for station in interaction window
@@ -27,7 +27,7 @@
 
 /obj/item/areaeditor/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
-	user << browse(null, "window=blueprints")
+	close_window(user, "blueprints")
 
 
 /obj/item/areaeditor/proc/interact_prints(mob/user)
@@ -39,18 +39,18 @@
 		if(AREA_SPACE)
 			. += "<p>According to the [src.name], you are now in an unclaimed territory.</p>"
 			if(!allow_non_space_use)
-				. += "<p><a href='?src=[UID()];create_area=1'>Create or modify an existing area</a></p>"
+				. += "<p><a href='byond://?src=[UID()];create_area=1'>Create or modify an existing area</a></p>"
 		if(AREA_SPECIAL)
 			. += "<p>This place is not noted on the [src.name].</p>"
 	if(allow_non_space_use)
-		. += "<p><a href='?src=[UID()];create_area=1'>Create or modify an existing area</a></p>"
+		. += "<p><a href='byond://?src=[UID()];create_area=1'>Create or modify an existing area</a></p>"
 
 
 /obj/item/areaeditor/Topic(href, href_list)
 	if(..())
 		return TRUE
 	if(usr != loc)
-		usr << browse(null, "window=blueprints")
+		close_window(usr, "blueprints")
 		return TRUE
 	if(href_list["create_area"])
 		if(currently_used)
@@ -89,16 +89,10 @@
 /obj/item/areaeditor/proc/edit_area(mob/user)
 	var/area/user_area = get_area(user)
 	var/prevname = "[sanitize(user_area.name)]"
-	var/str = stripped_input(usr,"New area name:", "Area Creation", prevname, MAX_NAME_LEN)
-
-	if(!str || !length(str) || str == prevname) //cancel
+	var/str = tgui_input_text(usr, "New area name:", "Blueprint Editing", prevname, MAX_NAME_LEN, encode = FALSE)
+	if(!str || !length(str) || str == prevname) // Cancel
 		return
-	if(length(str) > MAX_NAME_LEN)
-		to_chat(user, span_warning("The given name is too long. The area's name is unchanged."))
-		return
-
 	rename_area(user_area, str)
-
 	to_chat(user, span_notice("You rename the '[prevname]' to '[str]'."))
 	add_game_logs("has renamed [prevname] to [str]", user)
 	interact_prints(user)
@@ -162,20 +156,20 @@
 		var/area/user_area = get_area(user)
 		if(get_area_type() == AREA_STATION)
 			. += "<p>According to \the [src], you are now in <b>\"[sanitize(user_area.name)]\"</b>.</p>"
-			. += "<p><a href='?src=[UID()];edit_area=1'>Change area name</a></p>"
-		. += "<p><a href='?src=[UID()];view_legend=1'>View wire colour legend</a></p>"
+			. += "<p><a href='byond://?src=[UID()];edit_area=1'>Change area name</a></p>"
+		. += "<p><a href='byond://?src=[UID()];view_legend=1'>View wire colour legend</a></p>"
 		if(!viewing)
-			. += "<p><a href='?src=[UID()];view_blueprints=1'>View structural data</a></p>"
+			. += "<p><a href='byond://?src=[UID()];view_blueprints=1'>View structural data</a></p>"
 		else
-			. += "<p><a href='?src=[UID()];refresh=1'>Refresh structural data</a></p>"
-			. += "<p><a href='?src=[UID()];hide_blueprints=1'>Hide structural data</a></p>"
+			. += "<p><a href='byond://?src=[UID()];refresh=1'>Refresh structural data</a></p>"
+			. += "<p><a href='byond://?src=[UID()];hide_blueprints=1'>Hide structural data</a></p>"
 	else
 		if(legend == TRUE)
-			. += "<a href='?src=[UID()];exit_legend=1'><< Back</a>"
+			. += "<a href='byond://?src=[UID()];exit_legend=1'><< Back</a>"
 			. += view_wire_devices(user);
 		else
 			//legend is a wireset
-			. += "<a href='?src=[UID()];view_legend=1'><< Back</a>"
+			. += "<a href='byond://?src=[UID()];view_legend=1'><< Back</a>"
 			. += view_wire_set(user, legend)
 	var/datum/browser/popup = new(user, "blueprints", "[src]", 700, 500)
 	popup.set_content(.)
@@ -252,7 +246,7 @@
 /obj/item/areaeditor/blueprints/proc/view_wire_devices(mob/user)
 	var/message = "<br>You examine the wire legend.<br>"
 	for(var/wireset in GLOB.wire_color_directory)
-		message += "<br><a href='?src=[UID()];view_wireset=[wireset]'>[GLOB.wire_name_directory[wireset]]</a>"
+		message += "<br><a href='byond://?src=[UID()];view_wireset=[wireset]'>[GLOB.wire_name_directory[wireset]]</a>"
 	message += "</p>"
 	return message
 
@@ -273,7 +267,9 @@
 
 //Blueprint Subtypes
 
-/obj/item/areaeditor/blueprints/ce
+/obj/item/areaeditor/blueprints/ce/Initialize()
+	. = ..()
+	AddElement(/datum/element/high_value_item)
 
 
 /obj/item/areaeditor/blueprints/cyborg

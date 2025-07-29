@@ -361,7 +361,7 @@
 "bj" = (
 /obj/machinery/door/airlock/security/glass{
 	name = "Escape Shuttle Cell";
-	req_access = list(2)
+	req_access = list(63)
 	},
 /turf/simulated/floor/shuttle/objective_check,
 /area/shuttle/escape)
@@ -485,7 +485,8 @@
 	dwidth = 11;
 	height = 18;
 	timid = 1;
-	width = 29
+	width = 29;
+	port_direction = 8
 	},
 /turf/simulated/floor/plasteel,
 /area/shuttle/escape)
@@ -760,7 +761,6 @@
 /area/shuttle/escape)
 "cl" = (
 /obj/machinery/door/airlock/medical/glass{
-	id_tag = null;
 	name = "Escape Shuttle Infirmary"
 	},
 /obj/effect/decal/warning_stripes/south,
@@ -812,7 +812,6 @@
 /area/shuttle/escape)
 "cu" = (
 /obj/machinery/door/airlock/medical/glass{
-	id_tag = null;
 	name = "Escape Shuttle Infirmary"
 	},
 /turf/simulated/floor/plasteel{

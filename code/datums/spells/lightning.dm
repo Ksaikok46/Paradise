@@ -25,7 +25,7 @@
 
 /obj/effect/proc_holder/spell/charge_up/bounce/lightning/guardian
 	name = "Малая молния"
-	desc = "Копит в себе заряд электричества, поражающий всех врагов. Чем больше зарядка, тем выше урон и дальность. Не так силен как оригинал, но все еще опасен. После выпуска молнии имеет перезарядку в 30 секунд."
+	desc = "Копит в себе заряд электричества, поражающий всех врагов. Чем больше зарядка, тем выше урон и дальность. Не так силен как оригинал, но все ещё опасен. После выпуска молнии имеет перезарядку в 30 секунд."
 	clothes_req = FALSE
 	invocation = "За С+инд+ик+ат!"
 	energy_divisor = 4
@@ -58,7 +58,7 @@
 		return
 
 	if(damaging)
-		target.electrocute_act(energy, "Lightning Bolt", safety = TRUE)
+		target.electrocute_act(energy, "молнии", flags = SHOCK_NOGLOVES)
 	else
 		target.AdjustJitter(2000 SECONDS) //High numbers for violent convulsions
 		target.AdjustStuttering(4 SECONDS)

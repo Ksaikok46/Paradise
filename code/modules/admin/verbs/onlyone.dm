@@ -1,6 +1,6 @@
 /client/proc/only_one()
 	if(!SSticker)
-		alert("The game hasn't started yet!")
+		tgui_alert(usr, "The game hasn't started yet!")
 		return
 
 	var/list/incompatible_species = list(/datum/species/plasmaman, /datum/species/vox)
@@ -36,7 +36,7 @@
 		H.equip_to_slot_or_del(new /obj/item/clothing/under/kilt(H), ITEM_SLOT_CLOTH_INNER)
 		H.equip_to_slot_or_del(new /obj/item/radio/headset/heads/captain(H), ITEM_SLOT_EAR_LEFT)
 		H.equip_to_slot_or_del(new /obj/item/clothing/head/beret(H), ITEM_SLOT_HEAD)
-		H.equip_to_slot_or_del(new /obj/item/claymore/highlander(H), ITEM_SLOT_HAND_RIGHT)
+		H.equip_to_slot_or_del(new /obj/item/melee/claymore/highlander(H), ITEM_SLOT_HAND_RIGHT)
 		H.equip_to_slot_or_del(new /obj/item/clothing/shoes/combat(H), ITEM_SLOT_FEET)
 		H.equip_to_slot_or_del(new /obj/item/pinpointer(H.loc), ITEM_SLOT_POCKET_LEFT)
 
@@ -61,13 +61,14 @@
 	for(var/mob/M in GLOB.player_list)
 		if(M.client.prefs.sound & SOUND_MIDI)
 			if(isnewplayer(M) && (M.client.prefs.sound & SOUND_LOBBY))
-				M.stop_sound_channel(CHANNEL_LOBBYMUSIC)
+				// M.stop_sound_channel(CHANNEL_LOBBYMUSIC)
+				M.client?.tgui_panel?.stop_music()
 			music.volume = 100 * M.client.prefs.get_channel_volume(CHANNEL_ADMIN)
 			SEND_SOUND(M, music)
 
 /client/proc/only_me()
 	if(!SSticker)
-		alert("The game hasn't started yet!")
+		tgui_alert(usr, "The game hasn't started yet!")
 		return
 
 	for(var/mob/living/carbon/human/H in GLOB.player_list)
@@ -108,4 +109,11 @@
 	message_admins("[key_name_admin(usr)] used THERE CAN BE ONLY ME! -NO ATTACK LOGS WILL BE SENT TO ADMINS FROM THIS POINT FORTH-")
 	log_admin("[key_name(usr)] used there can be only me.")
 	GLOB.nologevent = 1
-	world << sound('sound/music/thunderdome.ogg')
+
+	var/sound/music = sound('sound/music/thunderdome.ogg', channel = CHANNEL_ADMIN)
+	for(var/mob/mob as anything in GLOB.player_list)
+		if(mob.client.prefs.sound & SOUND_MIDI)
+			if(isnewplayer(mob) && (mob.client.prefs.sound & SOUND_LOBBY))
+				mob.stop_sound_channel(CHANNEL_LOBBYMUSIC)
+			music.volume = 100 * mob.client.prefs.get_channel_volume(CHANNEL_ADMIN)
+			SEND_SOUND(mob, music)

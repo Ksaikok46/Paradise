@@ -22,8 +22,6 @@
 	var/obj/item/stock_parts/cell/cell = null    // Used for firing superheated rods.
 	var/list/possible_tensions = list(XBOW_TENSION_20, XBOW_TENSION_40, XBOW_TENSION_60, XBOW_TENSION_80, XBOW_TENSION_FULL)
 
-/obj/item/gun/throw/crossbow/notify_ammo_count()
-	return ""
 
 /obj/item/gun/throw/crossbow/get_cell()
 	return cell
@@ -62,7 +60,7 @@
 	else
 		. += span_notice("It has an empty mount for a battery cell.")
 	if(src in user)
-		. += span_info("You can <b>Alt-Click</b> to change the draw tension.")
+		. += span_notice("You can <b>Alt-Click</b> to change the draw tension.")
 
 /obj/item/gun/throw/crossbow/modify_projectile(obj/item/I, on_chamber = 0)
 	if(cell && on_chamber && istype(I, /obj/item/arrow/rod))
@@ -101,7 +99,7 @@
 	if(user.incapacitated())
 		return
 	if(!to_launch)
-		to_chat(user, span_warning("You can't draw [src] without a bolt nocked."))
+		balloon_alert(user, "отсутствует болт!")
 		return
 
 	user.visible_message("[user] begins to draw back the string of [src].","You begin to draw back the string of [src].")
@@ -116,43 +114,48 @@
 	else
 		user.visible_message("[usr] struggles to draws back the string of [src]!","[src] string is too tense to draw manually!")
 
+
 /obj/item/gun/throw/crossbow/attackby(obj/item/I, mob/user, params)
-	if(!istype(I, /obj/item/stock_parts/cell))
-		return ..()
+	if(iscell(I))
+		add_fingerprint(user)
+		if(cell)
+			balloon_alert(user, "уже установлено!")
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		cell = I
+		balloon_alert(user, "установлено")
+		process_chamber()
+		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(cell)
-		to_chat(user, span_notice("[src] already has a cell installed."))
-		return
+	return ..()
 
-	user.drop_transfer_item_to_loc(I, src)
-	cell = I
-	to_chat(user, span_notice("You jam [cell] into [src] and wire it to the firing coil."))
-	process_chamber()
 
 /obj/item/gun/throw/crossbow/screwdriver_act(mob/user, obj/item/I)
 	. = ..()
 	if(!cell)
-		to_chat(user, span_notice("[src] doesn't have a cell installed."))
+		balloon_alert(user, "батарейка отсутствует!")
 		return
 
 	cell.forceMove(get_turf(src))
-	to_chat(user, span_notice("You jimmy [cell] out of [src] with [I]."))
+	balloon_alert(user, "батарейка извлечена")
 	cell = null
 
 
-/obj/item/gun/throw/crossbow/AltClick(mob/user)
+/obj/item/gun/throw/crossbow/click_alt(mob/user)
 	if(src in user)
 		set_tension()
+		return CLICK_ACTION_SUCCESS
 
 
 /obj/item/gun/throw/crossbow/verb/set_tension()
-	set name = "Adjust Tension"
-	set category = "Object"
+	set name = "Регулировка натяжения"
+	set category = STATPANEL_OBJECT
 	set src in usr
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
-	var/choice = input("Select tension to draw to:", "[src]", XBOW_TENSION_FULL) as null|anything in possible_tensions
+	var/choice = tgui_input_list(usr, "Select tension to draw to:", "[src]", possible_tensions, XBOW_TENSION_FULL)
 	if(!choice || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))
 		return
 
@@ -190,6 +193,8 @@
 	desc = "It's got a tip for you - get the point?"
 	icon_state = "bolt"
 	item_state = "bolt"
+	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/items_righthand.dmi'
 	throwforce = 20
 	w_class = WEIGHT_CLASS_SMALL
 	sharp = TRUE
@@ -203,6 +208,9 @@
 	name = "makeshift bolt"
 	desc = "A sharpened metal rod that can be fired out of a crossbow."
 	icon_state = "metal-rod"
+	item_state = "metal-rod"
+	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/items_righthand.dmi'
 	throwforce = 10
 
 /obj/item/arrow/proc/modify_arrow()
@@ -264,17 +272,19 @@
 	embedded_ignore_throwspeed_threshold = TRUE
 	superheated = 1
 
+
 /obj/item/arrow/rod/fire/attackby(obj/item/I, mob/user, params)
 	. = ..()
-	if(istype(I, /obj/item/lighter) || I.tool_behaviour == TOOL_WELDER)
+	if(!ATTACK_CHAIN_CANCEL_CHECK(.) && I.get_heat())
 		fire_up()
+
 
 /obj/item/arrow/rod/fire/proc/fire_up(mob/user)
 	icon_state = "flame_rod_act"
 	overlay_prefix = "flame"
 	w_class = WEIGHT_CLASS_SMALL
 	if(user)
-		to_chat(user, span_warning("You fire up a rod!"))
+		balloon_alert(user, "болт подожжен!")
 	flamed = TRUE
 	addtimer(CALLBACK(src, PROC_REF(fire_down)), fire_duration)
 

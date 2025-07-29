@@ -4,8 +4,8 @@
 	name = "classic poncho"
 	desc = "It can protect you from the scorching sun and save your strength in the desert. You can buy one of these for a fistful of credits."
 	icon_state = "classicponcho"
+	dying_key = DYE_REGISTRY_PONCHO
 	var/flipped = FALSE
-	dyeable = TRUE
 	item_color = "classic"
 	sprite_sheets = list(
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/neck.dmi',
@@ -29,15 +29,16 @@
 	icon_state = "[item_color]poncho[flipped ? "_flip" : ""]"
 
 
-/obj/item/clothing/neck/poncho/AltClick(mob/living/carbon/human/user)
+/obj/item/clothing/neck/poncho/click_alt(mob/living/carbon/human/user)
 	if(!(src in user))
-		return ..()
+		return NONE
 	flip(user)
+	return CLICK_ACTION_SUCCESS
 
 
 /obj/item/clothing/neck/poncho/verb/flip_poncho()
-	set name = "Flip poncho"
-	set category = "Object"
+	set name = "Перекинуть пончо"
+	set category = STATPANEL_OBJECT
 	set desc = "Flip poncho behind your back"
 	set src in usr
 
@@ -128,7 +129,7 @@
 	desc = "Forced to live on your shameful acting as a fake Mexican, you and your poncho have grown inseperable. Literally."
 	icon_state = "shameponcho"
 	item_color = "shame"
-	dyeable = FALSE
+	undyeable = TRUE
 
 
 /obj/item/clothing/neck/poncho/ponchoshame/Initialize(mapload)
@@ -160,4 +161,4 @@
 	icon_state = "tacticalponcho"
 	item_color = "tactical"
 	sprite_sheets = list()
-	dyeable = FALSE
+	undyeable = TRUE

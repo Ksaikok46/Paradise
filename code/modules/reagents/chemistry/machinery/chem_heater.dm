@@ -1,5 +1,14 @@
 /obj/machinery/chem_heater
 	name = "chemical heater"
+	desc = "Простая машина, представляющая собой камеру для нагрева помещённых ёмкостей. Не смотря на своё название, также может охлаждать."
+	ru_names = list(
+		NOMINATIVE = "химический нагреватель",
+		GENITIVE = "химического нагревателя",
+		DATIVE = "химическому нагревателю",
+		ACCUSATIVE = "химический нагреватель",
+		INSTRUMENTAL = "химическим нагревателем",
+		PREPOSITIONAL = "химическом нагревателе"
+	)
 	density = TRUE
 	anchored = TRUE
 	icon = 'icons/obj/chemical.dmi'
@@ -28,6 +37,11 @@
 	for(var/obj/item/stock_parts/micro_laser/M in component_parts)
 		speed_increase += 5 * (M.rating - 1)
 
+/obj/machinery/chem_heater/examine(mob/user)
+	. = ..()
+	if(panel_open)
+		. += span_notice("Панель техобслуживания открыта.")
+
 /obj/machinery/chem_heater/process()
 	..()
 	if(stat & (NOPOWER|BROKEN))
@@ -39,7 +53,7 @@
 				return
 			beaker.reagents.temperature_reagents(desired_temp, max(1, 35 - speed_increase))
 			if(round(beaker.reagents.chem_temp) == round(desired_temp))
-				playsound(loc, 'sound/machines/ding.ogg', 50, 1)
+				playsound(loc, 'sound/machines/ding.ogg', 50, TRUE)
 				on = FALSE
 				if(auto_eject)
 					eject_beaker()
@@ -55,33 +69,37 @@
 		beaker.forceMove(get_turf(src))
 		if(user && Adjacent(user) && !issilicon(user))
 			user.put_in_hands(beaker, ignore_anim = FALSE)
+			balloon_alert(user, "ёмкость извлечена")
 		beaker = null
 		on = FALSE
 		update_icon(UPDATE_ICON_STATE)
 		SStgui.update_uis(src)
 
 
-/obj/machinery/chem_heater/attackby(obj/item/I, mob/user)
-	if(isrobot(user))
-		return
-
-	if(istype(I, /obj/item/reagent_containers/glass))
-		if(beaker)
-			to_chat(user, "<span class='notice'>A beaker is already loaded into the machine.</span>")
-			return
-
-		if(user.drop_transfer_item_to_loc(I, src))
-			add_fingerprint(user)
-			beaker = I
-			to_chat(user, "<span class='notice'>You add the beaker to the machine!</span>")
-			update_icon(UPDATE_ICON_STATE)
-			SStgui.update_uis(src)
-			return
+/obj/machinery/chem_heater/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
 
 	if(exchange_parts(user, I))
-		return
+		SStgui.update_uis(src)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(istype(I, /obj/item/reagent_containers/glass))
+		add_fingerprint(user)
+		if(beaker)
+			balloon_alert(user, "слот для ёмкости занят!")
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		beaker = I
+		balloon_alert(user, "ёмкость установлена")
+		SStgui.update_uis(src)
+		update_icon(UPDATE_ICON_STATE)
+		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()
+
+
 
 /obj/machinery/chem_heater/wrench_act(mob/user, obj/item/I)
 	. = TRUE
@@ -93,6 +111,7 @@
 
 /obj/machinery/chem_heater/crowbar_act(mob/user, obj/item/I)
 	if(!panel_open)
+		balloon_alert(user, "техпанель закрыта!")
 		return
 	. = TRUE
 	eject_beaker()
@@ -131,13 +150,13 @@
 			return FALSE
 	add_fingerprint(usr)
 
-/obj/machinery/chem_heater/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
+/obj/machinery/chem_heater/ui_interact(mob/user, datum/tgui/ui = null)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "ChemHeater", "Chemical Heater", 350, 270, master_ui, state)
+		ui = new(user, src, "ChemHeater", "Химический нагреватель")
 		ui.open()
 
 /obj/machinery/chem_heater/ui_data(mob/user)

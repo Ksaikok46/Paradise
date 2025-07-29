@@ -7,7 +7,7 @@
 //Wild West Areas
 
 /area/awaymission/wwmines
-	name = "\improper Wild West Mines"
+	name = "Wild West Mines"
 	icon_state = "away1"
 	requires_power = FALSE
 	static_lighting = FALSE
@@ -15,7 +15,7 @@
 	base_lighting_color = COLOR_WHITE
 
 /area/awaymission/wwgov
-	name = "\improper Wild West Mansion"
+	name = "Wild West Mansion"
 	icon_state = "away2"
 	requires_power = FALSE
 	static_lighting = FALSE
@@ -23,7 +23,7 @@
 	base_lighting_color = COLOR_WHITE
 
 /area/awaymission/wwrefine
-	name = "\improper Wild West Refinery"
+	name = "Wild West Refinery"
 	icon_state = "away3"
 	requires_power = FALSE
 	static_lighting = FALSE
@@ -31,16 +31,8 @@
 	base_lighting_color = COLOR_WHITE
 
 /area/awaymission/wwvault
-	name = "\improper Wild West Vault"
+	name = "Wild West Vault"
 	icon_state = "away3"
-
-/area/awaymission/wwvaultdoors
-	name = "\improper Wild West Vault Doors"  // this is to keep the vault area being entirely lit because of requires_power
-	icon_state = "away2"
-	requires_power = FALSE
-	static_lighting = FALSE
-	base_lighting_alpha = 255
-	base_lighting_color = COLOR_WHITE
 
 /*
  * Wish Granter
@@ -79,14 +71,15 @@
 	else
 		chargesa--
 		insistinga = 0
-		var/wish = input("You want...","Wish") as null|anything in list("Power","Wealth","Immortality","Peace")
+		var/wish = tgui_input_list(usr, "You want...", "Wish", list("Power", "Wealth", "Immortality", "Peace"))
 		switch(wish)
 			if("Power")
-				to_chat(user, "<B>Your wish is granted, but at a terrible cost...</B>")
+				to_chat(user, "<b>Your wish is granted, but at a terrible cost...</b>")
 				to_chat(user, "The Wish Granter punishes you for your selfishness, claiming your soul and warping your body to match the darkness in your heart.")
-				user.mutations.Add(LASEREYES)
-				user.mutations.Add(COLDRES)
-				user.mutations.Add(XRAY)
+				ADD_TRAIT(user, TRAIT_LASEREYES, WISHGRANTER_TRAIT)
+				ADD_TRAIT(user, TRAIT_RESIST_COLD, WISHGRANTER_TRAIT)
+				ADD_TRAIT(user, TRAIT_XRAY, WISHGRANTER_TRAIT)
+				user.update_sight()
 				if(ishuman(user))
 					var/mob/living/carbon/human/human = user
 					if(!isshadowperson(human))
@@ -97,7 +90,7 @@
 						human.set_species(/datum/species/shadow)
 				user.regenerate_icons()
 			if("Wealth")
-				to_chat(user, "<B>Your wish is granted, but at a terrible cost...</B>")
+				to_chat(user, "<b>Your wish is granted, but at a terrible cost...</b>")
 				to_chat(user, "The Wish Granter punishes you for your selfishness, claiming your soul and warping your body to match the darkness in your heart.")
 				new /obj/structure/closet/syndicate/resources/everything(loc)
 				if(ishuman(user))
@@ -110,9 +103,9 @@
 						human.set_species(/datum/species/shadow)
 				user.regenerate_icons()
 			if("Immortality")
-				to_chat(user, "<B>Your wish is granted, but at a terrible cost...</B>")
+				to_chat(user, "<b>Your wish is granted, but at a terrible cost...</b>")
 				to_chat(user, "The Wish Granter punishes you for your selfishness, claiming your soul and warping your body to match the darkness in your heart.")
-				user.verbs += /mob/living/carbon/proc/immortality
+				add_verb(user, /mob/living/carbon/proc/immortality)
 				if(ishuman(user))
 					var/mob/living/carbon/human/human = user
 					if(!isshadowperson(human))
@@ -123,7 +116,7 @@
 						human.set_species(/datum/species/shadow)
 				user.regenerate_icons()
 			if("Peace")
-				to_chat(user, "<B>Whatever alien sentience that the Wish Granter possesses is satisfied with your wish. There is a distant wailing as the last of the Faithless begin to die, then silence.</B>")
+				to_chat(user, "<b>Whatever alien sentience that the Wish Granter possesses is satisfied with your wish. There is a distant wailing as the last of the Faithless begin to die, then silence.</b>")
 				to_chat(user, "You feel as if you just narrowly avoided a terrible fate...")
 				for(var/mob/living/simple_animal/hostile/faithless/F in GLOB.mob_living_list)
 					F.death()
@@ -140,28 +133,36 @@
 	layer = 3
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blobpod"
-	var/triggerproc = "triggerrad1" //name of the proc thats called when the mine is triggered
-	var/triggered = 0
+	var/triggered = FALSE
 
-/obj/effect/meatgrinder/Crossed(AM as mob|obj, oldloc)
-	Bumped(AM)
+
+/obj/effect/meatgrinder/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+
+/obj/effect/meatgrinder/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	INVOKE_ASYNC(src, PROC_REF(collide), arrived)
+
 
 /obj/effect/meatgrinder/Bumped(atom/movable/moving_atom)
+	. = ..()
+	collide(moving_atom)
 
-	if(triggered)
+
+/obj/effect/meatgrinder/proc/collide(atom/movable/moving_atom)
+	if(triggered || !ishuman(moving_atom))
 		return
-
-	if(ishuman(moving_atom))
-		for(var/mob/O in viewers(world.view, src.loc))
-			to_chat(O, "<font color='red'>[moving_atom] triggered the [bicon(src)] [src]</font>")
-		triggered = 1
-		call(src,triggerproc)(moving_atom)
-
-/obj/effect/meatgrinder/proc/triggerrad1(mob)
-	for(var/mob/O in viewers(world.view, src.loc))
-		do_sparks(3, 1, src)
-		explosion(mob, 1, 0, 0, 0)
-		qdel(src)
+	visible_message(span_warning("[moving_atom] triggered the [bicon(src)] [src]!"))
+	triggered = TRUE
+	do_sparks(3, 1, src)
+	explosion(src, 1, 0, 0, 0)
+	qdel(src)
 
 
 /////For the Wishgranter///////////
@@ -231,8 +232,7 @@
 			to_chat(user, span_warning("The communicator buzzes, and you hear the voice again: 'Really? I think not. Get them!'"))
 		if(option_threat)
 			to_chat(user, span_warning("The communicator buzzes, and you hear the voice again: 'Oh really now?' You hear a clicking sound. 'Team, get back here. We have trouble.' Then the line goes dead."))
-			for(var/thing in GLOB.landmarks_list)
-				var/obj/effect/landmark/L = thing
+			for(var/obj/effect/landmark/L in GLOB.landmarks_list)
 				if(L.name == "wildwest_syndipod")
 					var/obj/spacepod/syndi/P = new /obj/spacepod/syndi(get_turf(L))
 					P.name = "Syndi Recon Pod"

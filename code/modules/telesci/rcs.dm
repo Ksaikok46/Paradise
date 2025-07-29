@@ -7,7 +7,15 @@
   */
 /obj/item/rcs
 	name = "rapid-crate-sender (RCS)"
-	desc = "A device used to teleport crates and closets to cargo telepads."
+	desc = "Устройство для телепортации ящиков и шкафов на телепады карго."
+	ru_names = list(
+		NOMINATIVE = "система быстрой доставки (RCS)",
+		GENITIVE = "системы быстрой доставки (RCS)",
+		DATIVE = "системе быстрой доставки (RCS)",
+		ACCUSATIVE = "систему быстрой доставки (RCS)",
+		INSTRUMENTAL = "системой быстрой доставки (RCS)",
+		PREPOSITIONAL = "системе быстрой доставки (RCS)"
+	)
 	icon = 'icons/obj/telescience.dmi'
 	icon_state = "rcs"
 	item_state = "rcd"
@@ -39,7 +47,7 @@
 
 /obj/item/rcs/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>There are [round(rcell.charge/chargecost)] charge\s left.</span>"
+	. += to_chat(user, span_notice("Осталось [round(rcell.charge/chargecost)] заряд[declension_ru(round(rcell.charge/chargecost),"","а","ов")]."))
 
 /obj/item/rcs/Destroy()
 	QDEL_NULL(rcell)
@@ -50,12 +58,12 @@
   */
 /obj/item/rcs/attack_self(mob/user)
 	if(teleporting)
-		to_chat(user, "<span class='warning'>Error: Unable to change destination while in use.</span>")
+		to_chat(user, span_warning("ОШИБКА: Невозможно изменить цель во время использования."))
 		return
 
 	var/list/L = list() // List of avaliable telepads
 	var/list/areaindex = list() // Telepad area location
-	for(var/obj/machinery/telepad_cargo/R in GLOB.machines)
+	for(var/obj/machinery/telepad_cargo/R in SSmachines.get_by_type(/obj/machinery/telepad_cargo))
 		if(R.stage)
 			continue
 		var/turf/T = get_turf(R)
@@ -70,7 +78,9 @@
 	if(emagged) // Add an 'Unknown' entry at the end if it's emagged
 		L += "**Unknown**"
 
-	var/select = tgui_input_list(user, "Please select a telepad.", "RCS", L)
+	var/select = tgui_input_list(user, "Выберите телепад для управления.", "RCS", L)
+	if(!select)
+		return
 	if(select == "**Unknown**") // Randomise the teleport location
 		pad = random_coords()
 	else // Else choose the value of the selection
@@ -100,34 +110,34 @@
 
 	return locate(rand_x, rand_y, Z)
 
-/obj/item/rcs/emag_act(user)
+/obj/item/rcs/emag_act(mob/user)
 	if(!emagged)
 		add_attack_logs(user, src, "emagged")
 		emagged = TRUE
 		do_sparks(3, TRUE, src)
 		if(user)
-			to_chat(user, "<span class='boldwarning'>Warning: Safeties disabled.</span>")
+			user.balloon_alert(user, "протокол безопасности отключен!")
 		return
 
 
 /obj/item/rcs/proc/try_send_container(mob/user, obj/structure/closet/C)
 	if(teleporting)
-		to_chat(user, "<span class='warning'>You're already using [src]!</span>")
+		user.balloon_alert(user, "уже используется!")
 		return FALSE
 	if((!emagged) && (user in C.contents)) // If it's emagged, skip this check.
-		to_chat(user, "<span class='warning'>Error: User located in container--aborting for safety.</span>")
+		C.balloon_alert(user, "покиньте контейнер!")
 		return FALSE
 	if(rcell.charge < chargecost)
-		to_chat(user, "<span class='warning'>Unable to teleport, insufficient charge.</span>")
+		user.balloon_alert(user, "не хватает заряда!")
 		return FALSE
 	if(!pad)
-		to_chat(user, "<span class='warning'>Error: No telepad selected.</span>")
+		user.balloon_alert(user, "телепад не выбран!")
 		return FALSE
 	if(!is_level_reachable(C.z))
-		to_chat(user, "<span class='warning'>Warning: No telepads in range!</span>")
+		user.balloon_alert(user, "телепады не обнаружены!")
 		return FALSE
 	if(C.anchored)
-		to_chat(user, "<span class ='warning'>Ошибка: Ящик прикручен! Отмена операции.</span>")
+		user.balloon_alert(user, "прикреплено к полу!")
 		return FALSE
 
 	teleport(user, C, pad)
@@ -135,10 +145,10 @@
 
 
 /obj/item/rcs/proc/teleport(mob/user, obj/structure/closet/C, target)
-	to_chat(user, "<span class='notice'>Teleporting [C]...</span>")
+	to_chat(user, span_notice("Телепортация [C.declent_ru(ACCUSATIVE)]..."))
 	playsound(src, usesound, 50, TRUE)
 	teleporting = TRUE
-	if(!do_after(user, 5 SECONDS * toolspeed * gettoolspeedmod(user), C))
+	if(!do_after(user, 5 SECONDS * toolspeed, C, category = DA_CAT_TOOL))
 		teleporting = FALSE
 		return
 
@@ -146,4 +156,4 @@
 	rcell.use(chargecost)
 	do_sparks(5, TRUE, C)
 	do_teleport(C, target)
-	to_chat(user, "<span class='notice'>Teleport successful. [round(rcell.charge/chargecost)] charge\s left.</span>")
+	to_chat(user, span_notice("Телепортация успешна. Осталось [round(rcell.charge/chargecost)] заряд[declension_ru(round(rcell.charge/chargecost),"","а","ов")]."))

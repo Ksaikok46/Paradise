@@ -1,5 +1,29 @@
 //OTHER DEBUFFS
 
+/datum/status_effect/his_wrath //does minor damage over time unless holding His Grace
+	id = "his_wrath"
+	duration = -1
+	tick_interval = 0.4 SECONDS
+	alert_type = /atom/movable/screen/alert/status_effect/his_wrath
+
+/atom/movable/screen/alert/status_effect/his_wrath
+	name = "Его Гнев"
+	desc = "Вы предпочли бегство повиновению Его Светлости — и вот ваша расплата."
+	icon_state = "his_grace"
+	alerttooltipstyle = "hisgrace"
+
+/datum/status_effect/his_wrath/tick(seconds_between_ticks)
+	if(owner.find_item(/obj/item/his_grace))
+		qdel(src)
+		return
+	var/need_mob_update
+	need_mob_update = owner.adjustBruteLoss(0.5 * seconds_between_ticks, updating_health = FALSE)
+	need_mob_update += owner.adjustFireLoss(0.5 * seconds_between_ticks, updating_health = FALSE)
+	need_mob_update += owner.adjustToxLoss(0.08 * seconds_between_ticks, updating_health = FALSE, forced = TRUE)
+	if(!need_mob_update)
+		return
+	owner.updatehealth()
+
 /datum/status_effect/cultghost //is a cult ghost and can't use manifest runes
 	id = "cult_ghost"
 	duration = -1
@@ -57,6 +81,40 @@
 /datum/status_effect/pacifism/on_remove()
 	REMOVE_TRAIT(owner, TRAIT_PACIFISM, id)
 
+/datum/status_effect/fang_exhaust
+	id = "fang_exhaust"
+	alert_type = null
+	duration = 2 SECONDS
+	var/modifier
+
+/datum/status_effect/fang_exhaust/on_creation(mob/living/simple_animal/new_owner, modifier = 1.1)
+	if(!istype(new_owner))
+		return FALSE
+
+	src.modifier = modifier
+	return ..()
+
+/datum/status_effect/fang_exhaust/on_apply()
+	var/mob/living/simple_animal/new_owner = owner
+
+	for(var/thing in new_owner.damage_coeff)
+		if(!new_owner.damage_coeff[thing])
+			continue
+
+		new_owner.damage_coeff[thing] *= modifier
+
+	return ..()
+
+/datum/status_effect/fang_exhaust/on_remove()
+	var/mob/living/simple_animal/new_owner = owner
+
+	for(var/thing in new_owner.damage_coeff)
+		if(!new_owner.damage_coeff[thing])
+			continue
+
+		new_owner.damage_coeff[thing] /= modifier
+
+	return ..()
 
 /datum/status_effect/shadow_boxing
 	id = "shadow barrage"
@@ -148,7 +206,7 @@
 		new /obj/effect/temp_visual/bleed/explode(T)
 		for(var/d in GLOB.alldirs)
 			new /obj/effect/temp_visual/dir_setting/bloodsplatter(T, d)
-		playsound(T, "desceration", 200, 1, -1)
+		playsound(T, "desceration", 200, TRUE, -1)
 		owner.adjustBruteLoss(bleed_damage)
 	else
 		new /obj/effect/temp_visual/bleed(get_turf(owner))
@@ -177,7 +235,7 @@
 	return ..()
 
 /datum/status_effect/bluespace_slowdown/on_remove()
-	owner.next_move_modifier /= 2
+	owner.next_move_modifier *= 0.5
 
 
 /**
@@ -226,7 +284,7 @@
 		return FALSE
 
 	owner.Slowed(duration)
-	to_chat(owner, span_danger("You feel the unbearable heaviness of being..."))
+	to_chat(owner, span_danger("Вы чувствуете невыносимую тяжесть бытия..."))
 	new /obj/effect/temp_visual/cult/sparks(get_turf(owner))
 
 	marked_overlay = mutable_appearance('icons/effects/effects.dmi', "cult_halo1")
@@ -294,11 +352,11 @@
 			if(force_left > force_right)
 				if(!owner.hand)
 					owner.swap_hand()
-				left_hand.attack(target, owner, BODY_ZONE_HEAD)	// yes! right in the neck
+				left_hand.attack(target, owner, def_zone = BODY_ZONE_HEAD)	// yes! right in the neck
 			else if(force_right)
 				if(owner.hand)
 					owner.swap_hand()
-				right_hand.attack(target, owner, BODY_ZONE_HEAD)
+				right_hand.attack(target, owner, def_zone = BODY_ZONE_HEAD)
 			return
 
 		// here goes nothing!
@@ -309,7 +367,7 @@
 			if(owner.hand && owner.l_hand != found_gun)
 				owner.swap_hand()
 			found_gun.process_fire(target, owner, zone_override = BODY_ZONE_HEAD)	// hell yeah! few headshots for mr. vampire!
-			found_gun.attack(owner, owner, BODY_ZONE_HEAD)	// attack ourselves also in case gun has no ammo
+			found_gun.attack(owner, owner, def_zone = BODY_ZONE_HEAD)	// attack ourselves also in case gun has no ammo
 
 
 // start of `living` level status procs.
@@ -541,6 +599,9 @@
 			liver_multiplier = L.alcohol_intensity
 		actual_strength *= liver_multiplier
 
+	if(HAS_TRAIT(owner, TRAIT_SOBER))
+		actual_strength *= 0.5	// you can resist the effects of the alcohol twice as good
+
 	// THRESHOLD_SLUR (60 SECONDS)
 	if(actual_strength >= THRESHOLD_SLUR)
 		owner.Slur(actual_strength)
@@ -577,7 +638,7 @@
 		owner.Paralyse(10 SECONDS)
 		owner.Drowsy(60 SECONDS)
 		if(L)
-			L.receive_damage(1, TRUE)
+			L.internal_receive_damage(1, silent = TRUE)
 		if(!is_ipc)
 			owner.adjustToxLoss(1)
 	// THRESHOLD_BRAIN_DAMAGE (240 SECONDS)
@@ -618,10 +679,7 @@
 
 /datum/status_effect/incapacitating/on_creation(mob/living/new_owner, set_duration)
 	if(isnum(set_duration))
-		if(ishuman(new_owner))
-			var/mob/living/carbon/human/H = new_owner
-			set_duration = H.dna.species.spec_stun(H, set_duration)
-		duration = set_duration
+		duration = update_duration(new_owner, set_duration)
 	if(!duration)
 		return FALSE
 	return ..()
@@ -643,6 +701,13 @@
 	return ..()
 
 
+/// Proc used to correct duration of incapacitating effects
+/datum/status_effect/incapacitating/proc/update_duration(mob/living/carbon/human/new_owner, set_duration)
+	if(ishuman(new_owner))
+		return new_owner.dna.species.spec_stun(new_owner, set_duration)
+	return set_duration
+
+
 //STUN - prevents movement and actions, victim stays standing
 /datum/status_effect/incapacitating/stun
 	id = "stun"
@@ -659,6 +724,12 @@
 /datum/status_effect/incapacitating/knockdown
 	id = "knockdown"
 	traits_to_apply = list(TRAIT_FLOORED)
+
+
+/datum/status_effect/incapacitating/knockdown/update_duration(mob/living/carbon/human/new_owner, set_duration)
+	. = ..()
+	if(ishuman(new_owner))
+		. *= new_owner.physiology.knockdown_mod
 
 
 //IMMOBILIZED - prevents movement, victim can still stand and act
@@ -686,6 +757,10 @@
 	traits_to_apply = list(TRAIT_INCAPACITATED, TRAIT_KNOCKEDOUT)
 
 
+/datum/status_effect/incapacitating/paralyzed/update_duration(mob/living/carbon/human/new_owner, set_duration)
+	return set_duration
+
+
 //SLEEPING - victim falls over, cannot act, cannot see or hear, heals under certain conditions.
 /datum/status_effect/incapacitating/sleeping
 	id = "sleeping"
@@ -694,19 +769,25 @@
 	traits_to_apply = list(TRAIT_INCAPACITATED, TRAIT_KNOCKEDOUT)
 
 
+/datum/status_effect/incapacitating/sleeping/update_duration(mob/living/carbon/human/new_owner, set_duration)
+	return set_duration
+
+
 /datum/status_effect/incapacitating/sleeping/tick(seconds_between_ticks)
 	if(!iscarbon(owner))
 		return
 
 	var/mob/living/carbon/dreamer = owner
 
-	if(isvampire(dreamer))
-		if(istype(dreamer.loc, /obj/structure/closet/coffin))
-			dreamer.adjustBruteLoss(-1, FALSE)
-			dreamer.adjustFireLoss(-1, FALSE)
-			dreamer.adjustToxLoss(-1)
+	var/update = NONE
+	var/brute_heal = 0
+	var/burn_heal = 0
+	update |= dreamer.heal_damage_type(10, STAMINA, FALSE)
+	if(isvampire(dreamer) && istype(dreamer.loc, /obj/structure/closet/coffin))
+		brute_heal += 1
+		burn_heal += 1
+		update |= dreamer.heal_damage_type(1, TOX, FALSE)
 	dreamer.handle_dreams()
-	dreamer.adjustStaminaLoss(-10)
 	var/comfort = 1
 	if(istype(dreamer.buckled, /obj/structure/bed))
 		var/obj/structure/bed/bed = dreamer.buckled
@@ -723,34 +804,44 @@
 		comfort += 1 //Aren't naps SO much better when drunk?
 		dreamer.AdjustDrunk(-0.4 SECONDS * comfort) //reduce drunkenness while sleeping.
 	if(comfort > 1 && prob(3))//You don't heal if you're just sleeping on the floor without a blanket.
-		dreamer.adjustBruteLoss(-1 * comfort, FALSE)
-		dreamer.adjustFireLoss(-1 * comfort)
+		brute_heal += 1 * comfort
+		burn_heal += 1 * comfort
+	if(brute_heal > 0 || burn_heal > 0)
+		update |= dreamer.heal_overall_damage(brute_heal, burn_heal, updating_health = FALSE)
+	if(update)
+		dreamer.updatehealth("sleeping")
 	if(prob(10) && dreamer.health)
 		dreamer.emote("snore")
 
 
+#define DEFAULT_SLOWED_DELAY 10
+
 //SLOWED - slows down the victim for a duration and a given slowdown value.
 /datum/status_effect/incapacitating/slowed
 	id = "slowed"
-	var/slowdown_value = 10 // defaults to this value if none is specified
+	/// Current multiplicative slowdown
+	var/slowdown_value
 
-/datum/status_effect/incapacitating/slowed/on_creation(mob/living/new_owner, set_duration, slowdown_value)
+/datum/status_effect/incapacitating/slowed/on_creation(mob/living/new_owner, set_duration, new_slowdown_value)
 	. = ..()
-	set_slowdown_value(slowdown_value)
-
-/datum/status_effect/incapacitating/slowed/proc/set_slowdown_value(slowdown_value)
-	if(isnum(slowdown_value))
-		src.slowdown_value = slowdown_value
-
-
-/datum/status_effect/incapacitating/slowed/on_apply()
-	. = ..()
-	owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/status_effect/slowed, multiplicative_slowdown = slowdown_value)
-
+	if(.)
+		set_slowdown_value(new_slowdown_value)
 
 /datum/status_effect/incapacitating/slowed/on_remove()
 	. = ..()
-	owner.remove_movespeed_modifier(/datum/movespeed_modifier/status_effect/slowed)
+	set_slowdown_value(0)
+
+
+/datum/status_effect/incapacitating/slowed/proc/set_slowdown_value(new_slowdown_value = DEFAULT_SLOWED_DELAY)
+	if(!isnum(new_slowdown_value) || slowdown_value == new_slowdown_value)
+		return
+	slowdown_value = new_slowdown_value
+	if(slowdown_value != 0)
+		owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/status_effect/slowed, multiplicative_slowdown = slowdown_value)
+	else
+		owner.remove_movespeed_modifier(/datum/movespeed_modifier/status_effect/slowed)
+
+#undef DEFAULT_SLOWED_DELAY
 
 
 /datum/status_effect/transient/silence
@@ -787,11 +878,11 @@
 /datum/status_effect/transient/jittery/get_examine_text()
 	switch(strength)
 		if(600 SECONDS to INFINITY)
-			return span_warning("<b>[owner.p_they(TRUE)] [owner.p_are()] convulsing violently!</b>")
+			return span_warning("<b>[genderize_ru(owner.gender,"Он", "Она", "Оно", "Они")] бь[pluralize_ru(owner.gender,"ётся","ются")] в судорогах!</b>")
 		if(400 SECONDS to 600 SECONDS)
-			return span_warning("[owner.p_they(TRUE)] [owner.p_are()] extremely jittery.")
+			return span_warning("[genderize_ru(owner.gender,"Он", "Она", "Оно", "Они")] крайне нервнича[pluralize_ru(owner.gender,"ет","ют")].")
 		if(200 SECONDS to 400 SECONDS)
-			return span_warning("[owner.p_they(TRUE)] [owner.p_are()] twitching ever so slightly.")
+			return span_warning("[genderize_ru(owner.gender,"Он", "Она", "Оно", "Они")] слегка дёрга[pluralize_ru(owner.gender,"ется","ются")].")
 
 
 /datum/status_effect/transient/stammering
@@ -876,6 +967,13 @@
 	var/atom/movable/plane_master_controller/game_plane_master_controller = owner.hud_used.plane_master_controllers[PLANE_MASTERS_GAME]
 	game_plane_master_controller.remove_filter("eye_blur")
 
+	// Maybe this should be bad for server perfomance, but i dont test it on production server
+	for(var/mob/dead/observer/observe in owner.inventory_observers)
+		if(!observe.client)
+			LAZYREMOVE(owner.inventory_observers, observe)
+			continue
+		game_plane_master_controller = observe.hud_used.plane_master_controllers[PLANE_MASTERS_GAME]
+		game_plane_master_controller.remove_filter("eye_blur")
 
 /// Updates the blur of the owner of the status effect.
 /// Also a signal proc for [COMSIG_MOB_LOGIN], to trigger then when the mob gets a client.
@@ -890,6 +988,13 @@
 	var/atom/movable/plane_master_controller/game_plane_master_controller = owner.hud_used.plane_master_controllers[PLANE_MASTERS_GAME]
 	game_plane_master_controller.add_filter("eye_blur", 1, gauss_blur_filter(amount_of_blur))
 
+	// Maybe this should be bad for server perfomance, but i dont test it on production server
+	for(var/mob/dead/observer/observe in owner.inventory_observers)
+		if(!observe.client)
+			LAZYREMOVE(owner.inventory_observers, observe)
+			continue
+		game_plane_master_controller = observe.hud_used.plane_master_controllers[PLANE_MASTERS_GAME]
+		game_plane_master_controller.add_filter("eye_blur", 1, gauss_blur_filter(amount_of_blur))
 
 // Blur lessens the closer we are to expiring, so we update per tick.
 /datum/status_effect/transient/eye_blurry/tick(seconds_between_ticks)
@@ -917,8 +1022,10 @@
 /datum/status_effect/transient/blindness
 	id = "blindness"
 
-/datum/status_effect/transient/blindness/on_apply()
+/datum/status_effect/transient/blindness/on_creation()
 	. = ..()
+	if(!.)
+		return
 	owner.update_blind_effects()
 
 /datum/status_effect/transient/blindness/on_remove()
@@ -927,7 +1034,7 @@
 /datum/status_effect/transient/blindness/calc_decay()
 	if(ishuman(owner))
 		var/mob/living/carbon/human/H = owner
-		if((BLINDNESS in H.mutations))
+		if(HAS_TRAIT(H, TRAIT_BLIND))
 			return 0
 
 		var/obj/item/organ/vision = H.dna?.species?.get_vision_organ(H)
@@ -943,8 +1050,10 @@
 /datum/status_effect/transient/drugged
 	id = "drugged"
 
-/datum/status_effect/transient/drugged/on_apply()
+/datum/status_effect/transient/drugged/on_creation()
 	. = ..()
+	if(!.)
+		return
 	owner.update_druggy_effects()
 
 /datum/status_effect/transient/drugged/on_remove()
@@ -969,22 +1078,24 @@
 			carbon.AdjustStuttering(4 SECONDS)
 			carbon.AdjustConfused(6 SECONDS)
 		if(prob(10) && !carbon.stat)
-			to_chat(carbon, "<span class='warning'>[pick("You feel nauseous.", "You feel like you're going to throw up!")]</span>")
+			to_chat(carbon, span_warning("[pick("Вас тошнит.", "Вам кажется, что вас сейчас вырвет!")]"))
 		carbon.Jitter(9 SECONDS)
 	if(strength >= DISGUST_LEVEL_VERYGROSS)
 		var/pukeprob = 5 + 0.005 * strength
 		if(prob(pukeprob))
 			carbon.AdjustConfused(9 SECONDS)
 			carbon.AdjustStuttering(3 SECONDS)
-			carbon.vomit(15, FALSE, 8 SECONDS, 0, FALSE)
+			carbon.vomit(15, message = FALSE)
 		carbon.Dizzy(15 SECONDS)
 	if(strength >= DISGUST_LEVEL_DISGUSTED)
 		if(prob(25))
 			carbon.AdjustEyeBlurry(9 SECONDS)
 	carbon.update_disgust_alert()
 
-/datum/status_effect/transient/disgust/on_apply()
+/datum/status_effect/transient/disgust/on_creation()
 	. = ..()
+	if(!.)
+		return
 	owner.update_disgust_alert()
 
 /datum/status_effect/transient/disgust/on_remove()
@@ -1049,7 +1160,7 @@
 		M.loot = null
 		M.add_atom_colour("#11c42f", FIXED_COLOUR_PRIORITY)
 		M.faction = tamer.faction
-		to_chat(tamer, span_notice("[M] is now friendly after exposure to the flowers!"))
+		to_chat(tamer, span_notice("[M] теперь дружелюбен после контакта с цветами!"))
 		. = ..()
 
 /datum/status_effect/bubblegum_curse
@@ -1089,7 +1200,7 @@
 		var/mob/living/carbon/human/H = owner
 		H.bleed(0.33)
 	if(prob(5))
-		to_chat(owner, "<span class='userdanger'>[pick("You feel your sins crawling on your back.", "You felt your sins weighing on your neck.", "You feel your blood pulsing inside you.", "<b>YOU'LL NEVER ESCAPE ME</b>", "<b>YOU'LL DIE FOR INSULTING ME LIKE THIS</b>")]</span>")
+		to_chat(owner, span_danger("[pick("Вы чувствуете, как ваши грехи ползут по вашей спине.", "Вы почувствовали, как ваши грехи давят на вашу шею.", "Вы чувствуете, как ваша кровь пульсирует внутри вас.", "<b>ТЫ НИКОГДА НЕ СБЕЖИШЬ ОТ МЕНЯ</b>", "<b>ТЫ УМРЁШЬ ЗА ТО, ЧТО ОСКОРБИЛ МЕНЯ</b>")]"))
 
 /datum/status_effect/bubblegum_curse/on_remove()
 	owner.clear_fullscreen("Bubblegum")
@@ -1098,34 +1209,34 @@
 	coward_checking = FALSE
 	var/mob/living/simple_animal/hostile/megafauna/bubblegum/attacker = locateUID(source_UID)
 	if(owner.z != attacker.z)
-		to_chat(owner, "<span class='colossus'><b>YOU CHALLENGE ME LIKE THIS... AND YOU RUN WITH YOUR FALSE MAGICS?</b></span>")
+		to_chat(owner, span_colossus("<b>ТЫ БРОСАЕШЬ МНЕ ВЫЗОВ... И УБЕГАЕШЬ СО СВОИМИ ЖАЛКИМИ ЧАРАМИ?</b>"))
 	else
 		return
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>REALLY?</b></span>")
+	to_chat(owner, span_colossus("<b>СЕРЬЁЗНО?</b>"))
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>SUCH INSOLENCE!</b></span>")
+	to_chat(owner, span_colossus("<b>КАКАЯ НАГЛОСТЬ!</b>"))
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>SO PATHETIC...</b></span>")
+	to_chat(owner, span_colossus("<b>ТАК ЖАЛКО...</b>"))
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>...SO FOOLISH!</b></span>")
+	to_chat(owner, span_colossus("<b>...ТАК ГЛУПО!</b>"))
 	get_over_here()
 
 /datum/status_effect/bubblegum_curse/proc/runaway_coward_callback()
 	coward_checking = FALSE
 	var/mob/living/simple_animal/hostile/megafauna/bubblegum/attacker = locateUID(source_UID)
 	if(get_dist(attacker, owner) >= 25)
-		to_chat(owner, "<span class='colossus'><b>My my, you can run FAST.</b></span>")
+		to_chat(owner, span_colossus("<b>Ну и ну, ты бегаешь БЫСТРО.</b>"))
 	else
 		return
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>I thought you wanted a true fight?</b></span>")
+	to_chat(owner, span_colossus("<b>Я думал, ты хотел настоящего боя?</b>"))
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>Perhaps I was mistaken.</b></span>")
+	to_chat(owner, span_colossus("<b>Возможно, я ошибался.</b>"))
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>You are a coward who does not want a fight...</b></span>")
+	to_chat(owner, span_colossus("<b>Ты трус, который не хочет сражаться...</b>"))
 	SLEEP_CHECK_QDEL(2 SECONDS)
-	to_chat(owner, "<span class='colossus'><b>...BUT I WANT YOU DEAD!</b></span>")
+	to_chat(owner, span_colossus("<b>...НО Я ХОЧУ, ЧТОБЫ ТЫ СДОХ!</b>"))
 	get_over_here()
 
 /datum/status_effect/bubblegum_curse/proc/get_over_here()
@@ -1140,27 +1251,27 @@
 	new /obj/effect/temp_visual/bubblegum_hands/rightsmack(TA)
 	sleep(6)
 	var/turf/TB = get_turf(owner)
-	to_chat(owner, "<span class='userdanger'>[attacker] rends you!</span>")
+	to_chat(owner, span_danger("[capitalize(attacker.declent_ru(NOMINATIVE))] разрывает вас!"))
 	playsound(TB, attacker.attack_sound, 100, TRUE, -1)
 	owner.adjustBruteLoss(10)
 	new /obj/effect/decal/cleanable/blood/bubblegum(TB)
 	new /obj/effect/temp_visual/bubblegum_hands/leftsmack(TB)
 	sleep(6)
 	var/turf/TC = get_turf(owner)
-	to_chat(owner, "<span class='userdanger'>[attacker] rends you!</span>")
+	to_chat(owner, span_danger("[capitalize(attacker.declent_ru(NOMINATIVE))] разрывает вас!"))
 	playsound(TC, attacker.attack_sound, 100, TRUE, -1)
 	owner.adjustBruteLoss(10)
 	new /obj/effect/decal/cleanable/blood/bubblegum(TC)
 	new /obj/effect/temp_visual/bubblegum_hands/rightsmack(TC)
 	sleep(6)
 	var/turf/TD = get_turf(owner)
-	to_chat(owner, "<span class='userdanger'>[attacker] rends you!</span>")
+	to_chat(owner, span_danger("[capitalize(attacker.declent_ru(NOMINATIVE))] разрывает вас!"))
 	playsound(TD, attacker.attack_sound, 100, TRUE, -1)
 	owner.adjustBruteLoss(10)
 	new /obj/effect/temp_visual/bubblegum_hands/leftpaw(TD)
 	new /obj/effect/temp_visual/bubblegum_hands/leftthumb(TD)
 	sleep(8)
-	to_chat(owner, "<span class='userdanger'>[attacker] drags you through the blood!</span>")
+	to_chat(owner, span_danger("[capitalize(attacker.declent_ru(NOMINATIVE))] тащит вас по крови!"))
 	playsound(TD, 'sound/misc/enter_blood.ogg', 100, TRUE, -1)
 	var/turf/targetturf = get_step(attacker, attacker.dir)
 	owner.forceMove(targetturf)
@@ -1168,8 +1279,8 @@
 	addtimer(CALLBACK(attacker, TYPE_PROC_REF(/mob/living/simple_animal/hostile/megafauna/bubblegum, FindTarget), list(owner), 1), 2)
 
 /atom/movable/screen/alert/status_effect/bubblegum_curse
-	name = "I SEE YOU"
-	desc = "YOUR SOUL WILL BE MINE FOR YOUR INSOLENCE"
+	name = "Я ВИЖУ ТЕБЯ"
+	desc = "ТВОЯ ДУША БУДЕТ МОЕЙ ЗА ТВОЮ НАГЛОСТЬ"
 	icon_state = "bubblegumjumpscare"
 
 /atom/movable/screen/alert/status_effect/bubblegum_curse/Initialize(mapload, datum/hud/hud_owner)
@@ -1188,3 +1299,40 @@
 	if(new_filter)
 		animate(get_filter("ray"), offset = 10, time = 10 SECONDS, loop = -1)
 		animate(offset = 0, time = 10 SECONDS)
+
+/datum/status_effect/tox_vomit
+	id = "vomitting_from_toxins"
+	alert_type = null
+	processing_speed = STATUS_EFFECT_NORMAL_PROCESS
+	tick_interval = 2 SECONDS
+	var/puke_counter = 0
+
+/datum/status_effect/tox_vomit/on_apply()
+	if(!iscarbon(owner))
+		return FALSE
+
+	return TRUE
+
+/datum/status_effect/tox_vomit/tick(seconds_between_ticks)
+	if(owner.stat == DEAD || !TOX_VOMIT_THRESHOLD_REACHED(owner, TOX_VOMIT_REQUIRED_TOXLOSS) || HAS_TRAIT(owner, TRAIT_GODMODE))
+		qdel(src)
+		return
+
+	puke_counter++
+	if(puke_counter < 25)
+		return
+
+	var/mob/living/carbon/carbon = owner
+	puke_counter = initial(puke_counter)
+
+	if(!carbon.vomit())
+		return
+
+	carbon.adjustToxLoss(-3)
+
+
+/datum/status_effect/judo_armbar
+	id = "armbar"
+	duration = 5 SECONDS
+	alert_type = null
+	status_type = STATUS_EFFECT_REPLACE

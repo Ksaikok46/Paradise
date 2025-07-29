@@ -8,7 +8,7 @@
 	if(istype(used_atom, /obj/item/stack/cable_coil))
 		var/obj/item/stack/cable_coil/C = used_atom
 		if(C.use(4))
-			playsound(holder, C.usesound, 50, 1)
+			playsound(holder, C.usesound, 50, TRUE)
 		else
 			to_chat(user, ("There's not enough cable to finish the task."))
 			return 0
@@ -29,7 +29,7 @@
 	if(istype(used_atom, /obj/item/stack/cable_coil))
 		var/obj/item/stack/cable_coil/C = used_atom
 		if(C.use(4))
-			playsound(holder, C.usesound, 50, 1)
+			playsound(holder, C.usesound, 50, TRUE)
 		else
 			to_chat(user, ("There's not enough cable to finish the task."))
 			return 0
@@ -105,7 +105,7 @@
 					 list("key"=/obj/item/stack/sheet/metal,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="Peripherals control module is secured."),
-					 //7
+					//7
 					 list("key"=TOOL_SCREWDRIVER,
 					 		"backkey"=TOOL_CROWBAR,
 					 		"desc"="Peripherals control module is installed."),
@@ -122,7 +122,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //11
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //12
@@ -346,7 +346,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //17
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //18
@@ -601,7 +601,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //12
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //13
@@ -787,7 +787,7 @@
 		return 0
 
 	if(istype(used_atom, /obj/item/bikehorn))
-		playsound(holder, 'sound/items/bikehorn.ogg', 50, 1)
+		playsound(holder, 'sound/items/bikehorn.ogg', 50, TRUE)
 		user.visible_message("HONK!")
 
 	//TODO: better messages.
@@ -979,7 +979,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //17
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //18
@@ -1191,8 +1191,8 @@
 	result = "/obj/mecha/combat/phazon"
 	steps = list(
  					//1
-					list("key" = /obj/item/assembly/signaler/anomaly/bluespace,
-						 "backkey"=null, //Cannot remove the anomaly core once it's in
+					list("key" = /obj/item/assembly/signaler/core/bluespace,
+						 "backkey"=TOOL_CROWBAR,
 						 "desc"="Anomaly core socket is open and awaiting connection."),
 					//2
 					list("key" = TOOL_WELDER,
@@ -1220,7 +1220,7 @@
 					 		"desc"="The bluespace crystal is engaged."),
 					 //8
 					 list("key" = TOOL_SCREWDRIVER,
-					 		"backkey"=/obj/item/wirecutters,
+					 		"backkey"=TOOL_WIRECUTTER,
 					 		"desc"="The bluespace crystal is connected."),
 					 //9
 					 list("key" = /obj/item/stack/cable_coil,
@@ -1271,7 +1271,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //21
-					 list("key" = /obj/item/wirecutters,
+					 list("key" = TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //22
@@ -1287,9 +1287,16 @@
 					 		"desc"="The hydraulic systems are disconnected.")
 					)
 
+	/// Inserted bluespace anomaly core.
+	var/obj/item/assembly/signaler/core/bluespace/core = null
 
 /datum/construction/reversible/mecha/phazon/action(atom/used_atom,mob/user as mob)
 	return check_step(used_atom,user)
+
+/datum/construction/reversible/mecha/phazon/after_spawn_result(atom/A)
+	var/obj/mecha/phazon = A
+	phazon.phase_modifier = core.get_strength() / 150
+	core.forceMove(A)
 
 /datum/construction/reversible/mecha/phazon/custom_action(index, diff, atom/used_atom, mob/user)
 	if(!..())
@@ -1470,8 +1477,18 @@
 				holder.icon_state = "phazon21"
 		if(1)
 			if(diff==FORWARD)
+				var/obj/item/assembly/signaler/core/bluespace/core = used_atom
+				if(core.get_strength() < 100)
+					to_chat(user, span_warning("Ядро слишком слабо!"))
+					return FALSE
+
 				user.visible_message("[user] carefully inserts the anomaly core into \the [holder] and secures it.", "You slowly place the anomaly core into its socket and close its chamber.")
-				qdel(used_atom)
+				src.core = used_atom
+				return user.drop_transfer_item_to_loc(core, holder)
+			else
+				user.visible_message("[user] аккуратно достает [core.declent_ru(ACCUSATIVE)] из [holder.declent_ru(GENITIVE)].", "Вы аккуратно достаете [core.declent_ru(ACCUSATIVE)] из [holder.declent_ru(GENITIVE)].")
+				if(!user.put_in_hands(core))
+					core.forceMove(get_turf(user))
 	return 1
 
 //ODYSSEUS
@@ -1549,7 +1566,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //11
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //12
@@ -1754,7 +1771,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //11
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //12
@@ -1980,7 +1997,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //17
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //18
@@ -2255,7 +2272,7 @@
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is adjusted."),
 					 //17
-					 list("key"=/obj/item/wirecutters,
+					 list("key"=TOOL_WIRECUTTER,
 					 		"backkey"=TOOL_SCREWDRIVER,
 					 		"desc"="The wiring is added."),
 					 //18

@@ -75,10 +75,14 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 	var/strength = null
 	var/desc_holder = null
 
+/obj/structure/particle_accelerator/examine(mob/user)
+	. = ..()
+	. += span_notice("<b>Alt-click</b> to rotate.")
+
 /obj/structure/particle_accelerator/Destroy()
 	construction_state = 0
 	if(master)
-		master.part_scan()
+		SStgui.update_uis(master)
 	return ..()
 
 /obj/structure/particle_accelerator/end_cap
@@ -87,16 +91,9 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 	icon_state = "end_cap"
 	reference = "end_cap"
 
-
-/obj/structure/particle_accelerator/verb/rotate()
-	set name = "Rotate Clockwise"
-	set category = "Object"
-	set src in oview(1)
-
-	rotate_accelerator(usr)
-
-/obj/structure/particle_accelerator/AltClick(mob/user)
+/obj/structure/particle_accelerator/click_alt(mob/user)
 	rotate_accelerator(user)
+	return CLICK_ACTION_SUCCESS
 
 /obj/structure/particle_accelerator/proc/rotate_accelerator(mob/user)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
@@ -128,15 +125,11 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 		new /obj/item/stack/sheet/metal (loc, 5)
 	qdel(src)
 
-/obj/structure/particle_accelerator/Move()
+/obj/structure/particle_accelerator/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
 	if(master && master.active)
 		master.toggle_power()
 		investigate_log("was moved whilst active; it <font color='red'>powered down</font>.", INVESTIGATE_ENGINE)
-
-/obj/machinery/particle_accelerator/control_box/blob_act(obj/structure/blob/B)
-	if(prob(50))
-		qdel(src)
 
 /obj/structure/particle_accelerator/update_icon_state()
 	switch(construction_state)
@@ -177,18 +170,34 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 			return 1
 	return 0
 
-/obj/structure/particle_accelerator/attackby(obj/item/W, mob/user, params)
-	if(!iscoil(W))
+
+/obj/structure/particle_accelerator/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
 		return ..()
-	if(construction_state == ACCELERATOR_WRENCHED)
-		var/obj/item/stack/cable_coil/C = W
-		if(C.use(1))
-			add_fingerprint(user)
-			playsound(loc, C.usesound, 50, 1)
-			user.visible_message("[user.name] adds wires to the [name].", \
-				"You add some wires.")
-			construction_state = ACCELERATOR_WIRED
-	update_icon(UPDATE_ICON_STATE)
+
+	if(iscoil(I))
+		add_fingerprint(user)
+		var/obj/item/stack/cable_coil/coil = I
+		if(construction_state != ACCELERATOR_WRENCHED)
+			to_chat(user, span_warning("The [name] should be secured to the floor."))
+			return ATTACK_CHAIN_PROCEED
+		var/cached_sound = coil.usesound
+		if(!coil.use(1))
+			to_chat(user, span_warning("You need at least one length of the cable to proceed."))
+			return ATTACK_CHAIN_PROCEED
+		playsound(loc, cached_sound, 50, TRUE)
+		user.visible_message(
+			span_notice("[user] has wired [src]."),
+			span_notice("You have wired [src]."),
+		)
+		construction_state = ACCELERATOR_WIRED
+		update_icon(UPDATE_ICON_STATE)
+		if(master)
+			SStgui.update_uis(master)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
 
 /obj/structure/particle_accelerator/screwdriver_act(mob/user, obj/item/I)
 	if(construction_state != ACCELERATOR_WIRED && construction_state != ACCELERATOR_READY)
@@ -205,6 +214,8 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 		SCREWDRIVER_OPEN_PANEL_MESSAGE
 	update_state()
 	update_icon(UPDATE_ICON_STATE)
+	if(master)
+		SStgui.update_uis(master)
 
 /obj/structure/particle_accelerator/wirecutter_act(mob/user, obj/item/I)
 	if(construction_state != ACCELERATOR_WIRED)
@@ -214,6 +225,8 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 		return
 	WIRECUTTER_SNIP_MESSAGE
 	construction_state = ACCELERATOR_WRENCHED
+	if(master)
+		SStgui.update_uis(master)
 
 /obj/structure/particle_accelerator/wrench_act(mob/user, obj/item/I)
 	if(construction_state != ACCELERATOR_UNWRENCHED && construction_state != ACCELERATOR_WRENCHED)
@@ -230,6 +243,8 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 		WRENCH_UNANCHOR_MESSAGE
 		construction_state = ACCELERATOR_UNWRENCHED
 	update_icon(UPDATE_ICON_STATE)
+	if(master)
+		SStgui.update_uis(master)
 
 
 /obj/machinery/particle_accelerator
@@ -252,19 +267,11 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 
 /obj/machinery/particle_accelerator/examine(mob/user)
 	. = ..()
-	. += "<span class='info'><b>Alt-Click</b> to rotate it.</span>"
+	. += span_notice("<b>Alt-Click</b> to rotate it.")
 
-
-/obj/machinery/particle_accelerator/verb/rotate()
-	set name = "Rotate Clockwise"
-	set category = "Object"
-	set src in oview(1)
-
-	rotate_accelerator(usr)
-
-/obj/machinery/particle_accelerator/AltClick(mob/user)
+/obj/machinery/particle_accelerator/click_alt(mob/user)
 	rotate_accelerator(user)
-
+	return CLICK_ACTION_SUCCESS
 
 /obj/machinery/particle_accelerator/proc/rotate_accelerator(mob/user)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
@@ -275,18 +282,31 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 	dir = turn(dir, 270)
 
 
-/obj/machinery/particle_accelerator/attackby(obj/item/W, mob/user, params)
-	if(!iscoil(W))
+/obj/machinery/particle_accelerator/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
 		return ..()
-	if(construction_state == ACCELERATOR_WRENCHED)
-		var/obj/item/stack/cable_coil/C = W
-		if(C.use(1))
-			add_fingerprint(user)
-			playsound(loc, C.usesound, 50, 1)
-			user.visible_message("[user.name] adds wires to the [name].", \
-				"You add some wires.")
-			construction_state = ACCELERATOR_WIRED
-	update_icon()
+
+	if(iscoil(I))
+		add_fingerprint(user)
+		var/obj/item/stack/cable_coil/coil = I
+		if(construction_state != ACCELERATOR_WRENCHED)
+			to_chat(user, span_warning("The [name] should be secured to the floor."))
+			return ATTACK_CHAIN_PROCEED
+		var/cached_sound = coil.usesound
+		if(!coil.use(1))
+			to_chat(user, span_warning("You need at least one length of the cable to proceed."))
+			return ATTACK_CHAIN_PROCEED
+		playsound(loc, cached_sound, 50, TRUE)
+		user.visible_message(
+			span_notice("[user] has wired [src]."),
+			span_notice("You have wired [src]."),
+		)
+		construction_state = ACCELERATOR_WIRED
+		update_icon()
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
 
 /obj/machinery/particle_accelerator/screwdriver_act(mob/user, obj/item/I)
 	if(construction_state != ACCELERATOR_WIRED && construction_state != ACCELERATOR_READY)

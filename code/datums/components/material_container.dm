@@ -37,6 +37,8 @@
 	precondition = _precondition
 	after_insert = _after_insert
 
+	RegisterSignal(parent, COMSIG_MATERIAL_CONTAINER_ON_INSERT_STACK, PROC_REF(on_insert_stack_signal))
+
 	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, PROC_REF(OnAttackBy))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(OnExamine))
 
@@ -48,6 +50,13 @@
 		if(possible_mats[id])
 			var/mat_path = possible_mats[id]
 			materials[id] = new mat_path()
+
+/// Signal handler for stack insertion, returns container insertion flags.
+/datum/component/material_container/proc/on_insert_stack_signal(datum/source, obj/item/stack/stack, amt)
+	SIGNAL_HANDLER
+	if(insert_stack(stack, amt))
+		return CONTAINER_INSERT_SUCCESS
+	return CONTAINER_INSERT_FAILED
 
 /datum/component/material_container/proc/OnExamine(datum/source, mob/user, list/examine_list)
 	if(show_on_examine)
@@ -68,7 +77,7 @@
 	if((I.item_flags & NO_MAT_REDEMPTION) || (I.flags & HOLOGRAM) || (tc && !is_type_in_typecache(I, tc)))
 		to_chat(user, "<span class='warning'>[parent] won't accept [I]!</span>")
 		return
-	. = COMPONENT_NO_AFTERATTACK
+	. = COMPONENT_CANCEL_ATTACK_CHAIN|COMPONENT_NO_AFTERATTACK
 	var/datum/callback/pc = precondition
 	if(pc && !pc.Invoke(user))
 		return
@@ -87,9 +96,7 @@
 	if(isstack(I) && precise_insertion)
 		var/atom/current_parent = parent
 		var/obj/item/stack/S = I
-		requested_amount = input(user, "How much do you want to insert?", "Inserting [S.singular_name]s") as num|null
-		if(isnull(requested_amount) || (requested_amount <= 0))
-			return
+		requested_amount = S.amount
 		if(QDELETED(I) || QDELETED(user) || QDELETED(src) || parent != current_parent || user.incapacitated() || !in_range(current_parent, user) || user.l_hand != I && user.r_hand != I)
 			return
 	if(!user.drop_transfer_item_to_loc(I, parent))

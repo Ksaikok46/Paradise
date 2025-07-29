@@ -78,7 +78,7 @@
 			return
 		else
 			if(W)
-				W.afterattack(A, src, 0, params)
+				W.afterattack(A, src, FALSE, params)
 			else
 				RangedAttack(A, params)
 	return
@@ -93,7 +93,7 @@
 	return
 
 /mob/living/silicon/robot/cogscarab/AltClickOn(atom/A)
-	A.AltClick(src)
+	base_click_alt(A)
 	return
 
 /mob/living/silicon/robot/cogscarab/CtrlShiftClickOn(atom/A)

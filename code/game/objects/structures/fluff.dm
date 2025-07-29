@@ -7,20 +7,28 @@
 	icon_state = "minibar"
 	anchored = TRUE
 	density = FALSE
-	opacity = 0
+	opacity = FALSE
 	var/deconstructible = TRUE
 
-/obj/structure/fluff/attackby(obj/item/I, mob/living/user, params)
-	if(I.tool_behaviour == TOOL_WRENCH && deconstructible)
-		user.visible_message("<span class='notice'>[user] starts disassembling [src]...</span>", "<span class='notice'>You start disassembling [src]...</span>")
-		playsound(loc, I.usesound, 50, 1)
-		if(do_after(src, 5 SECONDS * I.toolspeed * gettoolspeedmod(user), src))
-			user.visible_message("<span class='notice'>[user] disassembles [src]!</span>", "<span class='notice'>You break down [src] into scrap metal.</span>")
-			playsound(user, 'sound/items/deconstruct.ogg', 50, 1)
-			new/obj/item/stack/sheet/metal(drop_location())
-			qdel(src)
-		return
-	return ..()
+
+/obj/structure/fluff/wrench_act(mob/living/user, obj/item/I)
+	if(!deconstructible)
+		return FALSE
+	. = TRUE
+	user.visible_message(
+		span_notice("[user] starts disassembling [src]."),
+		span_notice("You start disassembling [src]..."),
+	)
+	if(!I.use_tool(src, user, 5 SECONDS, volume = I.tool_volume))
+		return .
+	var/obj/item/stack/sheet/metal/metal = new(drop_location())
+	metal.add_fingerprint(user)
+	user.visible_message(
+		span_notice("[user] disassembles [src]."),
+		span_notice("You break down [src] into scrap metal."),
+	)
+	qdel(src)
+
 
 /obj/structure/fluff/empty_terrarium //Empty terrariums are created when a preserved terrarium in a lavaland seed vault is activated.
 	name = "empty terrarium"
@@ -52,7 +60,15 @@
 
 /obj/structure/fluff/drake_statue //Ash drake status spawn on either side of the necropolis gate in lavaland.
 	name = "drake statue"
-	desc = "A towering basalt sculpture of a proud and regal drake. Its eyes are six glowing gemstones."
+	desc = "Величественная базальтовая скульптура гордого дрейка. Его глаза — шесть светящихся самоцветов."
+	ru_names = list(
+		NOMINATIVE = "статуя дрейка",
+		GENITIVE = "статуи дрейка",
+		DATIVE = "статуе дрейка",
+		ACCUSATIVE = "статую дрейка",
+		INSTRUMENTAL = "статуей дрейка",
+		PREPOSITIONAL = "статуе дрейка"
+	)
 	icon = 'icons/effects/64x64.dmi'
 	icon_state = "drake_statue"
 	pixel_x = -16
@@ -89,5 +105,13 @@
 
 /obj/structure/fluff/grave/empty
 	name = "empty grave"
-	desc = "A former grave."
+	ru_names = list(
+		NOMINATIVE = "пустая могила",
+		GENITIVE = "пустой могилы",
+		DATIVE = "пустой могиле",
+		ACCUSATIVE = "пустую могилу",
+		INSTRUMENTAL = "пустой могилой",
+		PREPOSITIONAL = "пустой могиле"
+	)
+	desc = "Разграбленная могила."
 	icon_state = "grave_empty"

@@ -32,8 +32,8 @@
 					firstloc = get_turf(my_atom)
 					secondloc = get_step(firstloc,NORTH)
 		olddir = dir
-		var/obj/item/projectile/projone = new projectile_type(firstloc)
-		var/obj/item/projectile/projtwo = new projectile_type(secondloc)
+		var/obj/projectile/projone = new projectile_type(firstloc)
+		var/obj/projectile/projtwo = new projectile_type(secondloc)
 		projone.starting = get_turf(my_atom)
 		projone.firer = usr
 		projone.firer_source_atom = src
@@ -43,7 +43,7 @@
 		projtwo.firer_source_atom = src
 		projtwo.def_zone = BODY_ZONE_CHEST
 		spawn()
-			playsound(src, fire_sound, 50, 1)
+			playsound(src, fire_sound, 50, TRUE)
 			projone.dumbfire(my_atom.dir)
 			projtwo.dumbfire(my_atom.dir)
 		sleep(2)
@@ -57,6 +57,7 @@
 	var/obj/item/spacepod_equipment/cargo/cargo_system // cargo system
 	var/obj/item/spacepod_equipment/cargo/sec_cargo_system // secondary cargo system
 	var/obj/item/spacepod_equipment/lock/lock_system // lock system
+	var/obj/item/spacepod_equipment/locators/locator_system //locator_system
 
 /datum/spacepod/equipment/New(var/obj/spacepod/SP)
 	..()
@@ -83,7 +84,7 @@
 	name = "pod weapon"
 	desc = "You shouldn't be seeing this"
 	icon_state = "blank"
-	var/obj/item/projectile/projectile_type
+	var/obj/projectile/projectile_type
 	var/shot_cost = 0
 	var/shots_per = 1
 	var/fire_sound
@@ -94,7 +95,7 @@
 	name = "disabler system"
 	desc = "A weak disabler system for space pods, fires disabler beams."
 	icon_state = "weapon_taser"
-	projectile_type = /obj/item/projectile/beam/disabler
+	projectile_type = /obj/projectile/beam/disabler
 	shot_cost = 800
 	shots_per = 2
 	fire_sound = 'sound/weapons/taser.ogg'
@@ -104,7 +105,7 @@
 	name = "burst disabler system"
 	desc = "A weak disabler system for space pods, this one fires 3 round burst at a time."
 	icon_state = "weapon_burst_taser"
-	projectile_type = /obj/item/projectile/beam/disabler
+	projectile_type = /obj/projectile/beam/disabler
 	shot_cost = 1200
 	shots_per = 3
 	fire_sound = 'sound/weapons/taser.ogg'
@@ -115,7 +116,7 @@
 	name = "laser system"
 	desc = "A weak laser system for space pods, fires concentrated bursts of energy."
 	icon_state = "weapon_laser"
-	projectile_type = /obj/item/projectile/beam
+	projectile_type = /obj/projectile/beam
 	shot_cost = 1200
 	shots_per = 2
 	fire_sound = 'sound/weapons/laser.ogg'
@@ -124,7 +125,7 @@
 	name = "solaris system"
 	desc = "A stronger vesion of laser systems for pods. Fires high concetrated bursts of energy"
 	icon_state = "weapon_laser"
-	projectile_type = /obj/item/projectile/beam/laser/heavylaser
+	projectile_type = /obj/projectile/beam/laser/heavylaser
 	shot_cost = 1800
 	shots_per = 2
 	fire_sound = 'sound/weapons/lasercannonfire.ogg'
@@ -135,7 +136,7 @@
 	desc = "A kinetic accelerator system for space pods, fires bursts of kinetic force that cut through rock."
 	icon = 'icons/goonstation/pods/ship.dmi'
 	icon_state = "pod_taser"
-	projectile_type = /obj/item/projectile/kinetic/pod
+	projectile_type = /obj/projectile/kinetic/pod
 	shot_cost = 300
 	fire_delay = 14
 	fire_sound = 'sound/weapons/kenetic_accel.ogg'
@@ -145,7 +146,7 @@
 	desc = "A industrial kinetic accelerator system for space pods, fires heavy bursts of kinetic force that cut through rock."
 	icon = 'icons/goonstation/pods/ship.dmi'
 	icon_state = "pod_m_laser"
-	projectile_type = /obj/item/projectile/kinetic/pod/regular
+	projectile_type = /obj/projectile/kinetic/pod/regular
 	shot_cost = 250
 	fire_delay = 10
 	fire_sound = 'sound/weapons/kenetic_accel.ogg'
@@ -165,7 +166,7 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 	icon_state = "blank"
 
 /obj/item/spacepod_equipment/misc/tracker
-	name = "\improper spacepod tracking system"
+	name = "spacepod tracking system"
 	desc = "A tracking device for spacepods."
 	icon_state = "pod_locator"
 
@@ -274,14 +275,69 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 	w_class = WEIGHT_CLASS_TINY
 	var/id = 0
 
+
 // Key - Lock Interactions
-/obj/item/spacepod_equipment/lock/keyed/attackby(obj/item/I as obj, mob/user as mob, params)
+/obj/item/spacepod_equipment/lock/keyed/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/spacepod_equipment/key))
+		add_fingerprint(user)
 		var/obj/item/spacepod_equipment/key/key = I
-		if(!key.id)
-			key.id = id
-			to_chat(user, "<span class='notice'>You grind the blank key to fit the lock.</span>")
-		else
-			to_chat(user, "<span class='warning'>This key is already ground!</span>")
-	else
-		return ..()
+		if(key.id)
+			to_chat(user, span_warning("This key is already ground."))
+			return ATTACK_CHAIN_PROCEED
+		key.id = id
+		to_chat(user, span_notice("You have ground the blank key to fit the lock."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
+/*
+///////////////////////////////////////
+/////////Locator System///////////////////
+///////////////////////////////////////
+*/
+
+/obj/item/spacepod_equipment/locators
+	name = "Locator system"
+	desc = "You shouldn't be seeing this"
+	icon = 'icons/spacepods_paradise/locator.dmi'
+	icon_state = "blank"
+
+	var/can_ignore_z = FALSE
+	var/can_found_all = FALSE
+
+/obj/item/spacepod_equipment/locators/proc/scan(mob/user)
+	var/message_user = ""
+
+	for(var/obj/effect/landmark/ruin/space_ruin in GLOB.ruin_landmarks)
+		if((user.loc.z == space_ruin.z || can_ignore_z) && (space_ruin.ruin_template.can_found || can_found_all))
+			message_user += "\nX:[space_ruin.x] Y:[space_ruin.y] Z:[space_ruin.z] Размер: [object_size(space_ruin.ruin_template.width*space_ruin.ruin_template.height)]"
+
+	if(!message_user)
+		atom_say("Объектов в секторе не обнаружено")
+		return
+	atom_say("Результаты поиска:[message_user]")
+
+/obj/item/spacepod_equipment/locators/proc/object_size(var/square)
+	if(square <= 500)
+		return "Малый"
+	else if(square <= 900)
+		return "Средний"
+	else if(square <= 3000)
+		return "Большой"
+	return "Огромный"
+
+/obj/item/spacepod_equipment/locators/basic_pod_locator
+	name = "Модуль поиска астероидов"
+	desc = "Сканирующее устройство позволяющее определять координаты астероидов в секторе."
+	icon_state = "pod_locator"
+	origin_tech = "engineering=5;magnets=4"
+	can_found_all = FALSE
+	can_ignore_z = FALSE
+
+/obj/item/spacepod_equipment/locators/advanced_pod_locator
+	name = "Улучшеный модуль поиска астероидов"
+	desc = "Улучшеный модуль поиска способный обнаружить любой объект в секторе"
+	icon_state = "pod_locator"
+	can_found_all = TRUE
+	can_ignore_z = FALSE
+

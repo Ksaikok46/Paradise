@@ -1,3 +1,6 @@
+#define PLASMA_CHARGE_USE_PER_SECOND 2.5
+#define PLASMA_DISCHARGE_LIMIT 5
+
 // Ion Rifles //
 /obj/item/gun/energy/ionrifle
 	name = "ion rifle"
@@ -51,7 +54,6 @@
 	if(cell.charge > shot.e_cost)
 		. += "decloner_spin"
 
-
 // Flora Gun //
 /obj/item/gun/energy/floragun
 	name = "floral somatoray"
@@ -59,11 +61,31 @@
 	icon_state = "flora"
 	item_state = "gun"
 	fire_sound = 'sound/effects/stealthoff.ogg'
-	ammo_type = list(/obj/item/ammo_casing/energy/flora/yield, /obj/item/ammo_casing/energy/flora/mut)
-	origin_tech = "materials=2;biotech=4"
+	materials = list(MAT_GOLD = 2000, MAT_BLUESPACE = 1500, MAT_DIAMOND = 800, MAT_URANIUM = 500, MAT_GLASS = 500)
+	origin_tech = "materials=5;biotech=6;powerstorage=6;engineering=5"
+	ammo_type = list(/obj/item/ammo_casing/energy/flora/alpha, /obj/item/ammo_casing/energy/flora/beta, /obj/item/ammo_casing/energy/flora/gamma)
 	modifystate = TRUE
 	ammo_x_offset = 1
+	can_charge = FALSE
 	selfcharge = TRUE
+	var/emagged = FALSE
+
+/obj/item/gun/energy/floragun/emag_act(mob/user)
+	. = ..()
+
+	if(emagged)
+		return
+
+	if(user)
+		balloon_alert(user, "протоколы защиты сняты!")
+
+	emagged = TRUE
+	ammo_type = list(/obj/item/ammo_casing/energy/flora/alpha/emag, /obj/item/ammo_casing/energy/flora/beta, /obj/item/ammo_casing/energy/flora/gamma)
+	update_ammo_types()
+
+/obj/item/gun/energy/floragun/examine(mob/user)
+	. = ..()
+	. += span_notice("Mode: [ammo_type[select]]\nCharge: [cell.percent()]%")
 
 // Meteor Gun //
 /obj/item/gun/energy/meteorgun
@@ -91,7 +113,7 @@
 
 // Mind Flayer //
 /obj/item/gun/energy/mindflayer
-	name = "\improper Mind Flayer"
+	name = "Mind Flayer"
 	desc = "A prototype weapon recovered from the ruins of Research-Station Epsilon."
 	icon_state = "xray"
 	item_state = null
@@ -128,6 +150,17 @@
 	suppressed = 0
 	ammo_type = list(/obj/item/ammo_casing/energy/bolt/large)
 
+/obj/item/gun/energy/kinetic_accelerator/crossbow/toy
+	name = "toy energy crossbow"
+	desc = "Игрушечное оружие, сделанное из тагерного пистолета со стильным дизайном контрабандного арбалета."
+	icon_state = "crossbowtoy"
+	w_class = WEIGHT_CLASS_SMALL
+	materials = list(MAT_METAL=4000)
+	origin_tech = "combat=4;magnets=4"
+	suppressed = 0
+	overheat_time = 8 SECONDS
+	ammo_type = list(/obj/item/ammo_casing/energy/bolt/bolttoy)
+
 /obj/item/gun/energy/kinetic_accelerator/crossbow/large/cyborg
 	desc = "One and done!"
 	icon_state = "crossbowlarge"
@@ -144,7 +177,15 @@
 // Plasma Cutters //
 /obj/item/gun/energy/plasmacutter
 	name = "plasma cutter"
-	desc = "A mining tool capable of expelling concentrated plasma bursts. You could use it to cut limbs off of xenos! Or, you know, mine stuff."
+	desc = "Шахтёрский инструмент, стреляющий сконцентрированной плазмой. Можете отрезать конечности ксеносам! Или, ну там... руду добывать."
+	ru_names = list(
+		NOMINATIVE = "плазменный резак",
+		GENITIVE = "плазменного резака",
+		DATIVE = "плазменному резаку",
+		ACCUSATIVE = "плазменный резак",
+		INSTRUMENTAL = "плазменным резаком",
+		PREPOSITIONAL = "плазменном резаке"
+	)
 	icon_state = "plasmacutter"
 	item_state = "plasmacutter"
 	modifystate = FALSE
@@ -154,43 +195,66 @@
 	toolspeed = 1
 	container_type = OPENCONTAINER
 	flags = CONDUCT
-	attack_verb = list("attacked", "slashed", "cut", "sliced")
+	attack_verb = list("атаковал", "полоснул", "порезал")
 	force = 12
 	sharp = 1
 	can_charge = FALSE
 
+
 /obj/item/gun/energy/plasmacutter/examine(mob/user)
 	. = ..()
 	if(cell)
-		. += "<span class='notice'>[src] is [round(cell.percent())]% charged.</span>"
+		. += span_notice("Заряд [bicon(src)] [declent_ru(GENITIVE)] [round(cell.percent())]%")
 
-/obj/item/gun/energy/plasmacutter/attackby(obj/item/A, mob/user)
-	if(istype(A, /obj/item/stack/sheet/mineral/plasma))
+/obj/item/gun/energy/plasmacutter/get_heat()
+	return 3800
+
+/obj/item/gun/energy/plasmacutter/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/stack/sheet/mineral/plasma))
+		add_fingerprint(user)
+		var/obj/item/stack/sheet/mineral/plasma/plasma = I
 		if(cell.charge >= cell.maxcharge)
-			to_chat(user,"<span class='notice'>[src] is already fully charged.")
-			return
-		var/obj/item/stack/sheet/S = A
-		S.use(1)
+			balloon_alert(user, "заряд на максимуме!")
+			return ATTACK_CHAIN_PROCEED
+		if(!plasma.use(1))
+			balloon_alert(user, "недостаточно плазмы!")
+			return ATTACK_CHAIN_PROCEED
+		balloon_alert(user, "заряд увеличен")
 		cell.give(1000)
 		on_recharge()
-		to_chat(user, "<span class='notice'>You insert [A] in [src], recharging it.</span>")
-	else if(istype(A, /obj/item/stack/ore/plasma))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(istype(I, /obj/item/stack/ore/plasma))
+		add_fingerprint(user)
+		var/obj/item/stack/ore/plasma/plasma = I
 		if(cell.charge >= cell.maxcharge)
-			to_chat(user,"<span class='notice'>[src] is already fully charged.")
-			return
-		var/obj/item/stack/ore/S = A
-		S.use(1)
+			balloon_alert(user, "заряд на максимуме!")
+			return ATTACK_CHAIN_PROCEED
+		if(!plasma.use(1))
+			balloon_alert(user, "недостаточно плазмы!")
+			return ATTACK_CHAIN_PROCEED
+		balloon_alert(user, "заряд увеличен")
 		cell.give(500)
 		on_recharge()
-		to_chat(user, "<span class='notice'>You insert [A] in [src], recharging it.</span>")
-	else
-		return ..()
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
 
 /obj/item/gun/energy/plasmacutter/update_overlays()
 	return list()
 
+
 /obj/item/gun/energy/plasmacutter/adv
 	name = "advanced plasma cutter"
+	ru_names = list(
+		NOMINATIVE = "продвинутый плазменный резак",
+		GENITIVE = "продвинутого плазменного резака",
+		DATIVE = "продвинутому плазменному резаку",
+		ACCUSATIVE = "продвинутый плазменный резак",
+		INSTRUMENTAL = "продвинутым плазменным резаком",
+		PREPOSITIONAL = "продвинутом плазменном резаке"
+	)
 	icon_state = "adv_plasmacutter"
 	item_state = "adv_plasmacutter"
 	origin_tech = "combat=3;materials=4;magnets=3;plasmatech=4;engineering=2"
@@ -201,13 +265,29 @@
 	name = "magmite plasma cutter"
 	icon_state = "adv_plasmacutter_m"
 	item_state = "plasmacutter_mega"
-	desc = "A mining tool capable of expelling concentrated plasma bursts. You could use it to cut limbs off xenos! Or, you know, mine stuff. This one has been enhanced with plasma magmite."
+	desc = "Улучшенная версия плазменного резака с использованием плазменного магмита. Режет ксеносов вдвое эффективнее! И руду тоже."
+	ru_names = list(
+		NOMINATIVE = "магмитовый плазменный резак",
+		GENITIVE = "магмитового плазменного резака",
+		DATIVE = "магмитовому плазменному резаку",
+		ACCUSATIVE = "магмитовый плазменный резак",
+		INSTRUMENTAL = "магмитовым плазменным резаком",
+		PREPOSITIONAL = "магмитовом плазменном резаке"
+	)
 	ammo_type = list(/obj/item/ammo_casing/energy/plasma/adv/mega)
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL
 
 /obj/item/gun/energy/plasmacutter/shotgun
 	name = "plasma cutter shotgun"
-	desc = "An industrial-grade, heavy-duty mining shotgun."
+	desc = "Промышленный тяжелый дробовик для шахтёрских работ."
+	ru_names = list(
+		NOMINATIVE = "плазменный дробовик",
+		GENITIVE = "плазменного дробовика",
+		DATIVE = "плазменному дробовику",
+		ACCUSATIVE = "плазменный дробовик",
+		INSTRUMENTAL = "плазменным дробовиком",
+		PREPOSITIONAL = "плазменном дробовике"
+	)
 	icon_state = "miningshotgun"
 	item_state = "miningshotgun"
 	origin_tech = "combat=5;materials=5;magnets=5;plasmatech=6;engineering=5"
@@ -218,7 +298,15 @@
 	name = "magmite plasma cutter shotgun"
 	icon_state = "miningshotgun_mega"
 	item_state = "miningshotgun_mega"
-	desc = "An industrial-grade, heavy-duty mining shotgun. This one seems upgraded with plasma magmite."
+	desc = "Улучшенный промышленный дробовик с плазменным магмитом. Разрезает... значит добывает."
+	ru_names = list(
+		NOMINATIVE = "магмитовый плазменный дробовик",
+		GENITIVE = "магмитового плазменного дробовика",
+		DATIVE = "магмитовому плазменному дробовику",
+		ACCUSATIVE = "магмитовый плазменный дробовик",
+		INSTRUMENTAL = "магмитовым плазменным дробовиком",
+		PREPOSITIONAL = "магмитовом плазменном дробовике"
+	)
 	ammo_type = list(/obj/item/ammo_casing/energy/plasma/shotgun/mega)
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL
 
@@ -255,9 +343,9 @@
 		orange?.target = null
 
 
-/obj/item/gun/energy/wormhole_projector/proc/create_portal(obj/item/projectile/beam/wormhole/projectile)
+/obj/item/gun/energy/wormhole_projector/proc/create_portal(obj/projectile/beam/wormhole/projectile)
 
-	var/obj/effect/portal/wormhole_projector/portal = new(get_turf(projectile), creation_object = src)
+	var/obj/effect/portal/wormhole_projector/portal = new(get_turf(projectile), null, src)
 
 	if(projectile.is_orange)
 		if(!QDELETED(orange))
@@ -328,7 +416,7 @@
 	ammo_x_offset = 3
 
 /obj/item/gun/energy/toxgun
-	name = "plasma pistol"
+	name = "toxin pistol"
 	desc = "A specialized firearm designed to fire lethal bolts of toxins."
 	icon_state = "toxgun"
 	w_class = WEIGHT_CLASS_NORMAL
@@ -352,107 +440,25 @@
 	zoom_amt = 7 //Long range, enough to see in front of you, but no tiles behind you.
 	shaded_charge = TRUE
 
-/obj/item/gun/energy/bsg
-	name = "\improper Б.С.П"
-	desc = "Большая С*** Пушка. Использует ядро аномалии потока и кристалл блюспейса для производства разрушительных взрывов энергии, вдохновленный дивизионом БСА Нанотрейзен."
-	icon_state = "bsg"
-	item_state = "bsg"
-	origin_tech = "combat=6;materials=6;powerstorage=6;bluespace=6;magnets=6" //cutting edge technology, be my guest if you want to deconstruct one instead of use it.
-	ammo_type = list(/obj/item/ammo_casing/energy/bsg)
-	weapon_weight = WEAPON_HEAVY
-	w_class = WEIGHT_CLASS_BULKY
-	can_holster = FALSE
+/obj/item/gun/energy/sniperrifle/pod_pilot
+	name = "LSR-39 Queen blade"
+	desc = "Прототип компактной лазерной снайперской винтовки с парализующим и летальным режимом стрельбы, оснащена большим оптическим прицелом для эффективной работы в открытом космосе."
+	icon_state = "LSR-39"
+	ammo_type = list(
+		/obj/item/ammo_casing/energy/podsniper/disabler,
+		/obj/item/ammo_casing/energy/podsniper/laser
+	)
+	item_state = null
+	weapon_weight = WEAPON_MEDIUM
 	slot_flags = ITEM_SLOT_BACK
-	cell_type = /obj/item/stock_parts/cell/bsg
+	w_class = WEIGHT_CLASS_BULKY
+	charge_sections = 3
+	can_holster = FALSE
+	zoomable = TRUE
+	zoom_amt = 7
 	shaded_charge = TRUE
-	var/has_core = FALSE
-	var/has_bluespace_crystal = FALSE
-	var/admin_model = FALSE //For the admin gun, prevents crystal shattering, so anyone can use it, and you dont need to carry backup crystals.
+	modifystate = TRUE
 
-/obj/item/gun/energy/bsg/examine(mob/user)
-	. = ..()
-	if(has_core && has_bluespace_crystal)
-		. += "<span class='notice'>[src] полностью рабочая!</span>"
-	else if(has_core)
-		. += "<span class='warning'>Аномалия потока вставлена, но не хватает БС кристалла.</span>"
-	else if(has_bluespace_crystal)
-		. += "<span class='warning'>Имеет инкрустированный БС кристалл, но нет установленного ядра аномалии потока.</span>"
-	else
-		. += "<span class='warning'>Не хватает ядра аномалии потока и БС кристалла для работы.</span>"
-
-/obj/item/gun/energy/bsg/attackby(obj/item/O, mob/user, params)
-	if(istype(O, /obj/item/stack/ore/bluespace_crystal))
-		if(has_bluespace_crystal)
-			to_chat(user, "<span class='notice'>В [src] уже инкрустирован БС кристалл.</span>")
-			return
-		var/obj/item/stack/S = O
-		if(!loc || !S || S.get_amount() < 1)
-			return
-		to_chat(user, "<span class='notice'>Вы загрузили [O] в [src].</span>")
-		S.use(1)
-		has_bluespace_crystal = TRUE
-		update_icon(UPDATE_ICON_STATE)
-		return
-
-	if(istype(O, /obj/item/assembly/signaler/anomaly/flux))
-		if(has_core)
-			to_chat(user, "<span class='notice'>[src] уже имеет [O]!</span>")
-			return
-		to_chat(user, "<span class='notice'>Вы вставили [O] в [src], и [src] начинает разогреваться.</span>")
-		has_core = TRUE
-		qdel(O)
-		update_icon(UPDATE_ICON_STATE)
-	else
-		return ..()
-
-/obj/item/gun/energy/bsg/process_fire(atom/target, mob/living/user, message = TRUE, params, zone_override, bonus_spread = 0)
-	if(!has_bluespace_crystal)
-		to_chat(user, "<span class='warning'>[src] не имеет БС кристалла для генерации заряда!</span>")
-		return
-	if(!has_core)
-		to_chat(user, "<span class='warning'>[src] не имеет аномалии потока для генерации заряда!</span>")
-		return
-	return ..()
-
-
-/obj/item/gun/energy/bsg/update_icon_state()
-	if(has_core)
-		if(has_bluespace_crystal)
-			icon_state = "bsg_finished"
-		else
-			icon_state = "bsg_core"
-	else if(has_bluespace_crystal)
-		icon_state = "bsg_crystal"
-	else
-		icon_state = "bsg"
-
-
-/obj/item/gun/energy/bsg/emp_act(severity)
-	..()
-	if(prob(75 / severity))
-		if(has_bluespace_crystal)
-			shatter()
-
-/obj/item/gun/energy/bsg/proc/shatter()
-	if(admin_model)
-		return
-	visible_message("<span class='warning'>БС кристалл [src] треснул!</span>")
-	playsound(src, 'sound/effects/pylon_shatter.ogg', 50, TRUE)
-	has_bluespace_crystal = FALSE
-	update_icon(UPDATE_ICON_STATE)
-
-/obj/item/gun/energy/bsg/prebuilt
-	icon_state = "bsg_finished"
-	has_bluespace_crystal = TRUE
-
-/obj/item/gun/energy/bsg/prebuilt/Initialize(mapload)
-	. = ..()
-	has_core = TRUE
-	update_icon(UPDATE_ICON_STATE)
-
-/obj/item/gun/energy/bsg/prebuilt/admin
-	desc = "Большая С*** Пушка. Лучшим людям - лучшее творение. У этой версии БС кристалл никогда не треснет, и уже загружено ядро аномалии потока."
-	admin_model = TRUE
 
 // Temperature Gun //
 /obj/item/gun/energy/temperature
@@ -492,7 +498,9 @@
 /obj/item/gun/energy/temperature/attack_self(mob/living/user)
 	user.set_machine(src)
 	update_dat()
-	user << browse({"<meta charset="UTF-8"><TITLE>Temperature Gun Configuration</TITLE><HR>[dat]"}, "window=tempgun;size=510x120")
+	var/datum/browser/popup = new(user, "tempgun", "Temperature Gun Configuration", 510, 120)
+	popup.set_content("<hr>[dat]")
+	popup.open(TRUE)
 	onclose(user, "tempgun")
 
 /obj/item/gun/energy/temperature/emag_act(mob/user)
@@ -514,7 +522,7 @@
 		if(amount > 0)
 			target_temperature = min((500 + 500*emagged), target_temperature+amount)
 		else
-			target_temperature = max(0, target_temperature+amount)
+			target_temperature = max(TCMB, target_temperature+amount)
 	if(ismob(loc))
 		attack_self(loc)
 	add_fingerprint(usr)
@@ -562,33 +570,35 @@
 			var/mob/living/carbon/M = loc
 			if(src == M.machine)
 				update_dat()
-				M << browse("<TITLE>Temperature Gun Configuration</TITLE><HR>[dat]", "window=tempgun;size=510x102")
+				var/datum/browser/popup = new(M, "tempgun", "Temperature Gun Configuration", 510, 120)
+				popup.set_content("<hr>[dat]")
+				popup.open(FALSE)
 	return
 
 /obj/item/gun/energy/temperature/proc/update_dat()
 	dat = ""
 	dat += "Current output temperature: "
 	if(temperature > 500)
-		dat += "<FONT color=red><B>[temperature]</B> ([round(temperature-T0C)]&deg;C)</FONT>"
-		dat += "<FONT color=red><B> SEARING!</B></FONT>"
+		dat += "<span style='color: red;'><b>[temperature]</b> ([round(temperature-T0C)]&deg;C)</span>"
+		dat += "<span style='color: red;'><b> SEARING!</b></span>"
 	else if(temperature > (T0C + 50))
-		dat += "<FONT color=red><B>[temperature]</B> ([round(temperature-T0C)]&deg;C)</FONT>"
+		dat += "<span style='color: red;'><b>[temperature]</b> ([round(temperature-T0C)]&deg;C)</span>"
 	else if(temperature > (T0C - 50))
-		dat += "<FONT color=black><B>[temperature]</B> ([round(temperature-T0C)]&deg;C)</FONT>"
+		dat += "<span style='color: black;'><b>[temperature]</b> ([round(temperature-T0C)]&deg;C)</span>"
 	else
-		dat += "<FONT color=blue><B>[temperature]</B> ([round(temperature-T0C)]&deg;C)</FONT>"
-	dat += "<BR>"
+		dat += "<span style='color: blue;'><b>[temperature]</b> ([round(temperature-T0C)]&deg;C)</span>"
+	dat += "<br>"
 	dat += "Target output temperature: "	//might be string idiocy, but at least it's easy to read
-	dat += "<A href='?src=[UID()];temp=-100'>-</A> "
-	dat += "<A href='?src=[UID()];temp=-10'>-</A> "
-	dat += "<A href='?src=[UID()];temp=-1'>-</A> "
+	dat += "<a href='byond://?src=[UID()];temp=-100'>-</a> "
+	dat += "<a href='byond://?src=[UID()];temp=-10'>-</a> "
+	dat += "<a href='byond://?src=[UID()];temp=-1'>-</a> "
 	dat += "[target_temperature] "
-	dat += "<A href='?src=[UID()];temp=1'>+</A> "
-	dat += "<A href='?src=[UID()];temp=10'>+</A> "
-	dat += "<A href='?src=[UID()];temp=100'>+</A>"
-	dat += "<BR>"
+	dat += "<a href='byond://?src=[UID()];temp=1'>+</a> "
+	dat += "<a href='byond://?src=[UID()];temp=10'>+</a> "
+	dat += "<a href='byond://?src=[UID()];temp=100'>+</a>"
+	dat += "<br>"
 	dat += "Power cost: "
-	dat += "<FONT color=[powercostcolor]><B>[powercost]</B></FONT>"
+	dat += "<span style='color: [powercostcolor];'><b>[powercost]</b></span>"
 
 
 /obj/item/gun/energy/temperature/update_icon_state()
@@ -660,87 +670,79 @@
 /obj/item/gun/energy/dominator
 	name = "Доминатор"
 	desc = "Проприетарное высокотехнологичное оружие правоохранительной организации Sibyl System, произведённое специально для борьбы с преступностью."
-	icon = 'icons/obj/weapons/sibyl.dmi'
+	icon = 'icons/obj/weapons/dominator.dmi'
 	icon_state = "dominator"
 	base_icon_state = "dominator"
 	item_state = null
-
-	w_class = WEIGHT_CLASS_NORMAL
-	slot_flags = ITEM_SLOT_BELT
 	force = 10
-	flags =  CONDUCT
-	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
+	resistance_flags = INDESTRUCTIBLE|LAVA_PROOF|FIRE_PROOF|ACID_PROOF
 	origin_tech = "combat=4;magnets=4"
-
-	ammo_type = list(/obj/item/ammo_casing/energy/dominator/stun, /obj/item/ammo_casing/energy/dominator/paralyzer, /obj/item/ammo_casing/energy/dominator/eliminator)
-	var/sound_voice = list(null, 'sound/voice/dominator/nonlethal-paralyzer.ogg','sound/voice/dominator/lethal-eliminator.ogg','sound/voice/dominator/execution-slaughter.ogg')
-	var/sound_cd = null
 	cell_type = /obj/item/stock_parts/cell/dominator
 	can_charge = TRUE
+	modifystate = TRUE
+	shaded_charge = TRUE
 	charge_sections = 3
-
 	can_flashlight = TRUE
+	gun_light_overlay = "flight"
 	flight_x_offset = 27
 	flight_y_offset = 12
-
+	ammo_type = list(
+		/obj/item/ammo_casing/energy/dominator/stun,
+		/obj/item/ammo_casing/energy/dominator/paralyzer,
+		/obj/item/ammo_casing/energy/dominator/eliminator,
+	)
+	/// Sounds played after selecting the firemode, must be in the same order as ammo_type
+	var/sound_voice = list(
+		null,
+		'sound/voice/dominator/nonlethal-paralyzer.ogg',
+		'sound/voice/dominator/lethal-eliminator.ogg',
+		'sound/voice/dominator/execution-slaughter.ogg',
+	)
+	/// Whether we are currently equipped or not.
+	/// Its rather this variable or delayed icon update on dropped.
 	var/is_equipped = FALSE
+	/// Timestamp used for sound effects
+	COOLDOWN_DECLARE(last_sound_effect)
+
 
 /obj/item/gun/energy/dominator/select_fire(mob/living/user)
-	..()
-	if(sibyl_mod && sibyl_mod.voice_is_enabled && !sound_cd)
-		var/temp_select = select
-		if(sound_voice[select] && select == temp_select)
-			sound_cd = addtimer(CALLBACK(src, PROC_REF(select_playvoice), user, temp_select), 2 SECONDS)
-
-
-/obj/item/gun/energy/dominator/proc/select_playvoice(mob/living/user, temp_select)
-	user.playsound_local(get_turf(src), sound_voice[select], 50, FALSE)
-	sound_cd = null
-
-
-/obj/item/gun/energy/dominator/update_icon(updates = ALL)
-	is_equipped = ismob(loc)
 	. = ..()
+	if(sibyl_mod?.voice_is_enabled && sound_voice[select] && COOLDOWN_FINISHED(src, last_sound_effect))
+		user.playsound_local(user, sound_voice[select], 50, FALSE)
+		COOLDOWN_START(src, last_sound_effect, 2 SECONDS)
 
 
 /obj/item/gun/energy/dominator/update_icon_state()
-	icon_state = base_icon_state
-
-	if(!is_equipped)
-		if(!sibyl_mod)
-			return
-		icon_state = "[base_icon_state][sibyl_mod.auth_id ? "_unlock" : "_lock" ]"
-		return
-
-	ratio = CEILING((cell.charge / cell.maxcharge) * charge_sections, 1)
+	. = ..()
 	var/obj/item/ammo_casing/energy/shot = ammo_type[select]
-	var/shot_name = shot.alt_select_name
-	var/new_item_state = base_icon_state
-
 	if(cell.charge < shot.e_cost)
-		icon_state = "empty"
-		item_state = "[new_item_state]_empty"
+		item_state = "[base_icon_state]_empty"
 	else
-		icon_state = "[shot_name][ratio]"
-		item_state = "[new_item_state][shot_name]"
+		item_state = "[base_icon_state]_[shot.select_name]"
 
 
 /obj/item/gun/energy/dominator/update_overlays()
+	if(is_equipped)
+		return ..()
 	. = list()
-	if(gun_light && can_flashlight)
+	if(sibyl_mod)
+		. += "[base_icon_state]_[sibyl_mod.auth_id ? "unlocked" : "locked"]"
+	if(gun_light && gun_light_overlay)
 		var/iconF = gun_light_overlay
 		if(gun_light.on)
 			iconF = "[gun_light_overlay]_on"
 		. += image(icon = icon, icon_state = iconF, pixel_x = flight_x_offset, pixel_y = flight_y_offset)
 
 
-/obj/item/gun/energy/dominator/equipped(mob/user, slot, initial)
+/obj/item/gun/energy/dominator/equipped(mob/user, slot, initial = FALSE)
 	. = ..()
+	is_equipped = TRUE
 	update_icon()
 
 
 /obj/item/gun/energy/dominator/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
+	is_equipped = FALSE
 	update_icon()
 
 
@@ -757,3 +759,159 @@
 	cell_type = /obj/item/stock_parts/cell/emittergun
 	ammo_type = list(/obj/item/ammo_casing/energy/emittergun)
 	can_charge = TRUE
+
+// Shield breaker //
+
+/obj/item/gun/energy/plasma_pistol
+	name = "plasma pistol"
+	desc = "A specialized firearm designed to fire heated bolts of plasma. Can be overloaded for a high damage shield breaking shot."
+	icon_state = "plasmagun"
+	item_state = "plasmagun"
+	w_class = WEIGHT_CLASS_NORMAL
+	origin_tech = "combat=6;magnets=5;powerstorage=3"
+	ammo_type = list(/obj/item/ammo_casing/energy/weak_plasma, /obj/item/ammo_casing/energy/charged_plasma)
+	shaded_charge = 1
+	can_holster = TRUE
+	atom_say_verb = list("бупает", "бипает")
+	bubble_icon = "swarmer"
+	light_color = "#89078E"
+	light_power = 4
+	var/overloaded = FALSE
+	var/warned = FALSE
+	var/charging = FALSE
+	var/mob/living/carbon/holder = null
+
+/obj/item/gun/energy/plasma_pistol/Initialize(mapload)
+	. = ..()
+	START_PROCESSING(SSfastprocess, src)
+
+/obj/item/gun/energy/plasma_pistol/Destroy()
+	STOP_PROCESSING(SSfastprocess, src)
+	holder = null
+	return ..()
+
+/obj/item/gun/energy/plasma_pistol/process()
+	..()
+	if(overloaded)
+		cell.charge -= PLASMA_CHARGE_USE_PER_SECOND / 5 //2.5 per second, 25 every 10 seconds
+		if(cell.charge <= PLASMA_CHARGE_USE_PER_SECOND * 10 && !warned)
+			warned = TRUE
+			playsound(loc, 'sound/weapons/smg_empty_alarm.ogg', 75, 1)
+			atom_say("Caution, charge low. Forced discharge in under 10 seconds.")
+		if(cell.charge <= PLASMA_DISCHARGE_LIMIT)
+			discharge()
+
+/obj/item/gun/energy/plasma_pistol/attack_self(mob/living/user)
+	if(overloaded)
+		to_chat(user, span_warning("[src] is already overloaded!"))
+		return
+	if(cell.charge <= 140) //at least 6 seconds of charge time
+		to_chat(user, span_warning("[src] does not have enough charge to be overloaded."))
+		return
+	if(charging)
+		to_chat(user, span_warning("[src] is already charging!"))
+		return
+	to_chat(user, "<span class='notice'>You begin to overload [src].</span>")
+	charging = TRUE
+	if(do_after(user, 2 SECONDS, user, DA_IGNORE_USER_LOC_CHANGE|DA_IGNORE_LYING, max_interact_count = 1))
+		overload()
+	else
+		charging = FALSE
+		atom_say("Overloading failure.")
+		playsound(loc, 'sound/machines/buzz-sigh.ogg', 75, 1)
+
+/obj/item/gun/energy/plasma_pistol/proc/overload()
+	if(ishuman(loc))
+		var/mob/living/carbon/C = loc
+		select_fire(C)
+		overloaded = TRUE
+		cell.charge -= 125
+		playsound(loc, 'sound/machines/terminal_prompt_confirm.ogg', 75, 1)
+		cell.use(125)
+		playsound(C.loc, 'sound/machines/terminal_prompt_confirm.ogg', 75, 1)
+		atom_say("Overloading successful.")
+		set_light(3) //extra visual effect to make it more noticable to user and victims alike
+		holder = C
+		RegisterSignal(holder, COMSIG_MOB_SWAPPING_HANDS, PROC_REF(discharge))
+	else
+		atom_say("Overloading failure.")
+		playsound(loc, 'sound/machines/buzz-sigh.ogg', 75, 1)
+	charging = FALSE
+
+/obj/item/gun/energy/plasma_pistol/proc/reset_overloaded()
+	select_fire()
+	set_light(0)
+	overloaded = FALSE
+	warned = FALSE
+	UnregisterSignal(holder, COMSIG_MOB_SWAPPING_HANDS)
+	holder = null
+
+/obj/item/gun/energy/plasma_pistol/process_fire(atom/target, mob/living/user, message = TRUE, params, zone_override, bonus_spread = 0)
+	if(charging)
+		return
+	return ..()
+
+/obj/item/gun/energy/plasma_pistol/process_chamber()
+	if(overloaded)
+		do_sparks(2, 1, src)
+		reset_overloaded()
+	..()
+	update_icon()
+
+/obj/item/gun/energy/plasma_pistol/emp_act(severity)
+	..()
+	if(prob(100 / severity) && overloaded)
+		discharge()
+
+/obj/item/gun/energy/plasma_pistol/dropped(mob/user)
+	. = ..()
+	if(overloaded)
+		discharge()
+
+/obj/item/gun/energy/plasma_pistol/equipped(mob/user, slot, initial)
+	. = ..()
+	if(overloaded)
+		discharge()
+
+/obj/item/gun/energy/plasma_pistol/proc/discharge() //25% of the time, plasma leak. Otherwise, shoot at a random mob / turf nearby. If no proper mob is found when mob is picked, fire at a turf instead
+	SIGNAL_HANDLER
+	reset_overloaded()
+	do_sparks(2, 1, src)
+	update_icon()
+	if(prob(40))
+		visible_message("<span class='danger'>[src] vents heated plasma!</span>")
+		var/turf/simulated/T = get_turf(src)
+		if(istype(T))
+			T.atmos_spawn_air(LINDA_SPAWN_TOXINS|LINDA_SPAWN_20C,15)
+		return
+	if(prob(50))
+		var/list/mob_targets = list()
+		for(var/mob/living/M in oview(get_turf(src), 7))
+			mob_targets += M
+		if(length(mob_targets))
+			var/mob/living/target = pick(mob_targets)
+			shootAt(target)
+			visible_message("<span class='danger'>[src] discharges a plasma bolt!</span>")
+			return
+	visible_message("<span class='danger'>[src] discharges a plasma bolt!</span>")
+	var/list/turf_targets = list()
+	for(var/turf/T in orange(get_turf(src), 7))
+		turf_targets += T
+	if(length(turf_targets))
+		var/turf/target = pick(turf_targets)
+		shootAt(target)
+
+/obj/item/gun/energy/plasma_pistol/proc/shootAt(atom/movable/target)
+	var/turf/T = get_turf(src)
+	var/turf/U = get_turf(target)
+	if(!T || !U)
+		return
+	var/obj/projectile/energy/charged_plasma/O = new /obj/projectile/energy/charged_plasma(T)
+	playsound(get_turf(src), 'sound/weapons/marauder.ogg', 75, 1)
+	O.current = T
+	O.yo = U.y - T.y
+	O.xo = U.x - T.x
+	O.fire()
+
+#undef PLASMA_CHARGE_USE_PER_SECOND
+#undef PLASMA_DISCHARGE_LIMIT

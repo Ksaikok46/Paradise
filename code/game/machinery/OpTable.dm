@@ -1,6 +1,17 @@
 /obj/machinery/optable
-	name = "Operating Table"
-	desc = "Used for advanced medical procedures."
+	name = "operating table"
+	desc = "Многофункциональный операционный стол, предназначенный для выполнения хирургических операций. \
+			Оснащён системой датчиков, подключаемых к хирургическому компьютеру для отслеживания жизненных показателей пациента в реальном времени. \
+			Встроенные анатомические фиксаторы исключают непроизвольные движения пациента и обеспечивают удобство для оперирующего хирурга."
+	ru_names = list(
+		NOMINATIVE = "операционный стол",
+		GENITIVE = "операционного стола",
+		DATIVE = "операционному столу",
+		ACCUSATIVE = "операционный стол",
+		INSTRUMENTAL = "операционным столом",
+		PREPOSITIONAL = "операционном столе"
+	)
+	gender = MALE
 	icon = 'icons/obj/surgery.dmi'
 	icon_state = "table2-idle"
 	density = TRUE
@@ -61,11 +72,6 @@
 	icon_state = "table2-[(patient && patient.pulse) ? "active" : "idle"]"
 
 
-/obj/machinery/optable/Crossed(atom/movable/AM, oldloc)
-	. = ..()
-	if(iscarbon(AM) && LAZYLEN(injected_reagents))
-		to_chat(AM, span_danger("You feel a series of tiny pricks!"))
-
 /obj/machinery/optable/process()
 	update_patient()
 	if(LAZYLEN(injected_reagents))
@@ -80,49 +86,45 @@
 		return FALSE
 
 	if(new_patient == user)
-		user.visible_message("[user] climbs on the operating table.","You climb on the operating table.")
+		user.visible_message(
+			"[user] забира[pluralize_ru(user.gender, "ет", "ют")]ся на [declent_ru(ACCUSATIVE)].",
+			"Вы забираетесь на на [declent_ru(ACCUSATIVE)]."
+		)
 	else
-		visible_message(span_alert("[new_patient] has been laid on the operating table by [user]."))
-	new_patient.set_resting(TRUE, instant = TRUE)
-	new_patient.forceMove(loc)
+		visible_message(
+			span_alert("[user] укладыва[pluralize_ru(user.gender, "ет", "ют")] [new_patient] на [declent_ru(ACCUSATIVE)]."),
+			span_alert("Вы укладываете [new_patient] на [declent_ru(ACCUSATIVE)].")
+		)
 	if(user.pulling == new_patient)
 		user.stop_pulling()
+	new_patient.forceMove(loc)
+	new_patient.set_resting(TRUE, instant = TRUE)
 	if(new_patient.s_active) //Close the container opened
 		new_patient.s_active.close(new_patient)
 	add_fingerprint(user)
 	update_patient()
 
-/obj/machinery/optable/verb/climb_on()
-	set name = "Climb On Table"
-	set category = "Object"
-	set src in oview(1)
-	if(!iscarbon(usr) || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) || !check_table())
-		return
-	take_patient(usr, usr)
+/obj/machinery/optable/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
+	. = TRUE
+	if(!iscarbon(grabbed_thing))
+		return .
+	add_fingerprint(grabber)
+	take_patient(grabbed_thing, grabber)
 
-/obj/machinery/optable/attackby(obj/item/I, mob/living/carbon/user, params)
-	if(istype(I, /obj/item/grab))
-		var/obj/item/grab/G = I
-		if(iscarbon(G.affecting))
-			add_fingerprint(user)
-			take_patient(G.affecting, user)
-			qdel(G)
-	else
-		return ..()
 
 /obj/machinery/optable/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(!I.tool_start_check(src, user, 0))
 		return
 	if(I.use_tool(src, user, 20, volume = I.tool_volume))
-		to_chat(user, span_notice("You deconstruct the table."))
+		user.balloon_alert(user, "разобрано")
 		new /obj/item/stack/sheet/plasteel(loc, 5)
 		qdel(src)
 
 /obj/machinery/optable/proc/check_table()
 	update_patient()
 	if(patient != null)
-		to_chat(usr, span_notice("The table is already occupied!"))
+		balloon_alert(usr, span_notice("уже занято!"))
 		return FALSE
 	else
 		return TRUE

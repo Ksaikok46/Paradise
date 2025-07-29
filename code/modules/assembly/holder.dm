@@ -13,6 +13,13 @@
 	var/obj/item/assembly/a_left = null
 	var/obj/item/assembly/a_right = null
 
+/obj/item/assembly_holder/Initialize(mapload, left_icon, left_iconstate, right_icon, right_iconstate)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 
 /obj/item/assembly_holder/Destroy()
 	if(a_left)
@@ -32,13 +39,17 @@
 	if(A1.secured || A2.secured)
 		return FALSE
 	if(!A1.remove_item_from_storage(src))
-		if(user)
-			user.drop_transfer_item_to_loc(A1, src)
-		A1.forceMove(src)
+		if(user && A1.loc == user && !user.can_unEquip(A1))
+			return FALSE
 	if(!A2.remove_item_from_storage(src))
-		if(user)
-			user.drop_transfer_item_to_loc(A2, src)
-		A2.forceMove(src)
+		if(user && A2.loc == user && !user.can_unEquip(A2))
+			return FALSE
+	if(A1.loc == user)
+		user.temporarily_remove_item_from_inventory(A1)
+	if(A2.loc == user)
+		user.temporarily_remove_item_from_inventory(A2)
+	A1.forceMove(src)
+	A2.forceMove(src)
 	A1.holder = src
 	A2.holder = src
 	a_left = A1
@@ -59,29 +70,50 @@
 /obj/item/assembly_holder/proc/process_activation(obj/D, normal = TRUE, special = TRUE, mob/user)
 	if(!D)
 		return FALSE
+
 	if(normal && a_right && a_left)
 		if(a_right != D)
 			a_right.pulsed()
 		if(a_left != D)
 			a_left.pulsed()
+
 	if(master)
 		var/datum/signal/signal = new
 		signal.source = src
 		signal.user = user
 		master.receive_signal(signal)
+		
 	return TRUE
 
 
 /obj/item/assembly_holder/update_overlays()
 	. = ..()
+	var/icon/icon_obj = new /icon(icon) // :)
+	var/list/states = icon_obj.IconStates()
+	var/list/add_overlays = list()
 	if(a_left)
-		. += "[a_left.icon_state]_left"
-		for(var/O in a_left.attached_overlays)
-			. += "[O]_l"
+		var/state = "[a_left.icon_state]_left"
+		if(state in states)
+			. += state
+			for(var/O in a_left.attached_overlays)
+				. += "[O]_l"
+
+		else
+			add_overlays += image(a_left.icon, a_left.icon_state)
+
 	if(a_right)
-		. += "[a_right.icon_state]_right"
-		for(var/O in a_right.attached_overlays)
-			. += "[O]_r"
+		var/state = "[a_right.icon_state]_right"
+		if(state in states)
+			. += state
+			for(var/O in a_right.attached_overlays)
+				. += "[O]_r"
+
+		else
+			add_overlays += image(a_right.icon, a_right.icon_state)
+
+	for(var/overlay in add_overlays)
+		add_overlay(overlay)
+
 	master?.update_icon()
 
 
@@ -101,11 +133,17 @@
 		a_right.HasProximity(AM)
 
 
-/obj/item/assembly_holder/Crossed(atom/movable/AM, oldloc)
+/obj/item/assembly_holder/proc/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	INVOKE_ASYNC(src, PROC_REF(assembly_crossed), arrived, old_loc)
+
+
+/obj/item/assembly_holder/proc/assembly_crossed(atom/movable/crossed, atom/old_loc)
 	if(a_left)
-		a_left.Crossed(AM, oldloc)
+		a_left.assembly_crossed(crossed, old_loc)
 	if(a_right)
-		a_right.Crossed(AM, oldloc)
+		a_right.assembly_crossed(crossed, old_loc)
 
 
 /obj/item/assembly_holder/on_found(mob/finder)
@@ -135,10 +173,9 @@
 		a_right.holder_movement(user)
 
 
-/obj/item/assembly_holder/Move()
+/obj/item/assembly_holder/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	. = ..()
 	process_movement()
-	return
 
 
 /obj/item/assembly_holder/pickup(mob/user)
@@ -146,16 +183,11 @@
 	process_movement(user)
 
 
-/obj/item/assembly_holder/Bump(atom/A)
-	..()
-	var/triggered
-	if(ismob(A) || isobj(A))
-		var/atom/movable/AM = A
-		if(AM.throwing?.thrower)
-			triggered = AM.throwing.thrower
-		else if(ismob(AM))
-			triggered = AM
-	process_movement(triggered)
+/obj/item/assembly_holder/Bump(atom/bumped_atom)
+	. = ..()
+	if(. || !ismob(bumped_atom))
+		return .
+	process_movement(bumped_atom)
 
 
 /obj/item/assembly_holder/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum) // called when a throw stops
@@ -196,8 +228,8 @@
 		if(!a_left || !a_right)
 			to_chat(user, span_warning("Assembly part missing!"))
 			return
-		if(istype(a_left, a_right.type))//If they are the same type it causes issues due to window code
-			switch(alert("Which side would you like to use?",,"Left","Right"))
+		if(istype(a_left, a_right.type)) // If they are the same type it causes issues due to window code
+			switch(tgui_alert(user, "Which side would you like to use?", "Choose", list("Left", "Right")))
 				if("Left")
 					a_left.attack_self(user)
 				if("Right")
@@ -217,6 +249,6 @@
 		if(a_right)
 			a_right.holder = null
 			a_right.forceMove(T)
-			user.put_in_hands(a_left, ignore_anim = FALSE)
+			user.put_in_hands(a_right, ignore_anim = FALSE)
 		qdel(src)
 

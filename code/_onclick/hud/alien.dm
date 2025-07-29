@@ -26,10 +26,6 @@
 	screen_loc = ui_alienplasmadisplay
 
 
-/mob/living/carbon/alien/humanoid/create_mob_hud()
-	if(client && !hud_used)
-		hud_used = new /datum/hud/alien(src)
-
 /datum/hud/alien/New(mob/living/carbon/alien/humanoid/owner)
 	..()
 
@@ -48,7 +44,7 @@
 
 	using = new /atom/movable/screen/mov_intent(null, src)
 	using.icon = 'icons/mob/screen_alien.dmi'
-	using.icon_state = (mymob.m_intent == MOVE_INTENT_RUN ? "running" : "walking")
+	using.update_icon(UPDATE_ICON_STATE)
 	using.screen_loc = ui_movi
 	static_inventory += using
 	move_intent = using

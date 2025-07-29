@@ -1,6 +1,6 @@
 
 GLOBAL_LIST_INIT(body_accessory_by_name, list("None" = null))
-GLOBAL_LIST_INIT(body_accessory_by_species, list())
+GLOBAL_LIST_EMPTY(body_accessory_by_species)
 
 /proc/initialize_body_accessory_by_species()
 	for(var/B in GLOB.body_accessory_by_name)
@@ -82,12 +82,6 @@ GLOBAL_LIST_INIT(body_accessory_by_species, list())
 	return ..()
 
 //Tajaran
-/datum/body_accessory/tail/wingler_tail // Jay wingler fluff tail
-	name = "Striped Tail"
-	icon_state = "winglertail"
-	animated_icon_state = "winglertail_a"
-	allowed_species = list(SPECIES_TAJARAN)
-
 /datum/body_accessory/tail/leopard_tail
 	name = "Leopard Tail"
 	icon_state = "leopard"
@@ -126,9 +120,24 @@ GLOBAL_LIST_INIT(body_accessory_by_species, list())
 	allowed_species = list(SPECIES_VULPKANIN)
 
 //Wryn
-/datum/body_accessory/tail/wryn
+/datum/body_accessory/tail/bee
 	name = "Bee Tail"
-	icon_state = "wryntail"
+	icon_state = "beetail"
+	allowed_species = list(SPECIES_WRYN)
+
+/datum/body_accessory/tail/roach
+	name = "Cockroach Tail"
+	icon_state = "roachtail"
+	allowed_species = list(SPECIES_WRYN)
+
+/datum/body_accessory/tail/wasp
+	name = "Wasp Tail"
+	icon_state = "wasptail"
+	allowed_species = list(SPECIES_WRYN)
+
+/datum/body_accessory/tail/wasper
+	name = "Wasper Tail"
+	icon_state = "waspertail"
 	allowed_species = list(SPECIES_WRYN)
 
 //Nian

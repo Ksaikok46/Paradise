@@ -10,7 +10,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 
 /obj/machinery/computer/card
 	name = "identification computer"
-	desc = "Terminal for programming Nanotrasen employee ID cards to access parts of the station."
+	desc = "Терминал, используемый для изменения уровня доступа ID-карт сотрудников Nanotrasen."
 	icon_keyboard = "id_key"
 	icon_screen = "id"
 	req_access = list(ACCESS_CHANGE_IDS)
@@ -56,7 +56,6 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 		/datum/job/mechanic,
 		/datum/job/chaplain,
 		/datum/job/officer,
-		/datum/job/barber
 	)
 	//The scaling factor of max total positions in relation to the total amount of people on board the station in %
 	var/max_relative_positions = 30 //30%: Seems reasonable, limit of 6 @ 20 players
@@ -67,10 +66,10 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 
 
 /obj/machinery/computer/card/Initialize()
-	..()
+	. = ..()
 	Radio = new /obj/item/radio(src)
 	Radio.listening = 0
-	Radio.config(list("Command" = 0))
+	Radio.config(list(COMM_FREQ_NAME = 0))
 	Radio.follow_target = src
 
 /obj/machinery/computer/card/Destroy()
@@ -127,7 +126,6 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 	return formatted
 
 /obj/machinery/computer/card/verb/eject_id()
-	set category = null
 	set name = "Eject ID Card"
 	set src in oview(1)
 
@@ -151,21 +149,28 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 	else
 		to_chat(usr, "There is nothing to remove from the console.")
 
+
 /obj/machinery/computer/card/attackby(obj/item/card/id/id_card, mob/user, params)
-	if(!istype(id_card))
+	if(user.a_intent == INTENT_HARM || !istype(id_card))
 		return ..()
 
+	. = ATTACK_CHAIN_BLOCKED_ALL
+	add_fingerprint(user)
+
 	if(!scan && check_access(id_card))
-		user.drop_transfer_item_to_loc(id_card, src)
+		if(!user.drop_transfer_item_to_loc(id_card, src))
+			return ..()
 		scan = id_card
 		playsound(src, 'sound/machines/terminal_insert_disc.ogg', 50, FALSE)
 	else if(!modify)
-		user.drop_transfer_item_to_loc(id_card, src)
+		if(!user.drop_transfer_item_to_loc(id_card, src))
+			return ..()
 		modify = id_card
 		playsound(src, 'sound/machines/terminal_insert_disc.ogg', 50, FALSE)
 
 	SStgui.update_uis(src)
 	attack_hand(user)
+
 
 //Check if you can't touch a job in any way whatsoever
 /obj/machinery/computer/card/proc/job_blacklisted_full(datum/job/job)
@@ -303,10 +308,10 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 
 	ui_interact(user)
 
-/obj/machinery/computer/card/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/computer/card/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "CardComputer",  name, 800, 800, master_ui, state)
+		ui = new(user, src, "CardComputer", name)
 		ui.open()
 
 /obj/machinery/computer/card/ui_data(mob/user)
@@ -463,7 +468,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				if(!job_in_department(SSjobs.GetJob(t1)))
 					return FALSE
 			if(t1 == "Custom")
-				var/temp_t = sanitize(reject_bad_name(copytext_char(input("Enter a custom job assignment.", "Assignment"), 1, MAX_MESSAGE_LEN), TRUE))
+				var/temp_t = sanitize(reject_bad_name(tgui_input_text(usr, "Enter a custom job assignment.", "Assignment", max_length = MAX_MESSAGE_LEN), TRUE))
 				//let custom jobs function as an impromptu alt title, mainly for sechuds
 				if(temp_t && scan && modify)
 					var/oldrank = modify.getRankAndAssignment()
@@ -491,7 +496,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 						var/list/AT = jobdatum.alt_titles
 						var/standart_Assignment = assignment
 						AT += assignment
-						assignment = input("Select a title", "Job title selection") as null|anything in AT
+						assignment = tgui_input_list(usr, "Select a title", "Job title selection", AT)
 						if(!assignment)
 							assignment = standart_Assignment
 						if(!modify)
@@ -514,7 +519,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				var/mob/living/carbon/human/H = modify.getPlayer()
 				if(istype(H))
 					if(jobban_isbanned(H, t1))
-						to_chat(usr, span_warning("<FONT size = 4>ЦК не одобряет данную должность для этого сотрудника. Причиной этому могла послужить его профнепригодность для данной профессии.")) //На русском, потому что не все поймут на инглише
+						to_chat(usr, span_warning(span_fontsize4("ЦК не одобряет данную должность для этого сотрудника. Причиной этому могла послужить его профнепригодность для данной профессии."))) //На русском, потому что не все поймут на инглише
 						message_admins("[ADMIN_FULLMONTY(H)] tried to make an appointment to the position [t1], in possible violation of their job ban.")
 						return
 					if(H.mind)
@@ -523,6 +528,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				modify.access = access
 				modify.rank = t1
 				modify.assignment = assignment
+				SSjobs.account_job_transfer(modify.registered_name, t1)
+
 			regenerate_id_name()
 			return
 		if("demote")
@@ -534,7 +541,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				playsound(get_turf(src), 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 				visible_message(span_warning("[src]: Heads may only demote members of their own department."))
 				return FALSE
-			var/reason = sanitize(copytext(input("Enter legal reason for demotion. Enter nothing to cancel.","Legal Demotion"), 1, MAX_MESSAGE_LEN))
+			var/reason = tgui_input_text(usr, "Enter legal reason for demotion. Enter nothing to cancel.","Legal Demotion", max_length = MAX_MESSAGE_LEN)
 			if(!reason || !is_authenticated(usr) || !modify)
 				return FALSE
 			var/list/access = list()
@@ -553,6 +560,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			modify.access = access
 			modify.assignment = "Demoted"
 			modify.icon_state = "id"
+
+			SSjobs.account_job_transfer(modify.registered_name, JOB_TITLE_CIVILIAN)
 			regenerate_id_name()
 			return
 		if("terminate")
@@ -561,7 +570,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				visible_message(span_warning("[src]: Only the Captain or HOP may completely terminate the employment of a crew member."))
 				return FALSE
 			var/jobnamedata = modify.getRankAndAssignment()
-			var/reason = sanitize(copytext(input("Enter legal reason for termination. Enter nothing to cancel.", "Employment Termination"), 1, MAX_MESSAGE_LEN))
+			var/reason = tgui_input_text(usr, "Enter legal reason for termination. Enter nothing to cancel.", "Employment Termination", max_length = MAX_MESSAGE_LEN)
 			if(!reason || !has_idchange_access() || !modify)
 				return FALSE
 			var/m_ckey = modify.getPlayerCkey()
@@ -577,6 +586,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				job.current_positions--
 			modify.assignment = "Terminated"
 			modify.access = list()
+
+			SSjobs.account_job_transfer(modify.registered_name, modify.rank, FALSE)
 			regenerate_id_name()
 			return
 		if("make_job_available") // MAKE ANOTHER JOB POSITION AVAILABLE FOR LATE JOINERS
@@ -615,7 +626,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			message_admins("[key_name_admin(usr)] has closed a job slot for job \"[j.title]\".")
 			return
 		if("remote_demote")
-			var/reason = sanitize(copytext(input("Enter legal reason for demotion. Enter nothing to cancel.","Legal Demotion"), 1, MAX_MESSAGE_LEN))
+			var/reason = tgui_input_text(usr, "Enter legal reason for demotion. Enter nothing to cancel.","Legal Demotion", max_length = MAX_MESSAGE_LEN)
 			if(!reason || !is_authenticated(usr) || !scan)
 				return FALSE
 			for(var/datum/data/record/E in GLOB.data_core.general)
@@ -633,7 +644,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 						if(R.fields["id"] == E.fields["id"])
 							if(status_valid_for_demotion(R.fields["criminal"]))
 								set_criminal_status(usr, R, SEC_RECORD_STATUS_DEMOTE, reason, scan.assignment)
-								Radio.autosay("[scan.registered_name] ([scan.assignment]) has set [tempname] ([temprank]) to demote for: [reason]", name, "Command", list(z))
+								Radio.autosay("[scan.registered_name] ([scan.assignment]) has set [tempname] ([temprank]) to demote for: [reason]", name, COMM_FREQ_NAME)
 								message_admins("[key_name_admin(usr)] ([scan.assignment]) has set [tempname] ([temprank]) to demote for: \"[reason]\"")
 								add_game_logs("([scan.assignment]) has set \"[tempname]\" ([temprank]) to demote for: \"[reason]\".", usr)
 								investigate_log("[key_name_log(usr)] ([scan.assignment]) has set \"[tempname]\" ([temprank]) to demote for: \"[reason]\".", INVESTIGATE_RECORDS)
@@ -655,7 +666,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 	switch(action)
 		// Changing basic card info
 		if("reg") // registered name on card
-			var/temp_name = reject_bad_name(input(usr, "Who is this ID for?", "ID Card Renaming", modify.registered_name), TRUE)
+			var/temp_name = reject_bad_name(tgui_input_text(usr, "Who is this ID for?", "ID Card Renaming", modify.registered_name), TRUE)
 			if(!modify || !temp_name)
 				playsound(get_turf(src), 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 				visible_message(span_warning("[src] buzzes rudely."))
@@ -664,8 +675,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			regenerate_id_name()
 			return
 		if("account") // card account number
-			var/account_num = input(usr, "Account Number", "Input Number", null) as num|null
-			if(!scan || !modify)
+			var/account_num = tgui_input_number(usr, "Account Number", "Input Number", modify.associated_account_number, 999999, 100000)
+			if(isnull(account_num) || !scan || !modify)
 				return FALSE
 			modify.associated_account_number = clamp(round(account_num), 0, 999999)
 			return
@@ -747,7 +758,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 
 
 /obj/machinery/computer/card/centcom
-	name = "\improper CentComm identification computer"
+	name = "CentComm identification computer"
 	circuit = /obj/item/circuitboard/card/centcom
 	req_access = list(ACCESS_CENT_COMMANDER)
 	change_position_cooldown = -1
@@ -760,7 +771,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 /obj/machinery/computer/card/minor
 	name = "department management console"
 	target_dept = TARGET_DEPT_GENERIC
-	desc = "You can use this to change ID's for specific departments."
+	desc = "Вы можете использовать это, чтобы изменить ID-карту для определенного отдела."
 	icon_screen = "idminor"
 	circuit = /obj/item/circuitboard/card/minor
 

@@ -1,7 +1,7 @@
 GLOBAL_LIST_EMPTY(custom_outfits) //Admin created outfits
 
 /client/proc/outfit_manager()
-	set category = "Event"
+	set category = STATPANEL_ADMIN_EVENT
 	set name = "Outfit Manager"
 
 	if(!check_rights(R_EVENT))
@@ -15,11 +15,13 @@ GLOBAL_LIST_EMPTY(custom_outfits) //Admin created outfits
 		var/datum/outfit/varedit/VO = O
 		if(istype(VO))
 			vv = length(VO.vv_values)
-		dat += "<li>[O.name][vv ? "(VV)" : ""]</li> <a href='?_src_=holder;save_outfit=1;chosen_outfit=[O.UID()]'>Save</a> <a href='?_src_=holder;delete_outfit=1;chosen_outfit=[O.UID()]'>Delete</a>"
+		dat += "<li>[O.name][vv ? "(VV)" : ""]</li> <a href='byond://?_src_=holder;save_outfit=1;chosen_outfit=[O.UID()]'>Save</a> <a href='byond://?_src_=holder;delete_outfit=1;chosen_outfit=[O.UID()]'>Delete</a>"
 	dat += "</ul>"
-	dat += "<a href='?_src_=holder;create_outfit_menu=1'>Create</a><br>"
-	dat += "<a href='?_src_=holder;load_outfit=1'>Load from file</a>"
-	admin << browse(dat.Join(),"window=outfitmanager")
+	dat += "<a href='byond://?_src_=holder;create_outfit_menu=1'>Create</a><br>"
+	dat += "<a href='byond://?_src_=holder;load_outfit=1'>Load from file</a>"
+	var/datum/browser/popup = new(admin, "outfitmanager", "Outfit Manager")
+	popup.set_content(dat.Join())
+	popup.open(FALSE)
 
 /datum/admins/proc/save_outfit(mob/admin,datum/outfit/O)
 	O.save_to_file(admin)
@@ -32,7 +34,7 @@ GLOBAL_LIST_EMPTY(custom_outfits) //Admin created outfits
 	outfit_manager(admin)
 
 /datum/admins/proc/load_outfit(mob/admin)
-	var/outfit_file = input("Pick outfit json file:", "File") as null|file
+	var/outfit_file = input(usr, "Pick outfit json file:", "File") as null|file
 	if(!outfit_file)
 		return
 	var/filedata = wrap_file2text(outfit_file)
@@ -108,7 +110,6 @@ GLOBAL_LIST_EMPTY(custom_outfits) //Admin created outfits
 	pda_select += "</select>"
 
 	var/dat = {"
-	<html><meta charset="UTF-8"><head><title>Create Outfit</title></head><body>
 	<form name="outfit" action="byond://?src=[UID()];" method="get">
 	<input type="hidden" name="src" value="[UID()]">
 	<input type="hidden" name="create_outfit_finalize" value="1">
@@ -230,9 +231,12 @@ GLOBAL_LIST_EMPTY(custom_outfits) //Admin created outfits
 	</table>
 	<br>
 	<input type="submit" value="Save">
-	</form></body></html>
+	</form>
 	"}
-	admin << browse(dat, "window=dressup;size=550x600")
+	var/datum/browser/popup = new(admin, "dressup", "Create Outfit", 700, 600)
+	popup.set_content(dat)
+	popup.add_stylesheet("dark_inputs", "html/dark_inputs.css")
+	popup.open(FALSE)
 
 
 /datum/admins/proc/create_outfit_finalize(mob/admin, list/href_list)

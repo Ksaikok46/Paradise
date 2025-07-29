@@ -9,7 +9,15 @@
 	icon_state = "resonator"
 	item_state = "resonator"
 	origin_tech = "magnets=3;engineering=3"
-	desc = "A handheld device that creates small fields of energy that resonate until they detonate, crushing rock. It does increased damage in low pressure. It has two modes: Automatic and manual detonation."
+	desc = "Портативное устройство, создающее энергетические поля, которые резонируют до детонации, разрушая породу. Наносит повышенный урон в условиях низкого давления. Имеет два режима: автоматический и ручной подрыв."
+	ru_names = list(
+		NOMINATIVE = "резонатор",
+		GENITIVE = "резонатора",
+		DATIVE = "резонатору",
+		ACCUSATIVE = "резонатор",
+		INSTRUMENTAL = "резонатором",
+		PREPOSITIONAL = "резонаторе"
+	)
 	w_class = WEIGHT_CLASS_NORMAL
 	force = 15
 	throwforce = 10
@@ -26,10 +34,10 @@
 
 /obj/item/resonator/attack_self(mob/user)
 	if(mode == RESONATOR_MODE_AUTO)
-		to_chat(user, span_info("You set the resonator's fields to detonate only after you hit one with it."))
+		to_chat(user, span_notice("Вы настроили поля резонатора на детонацию только после удара."))
 		mode = RESONATOR_MODE_MANUAL
 	else
-		to_chat(user, span_info("You set the resonator's fields to automatically detonate after 2 seconds."))
+		to_chat(user, span_notice("Вы настроили автоматический подрыв полей через 2 секунды."))
 		mode = RESONATOR_MODE_AUTO
 
 /obj/item/resonator/proc/create_resonance(target, mob/user)
@@ -41,17 +49,29 @@
 		return
 	if(LAZYLEN(fields) < fieldlimit)
 		new /obj/effect/temp_visual/resonance(target_turf, user, src, mode, adding_failure)
-		user.changeNext_move(CLICK_CD_MELEE)
+
 
 /obj/item/resonator/pre_attackby(atom/target, mob/user, params)
-	if(check_allowed_items(target, TRUE))
-		create_resonance(target, user)
-	return TRUE
+	. = ..()
+	if(ATTACK_CHAIN_CANCEL_CHECK(.) || !check_allowed_items(target, TRUE))
+		return .
+	. |= ATTACK_CHAIN_BLOCKED
+	user.changeNext_move(attack_speed)
+	create_resonance(target, user)
+
 
 //resonance field, crushes rock, damages mobs
 /obj/effect/temp_visual/resonance
 	name = "resonance field"
-	desc = "A resonating field that significantly damages anything inside of it when the field eventually ruptures. More damaging in low pressure environments."
+	desc = "Энергетическое поле, наносящее значительный урон всему внутри при разрыве. Эффективнее в условиях низкого давления."
+	ru_names = list(
+		NOMINATIVE = "резонансное поле",
+		GENITIVE = "резонансного поля",
+		DATIVE = "резонансному полю",
+		ACCUSATIVE = "резонансное поле",
+		INSTRUMENTAL = "резонансным полем",
+		PREPOSITIONAL = "резонансном поле"
+	)
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "shield1"
 	layer = ABOVE_ALL_MOB_LAYER
@@ -77,7 +97,10 @@
 	if(mode == RESONATOR_MODE_MATRIX)
 		icon_state = "shield2"
 		name = "resonance matrix"
-		RegisterSignal(src, list(COMSIG_MOVABLE_CROSSED, COMSIG_ATOM_ENTERED), PROC_REF(burst))
+		var/static/list/loc_connections = list(
+			COMSIG_ATOM_ENTERED = PROC_REF(burst),
+		)
+		AddElement(/datum/element/connect_loc, loc_connections)
 	. = ..()
 	creator = set_creator
 	parent_resonator = set_resonator
@@ -115,7 +138,7 @@
 	new /obj/effect/temp_visual/resonance_crush(src_turf)
 	if(ismineralturf(src_turf))
 		if(isancientturf(src_turf))
-			visible_message(span_notice("This rock appears to be resistant to all mining tools except pickaxes!"))
+			visible_message(span_notice("Эта порода устойчива ко всем инструментам, кроме кирок!"))
 		else
 			var/turf/simulated/mineral/M = src_turf
 			M.attempt_drill(creator)
@@ -124,7 +147,7 @@
 	for(var/mob/living/L in src_turf)
 		if(creator)
 			add_attack_logs(creator, L, "Resonance field'ed")
-		to_chat(L, span_userdanger("[src] ruptured with you in it!"))
+		to_chat(L, span_userdanger("[capitalize(declent_ru(NOMINATIVE))] разрывается с вами внутри!"))
 		L.apply_damage(resonance_damage, BRUTE)
 	for(var/obj/effect/temp_visual/resonance/field in orange(1, src))
 		if(field.rupturing)
@@ -143,14 +166,22 @@
 	layer = ABOVE_ALL_MOB_LAYER
 	duration = 4
 
-/obj/effect/temp_visual/resonance_crush/New()
-	..()
+/obj/effect/temp_visual/resonance_crush/Initialize(mapload)
+	. = ..()
 	transform = matrix() * 1.5
 	animate(src, transform = matrix() * 0.1, alpha = 50, time = 4)
 
 /obj/item/resonator/upgraded
 	name = "upgraded resonator"
-	desc = "An upgraded version of the resonator that can produce more fields at once, as well as having no damage penalty for bursting a resonance field early. It also allows you to set 'Resonance matrixes', that detonate after someone(or something) walks over it."
+	desc = "Усовершенствованная версия резонатора, способная создавать больше полей одновременно без потери урона при раннем подрыве. Позволяет устанавливать \"резонансные матрицы\", срабатывающие рядом с целью."
+	ru_names = list(
+		NOMINATIVE = "улучшенный резонатор",
+		GENITIVE = "улучшенного резонатора",
+		DATIVE = "улучшенному резонатору",
+		ACCUSATIVE = "улучшенный резонатор",
+		INSTRUMENTAL = "улучшенным резонатором",
+		PREPOSITIONAL = "улучшенном резонаторе"
+	)
 	icon_state = "resonator_u"
 	fieldlimit = 6
 	quick_burst_mod = 1
@@ -159,13 +190,13 @@
 
 /obj/item/resonator/upgraded/attack_self(mob/user)
 	if(mode == RESONATOR_MODE_AUTO)
-		to_chat(user, span_info("You set the resonator's fields to detonate only after you hit one with it."))
+		to_chat(user, span_notice("Вы настроили поля на детонацию только после удара."))
 		mode = RESONATOR_MODE_MANUAL
 	else if(mode == RESONATOR_MODE_MANUAL)
-		to_chat(user, span_info("You set the resonator's fields to work as matrix traps."))
+		to_chat(user, span_notice("Вы активировали режим матричных ловушек."))
 		mode = RESONATOR_MODE_MATRIX
 	else
-		to_chat(user,  span_info("You set the resonator's fields to automatically detonate after 2 seconds."))
+		to_chat(user, span_notice("Вы настроили автоматический подрыв через 2 секунды."))
 		mode = RESONATOR_MODE_AUTO
 
 #undef RESONATOR_MODE_AUTO

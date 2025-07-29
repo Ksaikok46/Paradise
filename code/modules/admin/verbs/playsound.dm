@@ -1,7 +1,7 @@
 GLOBAL_LIST_EMPTY(sounds_cache)
 
 /client/proc/stop_global_admin_sounds()
-	set category = "Event"
+	set category = STATPANEL_ADMIN_SOUNDS
 	set name = "Stop Global Admin Sounds"
 	if(!check_rights(R_SOUNDS))
 		return
@@ -13,7 +13,7 @@ GLOBAL_LIST_EMPTY(sounds_cache)
 		M << awful_sound
 
 /client/proc/play_sound(S as sound)
-	set category = "Event"
+	set category = STATPANEL_ADMIN_SOUNDS
 	set name = "Play Global Sound"
 	if(!check_rights(R_SOUNDS))	return
 
@@ -30,7 +30,8 @@ GLOBAL_LIST_EMPTY(sounds_cache)
 	for(var/mob/M in GLOB.player_list)
 		if(M.client.prefs.sound & SOUND_MIDI)
 			if(isnewplayer(M) && (M.client.prefs.sound & SOUND_LOBBY))
-				M.stop_sound_channel(CHANNEL_LOBBYMUSIC)
+				// M.stop_sound_channel(CHANNEL_LOBBYMUSIC)
+				M.client?.tgui_panel?.stop_music()
 			uploaded_sound.volume = 100 * M.client.prefs.get_channel_volume(CHANNEL_ADMIN)
 			SEND_SOUND(M, uploaded_sound)
 
@@ -38,47 +39,167 @@ GLOBAL_LIST_EMPTY(sounds_cache)
 
 
 /client/proc/play_local_sound(S as sound)
-	set category = "Event"
+	set category = STATPANEL_ADMIN_SOUNDS
 	set name = "Play Local Sound"
 	if(!check_rights(R_SOUNDS))	return
 
 	log_and_message_admins("played a local sound [S]")
-	playsound(get_turf(src.mob), S, 50, 0, 0)
+	playsound(get_turf(src.mob), S, 50, FALSE, 0)
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Play Local Sound") //If you are copy-pasting this, ensure the 4th parameter is unique to the new proc!
 
+
+/client/proc/play_web_sound()
+	set category = STATPANEL_ADMIN_SOUNDS
+	set name = "Play Internet Sound"
+	if(!check_rights(R_SOUNDS))
+		return
+
+	if(!tgui_panel || !SSassets.initialized)
+		return
+
+	var/ytdl = CONFIG_GET(string/invoke_youtubedl)
+	if(!ytdl)
+		to_chat(src, span_boldwarning("yt-dlp was not configured, action unavailable"), confidential=TRUE) //Check config.txt for the INVOKE_YOUTUBEDL value
+		return
+
+	var/web_sound_input = tgui_input_text(usr, "Enter content URL (supported sites only, leave blank to stop playing)", "Play Internet Sound via yt-dlp", encode = FALSE)
+	if(istext(web_sound_input))
+		var/web_sound_path = ""
+		var/web_sound_url = ""
+		var/stop_web_sounds = FALSE
+		var/list/music_extra_data = list()
+		if(length(web_sound_input))
+			web_sound_input = trim(web_sound_input)
+			if(findtext(web_sound_input, ":") && !findtext(web_sound_input, GLOB.is_http_protocol))
+				to_chat(src, span_boldwarning("Non-http(s) URIs are not allowed."), confidential=TRUE)
+				to_chat(src, span_warning("For yt-dlp shortcuts like ytsearch: please use the appropriate full url from the website."), confidential=TRUE)
+				return
+			var/shell_scrubbed_input = shell_url_scrub(web_sound_input)
+			var/list/output = world.shelleo("[ytdl] -x --audio-format mp3 --audio-quality 0 --geo-bypass --no-playlist -o \"cache/songs/%(id)s.%(ext)s\" --dump-single-json --no-simulate \"[shell_scrubbed_input]\"")
+			var/errorlevel = output[SHELLEO_ERRORLEVEL]
+			var/stdout = output[SHELLEO_STDOUT]
+			var/stderr = output[SHELLEO_STDERR]
+			if(!errorlevel)
+				var/list/data
+				try
+					data = json_decode(stdout)
+				catch(var/exception/e)
+					to_chat(src, span_boldwarning("yt-dlp JSON parsing FAILED:"), confidential=TRUE)
+					to_chat(src, span_warning("[e]: [stdout]"), confidential=TRUE)
+					return
+
+				if(data["url"])
+					web_sound_path = "cache/songs/[data["id"]].mp3"
+					web_sound_url = data["url"]
+					var/title = "[data["title"]]"
+					var/webpage_url = title
+					if(data["webpage_url"])
+						webpage_url = "<a href=\"[data["webpage_url"]]\">[title]</a>"
+					var/mus_len = data["duration"] * 1 SECONDS
+					music_extra_data["duration"] = DisplayTimeText(mus_len)
+					SSticker.music_available = REALTIMEOFDAY + mus_len
+					music_extra_data["link"] = data["webpage_url"]
+					music_extra_data["artist"] = data["artist"]
+					music_extra_data["upload_date"] = data["upload_date"]
+					music_extra_data["album"] = data["album"]
+
+					var/res = tgui_alert(usr, "Показать игрокам название и ссылку?\n[title]",, list("Нет", "Да", "Отмена"))
+					switch(res)
+						if("Да")
+							music_extra_data["title"] = data["title"]
+						if("Нет")
+							music_extra_data["link"] = "Song Link Hidden"
+							music_extra_data["title"] = "Song Title Hidden"
+							music_extra_data["artist"] = "Song Artist Hidden"
+							music_extra_data["upload_date"] = "Song Upload Date Hidden"
+							music_extra_data["album"] = "Song Album Hidden"
+						if("Отмена")
+							return
+
+					var/anon = tgui_alert(usr, "Показывать, кто запустил?", "Указывать себя?", list("Нет", "Да", "Отмена"))
+					switch(anon)
+						if("Yes")
+							if(res == "Yes")
+								to_chat(world, span_boldannounceooc("[src] запустил: [webpage_url]"), confidential = TRUE)
+							else
+								to_chat(world, span_boldannounceooc("[src] запустил музыку"), confidential = TRUE)
+						if("No")
+							if(res == "Yes")
+								to_chat(world, span_boldannounceooc("Запущено админом: [webpage_url]"), confidential = TRUE)
+
+					SSblackbox.record_feedback("nested tally", "played_url", 1, list("[ckey]", "[web_sound_input]"))
+					log_admin("[key_name(src)] played web sound: [web_sound_input]")
+					message_admins("[key_name(src)] played web sound: [web_sound_input]")
+			else
+				to_chat(src, span_boldwarning("yt-dlp URL retrieval FAILED:"), confidential=TRUE)
+				to_chat(src, span_warning("[stderr]"), confidential=TRUE)
+
+		else //pressed ok with blank
+			log_admin("[key_name(src)] stopped web sound")
+			message_admins("[key_name(src)] stopped web sound")
+			web_sound_path = null
+			stop_web_sounds = TRUE
+			SSticker.music_available = 0
+
+		if(stop_web_sounds)
+			for(var/m in GLOB.player_list)
+				var/mob/M = m
+				var/client/C = M.client
+				if(C.prefs.toggles & SOUND_MIDI)
+					C.tgui_panel?.stop_music()
+		else
+			var/url = web_sound_url
+			switch(CONFIG_GET(string/asset_transport))
+				if ("webroot")
+					var/datum/asset/music/my_asset
+					if(GLOB.cached_songs[web_sound_path])
+						my_asset = GLOB.cached_songs[web_sound_path]
+					else
+						my_asset = new /datum/asset/music(web_sound_path)
+						GLOB.cached_songs[web_sound_path] = my_asset
+					url = my_asset.get_url()
+
+			for(var/m in GLOB.player_list)
+				var/mob/M = m
+				var/client/C = M.client
+				if(C.prefs.sound & SOUND_MIDI)
+					C.tgui_panel?.play_music(url, music_extra_data)
+
+	SSblackbox.record_feedback("tally", "admin_verb", 1, "Play Internet Sound")
+
 /client/proc/play_server_sound()
-	set category = "Event"
+	set category = STATPANEL_ADMIN_SOUNDS
 	set name = "Play Server Sound"
 	if(!check_rights(R_SOUNDS))	return
 
 	var/list/sounds = file2list("sound/serversound_list.txt")
 	sounds += GLOB.sounds_cache
 
-	var/melody = input("Select a sound from the server to play", "Server sound list") as null|anything in sounds
+	var/melody = tgui_input_list(usr, "Select a sound from the server to play", "Server sound list", sounds)
 	if(!melody)	return
 
 	play_sound(melody)
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Play Server Sound") //If you are copy-pasting this, ensure the 2nd paramter is unique to the new proc!
 
 /client/proc/play_intercomm_sound()
-	set category = "Event"
+	set category = STATPANEL_ADMIN_SOUNDS
 	set name = "Play Sound via Intercomms"
 	set desc = "Plays a sound at every intercomm on the station z level. Works best with small sounds."
 	if(!check_rights(R_SOUNDS))	return
 
-	var/A = alert("This will play a sound at every intercomm, are you sure you want to continue? This works best with short sounds, beware.","Warning","Yep","Nope")
+	var/A = alert(usr, "This will play a sound at every intercomm, are you sure you want to continue? This works best with short sounds, beware.","Warning","Yep","Nope")
 	if(A != "Yep")	return
 
 	var/list/sounds = file2list("sound/serversound_list.txt")
 	sounds += GLOB.sounds_cache
 
-	var/melody = input("Select a sound from the server to play", "Server sound list") as null|anything in sounds
+	var/melody = tgui_input_list(usr, "Select a sound from the server to play", "Server sound list", sounds)
 	if(!melody)	return
 
 	var/cvol = 35
-	var/inputvol = input("How loud would you like this to be? (1-70)", "Volume", "35") as num | null
+	var/inputvol = tgui_input_number(usr, "How loud would you like this to be? (1-70)", "Volume", cvol, min_value = 1, max_value = 70)
 	if(!inputvol)	return
-	if(inputvol && inputvol >= 1 && inputvol <= 70)
+	if(inputvol)
 		cvol = inputvol
 
 	//Allows for override to utilize intercomms on all z-levels
@@ -101,51 +222,16 @@ GLOBAL_LIST_EMPTY(sounds_cache)
 			continue
 		playsound(I, melody, cvol)
 
-/*
-/client/proc/cuban_pete()
-	set category = "Event"
-	set name = "Cuban Pete Time"
+/client/proc/play_direct_mob_sound(S as sound, mob/M)
+	set category = STATPANEL_ADMIN_SOUNDS
+	set name = "Play Direct Mob Sound"
+	if(!check_rights(R_SOUNDS))
+		return
 
-	message_admins("[key_name_admin(usr)] has declared Cuban Pete Time!", 1)
-	for(var/mob/M in world)
-		if(M.client)
-			if(M.client.midis)
-				M << 'cubanpetetime.ogg'
+	if(!M)
+		M = tgui_input_list(usr, "Choose a mob to play the sound to. Only they will hear it.", "Play Mob Sound", sort_names(GLOB.player_list))
+	if(!M || QDELETED(M))
+		return
 
-	for(var/mob/living/carbon/human/CP in world)
-		if(CP.real_name=="Cuban Pete" && CP.key!="Rosham")
-			C << "Your body can't contain the rhumba beat"
-			CP.gib()
-
-
-/client/proc/bananaphone()
-	set category = "Event"
-	set name = "Banana Phone"
-
-	message_admins("[key_name_admin(usr)] has activated Banana Phone!", 1)
-	for(var/mob/M in world)
-		if(M.client)
-			if(M.client.midis)
-				M << 'bananaphone.ogg'
-
-
-client/proc/space_asshole()
-	set category = "Event"
-	set name = "Space Asshole"
-
-	message_admins("[key_name_admin(usr)] has played the Space Asshole Hymn.", 1)
-	for(var/mob/M in world)
-		if(M.client)
-			if(M.client.midis)
-				M << 'sound/music/space_asshole.ogg'
-
-
-client/proc/honk_theme()
-	set category = "Event"
-	set name = "Honk"
-
-	message_admins("[key_name_admin(usr)] has creeped everyone out with Blackest Honks.", 1)
-	for(var/mob/M in world)
-		if(M.client)
-			if(M.client.midis)
-				M << 'honk_theme.ogg'*/
+	log_and_message_admins("played a direct mob sound [S] to [M].")
+	SEND_SOUND(M, S)

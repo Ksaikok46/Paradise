@@ -14,6 +14,8 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 #define GRAV_NEEDS_PLASTEEL 2
 #define GRAV_NEEDS_WRENCH 3
 
+#define BLOB_HITS_NEED 4
+
 //
 // Abstract Generator
 //
@@ -27,6 +29,8 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 	use_power = NO_POWER_USE
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF | NO_MALF_EFFECT
 	var/sprite_number = 0
+	/// Number of successful blob hits
+	var/blob_hits = 0
 
 
 /obj/machinery/gravity_generator/ex_act(severity)
@@ -35,7 +39,8 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 
 
 /obj/machinery/gravity_generator/blob_act(obj/structure/blob/B)
-	if(prob(20))
+	blob_hits++
+	if(blob_hits >= BLOB_HITS_NEED)
 		set_broken()
 
 
@@ -54,8 +59,7 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 
 
 // You aren't allowed to move.
-/obj/machinery/gravity_generator/Move()
-	. = ..()
+/obj/machinery/gravity_generator/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	qdel(src)
 
 
@@ -85,7 +89,7 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 
 /obj/machinery/gravity_generator/part/attackby(obj/item/I, mob/user, params)
 	if(!main_part)
-		return
+		return ATTACK_CHAIN_BLOCKED_ALL
 	return main_part.attackby(I, user, params)
 
 
@@ -163,7 +167,7 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 /obj/machinery/gravity_generator/main/proc/setup_parts()
 	var/turf/our_turf = get_turf(src)
 	// 9x9 block obtained from the bottom middle of the block
-	var/list/spawn_turfs = block(locate(our_turf.x - 1, our_turf.y + 2, our_turf.z), locate(our_turf.x + 1, our_turf.y, our_turf.z))
+	var/list/spawn_turfs = block(our_turf.x - 1, our_turf.y + 2, our_turf.z, our_turf.x + 1, our_turf.y, our_turf.z)
 	var/count = 10
 	for(var/turf/part_turf as anything in spawn_turfs)
 		count--
@@ -213,28 +217,29 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 		return
 	switch(broken_state)
 		if(GRAV_NEEDS_SCREWDRIVER)
-			. += span_info("The entire frame is barely holding together, the <b>screws</b> need to be refastened.")
+			. += span_notice("The entire frame is barely holding together, the <b>screws</b> need to be refastened.")
 		if(GRAV_NEEDS_WELDING)
-			. += span_info("There's lots of broken seals on the framework, it could use some <b>welding</b>.")
+			. += span_notice("There's lots of broken seals on the framework, it could use some <b>welding</b>.")
 		if(GRAV_NEEDS_PLASTEEL)
-			. += span_info("Some of this damaged plating needs full replacement. <b>10 plasteel</> should be enough.")
+			. += span_notice("Some of this damaged plating needs full replacement. <b>10 plasteel</> should be enough.")
 		if(GRAV_NEEDS_WRENCH)
-			. += span_info("The new plating just needs to be <b>bolted</b> into place now.")
+			. += span_notice("The new plating just needs to be <b>bolted</b> into place now.")
 
 
 /obj/machinery/gravity_generator/main/attackby(obj/item/I, mob/user, params)
-	if(!(stat & BROKEN) || broken_state != GRAV_NEEDS_PLASTEEL || !istype(I, /obj/item/stack/sheet/plasteel))
+	if(user.a_intent == INTENT_HARM || !(stat & BROKEN) || broken_state != GRAV_NEEDS_PLASTEEL || !istype(I, /obj/item/stack/sheet/plasteel))
 		return ..()
 
-	var/obj/item/stack/sheet/plasteel/plasteel = I
-	if(plasteel.get_amount() < 10)
-		to_chat(user, span_notice("You need 10 sheets of plasteel."))
-		return
-
 	add_fingerprint(user)
-	plasteel.use(10)
-	to_chat(user, span_notice("You add the plating to the framework."))
-	playsound(loc, plasteel.usesound, 75, TRUE)
+	var/obj/item/stack/sheet/plasteel/plasteel = I
+	var/cached_sound = plasteel.usesound
+	if(!plasteel.use(10))
+		to_chat(user, span_warning("You need at least ten sheets of plasteel to repair the framework."))
+		return ATTACK_CHAIN_PROCEED
+
+	. = ATTACK_CHAIN_PROCEED_SUCCESS
+	to_chat(user, span_notice("You have repaired the plating of the framework."))
+	playsound(loc, cached_sound, 75, TRUE)
 	broken_state++
 	update_icon(UPDATE_ICON_STATE)
 
@@ -290,15 +295,15 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 	if(stat & BROKEN)
 		return
 
-	var/dat = {"<meta charset="UTF-8">Gravity Generator Breaker: "}
+	var/dat = "Gravity Generator Breaker: "
 	if(breaker)
-		dat += "<span class='linkOn'>ON</span> <A href='?src=[UID()];gentoggle=1'>OFF</A>"
+		dat += "<span class='linkOn'>ON</span> <a href='byond://?src=[UID()];gentoggle=1'>OFF</a>"
 	else
-		dat += "<A href='?src=[UID()];gentoggle=1'>ON</A> <span class='linkOn'>OFF</span> "
+		dat += "<a href='byond://?src=[UID()];gentoggle=1'>ON</a> <span class='linkOn'>OFF</span> "
 
 	dat += "<br>Generator Status:<br><div class='statusDisplay'>"
 	if(charging_state != GRAV_POWER_IDLE)
-		dat += "<font class='bad'>WARNING</font> Radiation Detected. <br>[charging_state == GRAV_POWER_UP ? "Charging..." : "Discharging..."]"
+		dat += "<span class='bad'>WARNING</span> Radiation Detected. <br>[charging_state == GRAV_POWER_UP ? "Charging..." : "Discharging..."]"
 	else if(on)
 		dat += "Powered."
 	else
@@ -317,7 +322,7 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 
 	if(href_list["gentoggle"])
 		breaker = !breaker
-		investigate_log("was toggled [breaker ? "<font color='green'>ON</font>" : "<font color='red'>OFF</font>"] by [key_name_log(usr)].", INVESTIGATE_GRAVITY)
+		investigate_log("was toggled [breaker ? "<span style='color: green;'>ON</span>" : "<span style='color: red;'>OFF</span>"] by [key_name_log(usr)].", INVESTIGATE_GRAVITY)
 		set_power()
 		updateUsrDialog()
 
@@ -426,19 +431,24 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 // Shake everyone on the z level to let them know that gravity was enagaged/disenagaged.
 /obj/machinery/gravity_generator/main/proc/shake_everyone()
 	var/turf/our_turf = get_turf(src)
+	new /obj/effect/warp_effect/gravity_generator(our_turf)
 	var/sound/alert_sound = sound('sound/effects/alert.ogg')
 	for(var/mob/shaked as anything in GLOB.mob_list)
 		var/turf/mob_turf = get_turf(shaked)
+
 		if(!istype(mob_turf))
 			continue
-		if(!is_valid_z_level(our_turf, mob_turf))
+
+		if(!are_zs_connected(our_turf, mob_turf))
 			continue
+
 		if(isliving(shaked))
 			var/mob/living/living_shaked = shaked
 			living_shaked.refresh_gravity()
+
 		if(shaked.client)
 			shake_camera(shaked, 15, 1)
-			shaked.playsound_local(our_turf, null, 100, 1, 0.5, S = alert_sound)
+			shaked.playsound_local(our_turf, null, 100, TRUE, 0.5, sound = alert_sound)
 
 
 // TODO: Make the gravity generator cooperate with the space manager
@@ -457,11 +467,8 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 		return
 	var/list/z_list = list()
 	// Multi-Z, station gravity generator generates gravity on all STATION_LEVEL z-levels.
-	if(check_level_trait(our_turf.z, STATION_LEVEL))
-		for(var/z in levels_by_trait(STATION_LEVEL))
-			z_list += z
-	else
-		z_list += our_turf.z
+	for(var/z in SSmapping.get_connected_levels(our_turf))
+		z_list += z
 	for(var/z in z_list)
 		if(!GLOB.gravity_generators["[z]"])
 			GLOB.gravity_generators["[z]"] = list()
@@ -472,6 +479,15 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 
 
 // Misc
+
+/obj/effect/warp_effect/gravity_generator
+
+/obj/effect/warp_effect/gravity_generator/Initialize(mapload)
+	. = ..()
+	var/matrix/M = matrix() * 0.5
+	transform = M
+	animate(src, transform = M * 40, time = 0.8 SECONDS, alpha = 128, easing = CIRCULAR_EASING | EASE_IN)
+	QDEL_IN(src, 0.8 SECONDS)
 
 /obj/item/paper/gravity_gen
 	name = "paper- 'Generate your own gravity!'"

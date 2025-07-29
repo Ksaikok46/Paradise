@@ -12,9 +12,10 @@
 	density = FALSE
 	max_integrity = 200
 	integrity_failure = 50
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING
 	var/obj/item/extinguisher/has_extinguisher = null
 	var/extinguishertype
-	var/opened = 0
+	var/opened = FALSE
 	var/material_drop = /obj/item/stack/sheet/metal
 
 /obj/structure/extinguisher_cabinet/Initialize(mapload, direction = null)
@@ -33,19 +34,13 @@
 
 /obj/structure/extinguisher_cabinet/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>Alt-click to [opened ? "close":"open"] it.</span>"
+	. += span_notice("Alt-click to [opened ? "close":"open"] it.")
 
-/obj/structure/extinguisher_cabinet/AltClick(mob/living/user)
-	if(!iscarbon(usr) && !isrobot(usr))
-		return
-	if(!in_range(src, user))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
-		return
+/obj/structure/extinguisher_cabinet/click_alt(mob/living/user)
 	playsound(loc, 'sound/machines/click.ogg', 15, TRUE, -3)
 	opened = !opened
 	update_icon(UPDATE_ICON_STATE)
+	return CLICK_ACTION_SUCCESS
 
 /obj/structure/extinguisher_cabinet/Destroy()
 	QDEL_NULL(has_extinguisher)
@@ -61,29 +56,28 @@
 		has_extinguisher = null
 		update_icon(UPDATE_ICON_STATE)
 
-/obj/structure/extinguisher_cabinet/attackby(obj/item/O, mob/user, params)
-	if(isrobot(user) || isalien(user))
-		return
-	if(istype(O, /obj/item/extinguisher))
-		if(!has_extinguisher && opened)
-			if(!user.drop_transfer_item_to_loc(O, src))
-				return
-			add_fingerprint(user)
-			has_extinguisher = O
-			update_icon(UPDATE_ICON_STATE)
-			to_chat(user, "<span class='notice'>You place [O] in [src].</span>")
-			return TRUE
-		else
-			playsound(loc, 'sound/machines/click.ogg', 15, TRUE, -3)
-			opened = !opened
-		update_icon(UPDATE_ICON_STATE)
-	else if(user.a_intent != INTENT_HARM)
-		add_fingerprint(user)
-		playsound(loc, 'sound/machines/click.ogg', 15, TRUE, -3)
-		opened = !opened
-		update_icon(UPDATE_ICON_STATE)
-	else
+
+/obj/structure/extinguisher_cabinet/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM || I.is_robot_module())
 		return ..()
+
+	if(istype(I, /obj/item/extinguisher))
+		add_fingerprint(user)
+		if(!opened)
+			to_chat(user, span_warning("You need to open [src] first!"))
+			return ATTACK_CHAIN_PROCEED
+		if(has_extinguisher)
+			to_chat(user, span_warning("The [name] already has [has_extinguisher]!"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		has_extinguisher = I
+		update_icon(UPDATE_ICON_STATE)
+		to_chat(user, span_notice("You place [I] into [src]."))
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/structure/extinguisher_cabinet/welder_act(mob/user, obj/item/I)
 	if(has_extinguisher)

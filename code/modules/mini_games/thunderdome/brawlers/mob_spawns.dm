@@ -17,7 +17,7 @@
 		return
 	if(CONFIG_GET(flag/use_exp_restrictions) && min_hours)
 		if(user.client.get_exp_type_num(exp_type) < min_hours * 60 && !check_rights(R_ADMIN|R_MOD, 0, usr))
-			to_chat(user, span_warning("У вас недостаточно часов для игры на этой роли. Требуется набрать [min_hours] часов типа [exp_type] для доступа к ней."))
+			to_chat(user, span_warning("У вас недостаточно часов для игры на этой роли. Требуется набрать [min_hours] час[declension_ru(min_hours, "", "а", "ов")] типа [exp_type] для доступа к ней."))
 			return
 	var/mob_use_prefs = FALSE
 	var/_mob_species = FALSE
@@ -36,9 +36,7 @@
 	var/death_time_before = plr.timeofdeath
 	var/mob/living/created = ..()
 	thunderdome.fighters += created
-
-	created.mutations |= RUN
-
+	created.ignore_slowdown(THUNDERDOME_TRAIT)
 	created.AddComponent(/datum/component/thunderdome_death_signaler, thunderdome)
 	created.AddComponent(/datum/component/death_timer_reset, death_time_before)
 

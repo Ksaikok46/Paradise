@@ -12,18 +12,17 @@
 	desc = "These nano-enhanced gloves insulate from electricity and provide fire resistance."
 	name = "ninja gloves"
 	icon = 'icons/obj/ninjaobjects.dmi'
-	lefthand_file = 'icons/mob/inhands/antag/ninja_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/antag/ninja_righthand.dmi'
 	icon_state = "ninja_gloves"
-	item_state = "ninja_gloves" //Нужен спрайт
+	item_state = "ninja_gloves"
 	siemens_coefficient = 0
 	cold_protection = HANDS
 	min_cold_protection_temperature = GLOVES_MIN_TEMP_PROTECT
 	heat_protection = HANDS
 	max_heat_protection_temperature = GLOVES_MAX_TEMP_PROTECT
 	strip_delay = 120
+	permeability_coefficient = 1
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
-	armor = list("melee" = 40, "bullet" = 30, "laser" = 20,"energy" = 15, "bomb" = 30, "bio" = 30, "rad" = 25, "fire" = 100, "acid" = 100)
+	armor = list("melee" = 40, "bullet" = 30, "laser" = 20,"energy" = 15, "bomb" = 30, "bio" = 30, "rad" = 100, "fire" = 100, "acid" = 100)
 	///Ниндзя украл ваше бельё ( ͡° ͜ʖ ͡°)
 	pickpocket = 1
 	///Whether or not we're currently draining something
@@ -56,7 +55,7 @@
 
 	if(isnum(.)) //Numerical values of drained handle their feedback here, Alpha values handle it themselves (Research hacking)
 		if(.)
-			to_chat(wearer, span_notice("Gained <B>[.]</B> of energy from [A]."))
+			to_chat(wearer, span_notice("Gained <b>[.]</b> of energy from [A]."))
 		else
 			to_chat(wearer, span_danger("The connection with [A] has been cancelled."))
 	else

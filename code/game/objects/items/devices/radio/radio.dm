@@ -21,14 +21,23 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 ))
 
 /obj/item/radio
-	icon = 'icons/obj/radio.dmi'
 	name = "shortwave radio"
-	desc = "A basic handheld radio that can communicate with local telecommunication networks."
-	dog_fashion = /datum/dog_fashion/back
-	suffix = "\[3\]"
+	desc = "Базовая портативная рация, способная взаимодействовать с локальными телекоммуникационными сетями."
+	ru_names = list(
+		NOMINATIVE = "коротковолновая рация",
+		GENITIVE = "коротковолновой рации",
+		DATIVE = "коротковолновой рации",
+		ACCUSATIVE = "коротковолновую рацию",
+		INSTRUMENTAL = "коротковолновой рацией",
+		PREPOSITIONAL = "коротковолновой рации"
+	)
+	gender = FEMALE
+	icon = 'icons/obj/radio.dmi'
 	icon_state = "walkietalkie"
 	item_state = "walkietalkie"
 	belt_icon = "radio"
+	dog_fashion = /datum/dog_fashion/back
+	suffix = "\[3\]"
 	/// boolean for radio enabled or not
 	var/on = TRUE
 	var/last_transmission
@@ -108,13 +117,28 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 
 
 /obj/item/radio/Initialize()
-	..()
+	. = ..()
 	if(frequency < RADIO_LOW_FREQ || frequency > RADIO_HIGH_FREQ)
 		frequency = sanitize_frequency(frequency, RADIO_LOW_FREQ, RADIO_HIGH_FREQ)
 	set_frequency(frequency)
 
 	for(var/ch_name in channels)
 		secure_radio_connections[ch_name] = SSradio.add_object(src, SSradio.radiochannels[ch_name],  RADIO_CHAT)
+
+/obj/item/radio/emag_act(mob/user)
+	if(!user.mind.special_role && !is_admin(user) || !hidden_uplink)
+		var/turf/T = get_turf(loc)
+
+		if(ismob(loc))
+			var/mob/M = loc
+			M.show_message(span_danger("Ваша [declent_ru(NOMINATIVE)] взрывается!"), 1)
+
+		if(T)
+			T.hotspot_expose(700,125)
+			explosion(T, -1, -1, 2, 3, cause = src)
+		qdel(src)
+	else
+		hidden_uplink.trigger(user)
 
 /obj/item/radio/attack_ghost(mob/user)
 	return interact(user)
@@ -129,13 +153,10 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 		wires.Interact(user)
 	ui_interact(user)
 
-/obj/item/radio/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/item/radio/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		var/list/schannels = list_secure_channels(user)
-		var/list/ichannels = list_internal_channels(user)
-		var/calc_height = 150 + (schannels.len * 20) + (ichannels.len * 10)
-		ui = new(user, src, ui_key, "Radio", name, 400, calc_height, master_ui, state)
+		ui = new(user, src, "Radio", capitalize(declent_ru(NOMINATIVE)))
 		ui.open()
 
 /obj/item/radio/ui_data(mob/user)
@@ -175,15 +196,15 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 				. = FALSE
 			if(hidden_uplink)
 				if(hidden_uplink.check_trigger(usr, frequency, traitor_frequency))
-					usr << browse(null, "window=radio")
+					close_window(usr, "radio")
 			if(.)
 				set_frequency(sanitize_frequency(tune, freerange))
 		if("ichannel") // change primary frequency to an internal channel authorized by access
 			if(freqlock)
 				return
 			var/freq = params["ichannel"]
-			if(has_channel_access(usr, freq))
-				set_frequency(text2num(freq))
+			if(has_channel_access(usr, num2text(freq)))
+				set_frequency(freq)
 		if("listen")
 			listening = !listening
 		if("broadcast")
@@ -257,10 +278,10 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 /obj/item/radio/proc/ToggleReception()
 	listening = !listening && !(wires.is_cut(WIRE_RADIO_RECEIVER) || wires.is_cut(WIRE_RADIO_SIGNAL))
 
-/obj/item/radio/proc/autosay(message, from, channel, role = "Unknown") //BS12 EDIT
+/obj/item/radio/proc/autosay(message, from, channel, follow_target_override) //BS12 EDIT
 	var/datum/radio_frequency/connection = null
-	if(channel && channels && channels.len)
-		if(channel == "department")
+	if(channel && channels && length(channels) > 0)
+		if(channel == DEPARTMENT_FREQ_NAME)
 			channel = channels[1]
 		connection = secure_radio_connections[channel]
 	else
@@ -270,10 +291,6 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 		return
 	if(!connection)
 		return
-	var/mob/living/automatedannouncer/A = new /mob/living/automatedannouncer(src)
-	A.name = from
-	A.role = role
-	A.message = message
 	var/jammed = FALSE
 	for(var/obj/item/jammer/jammer in GLOB.active_jammers)
 		if(get_dist(get_turf(src), get_turf(jammer)) < jammer.range)
@@ -286,13 +303,12 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 		// Make us a message datum!
 	var/datum/tcomms_message/tcm = new
 	tcm.connection = connection
-	tcm.sender = A
+	tcm.sender = src
 	tcm.radio = src
 	tcm.sender_name = from
 	tcm.message_pieces = message_pieces
-	tcm.sender_job = "Automated Announcement"
-	tcm.sender_rank = "Automated Announcement"
-	tcm.vname = "synthesized voice"
+	tcm.sender_job = "Автоматическое оповещение"
+	tcm.vname = "синтезированный голос"
 	tcm.data = SIGNALTYPE_AINOTRACK
 	// Datum radios dont have a location (obviously)
 	if(loc && loc.z)
@@ -300,51 +316,40 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	else
 		tcm.source_level = levels_by_trait(MAIN_STATION)[1] // Assume main station level if we dont have an actual Z level available to us.
 	tcm.freq = connection.frequency
-	tcm.follow_target = follow_target
+	if(follow_target_override)
+		tcm.follow_target = follow_target_override
+	else
+		tcm.follow_target = follow_target
 
 	// Now put that through the stuff
 	for(var/obj/machinery/tcomms/core/C in GLOB.tcomms_machines)
 		C.handle_message(tcm)
 	qdel(tcm) // Delete the message datum
-	qdel(A)
 
 /obj/item/radio/sec
 	name = "security shortwave radio"
-	desc = "A basic handheld radio that can communicate with local telecommunication networks. This model is painted in black colors."
+	desc = "Базовая портативная рация, способная взаимодействовать с локальными телекоммуникационными сетями. Специальная модель для сотрудников службы безопасности."
+	ru_names = list(
+		NOMINATIVE = "коротковолновая рация СБ",
+		GENITIVE = "коротковолновой рации СБ",
+		DATIVE = "коротковолновой рации СБ",
+		ACCUSATIVE = "коротковолновую рацию СБ",
+		INSTRUMENTAL = "коротковолновой рацией СБ",
+		PREPOSITIONAL = "коротковолновой рации СБ"
+	)
 	icon_state = "walkietalkie_sec"
+	item_state = "walkietalkie_sec"
 	frequency = SEC_FREQ
-
-// Just a dummy mob used for making announcements, so we don't create AIs to do this
-// I'm not sure who thought that was a good idea. -- Crazylemon
-/mob/living/automatedannouncer
-	var/role = ""
-	var/lifetime_timer
-	var/message = ""
-	universal_speak = 1
-
-/mob/living/automatedannouncer/New()
-	lifetime_timer = addtimer(CALLBACK(src, PROC_REF(autocleanup)), 10 SECONDS, TIMER_STOPPABLE)
-	..()
-
-/mob/living/automatedannouncer/Destroy()
-	if(lifetime_timer)
-		deltimer(lifetime_timer)
-		lifetime_timer = null
-	return ..()
-
-/mob/living/automatedannouncer/proc/autocleanup()
-	log_runtime(EXCEPTION("An announcer somehow managed to outlive the radio! Deleting!"), src, list("Message: '[message]'"))
-	qdel(src)
 
 // Interprets the message mode when talking into a radio, possibly returning a connection datum
 /obj/item/radio/proc/handle_message_mode(mob/living/M as mob, list/message_pieces, message_mode)
 	// If a channel isn't specified, send to common.
-	if(!message_mode || message_mode == "headset")
+	if(!message_mode || message_mode == HEADSET_MODE)
 		return radio_connection
 
 	// Otherwise, if a channel is specified, look for it.
 	if(channels && channels.len)
-		if(message_mode == "department") // Department radio shortcut
+		if(message_mode == DEPARTMENT_FREQ_NAME) // Department radio shortcut
 			message_mode = channels[1]
 
 		if(channels[message_mode]) // only broadcast if the channel is set on
@@ -353,25 +358,29 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	// If we were to send to a channel we don't have, drop it.
 	return RADIO_CONNECTION_FAIL
 
-/obj/item/radio/talk_into(mob/living/M as mob, list/message_pieces, channel, verbage = "says")
+/obj/item/radio/talk_into(mob/living/M as mob, list/message_pieces, channel, verbage = "говор%(ит,ят)%")
 	if(!on)
-		return 0 // the device has to be on
+		return FALSE // the device has to be on
 	//  Fix for permacell radios, but kinda eh about actually fixing them.
 	if(!M || !message_pieces)
-		return 0
+		return FALSE
 
 	//  Uncommenting this. To the above comment:
 	// 	The permacell radios aren't suppose to be able to transmit, this isn't a bug and this "fix" is just making radio wires useless. -Giacom
 	if(wires.is_cut(WIRE_RADIO_TRANSMIT)) // The device has to have all its wires and shit intact
-		return 0
+		return FALSE
 
-	if(!M.IsVocal())
-		return 0
+	if(!M.IsVocal()  || M.cannot_speak_loudly())
+		return FALSE
 
 	if(M.is_muzzled())
+		var/obj/item/organ/internal/cyberimp/mouth/translator/translator = M.get_organ_slot(INTERNAL_ORGAN_SPEECH_TRANSLATOR)
+		if(translator) // you can't speak in radio with translator and gag
+			return FALSE
+
 		var/obj/item/clothing/mask/muzzle/muzzle = M.wear_mask
 		if(muzzle.radio_mute)
-			return 0
+			return FALSE
 
 	var/jammed = FALSE
 	var/turf/position = get_turf(src)
@@ -385,10 +394,10 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	switch(message_mode) //special cases
 		// This is if the connection fails
 		if(RADIO_CONNECTION_FAIL)
-			return 0
+			return FALSE
 		// This is if were using either a binary key, or a hivemind through a headset somehow. Dont ask.
 		if(RADIO_CONNECTION_NON_SUBSPACE)
-			return 1
+			return TRUE
 
 	if(!istype(message_mode, /datum/radio_frequency)) //if not a special case, it should be returning a radio connection
 		return
@@ -400,7 +409,7 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	var/displayname = M.name	// grab the display name (name you get when you hover over someone's icon)
 	var/voicemask = 0 // the speaker is wearing a voice mask
 	var/jobname // the mob's "job"
-	var/rank // the mob's "rank"
+	var/rankname // the formatting to be used for the mob's job
 
 	if(jammed)
 		Gibberish_all(message_pieces, 100)
@@ -409,38 +418,34 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
 		jobname = H.get_assignment()
-		rank = H.get_authentification_rank()
+		rankname = H.get_authentification_rank()
 
 	// --- Carbon Nonhuman ---
 	else if(iscarbon(M)) // Nonhuman carbon mob
-		jobname = "No id"
-		rank = "No id"
+		jobname = "Без ID"
 
 	// --- AI ---
 	else if(isAI(M))
 		jobname = JOB_TITLE_AI
-		rank = JOB_TITLE_AI
 
 	// --- Cyborg ---
 	else if(isrobot(M))
-		jobname = JOB_TITLE_CYBORG
-		rank = JOB_TITLE_CYBORG
+		var/mob/living/silicon/robot/R = M
+		jobname = R.mind.role_alt_title ? R.mind.role_alt_title : JOB_TITLE_CYBORG
 
 	// --- Personal AI (pAI) ---
 	else if(ispAI(M))
 		var/mob/living/silicon/pai/pai = M
 		displayname = pai.radio_name
 		jobname = pai.radio_rank
-		rank = pai.radio_rank
 
 	// --- Cogscarab ---
 	else if(iscogscarab(M))
-		jobname = "Unknown"
+		jobname = "Неизвестный"
 
 	// --- Unidentifiable mob ---
 	else
-		jobname = "Unknown"
-		rank = "Unknown"
+		jobname = "Неизвестный"
 
 	// --- Modifications to the mob's identity ---
 
@@ -453,8 +458,8 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 
 	if(syndiekey && syndiekey.change_voice && connection.frequency == SYND_FREQ)
 		displayname = syndiekey.fake_name
-		jobname = "Unknown"
-		rank = "Unknown"
+		jobname = "Неизвестный"
+		rankname = "Неизвестный"
 		voicemask = TRUE
 
 	// Copy the message pieces so we can safely edit comms line without affecting the actual line
@@ -466,7 +471,7 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	var/datum/tcomms_message/tcm = new
 	tcm.sender_name = displayname
 	tcm.sender_job = jobname
-	tcm.sender_rank = rank
+	tcm.sender_rank = rankname
 	tcm.message_pieces = message_pieces_copy
 	tcm.source_level = position.z
 	tcm.freq = connection.frequency
@@ -504,10 +509,10 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	return FALSE
 
 
-/obj/item/radio/hear_talk(mob/M as mob, list/message_pieces, var/verb = "says")
+/obj/item/radio/hear_talk(mob/M as mob, list/message_pieces, verb = "говор%(ит,ят)%")
 	if(broadcasting)
 		if(get_dist(src, M) <= canhear_range)
-			talk_into(M, message_pieces, null, verb)
+			talk_into(M, message_pieces, null, genderize_decode(M, verb))
 
 // To the person who asks "Why is this in a callback?"
 // You see, if you use QDEL_IN on the tcm and on broadcast_message()
@@ -590,21 +595,15 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	. = ..()
 	if(in_range(src, user) || loc == user)
 		if(b_stat)
-			. += "<span class='notice'>\the [src] can be attached and modified!</span>"
+			. += span_notice("Может быть прикреплено или модифицировано.")
 		else
-			. += "<span class='notice'>\the [src] can not be modified or attached!</span>"
-		. += "<span class='info'>Ctrl-Shift-click on the [name] to toggle speaker.<br/>Alt-click on the [name] to toggle broadcasting.</span>"
+			. += span_notice("Не может быть прикреплено или модифицировано.")
+		. += span_notice("Используйте <b>Ctrl+Shift+ЛКМ</b>, чтобы переключить динамик.<br/>Используйте <b>Alt+ЛКМ</b>, чтобы переключить микрофон.")
 
-/obj/item/radio/AltClick(mob/user)
-	if(!iscarbon(user) && !isrobot(user))
-		return
-	if(!Adjacent(user))
-		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
-		return
+/obj/item/radio/click_alt(mob/user)
 	broadcasting = !broadcasting
-	to_chat(user, "<span class='notice'>You toggle broadcasting [broadcasting ? "on" : "off"].</span>")
+	balloon_alert(user, "микрофон [broadcasting ? "включён" : "выключен"]")
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/radio/CtrlShiftClick(mob/user) //weird checks
 	if(!Adjacent(user))
@@ -612,10 +611,10 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	if(!iscarbon(usr) && !isrobot(usr))
 		return
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		to_chat(user, "<span class='warning'>You can't do that right now!</span>")
+		balloon_alert(user, "невозможно!")
 		return
 	listening = !listening
-	to_chat(user, "<span class='notice'>You toggle speaker [listening ? "on" : "off"].</span>")
+	balloon_alert(user, "динамик [listening ? "включён" : "выключен"]")
 
 /obj/item/radio/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -625,9 +624,9 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	b_stat = !b_stat
 	if(!istype(src, /obj/item/radio/beacon))
 		if(b_stat)
-			user.show_message("<span class='notice'>The radio can now be attached and modified!</span>")
+			balloon_alert(user, "модификация возможна!")
 		else
-			user.show_message("<span class='notice'>The radio can no longer be modified or attached!</span>")
+			balloon_alert(user, "модификация невозможна!")
 		updateDialog()
 
 /obj/item/radio/wirecutter_act(mob/user, obj/item/I)
@@ -648,7 +647,7 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	addtimer(CALLBACK(src, PROC_REF(enable_radio)), rand(100, 200))
 
 	if(listening)
-		visible_message("<span class='warning'>[src] buzzes violently!</span>")
+		visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] громко жужжит!"))
 
 	broadcasting = 0
 	listening = 0
@@ -673,8 +672,15 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 
 /obj/item/radio/borg
 	name = "Cyborg Radio"
-	var/mob/living/silicon/robot/myborg = null // Cyborg which owns this radio. Used for power checks
-	var/obj/item/encryptionkey/keyslot // Borg radios can handle a single encryption key
+	desc = "Радио-компонент, предназначенный для использования в роботизированных системах."
+	ru_names = list(
+		NOMINATIVE = "рация робота",
+		GENITIVE = "рации робота",
+		DATIVE = "рации робота",
+		ACCUSATIVE = "рацию робота",
+		INSTRUMENTAL = "рацией робота",
+		PREPOSITIONAL = "рации робота"
+	)
 	icon = 'icons/obj/robot_component.dmi' // Cyborgs radio icons should look like the component.
 	icon_state = "radio"
 	has_loudspeaker = TRUE
@@ -682,6 +688,8 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	canhear_range = 0
 	dog_fashion = null
 	freqlock = TRUE // don't let cyborgs change the default channel of their internal radio away from common
+	var/mob/living/silicon/robot/myborg = null // Cyborg which owns this radio. Used for power checks
+	var/obj/item/encryptionkey/keyslot // Borg radios can handle a single encryption key
 
 /obj/item/radio/borg/syndicate
 	keyslot = new /obj/item/encryptionkey/syndicate/nukeops
@@ -691,8 +699,8 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 
 /obj/item/radio/borg/syndicate/ui_status(mob/user, datum/ui_state/state)
 	. = ..()
-	if(. == STATUS_UPDATE && istype(user, /mob/living/silicon/robot/syndicate))
-		. = STATUS_INTERACTIVE
+	if(. == UI_UPDATE && istype(user, /mob/living/silicon/robot/syndicate))
+		. = UI_INTERACTIVE
 
 /obj/item/radio/borg/Destroy()
 	myborg = null
@@ -722,20 +730,22 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 /obj/item/radio/borg/ert/specops
 	keyslot = new /obj/item/encryptionkey/centcom
 
-/obj/item/radio/borg/attackby(obj/item/W as obj, mob/user as mob, params)
-	if(istype(W, /obj/item/encryptionkey/))
+
+/obj/item/radio/borg/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/encryptionkey))
+		add_fingerprint(user)
 		user.set_machine(src)
 		if(keyslot)
-			to_chat(user, "The radio can't hold another key!")
-			return
-
-		if(!keyslot)
-			user.drop_transfer_item_to_loc(W, src)
-			keyslot = W
-
+			balloon_alert(user, "слот для ключа занят!")
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return .()
+		keyslot = I
 		recalculateChannels()
-	else
-		return ..()
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
 
 /obj/item/radio/borg/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -755,11 +765,11 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 				keyslot = null
 
 		recalculateChannels()
-		to_chat(user, "You pop out the encryption key in the radio!")
+		balloon_alert(user, "ключ извлечён")
 		I.play_tool_sound(user, I.tool_volume)
 
 	else
-		to_chat(user, "This radio doesn't have any encryption keys!")
+		balloon_alert(user, "слот для ключа пуст!")
 
 /obj/item/radio/borg/recalculateChannels()
 	channels = list()
@@ -788,6 +798,14 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 			sleep(30) // Waiting for SSradio to be created.
 		if(!SSradio)
 			name = "broken radio"
+			ru_names = list(
+				NOMINATIVE = "сломанная рация",
+				GENITIVE = "сломанной рации",
+				DATIVE = "сломанной рации",
+				ACCUSATIVE = "сломанную рацию",
+				INSTRUMENTAL = "сломанной рацией",
+				PREPOSITIONAL = "сломанной рации"
+			)
 			return
 
 		secure_radio_connections[ch_name] = SSradio.add_object(src, SSradio.radiochannels[ch_name],  RADIO_CHAT)
@@ -816,16 +834,36 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	dog_fashion = /datum/dog_fashion/back
 
 /obj/item/radio/phone
-	broadcasting = 0
+	name = "phone"
+	desc = "Телефон, подключённый к внутренней системе связи станции. Несколько старомодно для 26 века."
+	ru_names = list(
+		NOMINATIVE = "телефон",
+		GENITIVE = "телефона",
+		DATIVE = "телефону",
+		ACCUSATIVE = "телефон",
+		INSTRUMENTAL = "телефоном",
+		PREPOSITIONAL = "телефоне"
+	)
+	gender = MALE
 	icon = 'icons/obj/items.dmi'
 	icon_state = "red_phone"
-	listening = 1
-	name = "phone"
+	listening = TRUE
+	broadcasting = FALSE
+	drop_sound = 'sound/items/handling/drop/phone_drop.ogg'
+	pickup_sound = 'sound/items/handling/pickup/phone_pickup.ogg'
 	dog_fashion = null
-	drop_sound = 'sound/items/handling/phone_drop.ogg'
-	pickup_sound = 'sound/items/handling/phone_pickup.ogg'
 
 /obj/item/radio/phone/medbay
+	name = "medbay phone"
+	desc = "Телефон, настроенный на медицинскую частоту системы связи станции. Дзинь."
+	ru_names = list(
+		NOMINATIVE = "медицинский телефон",
+		GENITIVE = "медицинского телефона",
+		DATIVE = "медицинскому телефону",
+		ACCUSATIVE = "медицинский телефон",
+		INSTRUMENTAL = "медицинским телефоном",
+		PREPOSITIONAL = "медицинском телефоне"
+	)
 	frequency = MED_I_FREQ
 
 /obj/item/radio/phone/medbay/New()
@@ -837,5 +875,14 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 
 /obj/item/radio/phone/ussp
 	name = "Red phone"
+	desc = "Телефон, подключённый к частоте СССП в пределах сектора."
+	ru_names = list(
+		NOMINATIVE = "красный телефон",
+		GENITIVE = "красного телефона",
+		DATIVE = "красному телефону",
+		ACCUSATIVE = "красный телефон",
+		INSTRUMENTAL = "красным телефоном",
+		PREPOSITIONAL = "красном телефоне"
+	)
 	has_loudspeaker = TRUE
 	frequency = SOV_FREQ

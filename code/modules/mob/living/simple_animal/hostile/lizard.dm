@@ -5,9 +5,9 @@
 	icon_living = "iguana"
 	icon_dead = "iguana_dead"
 	speak = list("RAWR!","Rawr!","GRR!","Growl!")
-	speak_emote = list("growls", "roars")
-	emote_hear = list("rawrs","grumbles","grawls")
-	emote_see = list("stares ferociously", "stomps")
+	speak_emote = list("шипит", "рычит")
+	emote_hear = list("рычит", "шипит", "хрипит")
+	emote_see = list("свирепо смотрит", "топчется на месте")
 	tts_seed = "Shaker"
 	speak_chance = 1
 	turns_per_move = 5
@@ -31,10 +31,14 @@
 	damaged_sound = list('sound/creatures/lizard_damaged.ogg')
 	footstep_type = FOOTSTEP_MOB_CLAW
 
-	minbodytemp = 250 //Weak to cold
-	maxbodytemp = T0C + 200
-
 	gold_core_spawnable = HOSTILE_SPAWN
+
+/mob/living/simple_animal/hostile/lizard/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		maxbodytemp = T0C + 200, \
+		minbodytemp = 250, \
+	)
 
 /mob/living/simple_animal/hostile/lizard/gator
 	name = "аллигатор"

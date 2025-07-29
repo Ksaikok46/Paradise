@@ -1,5 +1,5 @@
 /obj/mecha/combat/sidewinder // если вдруг будет введен оригинал, просьба заменить адрес на sidewinder/full_load для соблюдения логики и избежания ошибок
-	name = "\improper Экспериментальный Сайдвиндер"
+	name = "Экспериментальный Сайдвиндер"
 	desc = "Экпериментальная разработка НТ, стоимость которой сравнится со всей станцией Керберос и всем её содержимым. Смотря на это чудо, вы нутром понимаете последствия, если она поломается. Они будут печальными. Очень. Для всех."
 	icon_state = "sidewinder"
 	initial_icon = "sidewinder"
@@ -15,6 +15,8 @@
 	internal_damage_threshold = 100 // для тестов внутренних повреждений
 	max_equip = 40 //а хули вы хотели, 60 тонн!
 	starting_voice = /obj/item/mecha_modkit/voice/nanotrasen
+
+	mech_type = MECH_TYPE_SIDEWINTER
 
 /obj/mecha/combat/sidewinder/add_cell()
 	cell = new /obj/item/stock_parts/cell/infinite/abductor(src)
@@ -63,6 +65,8 @@
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot
 	ME.attach(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot/riot
+	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot/syndi
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg
@@ -82,4 +86,6 @@
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang/clusterbang
+	ME.attach(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/cage
 	ME.attach(src)

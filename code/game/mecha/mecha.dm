@@ -121,17 +121,24 @@
 	///Is mecha strafing currently
 	var/strafe = FALSE
 
+	///Mech subtype. Currently used in paintkits.
+	var/mech_type = MECH_TYPE_NONE
+
+	/// Modifier of some phasing effects.
+	var/phase_modifier = 1
+
 	hud_possible = list (DIAG_STAT_HUD, DIAG_BATT_HUD, DIAG_MECH_HUD, DIAG_TRACK_HUD)
 
 /obj/mecha/Initialize()
 	. = ..()
+	ADD_TRAIT(src, TRAIT_WEATHER_IMMUNE, INNATE_TRAIT)
 	icon_state += "-open"
 	add_radio()
 	add_cabin()
 	add_airtank()
 	spark_system.set_up(2, 0, src)
 	spark_system.attach(src)
-	smoke_system.set_up(3, src)
+	smoke_system.set_up(amount = 3, location = src)
 	smoke_system.attach(src)
 	add_cell()
 	START_PROCESSING(SSobj, src)
@@ -189,17 +196,17 @@
 	var/integrity = obj_integrity * 100 / max_integrity
 	switch(integrity)
 		if(85 to 100)
-			. += span_notice("It's fully intact.")
+			. += span_notice("Он полностью невредим.")
 		if(65 to 85)
-			. += span_notice("It's slightly damaged.")
+			. += span_notice("Он незначительно повреждён.")
 		if(45 to 65)
-			. += span_notice("It's badly damaged.")
+			. += span_notice("Он сильно повреждён.")
 		if(25 to 45)
-			. += span_notice("It's heavily damaged.")
+			. += span_notice("Он тяжело повреждён.")
 		else
-			. += span_warning("It's falling apart.")
+			. += span_warning("Он вот-вот развалится.")
 	if(equipment && equipment.len)
-		. += span_notice("It's equipped with:")
+		. += span_notice("Он экипирован следующими модулями:")
 		for(var/obj/item/mecha_parts/mecha_equipment/ME in equipment)
 			. += span_notice("[bicon(ME)] [ME]")
 
@@ -213,10 +220,10 @@
 	if(user.incapacitated())
 		return
 	if(phasing)
-		occupant_message(span_warning("Unable to interact with objects while phasing."))
+		occupant_message(span_warning("Нельзя взаимодействовать с объектами, пока [declent_ru(NOMINATIVE)] находится в режиме фазового перехода!"))
 		return
 	if(state)
-		occupant_message(span_warning("Maintenance protocols in effect."))
+		occupant_message(span_warning("Включены протоколы технического обслуживания."))
 		return
 	if(!get_charge())
 		return
@@ -228,12 +235,12 @@
 		if(!target.Adjacent(src))
 			if(selected && selected.is_ranged())
 				if(selected.harmful)
-					to_chat(L, span_warning("You don't want to harm other living beings!"))
+					to_chat(L, span_warning("Вы не хотите навредить другим живым существам!"))
 					return
 				selected.action(target, params)
 		else if(selected && selected.is_melee())
 			if(ishuman(target) && selected.harmful)
-				to_chat(user, span_warning("You don't want to harm other living beings!"))
+				to_chat(user, span_warning("Вы не хотите навредить другим живым существам!"))
 				return
 
 	var/dir_to_target = get_dir(src, target)
@@ -245,28 +252,34 @@
 		if(!target)
 			return
 	var/mob/living/L = user
-	if(!target.Adjacent(src))
-		if(selected && selected.is_ranged())
-			if(HAS_TRAIT(L, TRAIT_PACIFISM) && selected.harmful)
-				to_chat(L, span_warning("You don't want to harm other living beings!"))
-				return
-			if(user.mind?.martial_art?.no_guns)
-				to_chat(L, span_warning("[L.mind.martial_art.no_guns_message]"))
-				return
+	if(selected && selected.is_ranged())
+		if(HAS_TRAIT(L, TRAIT_PACIFISM) && selected.harmful)
+			to_chat(L, span_warning("Вы не хотите навредить другим живым существам!!"))
+			return
+		if(user.mind?.martial_art?.no_guns)
+			to_chat(L, span_warning("[L.mind.martial_art.no_guns_message]"))
+			return
+		if(!target.Adjacent(src))
 			selected.action(target, params)
+			return
+		else
+			if(L.a_intent == INTENT_HELP) // point blank shooting
+				selected.action(target, params)
+				return
 	else if(selected && selected.is_melee())
 		if(isliving(target) && selected.harmful && HAS_TRAIT(L, TRAIT_PACIFISM))
-			to_chat(user, span_warning("You don't want to harm other living beings!"))
+			to_chat(L, span_warning("Вы не хотите навредить другим живым существам!!"))
 			return
 		selected.action(target, params)
-	else
-		if(internal_damage & MECHA_INT_CONTROL_LOST)
-			target = safepick(oview(1, src))
-		if(!melee_can_hit || !isatom(target))
-			return
-		target.mech_melee_attack(src)
-		melee_can_hit = FALSE
-		addtimer(CALLBACK(src, PROC_REF(melee_hit_ready)), melee_cooldown)
+		return
+
+	if(internal_damage & MECHA_INT_CONTROL_LOST)
+		target = safepick(oview(1, src))
+	if(!melee_can_hit || !isatom(target))
+		return
+	target.mech_melee_attack(src)
+	melee_can_hit = FALSE
+	addtimer(CALLBACK(src, PROC_REF(melee_hit_ready)), melee_cooldown)
 
 /obj/mecha/proc/melee_hit_ready()
 	melee_can_hit = TRUE
@@ -278,7 +291,7 @@
 	wall_ready = TRUE
 
 /obj/mecha/proc/mech_toxin_damage(mob/living/target)
-	playsound(src, 'sound/effects/spray2.ogg', 50, 1)
+	playsound(src, 'sound/effects/spray2.ogg', 50, TRUE)
 	if(target.reagents)
 		if(target.reagents.get_reagent_amount("atropine") + force < force*2)
 			target.reagents.add_reagent("atropine", force/2)
@@ -334,31 +347,30 @@
 //////////////////////////////////
 ////////  Movement procs  ////////
 //////////////////////////////////
-/obj/mecha/Process_Spacemove(movement_dir = NONE)
+/obj/mecha/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	. = ..()
 	if(.)
 		return TRUE
-	if(thrusters_active && movement_dir && use_power(step_energy_drain))
-		return TRUE
+
 	//Turns strafe OFF if not enough energy to step (with actuator module only)
 	if(strafe && actuator && !has_charge(actuator.energy_per_step))
 		toggle_strafe(silent = TRUE)
 
-	var/atom/movable/backup = get_spacemove_backup(movement_dir)
-	if(!backup)
-		return FALSE
-
-	//get_spacemove_backup() already checks if a returned turf is solid, so we can just go
-	if(!istype(backup) || !movement_dir || backup.anchored)
+	var/atom/movable/backup = get_spacemove_backup(movement_dir, continuous_move)
+	if(backup)
+		if(!istype(backup) || !movement_dir || backup.anchored || continuous_move)
+			return TRUE	//get_spacemove_backup() already checks if a returned turf is solid, so we can just go
+		last_pushoff = world.time
+		if(backup.newtonian_move(REVERSE_DIR(movement_dir), instant = TRUE))
+			backup.last_pushoff = world.time
+			if(occupant)
+				to_chat(occupant, span_notice("Вы отталкиваетесь от [backup.declent_ru(GENITIVE)]."))
 		return TRUE
 
-	last_pushoff = world.time
-	if(backup.newtonian_move(REVERSE_DIR(movement_dir)))
-		backup.last_pushoff = world.time
-		if(occupant)
-			to_chat(occupant, span_info("You push off of [backup] to propel yourself."))
+	if(thrusters_active && movement_dir && use_power(step_energy_drain))
+		return TRUE
 
-	return TRUE
+	return FALSE
 
 
 /obj/mecha/relaymove(mob/user, direction)
@@ -366,15 +378,15 @@
 		return FALSE
 	if(user != occupant) //While not "realistic", this piece is player friendly.
 		user.forceMove(get_turf(src))
-		to_chat(user, span_notice("You climb out from [src]."))
+		to_chat(user, span_notice("Вы выбираетесь из [declent_ru(GENITIVE)]."))
 		return FALSE
 	if(connected_port)
 		if(world.time - last_message > 20)
-			occupant_message(span_warning("Unable to move while connected to the air system port!"))
+			occupant_message(span_warning("Нельзя двигаться, пока [declent_ru(NOMINATIVE)] подключён к коннектору!"))
 			last_message = world.time
 		return FALSE
 	if(state)
-		occupant_message(span_danger("Maintenance protocols in effect."))
+		occupant_message(span_danger("Включены протоколы технического обслуживания."))
 		return FALSE
 	return domove(direction)
 
@@ -392,14 +404,19 @@
 		return FALSE
 	if(defence_mode)
 		if(world.time - last_message > 20)
-			occupant_message(span_danger("Unable to move while in defence mode."))
+			occupant_message(span_danger("Нельзя двигаться, пока активен защитный режим!"))
 			last_message = world.time
 		return FALSE
 	if(zoom_mode)
 		if(world.time - last_message > 20)
-			occupant_message(span_danger("Unable to move while in zoom mode."))
+			occupant_message(span_danger("Нельзя двигаться, пока активен режим прицеливания!"))
 			last_message = world.time
 		return FALSE
+
+	for(var/obj/item/mecha_parts/mecha_equipment/cage/H in equipment)
+		if(H.holding)
+			occupant_message(span_notice("Вы перестаёте удерживать [H.holding.declent_ru(ACCUSATIVE)]."))
+			H.stop_supressing(H.holding)
 
 	//Turns strafe OFF if not enough energy to step (with actuator module only)
 	if(strafe && actuator && !has_charge(actuator.energy_per_step))
@@ -412,20 +429,19 @@
 	var/strafed_backwards = FALSE //Checks if mecha moved backwards, while strafe is active (used later to modify speed and energy drain)
 
 	var/keyheld = FALSE //Checks if player pressed ALT button down while strafe is active
-	if(strafe && occupant.client?.input_data.keys_held["Alt"])
+	if(strafe && occupant.client?.keys_held["Alt"])
 		keyheld = TRUE
 
 	if(internal_damage & MECHA_INT_CONTROL_LOST)
 		if(strafe) //No strafe while controls are malfunctioning
 			toggle_strafe(silent = TRUE)
-		if(direction & (direction - 1))	//Trick to check for diagonal direction
-			glide_for(step_in * 1.41)
-		else
-			glide_for(step_in)
 		move_result = mechsteprand()
 		move_type = MECHAMOVE_RAND
 	else if(direction & (UP|DOWN))
-		var/turf/above = GET_TURF_ABOVE(loc)
+		var/turf/T = get_turf(loc)
+		if(!isturf(T))
+			return
+		var/turf/above = GET_TURF_ABOVE(T)
 		if(!(direction & UP) || !can_z_move(DOWN, above, null, ZMOVE_FALL_FLAGS|ZMOVE_CAN_FLY_CHECKS|ZMOVE_FEEDBACK, occupant))
 			if(zMove(direction, z_move_flags = ZMOVE_FLIGHT_FLAGS))
 				playsound(src, stepsound, 40, 1)
@@ -440,28 +456,25 @@
 		if(direction & (direction - 1))	//Trick to check for diagonal direction
 			if(strafe)
 				if(strafe_diagonal) //Diagonal strafe is overpowered, disabled by default on all mechas
-					glide_for(step_in * 1.41)
 					step_in_final *= STRAFE_DIAGONAL_FACTOR //Applies speed multiplier if mecha moved diagonally
 					move_result = mechstep(direction, old_direction, step_in_final)
 					move_type = MECHAMOVE_STEP
 				else
-					glide_for(step_in)
 					strafed_backwards = is_opposite_dir(convert_diagonal_dir(direction))
 					step_in_final *= strafed_backwards ? STRAFE_BACKWARDS_FACTOR : 1 //Applies speed multiplier if mecha moved backwards
 					move_result = mechstep(convert_diagonal_dir(direction), old_direction, step_in_final) //Any diagonal movement will be converted to cardinal via "convert_diagonal_dir" proc
 					move_type = MECHAMOVE_STEP
 			else
-				glide_for(step_in * 1.41)
 				move_result = mechstep(direction)
 				move_type = MECHAMOVE_STEP
 		else
-			glide_for(step_in)
 			strafed_backwards = is_opposite_dir(direction)
 			step_in_final *= strafed_backwards ? STRAFE_BACKWARDS_FACTOR : 1 //Applies speed multiplier if mecha moved backwards
 			move_result = mechstep(direction, old_direction, step_in_final)
 			move_type = MECHAMOVE_STEP
 
 	if(move_result && move_type)
+		set_glide_size(DELAY_TO_GLIDE_SIZE(step_in_final))
 		if(strafe && actuator) //Energy drain mechanics for actuator module
 			use_power(strafed_backwards ? (actuator.energy_per_step * STRAFE_BACKWARDS_FACTOR) : actuator.energy_per_step)
 		aftermove(move_type)
@@ -492,7 +505,7 @@
 			leg_overload_mode = FALSE
 			step_in = initial(step_in)
 			step_energy_drain = initial(step_energy_drain)
-			occupant_message("<font color='red'>Leg actuators damage threshold exceded. Disabling overload.</font>")
+			occupant_message("<font color='red'>Превышен предел повреждения нижнего привода. Отключение режима перегрузки.</font>")
 
 /obj/mecha/proc/mechturn(direction)
 	dir = direction
@@ -509,20 +522,16 @@
 			can_move = world.time + step_in_final
 			if(turnsound)
 				playsound(src, turnsound, 40, 1)
-		if(phasing && get_charge() >= phasing_energy_drain)
+		if(phasing && get_charge() >= phasing_energy_drain / phase_modifier)
 			if(strafe) //No strafe while phase mode is active
 				toggle_strafe(silent = TRUE)
 			if(can_move < world.time)
 				. = FALSE // We lie to mech code and say we didn't get to move, because we want to handle power usage + cooldown ourself
 				flick("[initial_icon]-phase", src)
-				if(direction & (direction - 1))	//moved diagonally
-					glide_for(step_in * 4.23)
-				else
-					glide_for(step_in * 3)
 				forceMove(get_step(src, direction))
-				use_power(phasing_energy_drain)
+				use_power(phasing_energy_drain / phase_modifier)
 				playsound(src, stepsound, 40, 1)
-				can_move = world.time + (step_in * 3)
+				can_move = world.time + (step_in * 3 / phase_modifier)
 	else if(stepsound)
 		playsound(src, stepsound, 40, 1)
 
@@ -531,70 +540,69 @@
 	if(. && stepsound)
 		playsound(src, stepsound, 40, 1)
 
-/obj/mecha/Bump(var/atom/obstacle, bump_allowed)
-	if(throwing) //high velocity mechas in your face!
-		var/breakthrough = 0
-		if(istype(obstacle, /obj/structure/window))
-			qdel(obstacle)
-			breakthrough = 1
 
-		else if(istype(obstacle, /obj/structure/grille/))
-			var/obj/structure/grille/G = obstacle
-			G.obj_break()
-			breakthrough = 1
+/obj/mecha/Bump(atom/bumped_atom)
+	if(!throwing)
+		. = ..()
+		if(.)
+			return .
+		if(isobj(bumped_atom))
+			var/obj/bumped_object = bumped_atom
+			if(!bumped_object.anchored)
+				step(bumped_atom, dir)
+		else if(ismob(bumped_atom))
+			step(bumped_atom, dir)
+		return .
 
-		else if(istype(obstacle, /obj/structure/table))
-			var/obj/structure/table/T = obstacle
-			qdel(T)
-			breakthrough = 1
+	//high velocity mechas in your face!
+	var/breakthrough = FALSE
+	if(istype(bumped_atom, /obj/structure/window))
+		qdel(bumped_atom)
+		breakthrough = TRUE
 
-		else if(istype(obstacle, /obj/structure/rack))
-			new /obj/item/rack_parts(obstacle.loc)
-			qdel(obstacle)
-			breakthrough = 1
+	else if(istype(bumped_atom, /obj/structure/grille))
+		var/obj/structure/grille/grille = bumped_atom
+		grille.obj_break()
+		breakthrough = TRUE
 
-		else if(istype(obstacle, /obj/structure/reagent_dispensers/fueltank))
-			obstacle.ex_act(1)
+	else if(istype(bumped_atom, /obj/structure/table))
+		qdel(bumped_atom)
+		breakthrough = TRUE
 
-		else if(isliving(obstacle))
-			var/mob/living/L = obstacle
-			var/hit_sound = list('sound/weapons/genhit1.ogg','sound/weapons/genhit2.ogg','sound/weapons/genhit3.ogg')
-			if(L.flags & GODMODE)
-				return
-			L.take_overall_damage(5,0)
-			if(L.buckled)
-				L.buckled = 0
-			L.Weaken(10 SECONDS)
-			L.apply_effect(STUTTER, 10 SECONDS)
-			playsound(src, pick(hit_sound), 50, 0, 0)
-			breakthrough = 1
+	else if(istype(bumped_atom, /obj/structure/rack))
+		new /obj/item/rack_parts(bumped_atom.loc)
+		qdel(bumped_atom)
+		breakthrough = TRUE
 
-		else
-			if(throwing)
-				throwing.finalize()
-			crashing = null
+	else if(istype(bumped_atom, /obj/structure/reagent_dispensers/fueltank))
+		bumped_atom.ex_act(EXPLODE_DEVASTATE)
 
-		..()
-
-		if(breakthrough)
-			if(crashing)
-				spawn(1)
-					throw_at(crashing, 50, throw_speed)
-			else
-				spawn(1)
-					crashing = get_distant_turf(get_turf(src), dir, 3)//don't use get_dir(src, obstacle) or the mech will stop if he bumps into a one-direction window on his tile.
-					throw_at(crashing, 50, throw_speed)
-
+	else if(isliving(bumped_atom))
+		var/mob/living/bumped_living = bumped_atom
+		if(HAS_TRAIT(bumped_living, TRAIT_GODMODE))
+			return
+		var/static/list/mecha_hit_sound = list('sound/weapons/genhit1.ogg','sound/weapons/genhit2.ogg','sound/weapons/genhit3.ogg')
+		bumped_living.take_overall_damage(5)
+		bumped_living.unbuckle_mob(force = TRUE)
+		bumped_living.Weaken(10 SECONDS)
+		bumped_living.apply_effect(STUTTER, 10 SECONDS)
+		playsound(src, pick(mecha_hit_sound), 50, FALSE)
+		breakthrough = TRUE
 	else
-		if(bump_allowed)
-			if(..())
-				return
-			if(isobj(obstacle))
-				var/obj/O = obstacle
-				if(!O.anchored)
-					step(obstacle, dir)
-			else if(ismob(obstacle))
-				step(obstacle, dir)
+		throwing.finalize()
+		crashing = null
+
+	. = ..()
+
+	if(breakthrough)
+		if(crashing)
+			spawn(1)
+				throw_at(crashing, 50, throw_speed)
+		else
+			spawn(1)
+				crashing = get_distant_turf(get_turf(src), dir, 3)//don't use get_dir(src, obstacle) or the mech will stop if he bumps into a one-direction window on his tile.
+				throw_at(crashing, 50, throw_speed)
+
 
 
 ///////////////////////////////////
@@ -625,7 +633,7 @@
 /obj/mecha/proc/setInternalDamage(int_dam_flag)
 	internal_damage |= int_dam_flag
 	log_append_to_last("Internal damage of type [int_dam_flag].",1)
-	occupant << sound('sound/machines/warning-buzzer.ogg',wait=0)
+	SEND_SOUND(occupant, sound('sound/machines/warning-buzzer.ogg'))
 	diag_hud_set_mechstat()
 
 /obj/mecha/proc/clearInternalDamage(int_dam_flag)
@@ -675,13 +683,14 @@
 		return FALSE
 	var/booster_deflection_modifier = 1
 	var/booster_damage_modifier = 1
-	if(damage_flag == "bullet" || damage_flag == "laser" || damage_flag == "energy")
+	var/projectile_check = damage_flag == BULLET || damage_flag == LASER || damage_flag == ENERGY
+	if(projectile_check)
 		for(var/obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster/B in equipment)
 			if(B.projectile_react())
 				booster_deflection_modifier = B.deflect_coeff
 				booster_damage_modifier = B.damage_coeff
 				break
-	else if(damage_flag == "melee")
+	else if(damage_flag == MELEE)
 		for(var/obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster/B in equipment)
 			if(B.attack_react())
 				booster_deflection_modifier *= B.deflect_coeff
@@ -693,7 +702,7 @@
 		booster_damage_modifier /= facing_modifier
 		booster_deflection_modifier *= facing_modifier
 	if(prob(deflect_chance * booster_deflection_modifier))
-		visible_message(span_danger("[src]'s armour deflects the attack!"))
+		visible_message(span_danger("[src]'s armour deflects the attack!"), projectile_message = projectile_check)
 		log_message("Armor saved.")
 		return FALSE
 	if(.)
@@ -734,7 +743,8 @@
 
 /obj/mecha/blob_act(obj/structure/blob/B)
 	log_message("Attack by blob. Attacker - [B].")
-	take_damage(30, BRUTE, "melee", 0, get_dir(src, B))
+	B?.overmind?.blobstrain?.attack_mech(src)
+	take_damage(30, BRUTE, MELEE, 0, get_dir(src, B))
 
 /obj/mecha/attack_tk()
 	return
@@ -746,7 +756,7 @@
 		add_attack_logs(locateUID(I.thrownby), OCCUPANT_LOGGING, "threw [AM] at mech [src]")
 	. = ..()
 
-/obj/mecha/bullet_act(obj/item/projectile/Proj) //wrapper
+/obj/mecha/bullet_act(obj/projectile/Proj) //wrapper
 	log_message("Hit by projectile. Type: [Proj.name]([Proj.flag]).")
 	add_attack_logs(Proj.firer, OCCUPANT_LOGGING, "shot [Proj.name]([Proj.flag]) at mech [src]")
 	..()
@@ -839,108 +849,126 @@
 ////// AttackBy //////
 //////////////////////
 
-/obj/mecha/attackby(obj/item/W, mob/user, params)
-	if(istype(W, /obj/item/mmi))
-		if(mmi_move_inside(W,user))
-			to_chat(user, "[src]-MMI interface initialized successfuly")
-		else
-			to_chat(user, "[src]-MMI interface initialization failed.")
-		return
-
-	if(istype(W, /obj/item/mecha_parts/mecha_equipment))
-		var/obj/item/mecha_parts/mecha_equipment/E = W
-		if(E.can_attach(src))
-			if(!user.drop_from_active_hand())
-				return
-			E.attach(src)
-			user.visible_message("[user] attaches [W] to [src].", span_notice("You attach [W] to [src]."))
-		else
-			to_chat(user, span_warning("You were unable to attach [W] to [src]!"))
-		return
-
-	if(W.GetID())
-		if(add_req_access || maint_access)
-			if(internals_access_allowed(usr))
-				var/obj/item/card/id/id_card = W.GetID()
-				output_maintenance_dialog(id_card, user)
-				return
-			else
-				to_chat(user, span_warning("Invalid ID: Access denied."))
-		else
-			to_chat(user, span_warning("Maintenance protocols disabled by operator."))
-
-	else if(istype(W, /obj/item/stack/cable_coil))
-		if(state == 3 && hasInternalDamage(MECHA_INT_SHORT_CIRCUIT))
-			var/obj/item/stack/cable_coil/CC = W
-			if(CC.use(2))
-				clearInternalDamage(MECHA_INT_SHORT_CIRCUIT)
-				to_chat(user, "You replace the fused wires.")
-			else
-				to_chat(user, "There's not enough wire to finish the task.")
-		return
-
-	else if(istype(W, /obj/item/stock_parts/cell))
-		if(state==4)
-			if(!cell)
-				if(!user.drop_transfer_item_to_loc(W, src))
-					return
-				to_chat(user, span_notice("You install the powercell."))
-				cell = W
-				log_message("Powercell installed")
-			else
-				to_chat(user, span_notice("There's already a powercell installed."))
-		return
-
-	else if(istype(W, /obj/item/mecha_parts/mecha_tracking))
-		if(!user.drop_transfer_item_to_loc(W, src))
-			to_chat(user, span_notice("\the [W] is stuck to your hand, you cannot put it in \the [src]."))
-			return
-		trackers += W
-		user.visible_message("[user] attaches [W] to [src].", span_notice("You attach [W] to [src]."))
-		diag_hud_set_mechtracking()
-		return
-
-	else if(istype(W, /obj/item/paintkit))
-		if(occupant)
-			to_chat(user, "You can't customize a mech while someone is piloting it - that would be unsafe!")
-			return
-
-		var/obj/item/paintkit/P = W
-		var/found = null
-
-		for(var/type in P.allowed_types)
-			if(type == initial_icon)
-				found = TRUE
-				break
-
-		if(!found)
-			to_chat(user, "That kit isn't meant for use on this class of exosuit.")
-			return
-
-		user.visible_message("[user] opens [P] and spends some quality time customising [src].")
-
-		name = P.new_name
-		desc = P.new_desc
-		initial_icon = P.new_icon
-		update_icon(UPDATE_ICON_STATE)
-
-		user.temporarily_remove_item_from_inventory(P)
-		qdel(P)
-
-	else if(istype(W, /obj/item/mecha_modkit))
-		if(occupant)
-			to_chat(user, span_notice("You can't access the mech's modification port while it is occupied."))
-			return
-		var/obj/item/mecha_modkit/M = W
-		if(do_after(user, M.install_time, src, max_interact_count = 1))
-			M.install(src, user)
-		else
-			to_chat(user, span_notice("You stop installing [M]."))
-
-	else
-		if(W.force)
-			add_attack_logs(user, OCCUPANT_LOGGING, "attacked mech '[src]' using [W]")
+/obj/mecha/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		if(I.force)
+			add_attack_logs(user, OCCUPANT_LOGGING, "attacked mech '[name]' using [I]")
 		return ..()
+
+	if(istype(I, /obj/item/mmi))
+		add_fingerprint(user)
+		if(!mmi_move_inside(I, user))
+			to_chat(user, "[name]-MMI interface initialization failed.")
+			return ATTACK_CHAIN_PROCEED
+		to_chat(user, "[name]-MMI interface initialized successfuly")
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/mecha_parts/mecha_equipment))
+		add_fingerprint(user)
+		var/obj/item/mecha_parts/mecha_equipment/equipment = I
+		if(!equipment.can_attach(src))
+			to_chat(user, span_warning("You were unable to attach [I] to [src]!"))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		equipment.attach(src)
+		user.visible_message(
+			span_notice("[user] attaches [I] to [src]."),
+			span_notice("You attach [I] to [src]."),
+		)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/card/id))
+		add_fingerprint(user)
+		if(!add_req_access && !maint_access)
+			to_chat(user, span_warning("Maintenance protocols disabled by operator."))
+			return ATTACK_CHAIN_PROCEED
+		if(!internals_access_allowed(user))
+			to_chat(user, span_warning("Invalid ID: Access denied."))
+			return ATTACK_CHAIN_PROCEED
+		var/obj/item/card/id/id_card = I
+		output_maintenance_dialog(id_card, user)
+		return ATTACK_CHAIN_PROCEED
+
+	if(iscoil(I) && state == 3 && hasInternalDamage(MECHA_INT_SHORT_CIRCUIT))
+		add_fingerprint(user)
+		var/obj/item/stack/cable_coil/coil = I
+		if(!coil.use(2))
+			to_chat(user, span_warning("There's not enough wire to finish the task."))
+			return ATTACK_CHAIN_PROCEED
+		clearInternalDamage(MECHA_INT_SHORT_CIRCUIT)
+		to_chat(user, span_notice("You replace the fused wires."))
+		return ATTACK_CHAIN_PROCEED
+
+	if(iscell(I) && state == 4)
+		add_fingerprint(user)
+		if(cell)
+			to_chat(user, span_warning("There's already a powercell installed."))
+			return ATTACK_CHAIN_PROCEED
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		to_chat(user, span_notice("You install the powercell."))
+		cell = I
+		log_message("Powercell installed")
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/mecha_parts/mecha_tracking))
+		if(!user.drop_transfer_item_to_loc(I, src))
+			return ..()
+		add_fingerprint(user)
+		trackers += I
+		user.visible_message(
+			span_notice("[user] attaches [I] to [src]."),
+			span_notice("You attach [I] to [src]."),
+		)
+		diag_hud_set_mechtracking()
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/paintkit))
+		add_fingerprint(user)
+		if(occupant)
+			to_chat(user, span_warning("You can't customize a mech while someone is piloting it - that would be unsafe!"))
+			return ATTACK_CHAIN_PROCEED
+
+		var/obj/item/paintkit/paintkit = I
+		if(!(paintkit.allowed_types & mech_type))
+			to_chat(user, span_warning("This paintkit isn't meant for use on this class of exosuit."))
+			return ATTACK_CHAIN_PROCEED
+
+		if(!user.drop_transfer_item_to_loc(paintkit, src))
+			return ..()
+		user.visible_message(span_notice("[user] opens [paintkit] and spends some quality time customising [name]."))
+
+		var/list/icon_states = paintkit.icon_states
+		var/transformed_mech_type = "[mech_type]"
+		if(transformed_mech_type in icon_states)
+			initial_icon = icon_states[transformed_mech_type]
+		else
+			initial_icon = paintkit.new_icon
+		if(paintkit.name_prefix)
+			name = "[paintkit.name_prefix] [name]"
+		else
+			name = paintkit.new_name
+		desc = paintkit.new_desc
+		update_icon(UPDATE_ICON_STATE)
+		qdel(paintkit)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(I, /obj/item/mecha_modkit))
+		add_fingerprint(user)
+		if(occupant)
+			to_chat(user, span_warning("You can't access the mech's modification port while it is occupied."))
+			return ATTACK_CHAIN_PROCEED
+		var/obj/item/mecha_modkit/modkit = I
+		if(!do_after(user, modkit.install_time, src, max_interact_count = 1, cancel_on_max = TRUE, cancel_message = span_warning("You stop installing [modkit]."), category = DA_CAT_TOOL))
+			return ATTACK_CHAIN_PROCEED
+		modkit.install(src, user)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	if(I.force)
+		add_attack_logs(user, OCCUPANT_LOGGING, "attacked mech '[name]' using [I]")
+
+	return ..()
 
 
 /obj/mecha/crowbar_act(mob/user, obj/item/I)
@@ -1026,7 +1054,7 @@
 			user.visible_message(span_notice("[user] repairs the damaged gas tank."), span_notice("You repair the damaged gas tank."))
 		else if(obj_integrity < max_integrity)
 			user.visible_message(span_notice("[user] repairs some damage to [name]."), span_notice("You repair some damage to [name]."))
-			obj_integrity += min(10, max_integrity - obj_integrity)
+			repair_damage(min(10, max_integrity - obj_integrity))
 		else
 			to_chat(user, span_notice("[src] is at full integrity!"))
 	repairing = FALSE
@@ -1059,7 +1087,7 @@
 			to_chat(user, "[B.get_mecha_info_text()]")
 			break
 		//Nothing like a big, red link to make the player feel powerful!
-		to_chat(user, "<a href='?src=[user.UID()];ai_take_control=\ref[src]'>[span_userdanger("ASSUME DIRECT CONTROL?")]</a><br>")
+		to_chat(user, "<a href='byond://?src=[user.UID()];ai_take_control=\ref[src]'>[span_userdanger("ASSUME DIRECT CONTROL?")]</a><br>")
 	else
 		examine(user)
 		if(occupant)
@@ -1074,7 +1102,7 @@
 		if(!can_control_mech)
 			to_chat(user, span_warning("You cannot control exosuits without AI control beacons installed."))
 			return
-		to_chat(user, "<a href='?src=[user.UID()];ai_take_control=\ref[src]'>[span_boldnotice("Take control of exosuit?")]</a><br>")
+		to_chat(user, "<a href='byond://?src=[user.UID()];ai_take_control=\ref[src]'>[span_boldnotice("Take control of exosuit?")]</a><br>")
 
 /obj/mecha/transfer_ai(interaction, mob/user, mob/living/silicon/ai/AI, obj/item/aicard/card)
 	if(!..())
@@ -1091,7 +1119,7 @@
 				to_chat(user, span_warning("No AI detected in the [name] onboard computer."))
 				return
 			if(AI.mind.special_role) //Malf AIs cannot leave mechs. Except through death.
-				to_chat(user, span_boldannounce("ACCESS DENIED."))
+				to_chat(user, span_boldannounceic("ACCESS DENIED."))
 				return
 			AI.aiRestorePowerRoutine = 0//So the AI initially has power.
 			AI.control_disabled = TRUE
@@ -1138,21 +1166,25 @@
 	AI.forceMove(src)
 	occupant = AI
 	update_icon(UPDATE_ICON_STATE)
-	playsound(src, 'sound/machines/windowdoor.ogg', 50, 1)
+	playsound(src, 'sound/machines/windowdoor.ogg', 50, TRUE)
 	if(!hasInternalDamage())
-		occupant << sound(nominalsound, volume = 50)
+		SEND_SOUND(occupant, sound(nominalsound, volume = 50))
 	AI.eyeobj?.forceMove(src)
 	AI.eyeobj?.RegisterSignal(src, COMSIG_MOVABLE_MOVED, TYPE_PROC_REF(/mob/camera/aiEye, update_visibility))
 	AI.controlled_mech = src
 	AI.remote_control = src
 	AI.can_shunt = FALSE //ONE AI ENTERS. NO AI LEAVES.
-	to_chat(AI, "[AI.can_dominate_mechs ? span_announce("Takeover of [name] complete! You are now permanently loaded onto the onboard computer. Do not attempt to leave the station sector!") \
+	to_chat(AI, "[AI.can_dominate_mechs ? span_boldnotice("Takeover of [name] complete! You are now permanently loaded onto the onboard computer. Do not attempt to leave the station sector!") \
 	: span_notice("You have been uploaded to a mech's onboard computer.")]")
 	to_chat(AI, span_boldnotice("Use Middle-Mouse to activate mech functions and equipment. Click normally for AI interactions."))
 	if(interaction == AI_TRANS_FROM_CARD)
 		GrantActions(AI, FALSE)
 	else
 		GrantActions(AI, !AI.can_dominate_mechs)
+	if(selected)
+		var/atom/movable/screen/alert/empty_alert/default_alert = AI.throw_alert(selected.alert_category, /atom/movable/screen/alert/empty_alert, new_master = selected)
+		default_alert.name = selected.name
+		default_alert.desc = "Выбран модуль [selected.name]"
 
 /////////////////////////////////////
 ////////  Atmospheric stuff  ////////
@@ -1276,7 +1308,7 @@
 
 
 /obj/mecha/proc/put_in(mob/user)
-	if(do_after(user, mech_enter_time * gettoolspeedmod(user), src))
+	if(do_after(user, mech_enter_time, src, category = DA_CAT_TOOL))
 		if(obj_integrity <= 0)
 			to_chat(user, span_warning("You cannot get in the [name], it has been destroyed!"))
 		else if(occupant)
@@ -1294,7 +1326,6 @@
 /obj/mecha/proc/moved_inside(mob/living/carbon/human/H)
 	if(H && H.client && (H in range(1)))
 		occupant = H
-		H.stop_pulling()
 		H.forceMove(src)
 		add_fingerprint(H)
 		GrantActions(H, human_occupant = 1)
@@ -1302,14 +1333,18 @@
 		log_append_to_last("[H] moved in as pilot.")
 		update_icon(UPDATE_ICON_STATE)
 		dir = dir_in
-		playsound(src, 'sound/machines/windowdoor.ogg', 50, 1)
+		playsound(src, 'sound/machines/windowdoor.ogg', 50, TRUE)
 		if(!activated)
-			occupant << sound(longactivationsound, volume = 50)
+			SEND_SOUND(occupant, sound(longactivationsound, volume = 50))
 			activated = TRUE
 		else if(!hasInternalDamage())
-			occupant << sound(nominalsound, volume = 50)
+			SEND_SOUND(occupant, sound(nominalsound, volume = 50))
 		if(state)
 			H.throw_alert("locked", /atom/movable/screen/alert/mech_maintenance)
+		if(selected)
+			var/atom/movable/screen/alert/empty_alert/default_alert = H.throw_alert(selected.alert_category, /atom/movable/screen/alert/empty_alert, new_master = selected)
+			default_alert.name = selected.name
+			default_alert.desc = "Выбран модуль [selected.name]"
 		return TRUE
 	else
 		return FALSE
@@ -1348,7 +1383,7 @@
 		else if(mmi_as_oc.brainmob.stat)
 			to_chat(user, "Beta-rhythm below acceptable level.")
 			return FALSE
-		if(!user.drop_item_ground(mmi_as_oc))
+		if(!user.drop_transfer_item_to_loc(mmi_as_oc, src))
 			to_chat(user, span_notice("\the [mmi_as_oc] is stuck to your hand, you cannot put it in \the [src]."))
 			return FALSE
 		var/mob/living/carbon/brain/brainmob = mmi_as_oc.brainmob
@@ -1359,7 +1394,6 @@
 			var/obj/item/mmi/robotic_brain/R = mmi_as_oc
 			if(R.imprinted_master)
 				to_chat(brainmob, span_notice("Your imprint to [R.imprinted_master] has been temporarily disabled. You should help the crew and not commit harm."))
-		mmi_as_oc.loc = src
 		mmi_as_oc.mecha = src
 		Entered(mmi_as_oc)
 		Move(loc)
@@ -1382,50 +1416,70 @@
 		return TRUE
 	return FALSE
 
-/obj/mecha/Exited(atom/movable/M, atom/newloc)
-	..()
-	if(occupant && occupant == M) // The occupant exited the mech without calling go_out()
-		go_out(1, newloc)
+/obj/mecha/Exited(atom/movable/departed, atom/newLoc)
+	. = ..()
+	if(occupant && occupant == departed) // The occupant exited the mech without calling go_out()
+		go_out(TRUE, newLoc)
 
-/obj/mecha/Exit(atom/movable/O)
-	if(O in cargo)
+/obj/mecha/Exit(atom/movable/leaving, atom/newLoc)
+	if(leaving in cargo)
 		return FALSE
 	return ..()
 
 /obj/mecha/proc/go_out(forced, atom/newloc = loc)
 	if(!occupant)
 		return
+
+	for(var/obj/item/mecha_parts/mecha_equipment/equipment_mod in equipment)
+		equipment_mod.handle_occupant_exit()
+
 	var/atom/movable/mob_container
+
+	if(selected)
+		occupant.clear_alert(selected.alert_category)
 	occupant.clear_alert("charge")
 	occupant.clear_alert("locked")
 	occupant.clear_alert("mech damage")
 	occupant.clear_alert("mechaport")
 	occupant.clear_alert("mechaport_d")
+
+	for(var/obj/item/mecha_parts/mecha_equipment/cage/H in equipment)
+		if(H.holding)
+			occupant_message(span_notice("Вы перестаёте удерживать [H.holding]."))
+			H.stop_supressing(H.holding)
+
 	if(occupant && occupant.client)
 		occupant.client.mouse_pointer_icon = initial(occupant.client.mouse_pointer_icon)
+
 	if(ishuman(occupant))
 		mob_container = occupant
 		RemoveActions(occupant, human_occupant = 1)
+
 	else if(isbrain(occupant))
 		var/mob/living/carbon/brain/brain = occupant
 		RemoveActions(brain)
 		mob_container = brain.container
+
 	else if(isAI(occupant))
 		var/mob/living/silicon/ai/AI = occupant
 		//stop listening to this signal, as the static update is now handled by the eyeobj's setLoc
 		AI.eyeobj?.UnregisterSignal(src, COMSIG_MOVABLE_MOVED)
 		AI.eyeobj?.forceMove(newloc) //kick the eye out as well
+
 		if(forced)//This should only happen if there are multiple AIs in a round, and at least one is Malf.
 			RemoveActions(occupant)
 			if(!istype(newloc, /obj/item/aicard))
 				occupant.gib()  //If one Malf decides to steal a mech from another AI (even other Malfs!), they are destroyed, as they have nowhere to go when replaced.
 				occupant = null
+
 			return
+
 		else
 			if(!AI.linked_core || QDELETED(AI.linked_core))
 				to_chat(AI, span_userdanger("Inactive core destroyed. Unable to return."))
 				AI.linked_core = null
 				return
+
 			to_chat(AI, span_notice("Returning to core..."))
 			AI.controlled_mech = null
 			AI.remote_control = null
@@ -1433,25 +1487,31 @@
 			mob_container = AI
 			newloc = get_turf(AI.linked_core)
 			qdel(AI.linked_core)
+
 	else
 		return
+
 	var/mob/living/L = occupant
 	occupant = null //we need it null when forceMove calls Exited().
+
 	if(mob_container.forceMove(newloc))//ejecting mob container
 		log_message("[mob_container] moved out.")
-		L << browse(null, "window=exosuit")
+		close_window(L, "exosuit")
 
 		if(istype(mob_container, /obj/item/mmi))
 			var/obj/item/mmi/mmi = mob_container
 			if(mmi.brainmob)
 				L.forceMove(mmi)
 				L.reset_perspective()
+
 			mmi.mecha = null
 			mmi.update_icon()
+
 			if(istype(mmi, /obj/item/mmi/robotic_brain))
 				var/obj/item/mmi/robotic_brain/R = mmi
 				if(R.imprinted_master)
 					to_chat(L, span_notice("Imprint re-enabled, you are once again bound to [R.imprinted_master]'s commands."))
+
 		update_icon(UPDATE_ICON_STATE)
 		dir = dir_in
 
@@ -1549,7 +1609,7 @@
 			if(0.01 to 0.25)
 				occupant.throw_alert("charge", /atom/movable/screen/alert/mech_lowcell, 3)
 				if(!power_warned)
-					occupant << sound(lowpowersound, volume = 50)
+					SEND_SOUND(occupant, sound(lowpowersound, volume = 50))
 					power_warned = TRUE
 			else
 				occupant.throw_alert("charge", /atom/movable/screen/alert/mech_emptycell)
@@ -1736,6 +1796,22 @@
 /obj/mecha/update_icon_state()
 	var/init_icon_state = initial_icon ? initial_icon : initial(icon_state)
 	icon_state = occupant ? init_icon_state : "[init_icon_state]-open"
+
+
+/obj/mecha/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents)
+	. = ..()
+
+	if(!phasing || is_teleport_allowed(new_turf.z))
+		return
+
+	phasing = FALSE
+	occupant_message("<font color='#f00'>Phasing is malfunctioning.</font>")
+
+	if(!phasing_action.owner)
+		return
+
+	phasing_action.button_icon_state = "mech_phasing_off"
+	phasing_action.UpdateButtonIcon()
 
 
 #undef OCCUPANT_LOGGING

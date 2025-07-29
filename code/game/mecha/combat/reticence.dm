@@ -1,6 +1,6 @@
 /obj/mecha/combat/reticence
 	desc = "A silent, fast, and nigh-invisible miming exosuit. Popular among mimes and mime assassins."
-	name = "\improper Reticence"
+	name = "Reticence"
 	icon_state = "mime"
 	initial_icon = "mime"
 	step_in = 2
@@ -20,6 +20,8 @@
 	stepsound = null
 	turnsound = null
 	starting_voice = /obj/item/mecha_modkit/voice/silent
+
+	mech_type = MECH_TYPE_RETICENCE
 
 /obj/mecha/combat/reticence/loaded/New()
 	..()

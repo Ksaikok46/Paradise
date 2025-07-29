@@ -13,12 +13,12 @@
 
 /datum/event/headcrabs/start()
 	var/list/availableareas = list()
-	for(var/area/maintenance/A in world)
+	for(var/area/maintenance/A in GLOB.areas)
 		availableareas += A
 	var/area/randomarea = pick(availableareas)
 	var/list/turf/simulated/floor/turfs = list()
 	for(var/turf/simulated/floor/F in randomarea)
-		if(turf_clear(F))
+		if(!F.is_blocked_turf(exclude_mobs = TRUE))
 			turfs += F
 	var/list/spawn_types = list()
 	var/max_number
@@ -55,7 +55,9 @@
 
 
 /datum/event/headcrabs/announce()
-	GLOB.event_announcement.Announce("Биосканеры фиксируют размножение хедкрабов на борту станции. Избавьтесь от них, прежде чем это начнет влиять на продуктивность станции", "ВНИМАНИЕ: НЕОПОЗНАННЫЕ ФОРМЫ ЖИЗНИ.")
+	GLOB.minor_announcement.announce("Биосканеры фиксируют размножение хедкрабов на борту станции. Избавьтесь от них, прежде чем это начнет влиять на продуктивность станции",
+									ANNOUNCE_UNID_LIFEFORMS_RU
+	)
 
 #undef HEADCRAB_NORMAL
 #undef HEADCRAB_FASTMIX

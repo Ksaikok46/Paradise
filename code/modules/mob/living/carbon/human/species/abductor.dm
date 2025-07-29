@@ -8,17 +8,25 @@
 	default_language = LANGUAGE_HIVE_ABDUCTOR
 	eyes = "blank_eyes"
 	has_organ = list(
-		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart,
-		INTERNAL_ORGAN_LIVER = /obj/item/organ/internal/liver,
-		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys,
+		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart/grey/abductor,
+		INTERNAL_ORGAN_LIVER = /obj/item/organ/internal/liver/grey/abductor,
+		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys/grey/abductor,
 		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/abductor,
-		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/abductor, //3 darksight.
-		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
+		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/grey/abductor,
+		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears/grey/abductor,
 	)
 
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/humanoid/grey
 
-	species_traits = list(NO_BLOOD, NO_BREATHE, VIRUSIMMUNE, NOGUNS, NO_HUNGER, NO_EXAMINE, REPEATSURGERY)
+	inherent_traits = list(
+		TRAIT_NO_BLOOD,
+		TRAIT_NO_BREATH,
+		TRAIT_NO_GUNS,
+		TRAIT_VIRUSIMMUNE,
+		TRAIT_NO_SPECIES_EXAMINE,
+		TRAIT_NO_HUNGER,
+		TRAIT_MASTER_SURGEON,
+	)
 	dies_at_threshold = TRUE
 
 	taste_sensitivity = TASTE_SENSITIVITY_NO_TASTE
@@ -35,11 +43,12 @@
 	toxic_food = NONE
 	disliked_food = NONE
 
+
 /datum/species/abductor/can_understand(mob/other) //Abductors can understand everyone, but they can only speak over their mindlink to another team-member
 	return TRUE
 
 /datum/species/abductor/on_species_gain(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	H.gender = NEUTER
 	LAZYREINITLIST(H.languages) //Under no condition should you be able to speak any language
 	H.add_language(LANGUAGE_HIVE_ABDUCTOR) //other than over the abductor's own mindlink
@@ -48,6 +57,6 @@
 	abductor_hud.add_hud_to(H)
 
 /datum/species/abductor/on_species_loss(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	var/datum/atom_hud/abductor_hud = GLOB.huds[DATA_HUD_ABDUCTOR]
 	abductor_hud.remove_hud_from(H)

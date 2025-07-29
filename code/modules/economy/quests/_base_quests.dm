@@ -39,6 +39,11 @@
 	/// How many times we add time for order
 	var/time_add_count = -1
 
+/datum/cargo_quests_storage/Destroy(force)
+	QDEL_LIST(current_quests)
+	customer = null
+	. = ..()
+
 /datum/cargo_quests_storage/proc/generate(easy_mode)
 	if(!quest_difficulty)
 		quest_difficulty = customer.get_difficulty()
@@ -50,7 +55,7 @@
 		if(cargo_quest)
 			current_quests += cargo_quest
 
-	if(GLOB.security_level > SEC_LEVEL_RED)
+	if(SSsecurity_level.get_current_level_as_number() > SEC_LEVEL_RED)
 		reward *= 2
 	customer.change_reward(src)
 	customer.special(src)
@@ -144,10 +149,8 @@
 	var/datum/cargo_quests_storage/q_storage
 	/// Quest desc, using in interface.
 	var/list/desc = list()
-	/// Quest base icon, using in interface.
-	var/interface_icon
-	/// Quest base icon state, using in interface.
-	var/interface_icon_state
+	/// Item, which icon, used for category in interface.
+	var/item_for_show
 	/// Quest interface images, using in interface.
 	var/list/interface_images = list()
 	/// Requested order's item types, unless otherwise specified.
@@ -156,10 +159,20 @@
 	var/difficultly_flags
 
 
-/datum/cargo_quest/New(storage)
-	q_storage = storage
-	add_goal(difficultly = q_storage.quest_difficulty.diff_flag)
-	update_interface_icon()
+	var/cargo_quest_reward = 0 			//The reward for the quest, consider the debut of the roflcat
+	var/list/bounty_jobs = list() 		//Positions that will be paid. (Noooo I won't do part of this in new)
+	var/linked_departament = "Cargo" 	//The department key is specified to take it from the global list, no, I will not upload to new, I'm afraid to break even
+
+/datum/cargo_quest/New(storage, read_datum = FALSE)
+	if(!read_datum)
+		q_storage = storage
+		add_goal(difficultly = q_storage.quest_difficulty.diff_flag)
+		update_interface_icon()
+
+/datum/cargo_quest/Destroy(force)
+	q_storage = null
+	interface_images.Cut()
+	. = ..()
 
 /datum/cargo_quest/proc/generate_goal_list(difficultly)
 	return
@@ -171,8 +184,7 @@
 	return
 
 /datum/cargo_quest/proc/update_interface_icon()
-	if(interface_icon && interface_icon_state)
-		interface_images += icon2base64(icon(interface_icon, interface_icon_state, SOUTH, 1))
+	return
 
 /datum/cargo_quest/proc/check_required_item(atom/movable/check_item)
 	return

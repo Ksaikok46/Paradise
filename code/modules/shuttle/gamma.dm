@@ -5,24 +5,19 @@
 	height = 6
 	width = 7
 	dir = 4
-	fly_sound = null
-	callTime = 0
-	ignitionTime = 0
-	roundstart_move = "gamma_away"
+	fly_sound = 'sound/effects/hyperspace_end.ogg'
+	rechargeTime = 0
+	callTime = 8 SECONDS
 
 /obj/docking_port/mobile/gamma/request(obj/docking_port/stationary/S)
-	if(!check_dock(S))
-		return
-	destination = S
-	dock(destination) // Slap it NOW
+	. = ..()
 
-/obj/docking_port/mobile/gamma/dock(obj/docking_port/stationary/S1, force, transit)
-	..()
-	if(S1.id == "gamma_home") // Sending IN
-		for(var/obj/machinery/door/airlock/hatch/gamma/H in GLOB.airlocks)
-			H.unlock(TRUE)
-		GLOB.event_announcement.Announce("Центральное Командование отправило оружейный шаттл уровня Гамма.", new_sound = 'sound/AI/commandreport.ogg')
-	else // retrieving to CC
-		for(var/obj/machinery/door/airlock/hatch/gamma/H in GLOB.airlocks)
-			H.lock(TRUE)
-		GLOB.event_announcement.Announce("Центральное Командование отозвало оружейный шаттл уровня Гамма.", new_sound = 'sound/AI/commandreport.ogg')
+	if(!.)
+		if(!(S.id == "gamma_home"))
+			GLOB.major_announcement.announce("Центральное командование отозвало оружейный шаттл уровня Гамма.",
+											new_sound = 'sound/AI/gamma_recall.ogg'
+			)
+			return
+		GLOB.major_announcement.announce("Центральное командование отправило оружейный шаттл уровня Гамма.",
+										new_sound = 'sound/AI/gamma_deploy.ogg'
+		)

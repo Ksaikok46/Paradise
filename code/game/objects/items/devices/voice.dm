@@ -30,26 +30,34 @@
 
 /obj/item/voice_changer/attack_self(mob/user)
 	active = !active
-	icon_state = "voice_changer_[active ? "on" : "off"]"
+	update_icon(UPDATE_ICON_STATE)
 	if(inform_about_toggle)
-		to_chat(user, span_notice("You toggle [src] [active ? "on" : "off"]."))
+		user.balloon_alert(user, "[active ? "включено" : "выключено"]")
 
 	for(var/X in actions)
 		var/datum/action/A = X
 		A.UpdateButtonIcon()
 
+
+/obj/item/voice_changer/update_icon_state()
+	icon_state = "voice_changer_[active ? "on" : "off"]"
+
+
 /obj/item/voice_changer/proc/set_voice(mob/user)
 	var/mimic_voice
 	var/mimic_voice_tts
 
-	var/mimic_option = alert(user, "What voice do you want to mimic?", "Set Voice Changer", "Real Voice", "Custom Voice", "Cancel")
+	var/mimic_option = tgui_alert(user, "What voice do you want to mimic?", "Set Voice Changer", list("Real Voice", "Custom Voice", "Cancel"))
 	switch(mimic_option)
 		if("Real Voice")
-			var/mob/living/carbon/human/human = input(user, "Select a voice to copy from.", "Set Voice Changer") in GLOB.human_list
+			var/mob/living/carbon/human/human = tgui_input_list(user, "Select a voice to copy from.", "Set Voice Changer", GLOB.human_list)
+			if(!human)
+				return
+
 			mimic_voice = human.real_name
 			mimic_voice_tts = human.dna.tts_seed_dna
 		if("Custom Voice")
-			mimic_voice = reject_bad_name(stripped_input(user, "Enter a name to mimic.", "Set Voice Changer", null, MAX_NAME_LEN), TRUE)
+			mimic_voice = reject_bad_name(tgui_input_text(user, "Enter a name to mimic.", "Set Voice Changer", null, max_length = MAX_NAME_LEN), TRUE)
 			if(!mimic_voice)
 				to_chat(user, span_warning("Invalid name, try again."))
 				return
@@ -88,3 +96,12 @@
 	desc = "A voice scrambling module."
 	voice = "Unknown"
 	actions_types = list(/datum/action/item_action/voice_changer/toggle)
+
+/obj/item/voice_changer/ghostface
+	name = "Ghostface emmission"
+	desc = "Вы не должны были этого видеть. Пожалуйста, сообщите о нахождении этого предмета в #баг-репорты-v2"
+	voice = "Ghostface"
+	tts_voice = "Bloodseeker"
+	active = TRUE
+	actions_types = null
+	inform_about_toggle = FALSE

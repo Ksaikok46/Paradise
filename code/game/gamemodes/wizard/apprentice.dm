@@ -39,7 +39,7 @@
 			var/list/candidates = SSghost_spawns.poll_candidates("Do you want to play as the wizard apprentice of [teacher.real_name]?", ROLE_WIZARD, TRUE, source = source)
 			if(length(candidates))
 				var/mob/C = pick(candidates)
-				new /obj/effect/particle_effect/smoke(teacher.loc)
+				new /obj/effect/particle_effect/fluid/smoke(teacher.loc)
 				var/mob/living/carbon/human/apprentice = new/mob/living/carbon/human(teacher.loc)
 				apprentice.key = C.key
 				to_chat(apprentice, "<span class='notice'>You are the [teacher.real_name]'s apprentice! You are bound by magic contract to follow [teacher.p_their()] orders and help [teacher.p_them()] in accomplishing their goals.</span>")
@@ -57,7 +57,7 @@
 				var/wizard_name_first = pick(GLOB.wizard_first)
 				var/wizard_name_second = pick(GLOB.wizard_second)
 				var/randomname = "[wizard_name_first] [wizard_name_second]"
-				var/newname = sanitize(copytext_char(input(apprentice, "You are the wizard's apprentice. Would you like to change your name to something else?", "Name change", randomname) as null|text,1,MAX_NAME_LEN))
+				var/newname = tgui_input_text(apprentice, "You are the wizard's apprentice. Would you like to change your name to something else?", "Name change", randomname, max_length = MAX_NAME_LEN)
 
 				if(!newname)
 					newname = randomname
@@ -129,15 +129,15 @@
 		school.owner = apprentice
 		school.kit()
 		if (teacher)
-			to_chat(teacher, "<B>Ваш подопечный прибыл по первому вашему зову. Прилежно и усердно обучаясь у вас, он смог выучить одну из школ магии. [school.desc]")
-			to_chat(apprentice, "<B>Ваше служение не осталось незамеченный. Обучаясь у [teacher.real_name], вы смогли научиться одной из школ магии. [school.desc]")
+			to_chat(teacher, "<b>Ваш подопечный прибыл по первому вашему зову. Прилежно и усердно обучаясь у вас, он смог выучить одну из школ магии. [school.desc]</b>")
+			to_chat(apprentice, "<b>Ваше служение не осталось незамеченный. Обучаясь у [teacher.real_name], вы смогли научиться одной из школ магии. [school.desc]</b>")
 		else
-			to_chat(apprentice, "<B>Выбрана [school.name]. [school.desc]")
+			to_chat(apprentice, "<b>Выбрана [school.name]. [school.desc]</b>")
 		break
 
 /obj/item/contract/attack_self(mob/user as mob)
 	user.set_machine(src)
-	var/dat = {"<meta charset="UTF-8">"}
+	var/dat = ""
 	if(used)
 		dat += used_contract()
 	else
@@ -145,37 +145,39 @@
 
 		var/datum/possible_schools/schools = new
 		for (var/datum/magick_school/school in schools.schools_list)
-			dat += "<A href='byond://?src=[UID()];school=[school.id]'>[school.name]</A><BR>"
-			dat += "<I>[school.desc]</I><BR>"
+			dat += "<a href='byond://?src=[UID()];school=[school.id]'>[school.name]</a><br>"
+			dat += "<i>[school.desc]</i><br>"
 
-	user << browse(dat, "window=radio")
-	onclose(user, "radio")
+	var/datum/browser/popup = new(user, "magick_school", "Выбор школы")
+	popup.set_content(dat)
+	popup.open(TRUE)
+	onclose(user, "magick_school")
 	return
 
 ///Титульник в контракте
 /obj/item/contract/proc/tittle()
-	var/dat = "<B>Contract of apprenticeship:</B><BR>"
-	dat += "<I>Using this contract, you may summon an apprentice to aid you on your mission.</I><BR>"
-	dat += "<I>If you are unable to establish contact with your apprentice, you can feed the contract back to the spellbook to refund your points.</I><BR>"
+	var/dat = "<b>Contract of apprenticeship:</b><br>"
+	dat += "<i>Using this contract, you may summon an apprentice to aid you on your mission.</i><br>"
+	dat += "<i>If you are unable to establish contact with your apprentice, you can feed the contract back to the spellbook to refund your points.</i><br>"
 
-	dat += "<B>Which school of magic is your apprentice studying?:</B><BR>"
+	dat += "<b>Which school of magic is your apprentice studying?:</b><br>"
 	return dat
 
 /obj/item/contract/apprentice_choose_book/tittle()
-	var/dat = "<B>Магический учебник:</B><BR>"
-	dat += "<I>Изучив этот учебник, вы определитесь в магии, которую будете практиковать.</I><BR>"
-	dat += "<I>Перед тем как выбрать один из путей, хорошо подумайте и поговорите со своим учителем для получении рекомендаций.</I><BR>"
-	dat += "<I>Если учитель не настроен на разговор - ничего страшного! В данном учебнике приведено краткое описание возможных путей.</I><BR>"
+	var/dat = "<b>Магический учебник:</b><br>"
+	dat += "<i>Изучив этот учебник, вы определитесь в магии, которую будете практиковать.</i><br>"
+	dat += "<i>Перед тем как выбрать один из путей, хорошо подумайте и поговорите со своим учителем для получении рекомендаций.</i><br>"
+	dat += "<i>Если учитель не настроен на разговор - ничего страшного! В данном учебнике приведено краткое описание возможных путей.</i><br>"
 
-	dat += "<BR><B>Какую школу магии вы хотели бы изучать?:</B><BR>"
+	dat += "<br><b>Какую школу магии вы хотели бы изучать?:</b><br>"
 	return dat
 
 ///Сообщение выдаваемое при использовании использованных контрактов
 /obj/item/contract/proc/used_contract()
-	return "<span class='notice'>You have already summoned your apprentice.</span><BR>"
+	return "<span class='notice'>You have already summoned your apprentice.</span><br>"
 
 /obj/item/contract/apprentice_choose_book/used_contract()
-	return "<span class='notice'>Письмена стерты, а все страницы пусты. Похоже учебник уже был изучен.</span><BR>"
+	return "<span class='notice'>Письмена стерты, а все страницы пусты. Похоже учебник уже был изучен.</span><br>"
 
 /////////Magick Schools//////////
 
@@ -272,10 +274,10 @@
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/charge(null))
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/summonitem(null))
 	owner.equip_or_collect(new /obj/item/gun/magic/staff/animate(owner), ITEM_SLOT_HAND_RIGHT)
-	owner.equip_or_collect(new /obj/item/clothing/suit/blacktrenchcoat/suit/saboteur, ITEM_SLOT_CLOTH_OUTER)
+	owner.equip_or_collect(new /obj/item/clothing/suit/storage/blacktrenchcoat/suit/saboteur, ITEM_SLOT_CLOTH_OUTER)
 	owner.equip_or_collect(new /obj/item/clothing/head/fedora/head/saboteur, ITEM_SLOT_HEAD)
 
-/obj/item/clothing/suit/blacktrenchcoat/suit/saboteur
+/obj/item/clothing/suit/storage/blacktrenchcoat/suit/saboteur
 	magical = TRUE
 	name = "Роба саботёра"
 	desc = "Магическая роба-саботёра. Стильная и приталенная!"
@@ -309,7 +311,7 @@
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/forcewall/greater(null))
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/repulse(null))
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/sacred_flame(null))
-	ADD_TRAIT(owner, RESISTHOT, MAGIC_TRAIT)	//sacred_flame из-за не совсем верной выдачи, без этого, не выдает защиту от огня.
+	ADD_TRAIT(owner, TRAIT_RESIST_HEAT, MAGIC_TRAIT)	//sacred_flame из-за не совсем верной выдачи, без этого, не выдает защиту от огня.
 
 	owner.equip_or_collect(new /obj/item/clothing/suit/wizrobe/magusdefender(owner), ITEM_SLOT_CLOTH_OUTER)
 	owner.equip_or_collect(new /obj/item/clothing/head/wizard/magusdefender(owner), ITEM_SLOT_HEAD)
@@ -324,7 +326,7 @@
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/smoke(null))
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/fireball(null))
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/sacred_flame(null))
-	ADD_TRAIT(owner, RESISTHOT, MAGIC_TRAIT)
+	ADD_TRAIT(owner, TRAIT_RESIST_HEAT, MAGIC_TRAIT)
 	owner.equip_or_collect(new /obj/item/clothing/suit/victcoat/red/suit/fire_robe, ITEM_SLOT_CLOTH_OUTER)
 
 /obj/item/clothing/suit/victcoat/red/suit/fire_robe
@@ -423,13 +425,13 @@
 /datum/magick_school/vision/kit()
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/trigger/blind(null))
 	owner.equip_or_collect(new /obj/item/scrying(owner), ITEM_SLOT_HAND_RIGHT)
-	//Выдаем трейты ОРБа
-	if(!(XRAY in owner.mutations))
-		owner.mutations.Add(XRAY)
-		owner.add_sight(SEE_MOBS|SEE_OBJS|SEE_TURFS)
-		owner.nightvision = 8
+	if(!HAS_TRAIT_FROM(owner, TRAIT_XRAY, SCRYING_ORB_TRAIT))
+		ADD_TRAIT(owner, TRAIT_XRAY, SCRYING_ORB_TRAIT)
+		owner.see_in_dark = 8
 		owner.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-		to_chat(owner, "<span class='notice'>The walls suddenly disappear.</span>")
+		owner.update_sight()
+		owner.update_misc_effects()
+		to_chat(owner, span_notice("The walls suddenly disappear."))
 
 	owner.equip_or_collect(new /obj/item/clothing/suit/wizrobe/visionmage(owner), ITEM_SLOT_CLOTH_OUTER)
 	owner.equip_or_collect(new /obj/item/clothing/head/wizard/visionmage(owner), ITEM_SLOT_HEAD)
@@ -491,7 +493,7 @@
 	owner.equip_or_collect(new /obj/item/clothing/head/wizard/magus(owner), ITEM_SLOT_HEAD)
 
 /datum/magick_school/lavaland
-	name = "Школа Лаваленда"
+	name = "Школа Лазиса"
 	id = "lavaland"
 	desc = "Школа, использующая традиции магии пеплоходцев."
 

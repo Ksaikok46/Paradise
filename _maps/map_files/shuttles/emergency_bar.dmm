@@ -198,7 +198,7 @@
 "aG" = (
 /obj/machinery/door/airlock/security/glass{
 	name = "Escape Shuttle Cell";
-	req_access = list(2)
+	req_access = list(63)
 	},
 /turf/simulated/floor/plating,
 /area/shuttle/escape)
@@ -286,7 +286,8 @@
 	height = 13;
 	name = "The Emergency Escape Bar";
 	timid = 1;
-	width = 24
+	width = 24;
+	port_direction = 8
 	},
 /obj/machinery/door/airlock/shuttle{
 	aiControlDisabled = 1;
@@ -424,7 +425,6 @@
 /area/shuttle/escape)
 "bn" = (
 /obj/machinery/door/airlock/medical/glass{
-	id_tag = null;
 	name = "Escape Shuttle Infirmary"
 	},
 /turf/simulated/floor/shuttle{

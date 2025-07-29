@@ -1,12 +1,12 @@
 /client/proc/delbook()
 	set name = "Delete Book"
 	set desc = "Permamently deletes a book from the database."
-	set category = "Admin"
+	set category = STATPANEL_ADMIN_ADMIN
 
 	if(!check_rights(R_ADMIN))
 		return
 
-	var/isbn = input("ISBN number?", "Delete Book") as num | null
+	var/isbn = tgui_input_number(usr, "ISBN number?", "Delete Book")
 	if(!isbn)
 		return
 
@@ -24,7 +24,7 @@
 /client/proc/view_flagged_books()
 	set name = "View Flagged Books"
 	set desc = "View books flagged for content."
-	set category = "Admin"
+	set category = STATPANEL_ADMIN_ADMIN
 
 	if(!check_rights(R_ADMIN))
 		return
@@ -55,9 +55,9 @@
 		books++
 		var/isbn = query.item[1]
 		dat += "<tr><td>[add_zero(isbn, 4)]</td><td>[query.item[2]]</td><td>[query.item[3]]</td><td>[query.item[4]]</td><td>"
-		dat += "<a href='?_src_=holder;library_book_id=[isbn];view_library_book=1;'>View Content</a>"
-		dat += "<a href='?_src_=holder;library_book_id=[isbn];unflag_library_book=1;'>Unflag</a>"
-		dat += "<a href='?_src_=holder;library_book_id=[isbn];delete_library_book=1;'>Delete</a>"
+		dat += "<a href='byond://?_src_=holder;library_book_id=[isbn];view_library_book=1;'>View Content</a>"
+		dat += "<a href='byond://?_src_=holder;library_book_id=[isbn];unflag_library_book=1;'>Unflag</a>"
+		dat += "<a href='byond://?_src_=holder;library_book_id=[isbn];delete_library_book=1;'>Delete</a>"
 		dat += "</td>"
 
 	dat += "</table>"

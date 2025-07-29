@@ -12,7 +12,7 @@
 /datum/action/changeling/biodegrade/sting_action(mob/living/carbon/human/user)
 	var/used = FALSE // only one form of shackles removed per use
 
-	if(!HAS_TRAIT(user, TRAIT_RESTRAINED) && !istype(user.loc, /obj/structure/closet) && !istype(user.loc, /obj/structure/spider/cocoon) && !LAZYLEN(user.grabbed_by))
+	if(!HAS_TRAIT(user, TRAIT_RESTRAINED) && !istype(user.loc, /obj/structure/closet) && !istype(user.loc, /obj/structure/spider/cocoon) && !user.pulledby)
 		to_chat(user, span_warning("We are already free!"))
 		return FALSE
 
@@ -38,7 +38,7 @@
 		addtimer(CALLBACK(src, PROC_REF(dissolve_restraint), user, legcuffs), 3 SECONDS)
 		used = TRUE
 
-	if(user.wear_suit?.breakouttime && !used)
+	if(user.wear_suit?.breakout_time && !used)
 		var/obj/item/clothing/suit/res_suit = user.get_item_by_slot(ITEM_SLOT_CLOTH_OUTER)
 		if(!istype(res_suit))
 			return FALSE
@@ -48,6 +48,21 @@
 
 		addtimer(CALLBACK(src, PROC_REF(dissolve_restraint), user, res_suit), 3 SECONDS)
 		used = TRUE
+
+	// mech supress escape
+	if(HAS_TRAIT_FROM(user, TRAIT_IMMOBILIZED, MECH_SUPRESSED_TRAIT))
+		user.remove_traits(list(TRAIT_IMMOBILIZED, TRAIT_FLOORED), MECH_SUPRESSED_TRAIT)
+		used = TRUE
+
+	// mech cage container escape
+	if(istype(user.loc, /obj/item/mecha_parts/mecha_equipment/cage))
+		var/obj/item/mecha_parts/mecha_equipment/cage/container = user.loc
+		var/obj/mecha/mech = container.chassis
+		mech.visible_message(span_warning("Камера содержания [mech.declent_ru(GENITIVE)] начинает плавиться!"), \
+									span_warning("Мы изрыгаем кислотную жидкость на стенки клетки!"))
+		user.forceMove(get_turf(container))
+		container.prisoner = null
+		container.update_equip_info()
 
 	if(istype(user.loc, /obj/structure/closet) && !used)
 		var/obj/structure/closet/closet = user.loc
@@ -71,16 +86,14 @@
 		addtimer(CALLBACK(src, PROC_REF(dissolve_cocoon), user, cocoon), 2.5 SECONDS) //Very short because it's just webs
 		used = TRUE
 
-	if(!used)
-		for(var/obj/item/grab/grab in user.grabbed_by)
-			var/mob/living/carbon/grab_owner = grab.assailant
-			user.visible_message(span_warning("[user] spits acid at [grab_owner]'s face and slips out of their grab!"))
-			grab_owner.Stun(2 SECONDS) //Drops the grab
-			grab_owner.apply_damage(5, BURN, BODY_ZONE_HEAD, grab_owner.run_armor_check(BODY_ZONE_HEAD, MELEE))
-			user.SetStunned(0) //This only triggers if they are grabbed, to have them break out of the grab, without the large stun time. If you use biodegrade as an antistun without being grabbed, it will not work
-			user.SetWeakened(0)
-			playsound(user.loc, 'sound/weapons/sear.ogg', 50, TRUE)
-			used = TRUE
+	if(!used && user.pulledby)
+		var/mob/living/grab_owner = user.pulledby
+		user.visible_message(span_warning("[user] spits acid at [grab_owner]'s face and slips out of their grab!"))
+		grab_owner.apply_damage(5, BURN, BODY_ZONE_HEAD, grab_owner.run_armor_check(BODY_ZONE_HEAD, MELEE))
+		playsound(user.loc, 'sound/weapons/sear.ogg', 50, TRUE)
+		grab_owner.stop_pulling()
+		user.client?.move_delay = world.time	// to skip move delay we probably got from resisting the grab
+		used = TRUE
 
 	if(used)
 		SSblackbox.record_feedback("nested tally", "changeling_powers", 1, list("[name]"))

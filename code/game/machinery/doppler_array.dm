@@ -9,6 +9,7 @@ GLOBAL_LIST_EMPTY(doppler_arrays)
 	density = TRUE
 	anchored = TRUE
 	atom_say_verb = "states coldly"
+	interaction_flags_click = NEED_HANDS | ALLOW_RESTING | NEED_DEXTERITY
 	var/list/logged_explosions = list()
 	var/explosion_target
 	var/datum/tech/toxins/toxins_tech
@@ -20,12 +21,16 @@ GLOBAL_LIST_EMPTY(doppler_arrays)
 	var/actual_size_message
 	var/theoretical_size_message
 
-/datum/explosion_log/New(var/log_time, var/log_epicenter, var/log_actual_size_message, var/log_theoretical_size_message)
+/datum/explosion_log/New(log_time, log_epicenter, log_actual_size_message, log_theoretical_size_message)
 	..()
 	logged_time = log_time
 	epicenter = log_epicenter
 	actual_size_message = log_actual_size_message
 	theoretical_size_message = log_theoretical_size_message
+
+/obj/machinery/doppler_array/examine(mob/user)
+	. = ..()
+	. += span_notice("<b>Alt-Click</b> to rotate.")
 
 /obj/machinery/doppler_array/New()
 	..()
@@ -38,13 +43,18 @@ GLOBAL_LIST_EMPTY(doppler_arrays)
 	logged_explosions.Cut()
 	return ..()
 
+
 /obj/machinery/doppler_array/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
 	if(istype(I, /obj/item/disk/tech_disk))
 		add_fingerprint(user)
 		var/obj/item/disk/tech_disk/disk = I
 		disk.load_tech(toxins_tech)
 		to_chat(user, span_notice("You swipe the disk into [src]."))
-		return
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
 	return ..()
 
 
@@ -65,25 +75,11 @@ GLOBAL_LIST_EMPTY(doppler_arrays)
 	ui_interact(user)
 
 
-/obj/machinery/doppler_array/AltClick(mob/user)
+/obj/machinery/doppler_array/click_alt(mob/user)
 	rotate(user)
-
-
-/obj/machinery/doppler_array/verb/rotate_verb()
-	set name = "Rotate Tachyon-doppler Dish"
-	set category = "Object"
-	set src in oview(1)
-	rotate(usr)
-
+	return CLICK_ACTION_SUCCESS
 
 /obj/machinery/doppler_array/proc/rotate(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		return
-	if(!Adjacent(user))
-		return
-	if(!user.IsAdvancedToolUser())
-		to_chat(user, span_warning("You don't have the dexterity to do that!"))
-		return
 	add_fingerprint(user)
 	dir = turn(dir, 90)
 	to_chat(user, span_notice("You rotate [src]."))
@@ -100,7 +96,7 @@ GLOBAL_LIST_EMPTY(doppler_arrays)
 
 /obj/machinery/doppler_array/proc/print()
 	visible_message(span_notice("[src] prints a piece of paper!"))
-	playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, 1)
+	playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, TRUE)
 	var/obj/item/paper/explosive_log/P = new(get_turf(src))
 	for(var/D in logged_explosions)
 		var/datum/explosion_log/E = D
@@ -182,10 +178,10 @@ GLOBAL_LIST_EMPTY(doppler_arrays)
 	update_icon(UPDATE_ICON_STATE)
 
 
-/obj/machinery/doppler_array/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/doppler_array/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "TachyonArray", name, 500, 600, master_ui, state)
+		ui = new(user, src, "TachyonArray", name)
 		ui.open()
 
 /obj/machinery/doppler_array/ui_data(mob/user)

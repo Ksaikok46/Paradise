@@ -1,185 +1,185 @@
 //Spacebattle Areas
 
 /area/awaymission/spacebattle
-	name = "\improper Space Battle"
+	name = "Space Battle"
 	icon_state = "away"
 	requires_power = TRUE
 	report_alerts = FALSE
 
 /area/awaymission/spacebattle/cruiser
-	name = "\improper Nanotrasen Cruiser"
+	name = "Nanotrasen Cruiser"
 
 /area/awaymission/spacebattle/syndicate1
-	name = "\improper Syndicate Assault Ship 1"
+	name = "Syndicate Assault Ship 1"
 
 /area/awaymission/spacebattle/syndicate2
-	name = "\improper Syndicate Assault Ship 2"
+	name = "Syndicate Assault Ship 2"
 
 /area/awaymission/spacebattle/syndicate3
-	name = "\improper Syndicate Assault Ship 3"
+	name = "Syndicate Assault Ship 3"
 
 /area/awaymission/spacebattle/syndicate4
-	name = "\improper Syndicate War Sphere 1"
+	name = "Syndicate War Sphere 1"
 
 /area/awaymission/spacebattle/syndicate5
-	name = "\improper Syndicate War Sphere 2"
+	name = "Syndicate War Sphere 2"
 
 /area/awaymission/spacebattle/syndicate6
-	name = "\improper Syndicate War Sphere 3"
+	name = "Syndicate War Sphere 3"
 
 /area/awaymission/spacebattle/syndicate7
-	name = "\improper Syndicate Fighter"
+	name = "Syndicate Fighter"
 
 /area/awaymission/spacebattle/secret
-	name = "\improper Hidden Chamber"
+	name = "Hidden Chamber"
 
 /area/awaymission/spacebattle/prhallway1
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 
 /area/awaymission/spacebattle/prhallway2
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 
 /area/awaymission/spacebattle/prhallway3
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 	fire = TRUE
 
 /area/awaymission/spacebattle/prhallway4
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 
 /area/awaymission/spacebattle/prhallway5
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 
 /area/awaymission/spacebattle/prhallway6
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 
 /area/awaymission/spacebattle/prhallway7
-	name = "\improper Primary Hallway"
+	name = "Primary Hallway"
 
 /area/awaymission/spacebattle/kitchen
-	name = "\improper Kitchen"
+	name = "Kitchen"
 
 /area/awaymission/spacebattle/medbay
-	name = "\improper MedBay"
+	name = "MedBay"
 
 /area/awaymission/spacebattle/freezing
-	name = "\improper Freezing Room"
+	name = "Freezing Room"
 
 /area/awaymission/spacebattle/server
-	name = "\improper Server Room"
+	name = "Server Room"
 
 /area/awaymission/spacebattle/bridge
-	name = "\improper Bridge"
+	name = "Bridge"
 
 /area/awaymission/spacebattle/space_exit1
-	name = "\improper Space Exit"
+	name = "Space Exit"
 
 /area/awaymission/spacebattle/space_exit2
-	name = "\improper Space Exit"
+	name = "Space Exit"
 
 /area/awaymission/spacebattle/space_exit3
-	name = "\improper Space Exit"
+	name = "Space Exit"
 
 /area/awaymission/spacebattle/space_exit4
-	name = "\improper Space Exit"
+	name = "Space Exit"
 
 /area/awaymission/spacebattle/space_exit5
-	name = "\improper Space Exit"
+	name = "Space Exit"
 
 /area/awaymission/spacebattle/hallway1
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway2
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway3
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway4
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway5
-	name = "\improper Hallway"
+	name = "Hallway"
 	fire = TRUE
 
 /area/awaymission/spacebattle/hallway6
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway7
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway8
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway9
-	name = "\improper Hallway"
+	name = "Hallway"
 	fire = TRUE
 
 /area/awaymission/spacebattle/hallway10
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway11
-	name = "\improper Hallway"
+	name = "Hallway"
 	fire = TRUE
 
 /area/awaymission/spacebattle/hallway12
-	name = "\improper Hallway"
+	name = "Hallway"
 	fire = TRUE
 
 /area/awaymission/spacebattle/hallway13
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/hallway14
-	name = "\improper Hallway"
+	name = "Hallway"
 
 /area/awaymission/spacebattle/engine
-	name = "\improper Engine Room"
+	name = "Engine Room"
 
 /area/awaymission/spacebattle/engineering
-	name = "\improper Engineering"
+	name = "Engineering"
 	fire = TRUE
 
 /area/awaymission/spacebattle/storage
-	name = "\improper Storage"
+	name = "Storage"
 
 /area/awaymission/spacebattle/living
-	name = "\improper Living Room"
+	name = "Living Room"
 	fire = TRUE
 
 /area/awaymission/spacebattle/turret1
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret2
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret3
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret4
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret5
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret6
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret7
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret8
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret9
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/turret10
-	name = "\improper Turret Room"
+	name = "Turret Room"
 
 /area/awaymission/spacebattle/bsa
-	name = "\improper BSA Chamber"
+	name = "BSA Chamber"
 
 /area/awaymission/spacebattle/sec_storage
-	name = "\improper Secure Storage"
+	name = "Secure Storage"
 
 // Записочки
 
@@ -215,7 +215,7 @@
 	info = "<p> <i> Дешифрованное сообщение с вокс-пиджина </i> <br> К'цай, ты не поверишь куда я попал! Эти пылевые мешки все-таки позвали меня рулить их кораблем! Говорят, у нас будет нормальное дело на поживится всяким НТшным добром, готовьте скипджек, вышлю координаты как будем собираться возвращаться. </p>"
 
 /obj/item/paper/spacebattle/voxcap1 // Экипаж говнит вокса-офицера
-	info = "<p> Командир, мы вообще не поняли подобного юмора - вокс?! Мы понимаем, что эти чашуйчатые говнюки грабят только так, это у них в крови или той хрени, что у них течет в жилах, но ВОКС-КАПИТАН? Мы не будем терпеть этого мудака, он успел обосрать половину составва, называя то лысыми, то пылевиками, то еще как-то, если он выпрется из каюты и еще выдаст хоть какую-то хрень на своем чик-чирике мы его порешаем на месте! </p>"
+	info = "<p> Командир, мы вообще не поняли подобного юмора - вокс?! Мы понимаем, что эти чашуйчатые говнюки грабят только так, это у них в крови или той хрени, что у них течет в жилах, но ВОКС-КАПИТАН? Мы не будем терпеть этого мудака, он успел обосрать половину составва, называя то лысыми, то пылевиками, то ещё как-то, если он выпрется из каюты и ещё выдаст хоть какую-то хрень на своем чик-чирике мы его порешаем на месте! </p>"
 
 /obj/item/paper/spacebattle/voxcap2 // Механик центрального корабля
 	info = "<p> <center> <b> Личная запись </b> </center> <br> <b> Бортовой техник: </b> Позывной '12й' <br> Эта крыса чашуйчатая опять полезла ко мне в ангар жрать запчасти от моих дронов. Я не могу грубить старшему, но у меня так половина дронов из строя выйдет, если эта скатина продолжит искать 'вкикикусненькикое' в них! Слыхал, что другие тоже недовольны положением, оно и видно - такую хрень поставили за главного! </p> "
@@ -236,31 +236,44 @@
 	var/faction = null
 	var/safety_z_check = TRUE
 
+
+/obj/effect/landmark/awaymissions/spacebattle/mine_spawner/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
+
+/obj/effect/landmark/awaymissions/spacebattle/mine_spawner/proc/on_entered(datum/source, mob/living/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(triggered)
+		return
+
+	if(!isliving(arrived))
+		return
+
+	if(faction && (faction in arrived.faction))
+		return
+
+	arrived.spawn_alert(arrived)
+
+	for(var/obj/effect/landmark/awaymissions/spacebattle/mob_spawn/landmark in GLOB.landmarks_list)
+		if(safety_z_check && landmark.z != z)
+			continue
+		if(landmark.id == id)
+			new landmark.syndi_mob(get_turf(landmark))
+			triggered = TRUE
+	qdel(src)
+
+
 /obj/effect/landmark/awaymissions/spacebattle/mob_spawn
 	name = "spawner"
 	icon = 'icons/obj/spacebattle.dmi'
 	var/id = null
 	var/syndi_mob = null
 
-/obj/effect/landmark/awaymissions/spacebattle/mine_spawner/Crossed(AM as mob|obj, oldloc)
-	if(!isliving(AM))
-		return
-	var/mob/living/M = AM
-	if(faction && (faction in M.faction))
-		return
-	triggerlandmark(M)
-
-/obj/effect/landmark/awaymissions/spacebattle/mine_spawner/proc/triggerlandmark(mob/living/victim)
-	if(triggered)
-		return
-	victim.spawn_alert(victim)
-	for(var/obj/effect/landmark/awaymissions/spacebattle/mob_spawn/S in GLOB.landmarks_list)
-		if(safety_z_check && S.z != z)
-			continue
-		if(S.id == id)
-			new S.syndi_mob(get_turf(S))
-			triggered = TRUE
-	qdel(src)
 
 /mob/living/proc/spawn_alert(atom/A) // Вызывает появление восклицательного знака над головой при наступании на маркер
 	var/image/I
@@ -272,6 +285,7 @@
 	flick_overlay(I,viewing,8)
 	I.alpha = 0
 	animate(I, pixel_z = 32, alpha = 255, time = 5, easing = ELASTIC_EASING)
+
 
 /obj/effect/landmark/awaymissions/spacebattle/mob_spawn/melee
 	name = "melee"
@@ -418,9 +432,9 @@
 	health = 50
 	maxHealth = 50
 	faction = list("syndicate")
-	projectiletype = /obj/item/projectile/beam/laser/syndrone
+	projectiletype = /obj/projectile/beam/laser/syndrone
 
-/obj/item/projectile/beam/laser/syndrone
+/obj/projectile/beam/laser/syndrone
 	name = "light immolation beam"
 	damage = 8
 	icon_state = "scatterlaser"
@@ -498,8 +512,6 @@
 		icon_state = "wisewill-Combat-roll"
 	else if(health / maxHealth < 0.5)
 		icon_state = "wisewill-Combat"
-
-/mob/living/simple_animal_hostile/mimic/spacebattleshiz // ящики, при прикосновении заменяются на мимиков из него дропается ящик с лутом
 
 // Corpse and loot
 

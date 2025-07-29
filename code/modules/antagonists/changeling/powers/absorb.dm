@@ -15,21 +15,19 @@
 		to_chat(user, span_warning("We are already absorbing!"))
 		return FALSE
 
-	var/obj/item/grab/grab = user.get_active_hand()
-	if(!istype(grab))
+	if(!user.pulling || user.pull_hand != user.hand)
 		to_chat(user, span_warning("We must be grabbing a creature in our active hand to absorb them."))
 		return FALSE
 
-	if(grab.state <= GRAB_NECK)
+	if(user.grab_state <= GRAB_NECK)
 		to_chat(user, span_warning("We must have a tighter grip to absorb this creature."))
 		return FALSE
 
-	return cling.can_absorb_dna(grab.affecting)
+	return cling.can_absorb_dna(user.pulling)
 
 
 /datum/action/changeling/absorbDNA/sting_action(mob/user)
-	var/obj/item/grab/grab = user.get_active_hand()
-	var/mob/living/carbon/human/target = grab.affecting
+	var/mob/living/carbon/human/target = user.pulling
 	cling.is_absorbing = TRUE
 
 	for(var/stage in 1 to 3)
@@ -75,12 +73,12 @@
 			recent_speech = target.say_log.Copy()
 
 		if(recent_speech)
-			user.mind.store_memory("<B>Some of [target]'s speech patterns. We should study these to better impersonate [target.p_them()]!</B>")
+			user.mind.store_memory("<b>Some of [target]'s speech patterns. We should study these to better impersonate [target.p_them()]!</b>")
 			to_chat(user, span_boldnotice("Some of [target]'s speech patterns. We should study these to better impersonate [target.p_them()]!"))
 			for(var/spoken_memory in recent_speech)
 				user.mind.store_memory("\"[spoken_memory]\"")
 				to_chat(user, span_notice("\"[spoken_memory]\""))
-			user.mind.store_memory("<B>We have no more knowledge of [target]'s speech patterns.</B>")
+			user.mind.store_memory("<b>We have no more knowledge of [target]'s speech patterns.</b>")
 			to_chat(user, span_boldnotice("We have no more knowledge of [target]'s speech patterns."))
 
 		var/datum/antagonist/changeling/target_cling = target?.mind?.has_antag_datum(/datum/antagonist/changeling)

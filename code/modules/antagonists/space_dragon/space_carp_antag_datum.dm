@@ -1,6 +1,7 @@
 /datum/antagonist/space_carp
-	name = "\improper Space Carp"
+	name = "Space Carp"
 	special_role = SPECIAL_ROLE_CARP
+	antag_menu_name = "Космический карп"
 	/// The rift to protect
 	var/obj/structure/carp_rift/rift
 
@@ -10,7 +11,7 @@
 	rift = new_rift
 
 
-/datum/antagonist/space_carp/Destroy(force, ...)
+/datum/antagonist/space_carp/Destroy(force)
 	rift = null
 	return ..()
 
@@ -36,6 +37,7 @@
 /datum/objective/space_carp
 	explanation_text = "Защищайте разлом призыва карпов."
 	needs_target = FALSE
+	antag_menu_name = "Защищать разлом"
 	var/obj/structure/carp_rift/rift
 
 

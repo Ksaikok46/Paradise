@@ -2,7 +2,6 @@
 /datum/data/pda
 	var/icon = "tasks"		//options comes from http://fontawesome.io/icons/
 	var/notify_icon = "exclamation-circle"
-	var/notify_silent = 0
 	var/hidden = 0				// program not displayed in main menu
 	var/category = "General"	// the category to list it in on the main menu
 	var/obj/item/pda/pda	// if this is null, and the app is running code, something's gone wrong
@@ -19,6 +18,14 @@
 
 /datum/data/pda/proc/program_process()
 	return
+
+/datum/data/pda/proc/on_id_updated()
+	return
+
+/datum/data/pda/proc/stamp_act(obj/item/stamp/stamp)
+	if(!istype(stamp))
+		return FALSE
+	return TRUE
 
 /datum/data/pda/proc/program_hit_check()
 	return
@@ -37,18 +44,18 @@
 			to_chat(L, "[bicon(pda)] [message]")
 			SStgui.update_user_uis(L, pda) // Update the receiving user's PDA UI so that they can see the new message
 
-	if(!notify_silent)
+	if(!pda.silent)
 		pda.play_ringtone()
 
 	if(blink && !(src in pda.notifying_programs))
-		pda.add_overlay(image('icons/obj/pda.dmi', "pda-r"))
 		pda.notifying_programs |= src
+		pda.update_icon(UPDATE_OVERLAYS)
+
 
 /datum/data/pda/proc/unnotify()
 	if(src in pda.notifying_programs)
 		pda.notifying_programs -= src
-		if(!pda.notifying_programs.len)
-			pda.cut_overlay(image('icons/obj/pda.dmi', "pda-r"))
+		pda.update_icon(UPDATE_OVERLAYS)
 
 
 // An app has a button on the home screen and its own UI
@@ -68,7 +75,9 @@
 	if(pda.current_app)
 		pda.current_app.stop()
 	pda.current_app = src
-	return 1
+	if(!pda.silent)
+		playsound(pda, 'sound/machines/terminal_select.ogg', 15, TRUE)
+	return TRUE
 
 /datum/data/pda/app/proc/update_ui(mob/user, list/data)
 	return
