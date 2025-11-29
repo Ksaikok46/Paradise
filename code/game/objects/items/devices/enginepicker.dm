@@ -1,22 +1,24 @@
 /obj/item/enginepicker
 	name = "Bluespace Engine Delivery Device"
 	desc = "Система доставки двигателя, основанная на блюспейс-технологиях. Есть возможность выбрать только один вариант. Устройство самоуничтожается после использования."
-	ru_names = list(
+	icon = 'icons/obj/device.dmi'
+	icon_state = "enginepicker"
+
+	var/list/list_enginebeacons
+	var/isactive = FALSE
+
+/obj/item/enginepicker/get_ru_names()
+	return list(
 		NOMINATIVE = "Блюспейс устройство доставки двигателя",
 		GENITIVE = "Блюспейс устройства доставки двигателя",
 		DATIVE = "Блюспейс устройству доставки двигателя",
 		ACCUSATIVE = "Блюспейс устройство доставки двигателя",
 		INSTRUMENTAL = "Блюспейс устройством доставки двигателя",
-		PREPOSITIONAL = "Блюспейс устройстве доставки двигателя"
+		PREPOSITIONAL = "Блюспейс устройстве доставки двигателя",
 	)
-	icon = 'icons/obj/device.dmi'
-	icon_state = "enginepicker"
-
-	var/list/list_enginebeacons = list()
-	var/isactive = FALSE
 
 /obj/item/enginepicker/Destroy()
-	list_enginebeacons.Cut()
+	LAZYCLEARLIST(list_enginebeacons)
 	return ..()
 
 /obj/item/enginepicker/attack_self(mob/living/carbon/user)
@@ -39,18 +41,18 @@
 //This proc re-assigns all of engine beacons in the global list to a local list.
 /obj/item/enginepicker/proc/locatebeacons()
 	LAZYCLEARLIST(list_enginebeacons)
-	for(var/obj/item/radio/beacon/engine/B in GLOB.engine_beacon_list)
+	for(var/obj/item/beacon/engine/B in GLOB.engine_beacon_list)
 		if(B && !QDELETED(B))	//This ensures that the input pop-up won't have any qdeleted beacons
-			list_enginebeacons += B
+			LAZYADD(list_enginebeacons, B)
 
 //Spawns and logs / announces the appropriate engine based on the choice made
-/obj/item/enginepicker/proc/processchoice(var/obj/item/radio/beacon/engine/choice, mob/living/carbon/user)
+/obj/item/enginepicker/proc/processchoice(obj/item/beacon/engine/choice, mob/living/carbon/user)
 	var/issuccessful = FALSE	//Check for a successful choice
 	var/engtype					//Engine type
 	var/G						//Generator that will be spawned
 	var/turf/T = get_turf(choice)
 
-	if(choice.enginetype.len > 1)	//If the beacon has multiple engine types
+	if(length(choice.enginetype) > 1)	//If the beacon has multiple engine types
 		var/E = tgui_input_list(user, "Вы выбрали комбинированный маяк, какой вариант вы бы предпочли?", "[declent_ru(NOMINATIVE)]", choice.enginetype)
 		if(E)
 			engtype = E
@@ -71,7 +73,7 @@
 		issuccessful = TRUE
 
 	if(issuccessful)
-		clearturf(T) 	//qdels all items / gibs all mobs on the turf. Let's not have an SM shard spawn on top of a poor sod.
+		clearturf(T)	//qdels all items / gibs all mobs on the turf. Let's not have an SM shard spawn on top of a poor sod.
 		new G(T)		//Spawns the switch-selected engine on the chosen beacon's turf
 
 		var/ailist[] = list()
@@ -89,7 +91,7 @@
 		return
 
 /// Deletes objects and mobs from the beacon's turf.
-/obj/item/enginepicker/proc/clearturf(var/turf/T)
+/obj/item/enginepicker/proc/clearturf(turf/T)
 	for(var/obj/item/I in T)
 		I.visible_message("[capitalize(I.declent_ru(NOMINATIVE))] превращается в пыль!")
 		qdel(I)

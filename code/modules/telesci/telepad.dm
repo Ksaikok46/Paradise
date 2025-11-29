@@ -5,13 +5,12 @@
 	icon = 'icons/obj/telescience.dmi'
 	icon_state = "pad"
 	anchored = TRUE
-	use_power = IDLE_POWER_USE
 	idle_power_usage = 200
 	active_power_usage = 5000
 	var/efficiency
 
-/obj/machinery/telepad/New()
-	..()
+/obj/machinery/telepad/Initialize(mapload)
+	. = ..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/telesci_pad(null)
 	component_parts += new /obj/item/stack/ore/bluespace_crystal/artificial(null, 2)
@@ -20,8 +19,8 @@
 	component_parts += new /obj/item/stack/cable_coil(null, 1)
 	RefreshParts()
 
-/obj/machinery/telepad/upgraded/New()
-	..()
+/obj/machinery/telepad/upgraded/Initialize(mapload)
+	. = ..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/telesci_pad(null)
 	component_parts += new /obj/item/stack/ore/bluespace_crystal/artificial(null, 2)
@@ -36,7 +35,6 @@
 		E += C.rating
 	efficiency = E
 
-
 /obj/machinery/telepad/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
@@ -45,7 +43,6 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
-
 
 /obj/machinery/telepad/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
@@ -73,7 +70,6 @@
 	icon = 'icons/obj/telescience.dmi'
 	icon_state = "pad"
 	anchored = TRUE
-	use_power = IDLE_POWER_USE
 	idle_power_usage = 20
 	active_power_usage = 500
 	var/stage = 0
@@ -95,13 +91,11 @@
 	. = TRUE
 	default_unfasten_wrench(user, I)
 
-
 /obj/machinery/telepad_cargo/deconstruct(disassembled = TRUE)
 	if(!(obj_flags & NODECONSTRUCT))
 		new /obj/item/stack/sheet/metal(loc)
 		new /obj/item/stack/sheet/glass(loc)
 	..()
-
 
 ///TELEPAD CALLER///
 /obj/item/telepad_beacon

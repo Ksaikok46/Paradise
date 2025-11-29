@@ -1,18 +1,20 @@
 /obj/structure/katana_grave
 	name = "katana mound"
 	desc = "Пустынная и неглубокая могила павшему воину. В эту вставлена катана."
-	ru_names = list(
+	icon = 'icons/obj/lavaland/misc.dmi'
+	icon_state = "grave_katana"
+	anchored = TRUE
+	var/obj/item/dropping_item = /obj/item/organ/internal/cyberimp/arm/katana  //fix
+
+/obj/structure/katana_grave/get_ru_names()
+	return list(
 		NOMINATIVE = "могила с катаной",
 		GENITIVE = "могилы с катаной",
 		DATIVE = "могиле с катаной",
 		ACCUSATIVE = "могилу с катаной",
 		INSTRUMENTAL = "могилой с катаной",
-		PREPOSITIONAL = "могиле с катаной"
+		PREPOSITIONAL = "могиле с катаной",
 	)
-	icon = 'icons/obj/lavaland/misc.dmi'
-	icon_state = "grave_katana"
-	anchored = TRUE
-	var/obj/item/dropping_item = /obj/item/organ/internal/cyberimp/arm/katana  //fix
 
 /obj/structure/katana_grave/attack_hand(mob/user)
 	. = ..()

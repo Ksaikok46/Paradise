@@ -44,12 +44,18 @@ GLOBAL_PROTECT(log_end)
 		WRITE_LOG(GLOB.world_game_log, "DEBUG: [text][GLOB.log_end]")
 
 	for(var/client/C in GLOB.admins)
-		if(check_rights(R_DEBUG|R_VIEWRUNTIMES, 0, C.mob) && (C.prefs.toggles & PREFTOGGLE_CHAT_DEBUGLOGS))
+		if(check_rights(R_DEBUG|R_VIEWRUNTIMES, FALSE, C.mob) && (C.prefs.toggles & PREFTOGGLE_CHAT_DEBUGLOGS))
 			to_chat(C, "<span class='debug'>DEBUG: [text]</span>", MESSAGE_TYPE_DEBUG, confidential = TRUE)
 
 /proc/log_game(text)
 	if(CONFIG_GET(flag/log_game))
 		WRITE_LOG(GLOB.world_game_log, "GAME: [text][GLOB.log_end]")
+
+/proc/log_mapmanip(text)
+	if(!CONFIG_GET(flag/log_mapmanip))
+		return
+
+	WRITE_LOG(GLOB.mapmanip_log, "MAPMANIP: [text][GLOB.log_end]")
 
 /proc/log_vote(text)
 	if(CONFIG_GET(flag/log_vote))
@@ -139,7 +145,7 @@ GLOBAL_PROTECT(log_end)
 
 /proc/log_pda(text, mob/speaker)
 	if(CONFIG_GET(flag/log_pda))
-		WRITE_LOG(GLOB.world_game_log, "PDA: [speaker.simple_info_line()]: [html_decode(text)][GLOB.log_end]")
+		WRITE_LOG(GLOB.world_game_log, "[speaker ? "PDA: [speaker.simple_info_line()]:" : "(No sender)"] [html_decode(text)][GLOB.log_end]")
 
 /proc/log_chat(text, mob/speaker)
 	if(CONFIG_GET(flag/log_pda))
@@ -202,7 +208,6 @@ GLOBAL_PROTECT(log_end)
 			to_chat(C, "GC DEBUG: [text]")
 #endif
 
-
 /proc/log_sql(text)
 	WRITE_LOG(GLOB.sql_log, "[text][GLOB.log_end]")
 	SEND_TEXT(world.log, text) // Redirect it to DD too
@@ -216,7 +221,7 @@ GLOBAL_PROTECT(log_end)
 
 // A logging proc that only outputs after setup is done, to
 // help devs test initialization stuff that happens a lot
-/proc/log_after_setup(var/message)
+/proc/log_after_setup(message)
 	if(SSticker && SSticker.current_state > GAME_STATE_SETTING_UP)
 		to_chat(world, span_danger("[message]"))
 		log_world(message)
@@ -227,14 +232,13 @@ GLOBAL_PROTECT(log_end)
 
 // Helper procs for building detailed log lines
 
-/proc/datum_info_line(var/datum/d)
+/proc/datum_info_line(datum/d)
 	if(!istype(d))
 		return
 	if(!istype(d, /mob))
 		return "[d] ([d.type])"
 	var/mob/m = d
 	return "[m] ([m.ckey]) ([m.type])"
-
 
 /proc/atom_loc_line(atom/A)
 	if(!istype(A))
@@ -248,7 +252,6 @@ GLOBAL_PROTECT(log_end)
 		return "([AREACOORD(T)])"
 	else if(A.loc)
 		return "(UNKNOWN (?, ?, ?))"
-
 
 /mob/proc/simple_info_line()
 	return "[key_name(src)] ([x],[y],[z])"
@@ -326,7 +329,7 @@ GLOBAL_PROTECT(log_end)
 				loglevel = ATKLOG_ALMOSTALL
 		else
 			var/area/A = get_area(MT)
-			if(A && A.hide_attacklogs)
+			if(A?.hide_attacklogs)
 				loglevel = ATKLOG_ALMOSTALL
 	else
 		loglevel = ATKLOG_ALL // Hitting an object. Not a mob

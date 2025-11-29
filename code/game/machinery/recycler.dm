@@ -18,9 +18,9 @@
 	var/eat_victim_items = 1
 	var/item_recycle_sound = 'sound/machines/recycler.ogg'
 
-/obj/machinery/recycler/New()
+/obj/machinery/recycler/Initialize(mapload)
+	. = ..()
 	AddComponent(/datum/component/material_container, list(MAT_METAL, MAT_GLASS, MAT_PLASMA, MAT_SILVER, MAT_GOLD, MAT_DIAMOND, MAT_URANIUM, MAT_BANANIUM, MAT_TRANQUILLITE, MAT_TITANIUM, MAT_PLASTIC, MAT_BLUESPACE), 0, TRUE, null, null, null, TRUE)
-	..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/recycler(null)
 	component_parts += new /obj/item/stock_parts/matter_bin(null)
@@ -51,14 +51,12 @@
 		return
 	update_icon(UPDATE_ICON_STATE)
 
-
 /obj/machinery/recycler/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
-
 
 /obj/machinery/recycler/crowbar_act(mob/user, obj/item/I)
 	if(default_deconstruction_crowbar(user, I))
@@ -72,25 +70,22 @@
 	if(default_unfasten_wrench(user, I))
 		return TRUE
 
-
 /obj/machinery/recycler/emag_act(mob/user)
 	if(!emagged)
 		emagged = 1
 		if(emergency_mode)
 			emergency_mode = FALSE
 			update_icon(UPDATE_ICON_STATE)
-		playsound(src, "sparks", 75, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
+		playsound(src, SFX_SPARKS, 75, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
 		if(user)
 			to_chat(user, span_notice("You use the cryptographic sequencer on the [name]."))
 		add_attack_logs(user, src, "emagged")
-
 
 /obj/machinery/recycler/update_icon_state()
 	var/is_powered = !(stat & (BROKEN|NOPOWER))
 	if(emergency_mode)
 		is_powered = FALSE
 	icon_state = icon_name + "[is_powered]" + "[(blood ? "bld" : "")]" // add the blood tag at the end
-
 
 /obj/machinery/recycler/Bumped(atom/movable/moving_atom)
 	. = ..()
@@ -99,7 +94,6 @@
 	var/move_dir = get_dir(loc, moving_atom.loc)
 	if(move_dir == eat_dir)
 		eat(moving_atom)
-
 
 /obj/machinery/recycler/proc/eat(atom/AM0, sound = 1)
 	var/list/to_eat = list(AM0)
@@ -139,7 +133,6 @@
 	materials.insert_item(I, multiplier = (amount_produced / 100))
 	qdel(I)
 	materials.retrieve_all()
-
 
 /obj/machinery/recycler/proc/emergency_stop(mob/living/L)
 	playsound(loc, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
@@ -189,7 +182,6 @@
 	else if(emagged == 1)
 		L.adjustBruteLoss(crush_damage)
 
-
 /obj/machinery/recycler/verb/rotate()
 	set name = "Повернуть по часовой"
 	set category = STATPANEL_OBJECT
@@ -222,13 +214,13 @@
 	to_chat(user, span_notice("[src] will now accept items from [dir2text(eat_dir)]."))
 	return 1
 
-
 /obj/machinery/recycler/deathtrap
 	name = "dangerous old crusher"
 	emagged = 1
 	crush_damage = 120
 
-
 /obj/item/paper/recycler
 	name = "paper - 'garbage duty instructions'"
 	info = "<h2>New Assignment</h2> You have been assigned to collect garbage from trash bins, located around the station. The crewmembers will put their trash into it and you will collect the said trash.<br><br>There is a recycling machine near your closet, inside maintenance; use it to recycle the trash for a small chance to get useful minerals. Then deliver these minerals to cargo or engineering. You are our last hope for a clean station, do not screw this up!"
+
+#undef SAFETY_COOLDOWN

@@ -6,33 +6,31 @@
 #define DNA_EMPTY_DATA "Пустой"
 #define DNA_UNKNOWN_DISABILITY_DATA "Неизвестная болезнь"
 
-
 /obj/item/dna_notepad
 	name = "genetic notepad"
 	desc = "Планшет генетика, способный хранить данные блоков генов в удобном виде."
-	ru_names = list(
-		NOMINATIVE = "планшет генетика",
-		GENITIVE = "планшета генетика",
-		DATIVE = "планшету генетика",
-		ACCUSATIVE = "планшет генетика",
-		INSTRUMENTAL = "планшетом генетика",
-		PREPOSITIONAL = "планшете генетика"
-	)
 	gender = MALE
 	icon = 'icons/obj/device.dmi'
-	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/items_righthand.dmi'
 	icon_state = "genetic_tablet_on"
 	slot_flags = ITEM_SLOT_BELT
 	throwforce = 3
 	w_class = WEIGHT_CLASS_TINY
 	item_state = "genetic_tablet_on"
 	throw_speed = 3
-	throw_range = 7
 	materials = list(MAT_METAL=2000, MAT_GLASS = 1000)
 	origin_tech = "programming=2"
 	var/dna_data = list()
 	var/printing = FALSE
+
+/obj/item/dna_notepad/get_ru_names()
+	return list(
+		NOMINATIVE = "планшет генетика",
+		GENITIVE = "планшета генетика",
+		DATIVE = "планшету генетика",
+		ACCUSATIVE = "планшет генетика",
+		INSTRUMENTAL = "планшетом генетика",
+		PREPOSITIONAL = "планшете генетика",
+	)
 
 /obj/item/dna_notepad/Initialize(mapload)
 	. = ..()
@@ -60,7 +58,7 @@
 		current_dna_detail_data = list(
 			num = "[block]",
 			name = "[name]",
-			color = "[color]"
+			color = "[color]",
 		)
 		dna_data += list(current_dna_detail_data)
 	current_dna_detail_data["name"] = "[name]"
@@ -70,7 +68,7 @@
 	for(var/i = 1; i <= DNA_COUNT; i++)
 		write_dna_data(i, DNA_NO_DATA, DNA_COLOR_UNKNOWN)
 
-/obj/item/dna_notepad/proc/print_report(var/mob/living/user)
+/obj/item/dna_notepad/proc/print_report(mob/living/user)
 	if(printing)
 		return
 	printing = TRUE
@@ -123,7 +121,7 @@
 		ui_interact(user)
 		return
 	. += span_notice("Нужно подойти ближе, чтобы посмотреть содержмое.")
-	balloon_alert("слишком далеко")
+	balloon_alert(user, "слишком далеко!")
 
 /obj/item/dna_notepad/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -142,7 +140,7 @@
 	if(..())
 		return FALSE
 	add_fingerprint(usr)
-	playsound(loc, "terminal_type", 25, TRUE)
+	playsound(loc, SFX_TERMINAL_TYPE, 25, TRUE)
 	if(ui_act_modal(action, params))
 		return TRUE
 	. = TRUE
@@ -220,7 +218,7 @@
 		if(block_value < 2050) // HEX=802 DEC=2050
 			continue
 		write_dna_data(i, DNA_UNKNOWN_DISABILITY_DATA, DNA_COLOR_DISABILITY)
-	playsound(loc, "terminal_type", 25, TRUE)
+	playsound(loc, SFX_TERMINAL_TYPE, 25, TRUE)
 	to_chat(user, "Данные из [dna_console.declent_ru(GENITIVE)] успешно загружены в [declent_ru(NOMINATIVE)].")
 	balloon_alert(user, "данные загружены")
 
@@ -248,7 +246,7 @@
 			continue
 		self_block["name"] = other_block["name"]
 		self_block["color"] = other_block["color"]
-	playsound(loc, "terminal_type", 25, TRUE)
+	playsound(loc, SFX_TERMINAL_TYPE, 25, TRUE)
 	to_chat(user, "Данные из другого [dna_notepad.declent_ru(GENITIVE)] успешно загружены в ваш [declent_ru(NOMINATIVE)].")
 	balloon_alert(user, "данные загружены")
 
@@ -280,7 +278,6 @@
 		if(istype(gene, /datum/dna/gene/basic))
 			color = DNA_COLOR_POWER
 		write_dna_data(gene.block, gene.name, color)
-
 
 #undef DNA_COUNT
 #undef DNA_COLOR_UNKNOWN

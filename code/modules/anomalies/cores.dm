@@ -2,15 +2,6 @@
 /obj/item/assembly/signaler/core
 	name = "anomaly core"
 	desc = "Нейтрализованное ядро ​​аномалии. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро аномалии", \
-		GENITIVE = "ядра аномалии", \
-		DATIVE = "ядру аномалии", \
-		ACCUSATIVE = "ядро аномалии", \
-		INSTRUMENTAL = "ядром аномалии", \
-		PREPOSITIONAL = "ядре аномалии"
-	)
-	gender = NEUTER
 	icon_state = "core_bluespace_t2"
 	item_state = "electronic"
 	resistance_flags = FIRE_PROOF
@@ -25,8 +16,18 @@
 	var/born_moment = 0
 	COOLDOWN_DECLARE(anomaly_toch_cooldown)
 
+/obj/item/assembly/signaler/core/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро аномалии", \
+		GENITIVE = "ядра аномалии", \
+		DATIVE = "ядру аномалии", \
+		ACCUSATIVE = "ядро аномалии", \
+		INSTRUMENTAL = "ядром аномалии", \
+		PREPOSITIONAL = "ядре аномалии",
+	)
+
 /obj/item/assembly/signaler/core/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] засовыва[pluralize_ru(user.gender,"ет","ют")] [declent_ru(ACCUSATIVE)] себе в рот. Похоже [genderize_ru(user.gender, "он", "она", "оно", "они")] пыта[pluralize_ru(user.gender,"ет","ют")]ся убить себя!"))
+	user.visible_message(span_suicide("[user] засовыва[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)] себе в рот. Похоже [GEND_HE_SHE(user)] пыта[PLUR_ET_YUT(user)]ся убить себя!"))
 	return OXYLOSS | BRUTELOSS
 
 /obj/item/assembly/signaler/core/examine(mob/user)
@@ -65,117 +66,130 @@
 	name = "пустое ядро малой аномалии"
 	desc = "Не похоже, что силы аномалии на момент стабилизации хватило, чтобы придать этому ядру какие-то свойства. \
 			Вероятно, его можно как-то зарядить."
-	ru_names = list(
-		NOMINATIVE = "пустое ядро малой аномалии", \
-		GENITIVE = "пустого ядра малой аномалии", \
-		DATIVE = "пустому ядру малой аномалии", \
-		ACCUSATIVE = "пустое ядро малой аномалии", \
-		INSTRUMENTAL = "пустым ядром малой аномалии", \
-		PREPOSITIONAL = "пустом ядре малой аномалии"
-	)
 	icon_state = "core_empty_t1"
 	anomaly_type = null
 	origin_tech = "materials=3"
 	tier = 1
 
+/obj/item/assembly/signaler/core/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "пустое ядро малой аномалии", \
+		GENITIVE = "пустого ядра малой аномалии", \
+		DATIVE = "пустому ядру малой аномалии", \
+		ACCUSATIVE = "пустое ядро малой аномалии", \
+		INSTRUMENTAL = "пустым ядром малой аномалии", \
+		PREPOSITIONAL = "пустом ядре малой аномалии",
+	)
+
 /obj/item/assembly/signaler/core/atmospheric/tier1
 	name = "ядро малой атмосферной аномалии"
 	desc = "Стабилизированное ядро ​малой атмосферной аномалии. На ощупь прохладное. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро малой атмосферной аномалии", \
-		GENITIVE = "ядра малой атмосферной аномалии", \
-		DATIVE = "ядру малой атмосферной аномалии", \
-		ACCUSATIVE = "ядро малой атмосферной аномалии", \
-		INSTRUMENTAL = "ядром малой атмосферной аномалии", \
-		PREPOSITIONAL = "ядре малой атмосферной аномалии"
-	)
 	icon_state = "core_atmos_t1"
 	anomaly_type = /obj/effect/anomaly/atmospheric/tier1
 	origin_tech = "plasmatech=5"
 	tier = 1
 
+/obj/item/assembly/signaler/core/atmospheric/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро малой атмосферной аномалии", \
+		GENITIVE = "ядра малой атмосферной аномалии", \
+		DATIVE = "ядру малой атмосферной аномалии", \
+		ACCUSATIVE = "ядро малой атмосферной аномалии", \
+		INSTRUMENTAL = "ядром малой атмосферной аномалии", \
+		PREPOSITIONAL = "ядре малой атмосферной аномалии",
+	)
+
 /obj/item/assembly/signaler/core/gravitational/tier1
 	name = "ядро малой гравитационной аномалии"
 	desc = "Нейтрализованное ядро малой ​​гравитационной аномалии. Слегка легче, чем выглядит. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро малой гравитационной аномалии", \
-		GENITIVE = "ядра малой гравитационной аномалии", \
-		DATIVE = "ядру малой гравитационной аномалии", \
-		ACCUSATIVE = "ядро малой гравитационной аномалии", \
-		INSTRUMENTAL = "ядром малой гравитационной аномалии", \
-		PREPOSITIONAL = "ядре малой гравитационной аномалии"
-	)
 	icon_state = "core_grav_t1"
 	anomaly_type = /obj/effect/anomaly/gravitational/tier1
 	origin_tech = "magnets=5"
 	tier = 1
 
+/obj/item/assembly/signaler/core/gravitational/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро малой гравитационной аномалии", \
+		GENITIVE = "ядра малой гравитационной аномалии", \
+		DATIVE = "ядру малой гравитационной аномалии", \
+		ACCUSATIVE = "ядро малой гравитационной аномалии", \
+		INSTRUMENTAL = "ядром малой гравитационной аномалии", \
+		PREPOSITIONAL = "ядре малой гравитационной аномалии",
+	)
+
 /obj/item/assembly/signaler/core/energetic/tier1
 	name = "ядро малой ​​энергетической аномалии"
 	desc = "Стабилизированное ядро малой ​​энергетической аномалии. Прикосновение к нему вызывает лёгкое покалывание. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро малой ​​энергетической аномалии", \
-		GENITIVE = "ядра малой ​​энергетической аномалии", \
-		DATIVE = "ядру малой ​​энергетической аномалии", \
-		ACCUSATIVE = "ядро малой ​​энергетической аномалии", \
-		INSTRUMENTAL = "ядром малой ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре малой ​​энергетической аномалии"
-	)
 	icon_state = "core_energ_t1"
 	anomaly_type = /obj/effect/anomaly/energetic/tier1
 	origin_tech = "powerstorage=5"
 	tier = 1
 
+/obj/item/assembly/signaler/core/energetic/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро малой ​​энергетической аномалии", \
+		GENITIVE = "ядра малой ​​энергетической аномалии", \
+		DATIVE = "ядру малой ​​энергетической аномалии", \
+		ACCUSATIVE = "ядро малой ​​энергетической аномалии", \
+		INSTRUMENTAL = "ядром малой ​​энергетической аномалии", \
+		PREPOSITIONAL = "ядре малой ​​энергетической аномалии",
+	)
+
 /obj/item/assembly/signaler/core/bluespace/tier1
 	name = "ядро малой ​​блюспейс аномалии"
 	desc = "Стабилизированное ядро ​малой ​блюспейс аномалии. Оно изредка, на долю секунды, исчезает из виду. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро малой ​​блюспейс аномалии", \
-		GENITIVE = "ядра малой ​​блюспейс аномалии", \
-		DATIVE = "ядру малой ​​блюспейс аномалии", \
-		ACCUSATIVE = "ядро малой ​​блюспейс аномалии", \
-		INSTRUMENTAL = "ядром малой ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре малой ​​блюспейс аномалии"
-	)
 	icon_state = "core_bluespace_t1"
 	anomaly_type = /obj/effect/anomaly/bluespace/tier1
 	origin_tech = "bluespace=5"
 	tier = 1
 
+/obj/item/assembly/signaler/core/bluespace/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро малой ​​блюспейс аномалии", \
+		GENITIVE = "ядра малой ​​блюспейс аномалии", \
+		DATIVE = "ядру малой ​​блюспейс аномалии", \
+		ACCUSATIVE = "ядро малой ​​блюспейс аномалии", \
+		INSTRUMENTAL = "ядром малой ​​блюспейс аномалии", \
+		PREPOSITIONAL = "ядре малой ​​блюспейс аномалии",
+	)
+
 /obj/item/assembly/signaler/core/vortex/tier1
 	name = "ядро малой вихревой аномалии"
 	desc = "Стабилизированное ядро малой ​​вихревой аномалии. Оно изредка подёргивается. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро малой вихревой аномалии", \
-		GENITIVE = "ядра малой вихревой аномалии", \
-		DATIVE = "ядру малой вихревой аномалии", \
-		ACCUSATIVE = "ядро малой вихревой аномалии", \
-		INSTRUMENTAL = "ядром малой вихревой аномалии", \
-		PREPOSITIONAL = "ядре малой вихревой аномалии"
-	)
 	icon_state = "core_vortex_t1"
 	anomaly_type = /obj/effect/anomaly/vortex/tier1
 	origin_tech = "engineering=5"
 	tier = 1
 
+/obj/item/assembly/signaler/core/vortex/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро малой вихревой аномалии", \
+		GENITIVE = "ядра малой вихревой аномалии", \
+		DATIVE = "ядру малой вихревой аномалии", \
+		ACCUSATIVE = "ядро малой вихревой аномалии", \
+		INSTRUMENTAL = "ядром малой вихревой аномалии", \
+		PREPOSITIONAL = "ядре малой вихревой аномалии",
+	)
 
 // ============================ Tier 2 ===================================
 /obj/item/assembly/signaler/core/tier2
 	name = "пустое ядро аномалии"
 	desc = "Не похоже, что силы аномалии на момент стабилизации хватило, чтобы придать ядру какие-то свойства. \
 			Вероятно, его можно как-то зарядить."
-	ru_names = list(
+	icon_state = "core_empty_t2"
+	anomaly_type = null
+	origin_tech = "materials=5" // not clonable by experimentor
+	tier = 2
+
+/obj/item/assembly/signaler/core/tier2/get_ru_names()
+	return list(
 		NOMINATIVE = "пустое ядро аномалии", \
 		GENITIVE = "пустого ядра аномалии", \
 		DATIVE = "пустому ядру аномалии", \
 		ACCUSATIVE = "пустое ядро аномалии", \
 		INSTRUMENTAL = "пустым ядром аномалии", \
-		PREPOSITIONAL = "пустом ядре аномалии"
+		PREPOSITIONAL = "пустом ядре аномалии",
 	)
-	icon_state = "core_empty_t2"
-	anomaly_type = null
-	origin_tech = "materials=5" // not clonable by experimentor
-	tier = 2
 
 /obj/item/assembly/signaler/core/atmospheric/tier2
 	name = "pyroclastic anomaly core"
@@ -188,101 +202,111 @@
 /obj/item/assembly/signaler/core/gravitational/tier2
 	name = "gravitational anomaly core"
 	desc = "Стабилизированное ядро ​​гравитационной аномалии. Гораздо тяжелее, чем кажется. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро гравитационной аномалии", \
-		GENITIVE = "ядра гравитационной аномалии", \
-		DATIVE = "ядру гравитационной аномалии", \
-		ACCUSATIVE = "ядро гравитационной аномалии", \
-		INSTRUMENTAL = "ядром гравитационной аномалии", \
-		PREPOSITIONAL = "ядре гравитационной аномалии"
-	)
 	icon_state = "core_grav_t2"
 	anomaly_type = /obj/effect/anomaly/gravitational/tier2
 	origin_tech = "magnets=7"
 	tier = 2
 
+/obj/item/assembly/signaler/core/gravitational/tier2/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро гравитационной аномалии", \
+		GENITIVE = "ядра гравитационной аномалии", \
+		DATIVE = "ядру гравитационной аномалии", \
+		ACCUSATIVE = "ядро гравитационной аномалии", \
+		INSTRUMENTAL = "ядром гравитационной аномалии", \
+		PREPOSITIONAL = "ядре гравитационной аномалии",
+	)
+
 /obj/item/assembly/signaler/core/energetic/tier2
 	name = "flux anomaly core"
 	desc = "Стабилизированное ядро ​​энергетической аномалии. Прикосновение к нему вызывает лёгкое покалывание. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро ​​энергетической аномалии", \
-		GENITIVE = "ядра ​​энергетической аномалии", \
-		DATIVE = "ядру ​​энергетической аномалии", \
-		ACCUSATIVE = "ядро ​​энергетической аномалии", \
-		INSTRUMENTAL = "ядром ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре ​​энергетической аномалии"
-	)
 	icon_state = "core_energ_t2"
 	anomaly_type = /obj/effect/anomaly/energetic/tier2
 	origin_tech = "powerstorage=7"
 	tier = 2
 
+/obj/item/assembly/signaler/core/energetic/tier2/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро ​​энергетической аномалии", \
+		GENITIVE = "ядра ​​энергетической аномалии", \
+		DATIVE = "ядру ​​энергетической аномалии", \
+		ACCUSATIVE = "ядро ​​энергетической аномалии", \
+		INSTRUMENTAL = "ядром ​​энергетической аномалии", \
+		PREPOSITIONAL = "ядре ​​энергетической аномалии",
+	)
+
 /obj/item/assembly/signaler/core/bluespace/tier2
 	name = "bluespace anomaly core"
 	desc = "Стабилизированное ядро ​​блюспейс аномалии. Оно то появляется, то исчезает из виду. Вероятно, оно пригодится для исследований."
-	ru_names = list(
+	anomaly_type = /obj/effect/anomaly/bluespace/tier2
+	origin_tech = "bluespace=7"
+	tier = 2
+
+/obj/item/assembly/signaler/core/bluespace/tier2/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро ​​блюспейс аномалии", \
 		GENITIVE = "ядра ​​блюспейс аномалии", \
 		DATIVE = "ядру ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре ​​блюспейс аномалии"
+		PREPOSITIONAL = "ядре ​​блюспейс аномалии",
 	)
-	icon_state = "core_bluespace_t2"
-	anomaly_type = /obj/effect/anomaly/bluespace/tier2
-	origin_tech = "bluespace=7"
-	tier = 2
 
 /obj/item/assembly/signaler/core/vortex/tier2
 	name = "vortex anomaly core"
 	desc = "Стабилизированное ядро ​​вихревой аномалии. Оно слегка трясётся, как будто на него воздействует некая невидимая сила. Вероятно, оно пригодится для исследований."
-	ru_names = list(
-		NOMINATIVE = "ядро ​​вихревой аномалии", \
-		GENITIVE = "ядра ​​вихревой аномалии", \
-		DATIVE = "ядру ​​вихревой аномалии", \
-		ACCUSATIVE = "ядро ​​вихревой аномалии", \
-		INSTRUMENTAL = "ядром ​​вихревой аномалии", \
-		PREPOSITIONAL = "ядре ​​вихревой аномалии"
-	)
 	icon_state = "core_vortex_t2"
 	anomaly_type = /obj/effect/anomaly/vortex/tier2
 	origin_tech = "engineering=7"
 	tier = 2
 
+/obj/item/assembly/signaler/core/vortex/tier2/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро ​​вихревой аномалии", \
+		GENITIVE = "ядра ​​вихревой аномалии", \
+		DATIVE = "ядру ​​вихревой аномалии", \
+		ACCUSATIVE = "ядро ​​вихревой аномалии", \
+		INSTRUMENTAL = "ядром ​​вихревой аномалии", \
+		PREPOSITIONAL = "ядре ​​вихревой аномалии",
+	)
 
 // ============================ Tier 3 ===================================
 /obj/item/assembly/signaler/core/tier3
 	name = "пустое ядро большой аномалии"
 	desc = "Не похоже, что силы аномалии на момент стабилизации хватило, чтобы придать ядру какие-то свойства. \
 			Вероятно, его можно как-то зарядить."
-	ru_names = list(
-		NOMINATIVE = "пустое ядро большой аномалии", \
-		GENITIVE = "пустого ядра большой аномалии", \
-		DATIVE = "пустому ядру большой аномалии", \
-		ACCUSATIVE = "пустое ядро большой аномалии", \
-		INSTRUMENTAL = "пустым ядром большой аномалии", \
-		PREPOSITIONAL = "пустом ядре большой аномалии"
-	)
 	icon_state = "core_empty_t3"
 	anomaly_type = null
 	origin_tech = "materials=7" // Sorry, not clonable by experimentor
 	tier = 3
 
+/obj/item/assembly/signaler/core/tier3/get_ru_names()
+	return list(
+		NOMINATIVE = "пустое ядро большой аномалии", \
+		GENITIVE = "пустого ядра большой аномалии", \
+		DATIVE = "пустому ядру большой аномалии", \
+		ACCUSATIVE = "пустое ядро большой аномалии", \
+		INSTRUMENTAL = "пустым ядром большой аномалии", \
+		PREPOSITIONAL = "пустом ядре большой аномалии",
+	)
+
 /obj/item/assembly/signaler/core/atmospheric/tier3
 	name = "ядро большой атмосферной аномалии"
 	desc = "Стабилизированное ядро большой атмосферной аномалии. От одного его вида вас бросает то в жар, то в холод, причём буквально."
-	ru_names = list(
+	icon_state = "core_atmos_t3"
+	anomaly_type = /obj/effect/anomaly/atmospheric/tier3
+	origin_tech = "plasmatech=8"
+	tier = 3
+
+/obj/item/assembly/signaler/core/atmospheric/tier3/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро большой атмосферной аномалии", \
 		GENITIVE = "ядра большой атмосферной аномалии", \
 		DATIVE = "ядру большой атмосферной аномалии", \
 		ACCUSATIVE = "ядро большой атмосферной аномалии", \
 		INSTRUMENTAL = "ядром большой атмосферной аномалии", \
-		PREPOSITIONAL = "ядре большой атмосферной аномалии"
+		PREPOSITIONAL = "ядре большой атмосферной аномалии",
 	)
-	icon_state = "core_atmos_t3"
-	anomaly_type = /obj/effect/anomaly/atmospheric/tier3
-	origin_tech = "plasmatech=8"
-	tier = 3
 
 /obj/item/assembly/signaler/core/atmospheric/tier3/suicide_act(mob/living/user)
 	..()
@@ -326,33 +350,34 @@
 	H.ExtinguishMob()
 	H.adjust_bodytemperature(-get_strength())
 
-
 /obj/item/assembly/signaler/core/gravitational/tier3
 	name = "ядро большой гравитационной аномалии"
 	desc = "Нейтрализованное ядро большой ​​гравитационной аномалии. Вы чувствуете сильное несоответствие веса многих окружающих предметов с их внешним видом."
-	ru_names = list(
-		NOMINATIVE = "ядро большой гравитационной аномалии", \
-		GENITIVE = "ядра большой гравитационной аномалии", \
-		DATIVE = "ядру большой гравитационной аномалии", \
-		ACCUSATIVE = "ядро большой гравитационной аномалии", \
-		INSTRUMENTAL = "ядром большой гравитационной аномалии", \
-		PREPOSITIONAL = "ядре большой гравитационной аномалии"
-	)
 	icon_state = "core_grav_t3"
 	anomaly_type = /obj/effect/anomaly/gravitational/tier3
 	origin_tech = "magnets=8"
 	var/atom/old_owner = null
 	tier = 3
 
+/obj/item/assembly/signaler/core/gravitational/tier3/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро большой гравитационной аномалии", \
+		GENITIVE = "ядра большой гравитационной аномалии", \
+		DATIVE = "ядру большой гравитационной аномалии", \
+		ACCUSATIVE = "ядро большой гравитационной аномалии", \
+		INSTRUMENTAL = "ядром большой гравитационной аномалии", \
+		PREPOSITIONAL = "ядре большой гравитационной аномалии",
+	)
+
 /obj/item/assembly/signaler/core/gravitational/tier3/suicide_act(mob/user)
 	..()
-	user.visible_message(span_suicide("[user] взрыва[pluralize_ru(user.gender,"ет","ют")]ся из-за возникшего гравитационного колодца!"), \
+	user.visible_message(span_suicide("[user] взрыва[PLUR_ET_YUT(user)]ся из-за возникшего гравитационного колодца!"), \
 						span_suicide("Вы взрываетесь из-за возникшего гравитационного колодца!"),
 						span_suicide("Вы слышите громкий хлопок!"))
 	user.gib()
 	return OBLITERATION
 
-/obj/item/assembly/signaler/core/gravitational/tier3/Initialize()
+/obj/item/assembly/signaler/core/gravitational/tier3/Initialize(mapload)
 	. = ..()
 	old_owner = get_external_loc()
 	update_gravity(TRUE)
@@ -382,18 +407,20 @@
 /obj/item/assembly/signaler/core/energetic/tier3
 	name = "ядро большой ​​энергетической аномалии"
 	desc = "Стабилизированное ядро большой ​​энергетической аномалии. Вокруг ядра периодически возникают электрические разряды. Окружающая электроника напряженно гудит."
-	ru_names = list(
+	icon_state = "core_energ_t3"
+	anomaly_type = /obj/effect/anomaly/energetic/tier3
+	origin_tech = "powerstorage=8"
+	tier = 3
+
+/obj/item/assembly/signaler/core/energetic/tier3/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро большой ​​энергетической аномалии", \
 		GENITIVE = "ядра большой ​​энергетической аномалии", \
 		DATIVE = "ядру большой ​​энергетической аномалии", \
 		ACCUSATIVE = "ядро большой ​​энергетической аномалии", \
 		INSTRUMENTAL = "ядром большой ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре большой ​​энергетической аномалии"
+		PREPOSITIONAL = "ядре большой ​​энергетической аномалии",
 	)
-	icon_state = "core_energ_t3"
-	anomaly_type = /obj/effect/anomaly/energetic/tier3
-	origin_tech = "powerstorage=8"
-	tier = 3
 
 /obj/item/assembly/signaler/core/energetic/tier3/Bump(atom/bumped_atom)
 	. = ..()
@@ -401,17 +428,17 @@
 
 /obj/item/assembly/signaler/core/energetic/tier3/suicide_act(mob/living/user)
 	..()
-	user.electrocute_act(600, "[declent_ru(GENITIVE)]")
+	user.electrocute_act(600, src)
 	return FIRELOSS
 
 /obj/item/assembly/signaler/core/energetic/tier3/proc/try_shock(atom/target)
 	if(!iscarbon(target))
 		return FALSE
 
-	visible_message(span_warning("[declent_ru(NOMINATIVE)] внезапно испустил[genderize_ru(gender, "", "а", "о", "и")] электрический разряд!"))
+	visible_message(span_warning("[declent_ru(NOMINATIVE)] внезапно испустил[GEND_A_O_I(src)] электрический разряд!"))
 	var/mob/living/carbon/human/H = target
-	if(H.electrocute_act(charge, "[declent_ru(GENITIVE)]"))
-		do_sparks(max(1, charge / 20))
+	if(H.electrocute_act(charge, src))
+		do_sparks(max(1, charge / 20), FALSE, src)
 		return TRUE
 
 	return FALSE
@@ -424,19 +451,21 @@
 
 /obj/item/assembly/signaler/core/bluespace/tier3
 	name = "ядро большой ​​блюспейс аномалии"
-	desc = "Стабилизированное ядро ​большой ​блюспейс аномалии. Пространство вокруг него постоянно искревляется."
-	ru_names = list(
+	desc = "Стабилизированное ядро ​большой ​блюспейс аномалии. Пространство вокруг него постоянно искривляется."
+	icon_state = "core_bluespace_t3"
+	anomaly_type = /obj/effect/anomaly/bluespace/tier3
+	origin_tech = "bluespace=8"
+	tier = 3
+
+/obj/item/assembly/signaler/core/bluespace/tier3/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро большой ​​блюспейс аномалии", \
 		GENITIVE = "ядра большой ​​блюспейс аномалии", \
 		DATIVE = "ядру большой ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро большой ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром большой ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре большой ​​блюспейс аномалии"
+		PREPOSITIONAL = "ядре большой ​​блюспейс аномалии",
 	)
-	icon_state = "core_bluespace_t3"
-	anomaly_type = /obj/effect/anomaly/bluespace/tier3
-	origin_tech = "bluespace=8"
-	tier = 3
 
 /obj/item/assembly/signaler/core/bluespace/tier3/suicide_act(mob/user)
 	..()
@@ -466,118 +495,124 @@
 	else
 		return FALSE
 
-
 /obj/item/assembly/signaler/core/vortex/tier3
 	name = "ядро большой вихревой аномалии"
 	desc = "Стабилизированное ядро большой ​​вихревой аномалии. Предметы вокруг ядра опасно подрагивают."
-	ru_names = list(
-		NOMINATIVE = "ядро большой вихревой аномалии", \
-		GENITIVE = "ядра большой вихревой аномалии", \
-		DATIVE = "ядру большой вихревой аномалии", \
-		ACCUSATIVE = "ядро большой вихревой аномалии", \
-		INSTRUMENTAL = "ядром большой вихревой аномалии", \
-		PREPOSITIONAL = "ядре большой вихревой аномалии"
-	)
 	icon_state = "core_vortex_t3"
 	anomaly_type = /obj/effect/anomaly/vortex/tier3
 	origin_tech = "engineering=8"
 	tier = 3
 
+/obj/item/assembly/signaler/core/vortex/tier3/get_ru_names()
+	return list(
+		NOMINATIVE = "ядро большой вихревой аномалии",
+		GENITIVE = "ядра большой вихревой аномалии",
+		DATIVE = "ядру большой вихревой аномалии",
+		ACCUSATIVE = "ядро большой вихревой аномалии",
+		INSTRUMENTAL = "ядром большой вихревой аномалии",
+		PREPOSITIONAL = "ядре большой вихревой аномалии",
+	)
 
 // ============================ Tier4 (admin spawn only) ===================================
 /obj/item/assembly/signaler/core/tier3/tier4
 	name = "пустое ядро колоссальной аномалии"
 	desc = "Не похоже что силы аномалии на момент стабилизации хватило, чтобы придать ядру какие-то свойства. \
 			Вероятно, его можно как-то зарядить. У вас стойкое чувство, что его не должно здесь находиться."
-	ru_names = list(
+	anomaly_type = null
+	origin_tech = "materials=10" // Sorry, not clonable by experimentor
+	tier = 4
+
+/obj/item/assembly/signaler/core/tier3/tier4/get_ru_names()
+	return list(
 		NOMINATIVE = "пустое ядро колоссальной аномалии", \
 		GENITIVE = "пустого ядра колоссальной аномалии", \
 		DATIVE = "пустому ядру колоссальной аномалии", \
 		ACCUSATIVE = "пустое ядро колоссальной аномалии", \
 		INSTRUMENTAL = "пустым ядром колоссальной аномалии", \
-		PREPOSITIONAL = "пустом ядре колоссальной аномалии"
+		PREPOSITIONAL = "пустом ядре колоссальной аномалии",
 	)
-	icon_state = "core_empty_t3"
-	anomaly_type = null
-	origin_tech = "materials=10" // Sorry, not clonable by experimentor
-	tier = 4
 
 /obj/item/assembly/signaler/core/atmospheric/tier3/tier4
 	name = "ядро колоссальной атмосферной аномалии"
 	desc = "Стабилизированное ядро колоссальной атмосферной аномалии. У вас стойкое чувство, что его не должно здесь находиться."
-	ru_names = list(
+	anomaly_type = /obj/effect/anomaly/atmospheric/tier4
+	origin_tech = "plasmatech=11"
+	tier = 4
+
+/obj/item/assembly/signaler/core/atmospheric/tier3/tier4/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро колоссальной атмосферной аномалии", \
 		GENITIVE = "ядра колоссальной атмосферной аномалии", \
 		DATIVE = "ядру колоссальной атмосферной аномалии", \
 		ACCUSATIVE = "ядро колоссальной атмосферной аномалии", \
 		INSTRUMENTAL = "ядром колоссальной атмосферной аномалии", \
-		PREPOSITIONAL = "ядре колоссальной атмосферной аномалии"
+		PREPOSITIONAL = "ядре колоссальной атмосферной аномалии",
 	)
-	icon_state = "core_atmos_t3"
-	anomaly_type = /obj/effect/anomaly/atmospheric/tier4
-	origin_tech = "plasmatech=11"
-	tier = 4
 
 /obj/item/assembly/signaler/core/gravitational/tier3/tier4
 	name = "ядро колоссальной гравитационной аномалии"
 	desc = "Нейтрализованное ядро колоссальной ​​гравитационной аномалии. У вас стойкое чувство, что его не должно здесь находиться."
-	ru_names = list(
+	anomaly_type = /obj/effect/anomaly/gravitational/tier4
+	origin_tech = "magnets=11"
+	tier = 4
+
+/obj/item/assembly/signaler/core/gravitational/tier3/tier4/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро колоссальной гравитационной аномалии", \
 		GENITIVE = "ядра колоссальной гравитационной аномалии", \
 		DATIVE = "ядру колоссальной гравитационной аномалии", \
 		ACCUSATIVE = "ядро колоссальной гравитационной аномалии", \
 		INSTRUMENTAL = "ядром колоссальной гравитационной аномалии", \
-		PREPOSITIONAL = "ядре колоссальной гравитационной аномалии"
+		PREPOSITIONAL = "ядре колоссальной гравитационной аномалии",
 	)
-	icon_state = "core_grav_t3"
-	anomaly_type = /obj/effect/anomaly/gravitational/tier4
-	origin_tech = "magnets=11"
-	tier = 4
 
 /obj/item/assembly/signaler/core/energetic/tier3/tier4
 	name = "ядро колоссальной ​​энергетической аномалии"
 	desc = "Стабилизированное ядро колоссальной ​​энергетической аномалии. У вас стойкое чувство, что его не должно здесь находиться."
-	ru_names = list(
+	anomaly_type = /obj/effect/anomaly/energetic/tier4
+	origin_tech = "powerstorage=11"
+	tier = 4
+
+/obj/item/assembly/signaler/core/energetic/tier3/tier4/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро колоссальной ​​энергетической аномалии", \
 		GENITIVE = "ядра колоссальной ​​энергетической аномалии", \
 		DATIVE = "ядру колоссальной ​​энергетической аномалии", \
 		ACCUSATIVE = "ядро колоссальной ​​энергетической аномалии", \
 		INSTRUMENTAL = "ядром колоссальной ​​энергетической аномалии", \
-		PREPOSITIONAL = "ядре колоссальной ​​энергетической аномалии"
+		PREPOSITIONAL = "ядре колоссальной ​​энергетической аномалии",
 	)
-	icon_state = "core_energ_t3"
-	anomaly_type = /obj/effect/anomaly/energetic/tier4
-	origin_tech = "powerstorage=11"
-	tier = 4
 
 /obj/item/assembly/signaler/core/bluespace/tier3/tier4
 	name = "ядро колоссальной ​​блюспейс аномалии"
 	desc = "Стабилизированное ядро ​большой ​блюспейс аномалии. У вас стойкое чувство, что его не должно здесь находиться."
-	ru_names = list(
+	anomaly_type = /obj/effect/anomaly/bluespace/tier4
+	origin_tech = "bluespace=11"
+	tier = 4
+
+/obj/item/assembly/signaler/core/bluespace/tier3/tier4/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро колоссальной ​​блюспейс аномалии", \
 		GENITIVE = "ядра колоссальной ​​блюспейс аномалии", \
 		DATIVE = "ядру колоссальной ​​блюспейс аномалии", \
 		ACCUSATIVE = "ядро колоссальной ​​блюспейс аномалии", \
 		INSTRUMENTAL = "ядром колоссальной ​​блюспейс аномалии", \
-		PREPOSITIONAL = "ядре колоссальной ​​блюспейс аномалии"
+		PREPOSITIONAL = "ядре колоссальной ​​блюспейс аномалии",
 	)
-	icon_state = "core_bluespace_t3"
-	anomaly_type = /obj/effect/anomaly/bluespace/tier4
-	origin_tech = "bluespace=11"
-	tier = 4
 
 /obj/item/assembly/signaler/core/vortex/tier3/tier4
 	name = "ядро колоссальной вихревой аномалии"
 	desc = "Стабилизированное ядро колоссальной ​​вихревой аномалии. У вас стойкое чувство, что его не должно здесь находиться."
-	ru_names = list(
+	anomaly_type = /obj/effect/anomaly/vortex/tier4
+	origin_tech = "engineering=11"
+	tier = 4
+
+/obj/item/assembly/signaler/core/vortex/tier3/tier4/get_ru_names()
+	return list(
 		NOMINATIVE = "ядро колоссальной вихревой аномалии", \
 		GENITIVE = "ядра колоссальной вихревой аномалии", \
 		DATIVE = "ядру колоссальной вихревой аномалии", \
 		ACCUSATIVE = "ядро колоссальной вихревой аномалии", \
 		INSTRUMENTAL = "ядром колоссальной вихревой аномалии", \
-		PREPOSITIONAL = "ядре колоссальной вихревой аномалии"
+		PREPOSITIONAL = "ядре колоссальной вихревой аномалии",
 	)
-	icon_state = "core_vortex_t3"
-	anomaly_type = /obj/effect/anomaly/vortex/tier4
-	origin_tech = "engineering=11"
-	tier = 4

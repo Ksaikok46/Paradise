@@ -3,9 +3,7 @@
 	desc = "A spring loaded rifle designed to fit syringes, used to incapacitate unruly patients from a distance."
 	icon_state = "syringegun"
 	item_state = "syringegun"
-	w_class = WEIGHT_CLASS_NORMAL
 	origin_tech = "combat=2;biotech=3"
-	throw_speed = 3
 	throw_range = 7
 	force = 4
 	materials = list(MAT_METAL=2000)
@@ -14,11 +12,11 @@
 	var/list/syringes = list()
 	var/max_syringes = 1
 
-/obj/item/gun/syringe/Initialize()
+/obj/item/gun/syringe/Initialize(mapload)
 	. = ..()
 	chambered = new /obj/item/ammo_casing/syringegun(src)
 
-/obj/item/gun/syringe/process_chamber()
+/obj/item/gun/syringe/handle_chamber()
 	if(!length(syringes) || chambered.BB)
 		return
 
@@ -40,8 +38,8 @@
 
 /obj/item/gun/syringe/examine(mob/user)
 	. = ..()
-	var/num_syringes = syringes.len + (chambered.BB ? 1 : 0)
-	. += "<span class='notice'>Can hold [max_syringes] syringe\s. Has [num_syringes] syringe\s remaining.</span>"
+	var/num_syringes = length(syringes) + (chambered.BB ? 1 : 0)
+	. += span_notice("Can hold [max_syringes] syringe\s. Has [num_syringes] syringe\s remaining.")
 
 /obj/item/gun/syringe/attack_self(mob/living/user)
 	if(!length(syringes) && !chambered.BB)
@@ -63,7 +61,6 @@
 	balloon_alert(user, "шприц разряжен!")
 	return TRUE
 
-
 /obj/item/gun/syringe/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/syringe))
 		add_fingerprint(user)
@@ -80,7 +77,6 @@
 
 	return ..()
 
-
 /obj/item/gun/syringe/rapidsyringe
 	name = "rapid syringe gun"
 	desc = "A modification of the syringe gun design, using a rotating cylinder to store up to six syringes."
@@ -90,7 +86,7 @@
 /obj/item/gun/syringe/rapidsyringe/syndicate
 	var/syringes_load = 6
 
-/obj/item/gun/syringe/rapidsyringe/syndicate/Initialize()
+/obj/item/gun/syringe/rapidsyringe/syndicate/Initialize(mapload)
 	. = ..()
 	for(var/i = 0, i < syringes_load, i++)
 		syringes += new /obj/item/reagent_containers/syringe/traitor_random(src)
@@ -115,7 +111,7 @@
 	fire_sound = 'sound/items/blowgunproj.ogg'
 
 /obj/item/gun/syringe/blowgun/process_fire(atom/target, mob/living/user, message = TRUE, params = null, zone_override = "", bonus_spread = 0)
-	visible_message("<span class='danger'>[user] starts aiming with a blowgun!</span>")
+	visible_message(span_danger("[user] starts aiming with a blowgun!"))
 	if(do_after(user, 1.5 SECONDS, src))
 		user.apply_damages(oxy = 20, stamina = 20)
 		..()

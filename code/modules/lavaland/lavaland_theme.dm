@@ -8,7 +8,6 @@
 	/// Defines, used for actual planet type
 	var/lavaland_type
 
-
 /datum/lavaland_theme/New()
 	if(!primary_turf_type)
 		stack_trace("Turf type is `null` in `[type]` lavaland theme")
@@ -24,7 +23,7 @@
 	return
 
 /datum/lavaland_theme/lava
-	name = "лава"
+	name = "lava"
 	primary_turf_type = /turf/simulated/floor/lava/lava_land_surface
 	planet_icon_state = "planet"
 	lavaland_type = LAVALAND_TYPE_LAVA
@@ -34,7 +33,7 @@
 	lava_spawner.generate()
 
 /datum/lavaland_theme/plasma
-	name = "плазма"
+	name = "plasma"
 	primary_turf_type = /turf/simulated/floor/lava/lava_land_surface/plasma
 	planet_icon_state = "planet_plasma"
 	lavaland_type = LAVALAND_TYPE_PLASMA
@@ -45,7 +44,7 @@
 	spawner.generate(nodes = 2) // twice
 
 /datum/lavaland_theme/chasm
-	name = "пропасть"
+	name = "chasm"
 	primary_turf_type = /turf/simulated/floor/chasm/straight_down/lava_land_surface
 	planet_icon_state = "planet_canyon"
 	lavaland_type = LAVALAND_TYPE_CHASM

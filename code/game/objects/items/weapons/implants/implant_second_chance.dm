@@ -4,10 +4,8 @@
 	icon_state = "explosive_old"
 	origin_tech = "materials=1;combat=2;biotech=4;syndicate=3;bluespace=1"
 	implant_state = "implant-syndicate"
-	activated = BIOCHIP_ACTIVATED_ACTIVE
 	actions_types = list(/datum/action/item_action/hands_free/activate/always)
 	implant_data = /datum/implant_fluff/second_chance
-
 
 /obj/item/implant/second_chance/activate()
 	var/turf/old_turf = get_turf(imp_in)
@@ -20,7 +18,7 @@
 		imp_in.rejuvenate()
 		investigate_log("[key_name_log(imp_in)] fake-gib himself using [name] and teleports to [COORD(new_turf)].", INVESTIGATE_TELEPORTATION)
 
-		explosion(old_turf, 0, 0, 3, 6, cause = imp_in)
+		explosion(old_turf, devastation_range = 0, heavy_impact_range = 0, light_impact_range = 3, flash_range = 6, cause = imp_in)
 
 		if(isnucleation(imp_in))
 			imp_in.visible_message(span_warning("Тело [imp_in] взрывается, оставляя после себя множество микроскопических кристаллов!"))
@@ -35,14 +33,12 @@
 
 	else
 		to_chat(imp_in, span_userdanger("[src] is malfunctioning!"))
-		explosion(old_turf, 0, 0, 3, 6, cause = imp_in)
+		explosion(old_turf, devastation_range = 0, heavy_impact_range = 0, light_impact_range = 3, flash_range = 6, cause = imp_in)
 	qdel(src)
-
 
 /obj/item/implanter/second_chance
 	name = "bio-chip implanter (second chance)"
 	imp = /obj/item/implant/second_chance
-
 
 /obj/item/implantcase/second_chance
 	name = "bio-chip case - 'Second Chance'"

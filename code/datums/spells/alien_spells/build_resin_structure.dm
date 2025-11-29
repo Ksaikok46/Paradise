@@ -1,21 +1,17 @@
-/// Defines include required plasma in brackets
-#define ALIEN_RESIN_WALL		"Resin Wall (60)"
-#define ALIEN_RESIN_DOOR		"Resin Door (50)"
-#define ALIEN_RESIN_MEMBRANE	"Resin Membrane (40)"
-#define ALIEN_RESIN_NEST		"Resin Nest (30)"
-
+// Defines include required plasma in brackets
+#define ALIEN_RESIN_WALL "Resin Wall (60)"
+#define ALIEN_RESIN_DOOR "Resin Door (50)"
+#define ALIEN_RESIN_MEMBRANE "Resin Membrane (40)"
+#define ALIEN_RESIN_NEST "Resin Nest (30)"
 
 /obj/effect/proc_holder/spell/alien_spell/build_resin
 	name = "Secrete Resin"
 	desc = "Secrete tough malleable resin (Use Ctrl+Click on self)."
-	plasma_cost = 0
 	action_icon_state = "alien_resin"
 	var/in_process = FALSE
 
-
 /obj/effect/proc_holder/spell/alien_spell/build_resin/create_new_targeting()
 	return new /datum/spell_targeting/self
-
 
 /obj/effect/proc_holder/spell/alien_spell/build_resin/cast(list/targets, mob/living/carbon/user)
 	var/mob/living/carbon/alien/host = user
@@ -28,38 +24,38 @@
 	var/list/resin_params = list()
 
 	resin_params["Plasma Amount"] = list(
-		ALIEN_RESIN_WALL 		= 60,
-		ALIEN_RESIN_DOOR 		= 50,
-		ALIEN_RESIN_MEMBRANE 	= 40,
-		ALIEN_RESIN_NEST 		= 30
+		ALIEN_RESIN_WALL		= 60,
+		ALIEN_RESIN_DOOR		= 50,
+		ALIEN_RESIN_MEMBRANE	= 40,
+		ALIEN_RESIN_NEST		= 30
 	)
 
 	resin_params["Process Time"] = list(
-		ALIEN_RESIN_WALL 		= 2 SECONDS,
-		ALIEN_RESIN_DOOR 		= 5 SECONDS,
-		ALIEN_RESIN_MEMBRANE 	= 2 SECONDS,
-		ALIEN_RESIN_NEST 		= 1 SECONDS
+		ALIEN_RESIN_WALL		= 2 SECONDS,
+		ALIEN_RESIN_DOOR		= 5 SECONDS,
+		ALIEN_RESIN_MEMBRANE	= 2 SECONDS,
+		ALIEN_RESIN_NEST		= 1 SECONDS
 	)
 
 	resin_params["Cooldown"] = list(
-		ALIEN_RESIN_WALL 		= 3 SECONDS,
-		ALIEN_RESIN_DOOR 		= 10 SECONDS,
-		ALIEN_RESIN_MEMBRANE 	= 3 SECONDS,
-		ALIEN_RESIN_NEST 		= 2 SECONDS
+		ALIEN_RESIN_WALL		= 3 SECONDS,
+		ALIEN_RESIN_DOOR		= 10 SECONDS,
+		ALIEN_RESIN_MEMBRANE	= 3 SECONDS,
+		ALIEN_RESIN_NEST		= 2 SECONDS
 	)
 
 	resin_params["Structure"] = list(
-		ALIEN_RESIN_WALL 		= /obj/structure/alien/resin/wall,
-		ALIEN_RESIN_DOOR 		= /obj/structure/alien/resin/door,
-		ALIEN_RESIN_MEMBRANE 	= /obj/structure/alien/resin/membrane,
-		ALIEN_RESIN_NEST 		= /obj/structure/bed/nest
+		ALIEN_RESIN_WALL		= /obj/structure/alien/resin/wall,
+		ALIEN_RESIN_DOOR		= /obj/structure/alien/resin/door,
+		ALIEN_RESIN_MEMBRANE	= /obj/structure/alien/resin/membrane,
+		ALIEN_RESIN_NEST		= /obj/structure/bed/nest
 	)
 
 	resin_params["Image"] = list(
 		ALIEN_RESIN_WALL		= image(icon = 'icons/obj/smooth_structures/alien/resin_wall.dmi', icon_state = "resin"),
 		ALIEN_RESIN_DOOR		= image(icon = 'icons/obj/smooth_structures/alien/resin_door.dmi', icon_state = "resin_door_closed"),
-		ALIEN_RESIN_MEMBRANE 	= image(icon = 'icons/obj/smooth_structures/alien/resin_membrane.dmi', icon_state = "membrane"),
-		ALIEN_RESIN_NEST 		= image(icon = 'icons/mob/alien.dmi', icon_state = "nest")
+		ALIEN_RESIN_MEMBRANE	= image(icon = 'icons/obj/smooth_structures/alien/resin_membrane.dmi', icon_state = "membrane"),
+		ALIEN_RESIN_NEST		= image(icon = 'icons/mob/alien.dmi', icon_state = "nest")
 	)
 
 	var/choice = show_radial_menu(host, host, resin_params["Image"], radius = 40, custom_check = CALLBACK(src, PROC_REF(check_availability), host))
@@ -94,7 +90,6 @@
 	host.visible_message(span_warning("[host] vomits up a thick purple substance and shapes it into the [alien_structure.name]!"), \
 						span_alertalien("You finished shaping vomited resin into the [alien_structure.name]."))
 
-
 /obj/effect/proc_holder/spell/alien_spell/build_resin/proc/check_availability(mob/living/carbon/user, plasma_amount)
 	if(!istype(user))
 		return FALSE
@@ -121,7 +116,6 @@
 
 	return TRUE
 
-
 /mob/living/carbon/alien/humanoid/CtrlClick(mob/living/carbon/alien/humanoid/alien)
 	if(!istype(alien) || src != alien)
 		return ..()
@@ -131,7 +125,6 @@
 		return
 
 	resin.try_perform(list(alien), alien)
-
 
 #undef ALIEN_RESIN_WALL
 #undef ALIEN_RESIN_DOOR

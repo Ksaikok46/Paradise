@@ -56,7 +56,7 @@
 		move_tab.icon_state = "move"
 		move_tab.plane = HUD_PLANE
 	var/matrix/M = matrix()
-	M.Translate(0, (height + 0.25) * world.icon_size)
+	M.Translate(0, (height + 0.25) * ICON_SIZE_Y)
 	move_tab.transform = M
 	add_overlay(move_tab)
 
@@ -69,7 +69,7 @@
 		MA.plane = HUD_PLANE
 		button_x.appearance = MA
 	M = matrix()
-	M.Translate((max(4, width) - 0.75) * world.icon_size, (height + 0.25) * world.icon_size)
+	M.Translate((max(4, width) - 0.75) * ICON_SIZE_X, (height + 0.25) * ICON_SIZE_Y)
 	button_x.transform = M
 	vis_contents += button_x
 
@@ -82,7 +82,7 @@
 		MA.plane = HUD_PLANE
 		button_expand.appearance = MA
 	M = matrix()
-	M.Translate(world.icon_size, (height + 0.25) * world.icon_size)
+	M.Translate(ICON_SIZE_X, (height + 0.25) * ICON_SIZE_Y)
 	button_expand.transform = M
 	vis_contents += button_expand
 
@@ -95,7 +95,7 @@
 		MA.plane = HUD_PLANE
 		button_shrink.appearance = MA
 	M = matrix()
-	M.Translate(2 * world.icon_size, (height + 0.25) * world.icon_size)
+	M.Translate(2 * ICON_SIZE_X, (height + 0.25) * ICON_SIZE_Y)
 	button_shrink.transform = M
 	vis_contents += button_shrink
 
@@ -103,10 +103,9 @@
 	if((width > 0) && (height > 0))
 		var/matrix/M = matrix()
 		M.Scale(width + 0.5, height + 0.5)
-		M.Translate((width-1)/2 * world.icon_size, (height-1)/2 * world.icon_size)
+		M.Translate((width - 1) / 2 * ICON_SIZE_X, (height - 1) / 2 * ICON_SIZE_Y)
 		standard_background.transform = M
 		add_overlay(standard_background)
-
 
 /atom/movable/screen/movable/pic_in_pic/proc/set_view_size(width, height, do_refresh = TRUE)
 	width = clamp(width, 0, max_dimensions)
@@ -114,7 +113,7 @@
 	src.width = width
 	src.height = height
 
-	y_off = -height * world.icon_size - 16
+	y_off = (-height * ICON_SIZE_Y) - (ICON_SIZE_Y / 2)
 
 	cut_overlays()
 	add_background()
@@ -138,7 +137,6 @@
 	var/turf/upperright = locate(min(world.maxx, lowerleft.x + width - 1), min(world.maxy, lowerleft.y + height - 1), lowerleft.z)
 	viewing_turfs = block(lowerleft, upperright)
 	vis_contents += viewing_turfs
-
 
 /atom/movable/screen/movable/pic_in_pic/proc/show_to(client/C)
 	if(C)

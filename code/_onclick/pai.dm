@@ -19,22 +19,26 @@
 		return
 
 	var/list/modifiers = params2list(params)
-	if(modifiers["shift"] && modifiers["ctrl"])
-		CtrlShiftClickOn(A)
-		return
-	if(modifiers["shift"] && modifiers["alt"])
-		AltShiftClickOn(A)
-		return
-	if(modifiers["middle"])
-		MiddleClickOn(A)
-		return
-	if(modifiers["shift"])
+
+	if(LAZYACCESS(modifiers, SHIFT_CLICK))
+		if(LAZYACCESS(modifiers, CTRL_CLICK))
+			CtrlShiftClickOn(A)
+			return
+		if(LAZYACCESS(modifiers, ALT_CLICK))
+			AltShiftClickOn(A)
+			return
 		ShiftClickOn(A)
 		return
-	if(modifiers["alt"]) // alt and alt-gr (rightalt)
+
+	if(LAZYACCESS(modifiers, MIDDLE_CLICK))
+		MiddleClickOn(A)
+		return
+
+	if(LAZYACCESS(modifiers, ALT_CLICK))
 		AltClickOn(A)
 		return
-	if(modifiers["ctrl"])
+
+	if(LAZYACCESS(modifiers, CTRL_CLICK))
 		CtrlClickOn(A)
 		return
 
@@ -58,7 +62,6 @@
 			addtimer(CALLBACK(src, PROC_REF(reset_cooldown)), ai_capability_cooldown)
 			return
 	return ..()
-
 
 /mob/living/silicon/pai/CtrlClickOn(atom/A)
 	if(!ai_capability)
@@ -99,7 +102,6 @@
 			addtimer(CALLBACK(src, PROC_REF(reset_cooldown)), ai_capability_cooldown)
 		return
 	return ..()
-
 
 /atom/proc/PAIShiftClick(mob/user)
 	if(user.client && user.client.eye == user)
@@ -149,7 +151,6 @@
 /obj/machinery/power/apc/PAICtrlClick(mob/living/silicon/pai/user) // turns off/on APCs. Forwards to AI code.
 	AICtrlClick(user)
 	return TRUE
-
 
 // AI SLIPPER
 

@@ -56,6 +56,7 @@
 	var/atom/movable/screen/healths = null
 	var/atom/movable/screen/throw_icon = null
 	var/atom/movable/screen/stamina_bar = null
+	var/atom/movable/screen/nutrition_bar = null
 
 	/*A bunch of this stuff really needs to go under their own defines instead of being globally attached to mob.
 	A variable should only be globally attached to turfs/objects/whatever, when it is in fact needed as such.
@@ -106,7 +107,10 @@
 	var/timeofdeath = 0 //Living
 
 	var/bodytemperature = BODYTEMP_NORMAL	//98.7 F
-	var/nutrition = NUTRITION_LEVEL_FED + 50 //Carbon
+	var/nutrition = NUTRITION_LEVEL_FED //Carbon
+	/// Current nutrition level of mob (look at /datum/nutrition_level for more info),
+	// default level would get overriden as soon as the nutrition of mob updated, just to be safe
+	var/datum/nutrition_level/current_nutrition_level = /datum/nutrition_level/fed // Carbon
 	var/satiety = 0 //Carbon
 
 	var/overeatduration = 0		// How long this guy is overeating //Carbon
@@ -167,7 +171,6 @@
 	var/list/faction = list("neutral") //Used for checking whether hostile simple animals will attack you, possibly more stuff later
 
 	var/move_on_shuttle = 1 // Can move on the shuttle.
-
 
 	/// Whether antagHUD has been enabled previously.
 	var/has_enabled_antagHUD = FALSE
@@ -245,6 +248,9 @@
 	///For storing what do_after's someone has, key = string, value = amount of interactions of that type happening.
 	var/list/do_afters
 
+	///Allows a datum to intercept all click calls this mob is the source of
+	var/datum/click_intercept
+
 	var/list/tkgrabbed_objects = list() // Assoc list of items to TK grabs
 
 	var/registered_z
@@ -272,3 +278,19 @@
 	/// The calculated mob action speed slowdown based on the modifiers list, sorted by category in associvative list
 	var/list/cached_multiplicative_actions_slowdown
 
+	/// Unused, used to adjust our next move on a linar skill world.time + (how_many_deciseconds + Next move adjust) = Next move
+	var/next_move_adjust = 0
+	/// Value to multiply action delays by, actually used world.time + (how_many_deciseconds * Next move Adjust) = Next move
+	var/next_move_modifier = 1
+	// 1 decisecond click delay (above and beyond mob/next_move)
+	/// This is mainly modified by click code, to modify click delays elsewhere, use next_move and changeNext_move(), Controls the click delay. Changed with
+	var/next_click = 0
+
+	var/list/screens = list()
+
+	var/newPlayerType = /mob/new_player
+
+	var/suiciding = FALSE
+
+	/// It's like a client, but persists! Persistent clients will stick to a mob until the client in question is logged into a different mob.
+	var/datum/persistent_client/persistent_client

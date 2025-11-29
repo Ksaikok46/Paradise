@@ -10,9 +10,9 @@
 
 /datum/event/tear/random/announce()
 	GLOB.minor_announcement.announce(
-		"На борту станции зафиксирована мощный пространственно-временной разрыв. Предполагаемая локация: [impact_area.name].",
-		ANNOUNCE_ANOMALY_RU,
-		'sound/AI/anomaly.ogg'
+		message = "На борту станции зафиксирована мощный пространственно-временной разрыв. Предполагаемая локация: [impact_area.name].",
+		new_title = ANNOUNCE_ANOMALY_RU,
+		new_sound = 'sound/AI/anomaly.ogg'
 	)
 
 /datum/event/tear/random/end()
@@ -21,18 +21,20 @@
 
 /obj/effect/tear/random
 	name = "randomensional tear"
-	ru_names = list(
+	desc = "Мощный пространственно-временной разрыв."
+	leader = null
+	possible_mobs = list()
+	var/static/list/hostile_mobs
+
+/obj/effect/tear/random/get_ru_names()
+	return list(
 		NOMINATIVE = "рандомысленный разрыв",
 		GENITIVE = "рандомысленного разрыва",
 		DATIVE = "рандомысленному разрыву",
 		ACCUSATIVE = "рандомысленный разрыв",
 		INSTRUMENTAL = "рандомысленным разрывом",
-		PREPOSITIONAL = "рандомысленном разрыве"
+		PREPOSITIONAL = "рандомысленном разрыве",
 	)
-	desc = "Мощный пространственно-временной разрыв."
-	leader = null
-	possible_mobs = list()
-	var/static/list/hostile_mobs
 
 /obj/effect/tear/random/Initialize(mapload)
 	if(!hostile_mobs)

@@ -17,11 +17,9 @@
 /turf/simulated/floor/mineral/broken_states()
 	return list("[initial(icon_state)]_dam")
 
-
 /turf/simulated/floor/mineral/update_icon_state()
 	if(!broken && !burnt && !(icon_state in icons))
 		icon_state = initial(icon_state)
-
 
 //PLASMA
 /turf/simulated/floor/mineral/plasma
@@ -35,7 +33,6 @@
 	if(exposed_temperature > 300)
 		PlasmaBurn()
 
-
 /turf/simulated/floor/mineral/plasma/attackby(obj/item/I, mob/user, params)
 	. = ..()
 
@@ -44,19 +41,20 @@
 
 	if(I.get_heat() > 300)//If the temperature of the object is over 300, then ignite
 		add_attack_logs(user, src, "Ignited using [I]", ATKLOG_FEW)
-		investigate_log("was <span class='warning'>ignited</span> by [key_name_log(user)]",INVESTIGATE_ATMOS)
+		investigate_log("was [span_warning("ignited")] by [key_name_log(user)]",INVESTIGATE_ATMOS)
 		ignite(I.get_heat())
 		return .|ATTACK_CHAIN_BLOCKED_ALL
 
-
 /turf/simulated/floor/mineral/plasma/welder_act(mob/user, obj/item/I)
 	if(I.use_tool(src, user, volume = I.tool_volume))
-		user.visible_message(span_danger("[user] sets [src] on fire!"),\
-						span_danger("[src] disintegrates into a cloud of plasma!"),\
-						span_warning("You hear a 'whoompf' and a roar."))
+		user.visible_message(
+			span_danger("[user] sets [src] on fire!"),\
+			span_danger("[src] disintegrates into a cloud of plasma!"),\
+			span_warning("You hear a 'whoompf' and a roar.")
+		)
 		ignite(2500) //Big enough to ignite
 		add_attack_logs(user, src, "Ignited using [I]", ATKLOG_FEW)
-		investigate_log("was <span class='warning'>ignited</span> by [key_name_log(user)]",INVESTIGATE_ATMOS)
+		investigate_log("was [span_warning("ignited")] by [key_name_log(user)]",INVESTIGATE_ATMOS)
 
 /turf/simulated/floor/mineral/plasma/proc/PlasmaBurn()
 	make_plating(FALSE)
@@ -156,18 +154,16 @@
 	icon_state = "bananium"
 	floor_tile = /obj/item/stack/tile/mineral/bananium
 	icons = list("bananium","bananium_dam")
-	var/spam_flag = 0
+	var/sound_cooldown = 0
 
 /turf/simulated/floor/mineral/bananium/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	. = ..()
 	if(isliving(arrived))
 		squeek()
 
-
 /turf/simulated/floor/mineral/bananium/attackby(obj/item/I, mob/user, params)
 	. = ..()
 	honk()
-
 
 /turf/simulated/floor/mineral/bananium/attack_hand(mob/user)
 	.=..()
@@ -175,20 +171,19 @@
 		honk()
 
 /turf/simulated/floor/mineral/bananium/proc/honk()
-	if(spam_flag < world.time)
+	if(sound_cooldown < world.time)
 		playsound(src, 'sound/items/bikehorn.ogg', 50, TRUE)
-		spam_flag = world.time + 20
+		sound_cooldown = world.time + 20
 
 /turf/simulated/floor/mineral/bananium/proc/squeek()
-	if(spam_flag < world.time)
-		playsound(src, "clownstep", 50, TRUE)
-		spam_flag = world.time + 10
+	if(sound_cooldown < world.time)
+		playsound(src, SFX_CLOWN_STEP, 50, TRUE)
+		sound_cooldown = world.time + 10
 
 /turf/simulated/floor/mineral/bananium/airless
 	oxygen = 0
 	nitrogen = 0
 	temperature = TCMB
-
 
 /turf/simulated/floor/mineral/bananium/lubed/Initialize(mapload)
 	. = ..()

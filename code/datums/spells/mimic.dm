@@ -19,6 +19,8 @@
 	var/next_override_index = 1
 	/// If a message is shown when somebody examines the user from close range
 	var/perfect_disguise = FALSE
+	/// Var to store user ru_names to restore them later when they stop mimicking
+	var/user_ru_names
 
 	var/static/list/black_listed_form_types = list(
 		/atom/movable/screen,
@@ -32,7 +34,6 @@
 		/obj/machinery/gravity_generator
 	)
 
-
 /obj/effect/proc_holder/spell/mimic/create_new_targeting()
 	var/datum/spell_targeting/click/T = new()
 	T.include_user = TRUE // To change forms
@@ -41,18 +42,16 @@
 	T.click_radius = -1
 	return T
 
-
 /obj/effect/proc_holder/spell/mimic/valid_target(atom/target, user)
 	if(is_type_in_list(target, black_listed_form_types))
 		return FALSE
 	if(istype(target, /atom/movable))
 		var/atom/movable/AM = target
-		if(AM.bound_height > world.icon_size || AM.bound_width > world.icon_size)
+		if(AM.bound_height > ICON_SIZE_Y || AM.bound_width > ICON_SIZE_X)
 			return FALSE // No multitile structures
 	if(user != target && ismorph(target))
 		return FALSE
 	return ..()
-
 
 /obj/effect/proc_holder/spell/mimic/cast(list/targets, mob/user)
 	var/atom/movable/A = targets[1]
@@ -61,7 +60,6 @@
 		return
 
 	INVOKE_ASYNC(src, PROC_REF(remember_form), A, user)
-
 
 /obj/effect/proc_holder/spell/mimic/proc/remember_form(atom/movable/A, mob/user)
 	if(A.declent_ru(NOMINATIVE) in available_forms)
@@ -87,7 +85,6 @@
 
 	available_forms[A.declent_ru(NOMINATIVE)] = new /datum/mimic_form(A, user)
 	user.balloon_alert(user, "форма изучена")
-
 
 /obj/effect/proc_holder/spell/mimic/proc/pick_form(mob/user)
 	if(!length(available_forms) && !selected_form)
@@ -116,21 +113,22 @@
 		return
 	take_form(available_forms[what], user)
 
-
 /obj/effect/proc_holder/spell/mimic/proc/take_form(datum/mimic_form/form, mob/user)
 	var/old_name = "[user]"
+	user_ru_names = user.ru_names
 	if(ishuman(user))
 		// Not fully finished yet
 		var/mob/living/carbon/human/H = user
 		H.name_override = form.name
 	else
+		user.ru_names = form.form_ru_names
 		user.appearance = form.appearance
 		user.transform = initial(user.transform)
 		user.pixel_y = initial(user.pixel_y)
 		user.pixel_x = initial(user.pixel_x)
 		user.layer = MOB_LAYER // Avoids weirdness when mimicing something below the vent layer
 
-	playsound(user, "bonebreak", 75, TRUE)
+	playsound(user, SFX_BONEBREAK, 75, TRUE)
 	show_change_form_message(user, old_name, "[user]")
 	user.create_log(MISC_LOG, "Mimicked into [user]")
 
@@ -140,12 +138,10 @@
 
 	selected_form = form
 
-
 /obj/effect/proc_holder/spell/mimic/proc/show_change_form_message(mob/user, old_name, new_name)
 	user.visible_message(span_warning("[old_name] искажается и медленно превращается в [new_name]!"), \
 						span_sinister("Вы принимаете форму [new_name]."), \
 						span_italics("Вы слышите громкие хрустящие звуки!"))
-
 
 /obj/effect/proc_holder/spell/mimic/proc/restore_form(mob/user, show_message = TRUE)
 	selected_form = null
@@ -162,19 +158,21 @@
 		user.name = initial(user.name)
 		user.desc = initial(user.desc)
 		user.color = initial(user.color)
+		if(length(user_ru_names))
+			user.ru_names = user_ru_names
+		else
+			user.ru_names = null
 
-	playsound(user, "bonebreak", 150, TRUE)
+	playsound(user, SFX_BONEBREAK, 150, TRUE)
 	if(show_message)
 		show_restore_form_message(user, old_name, "[user.declent_ru(GENITIVE)]")
 
 	UnregisterSignal(user, list(COMSIG_PARENT_EXAMINE, COMSIG_MOB_DEATH))
 
-
 /obj/effect/proc_holder/spell/mimic/proc/show_restore_form_message(mob/user, old_name, new_name)
 	user.visible_message(span_warning("[old_name] дёргается и искажается, быстро превращаясь в [new_name]!"), \
 						span_sinister("Вы возвращаетесь к своей обычной форме."), \
 						span_italics("Вы слышите громкие хрустящие звуки!"))
-
 
 /obj/effect/proc_holder/spell/mimic/proc/examine_override(datum/source, mob/user, list/examine_list)
 	examine_list.Cut()
@@ -182,22 +180,19 @@
 	if(!perfect_disguise && get_dist(user, source) <= 3)
 		examine_list += span_warning("При ближайшем рассмотрении оно выглядит не совсем естественно...")
 
-
 /obj/effect/proc_holder/spell/mimic/proc/on_death(mob/user, gibbed)
 	if(!gibbed)
 		restore_form(user, FALSE)
 		show_death_message(user)
-
 
 /obj/effect/proc_holder/spell/mimic/proc/show_death_message(mob/user)
 	user.visible_message(span_warning("[user] дёргается и искажается, когда умирает, возвращаясь к своей истинной форме!"), \
 						span_deadsay("Ваша маскировка исчезает, когда ваши жизненные силы угасают."), \
 						span_italics("Вы слышите громкие хрустящие звуки, за которыми следует глухой удар!"))
 
-
 /datum/mimic_form
 	/// What the visible species of the form is (Only for human forms)?
-	var/examine_species = "Unknown"
+	var/examine_species = UNKNOWN_STATUS_RUS
 	/// What the visible gender of the form is (Only for human forms)?
 	var/examine_gender
 	/// What is the examine text paired with this form?
@@ -208,7 +203,8 @@
 	var/appearance
 	/// What the name of the form is?
 	var/name
-
+	/// What the ru names of the form is?
+	var/list/form_ru_names
 
 /datum/mimic_form/New(atom/movable/form, mob/user)
 	examine_gender = form.get_visible_gender()
@@ -216,25 +212,27 @@
 	examine_time = form.get_examine_time()
 	appearance = form.appearance
 	name = form.name
+	form_ru_names = form.ru_names || form.get_ru_names_cached()
+	// if no ru_names found, we just fill it with default name
+	if(!length(form_ru_names))
+		form_ru_names = new /list(6)
+		for(var/name in NOMINATIVE to PREPOSITIONAL)
+			form_ru_names[name] = form.declent_ru(name)
 	if(isliving(form))
 		var/mob/living/form_living = form
 		examine_species = form_living.get_visible_species()
 
-
 /obj/effect/proc_holder/spell/mimic/morph
 	action_background_icon_state = "bg_morph"
-
 
 /obj/effect/proc_holder/spell/mimic/morph/create_new_handler()
 	var/datum/spell_handler/morph/H = new
 	return H
 
-
 /obj/effect/proc_holder/spell/mimic/morph/valid_target(atom/target, user)
 	if(target != user && ismorph(target))
 		return FALSE
 	return ..()
-
 
 /obj/effect/proc_holder/spell/mimic/morph/take_form(datum/mimic_form/form, mob/living/simple_animal/hostile/morph/user)
 	..()
@@ -244,16 +242,13 @@
 	..()
 	user.restore()
 
-
 /obj/effect/proc_holder/spell/mimic/morph/show_change_form_message(mob/user, old_name, new_name)
 	user.visible_message(span_warning("[old_name] внезапно искажается и меняет форму, становясь копией [new_name]!"), \
 						span_notice("Вы искажаете своё тело и принимаете форму [new_name]."))
 
-
 /obj/effect/proc_holder/spell/mimic/morph/show_restore_form_message(mob/user, old_name, new_name)
 	user.visible_message(span_warning("[old_name] внезапно сжимается, превращаясь в кучу зелёной плоти!"), \
 						span_notice("Вы возвращаетесь к своей обычной форме."))
-
 
 /obj/effect/proc_holder/spell/mimic/morph/show_death_message(mob/user)
 	user.visible_message(span_warning("[user] искажается и превращается в кучу зелёной плоти!"), \

@@ -19,7 +19,6 @@
 /// Objects will ignore blob_act
 #define IGNORE_BLOB_ACT (1<<7)
 
-
 // Flags for the item_flags var on /obj/item
 
 /// Items is currently being removed from the inventory.
@@ -58,8 +57,6 @@
 #define SKIP_ATTACK_MESSAGE (1<<16)
 /// Checks whether the item was upgraded with a speed potion
 #define SPEEDPOTION_APPLIED (1<<17)
-/// Whether or not this atom shows screentips when hovered over
-#define NO_SCREENTIPS (1<<18)
 
 // Flags for the clothing_flags var on /obj/item/clothing
 
@@ -80,7 +77,6 @@
 
 /// Flags for the pod_flags var on /obj/structure/closet/supplypod
 #define FIRST_SOUNDS (1<<0) // If it shouldn't play sounds the first time it lands, used for reverse mode
-
 
 #define HUMAN_HOLDER (1<<0)
 

@@ -71,11 +71,11 @@
 	maptext_height = 480
 	maptext_width = 480
 
-
 /atom/movable/screen/close
 	name = "close"
 	layer = ABOVE_HUD_LAYER
 	plane = ABOVE_HUD_PLANE
+	icon_state = "backpack_close"
 
 /atom/movable/screen/close/Click()
 	if(master)
@@ -83,7 +83,6 @@
 			var/obj/item/storage/S = master
 			S.close(usr)
 	return TRUE
-
 
 /atom/movable/screen/drop
 	name = "accurate drop"
@@ -93,7 +92,6 @@
 	if(usr.stat == CONSCIOUS)
 		usr.drop_item_ground(usr.get_active_hand(), ignore_pixel_shift = TRUE)
 
-
 /atom/movable/screen/act_intent
 	name = "intent"
 	icon_state = "help"
@@ -101,8 +99,8 @@
 
 /atom/movable/screen/act_intent/Click(location, control, params)
 	if(ishuman(usr) || isdevil(usr))
-		var/_x = text2num(params2list(params)["icon-x"])
-		var/_y = text2num(params2list(params)["icon-y"])
+		var/_x = text2num(LAZYACCESS(params2list(params), ICON_X))
+		var/_y = text2num(LAZYACCESS(params2list(params), ICON_Y))
 		if(_x<=16 && _y<=16)
 			usr.a_intent_change(INTENT_HARM)
 		else if(_x<=16 && _y>=17)
@@ -116,11 +114,9 @@
 
 /atom/movable/screen/act_intent/alien
 	icon = 'icons/mob/screen_alien.dmi'
-	screen_loc = ui_acti
 
 /atom/movable/screen/act_intent/robot
 	icon = 'icons/mob/screen_robot.dmi'
-	screen_loc = ui_borg_intents
 
 /atom/movable/screen/act_intent/robot/AI
 	screen_loc = "SOUTH+1:6,EAST-1:32"
@@ -129,41 +125,33 @@
 	name = "run/walk toggle"
 	icon_state = "running"
 
-
 /atom/movable/screen/mov_intent/update_icon_state()
 	if(hud?.mymob)
 		icon_state = (hud.mymob.m_intent == MOVE_INTENT_RUN) ? "running" : "walking"
 	else
 		icon_state = initial(icon_state)
 
-
 /atom/movable/screen/act_intent/simple_animal
 	icon = 'icons/mob/screen_simplemob.dmi'
-	screen_loc = ui_acti
 
 /atom/movable/screen/act_intent/guardian
 	icon = 'icons/mob/guardian.dmi'
-	screen_loc = ui_acti
 
 /atom/movable/screen/mov_intent/Click()
 	usr.toggle_move_intent()
-
 
 /atom/movable/screen/pull
 	name = "stop pulling"
 	icon_state = "pull"
 	base_icon_state = "pull"
 
-
 /atom/movable/screen/pull/Click()
 	if(isobserver(usr))
 		return
 	usr.stop_pulling()
 
-
 /atom/movable/screen/pull/update_icon_state()
 	icon_state = "[base_icon_state][hud?.mymob?.pulling ? "" : "0"]"
-
 
 /atom/movable/screen/resist
 	name = "resist"
@@ -175,7 +163,6 @@
 		var/mob/living/L = usr
 		L.resist()
 
-
 /atom/movable/screen/throw_catch
 	name = "throw/catch"
 	icon = 'icons/mob/screen_midnight.dmi'
@@ -185,7 +172,6 @@
 	if(iscarbon(usr))
 		var/mob/living/carbon/C = usr
 		C.toggle_throw_mode()
-
 
 /atom/movable/screen/storage
 	name = "storage"
@@ -209,7 +195,6 @@
 			I.melee_attack_chain(usr, master, params)
 	return TRUE
 
-
 /atom/movable/screen/storage/proc/is_item_accessible(obj/item/I, mob/user)
 	if(!user || !I)
 		return FALSE
@@ -227,7 +212,6 @@
 			return TRUE
 	return FALSE
 
-
 /atom/movable/screen/storage/MouseDrop_T(obj/item/I, mob/user, params)
 	if(!user || !master || !istype(I) || user.incapacitated(INC_IGNORE_RESTRAINED|INC_IGNORE_GRABBED) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || ismecha(user.loc))
 		return FALSE
@@ -244,7 +228,7 @@
 		return FALSE
 
 	if(I in S.contents) // If the item is already in the storage, move them to the end of the list
-		if(S.contents[S.contents.len] == I) // No point moving them at the end if they're already there!
+		if(S.contents[length(S.contents)] == I) // No point moving them at the end if they're already there!
 			return FALSE
 
 		var/list/new_contents = S.contents.Copy()
@@ -269,6 +253,8 @@
 		I.melee_attack_chain(user, S, params)
 	return TRUE
 
+/atom/movable/screen/storage/space_box
+	screen_loc = "7,7 to 10,8"
 
 /atom/movable/screen/zone_sel
 	name = "damage zone"
@@ -279,7 +265,6 @@
 	var/list/hover_overlays_cache
 	var/list/selecting_overlays_cache
 	var/hovering
-
 
 /atom/movable/screen/zone_sel/Initialize(mapload, datum/hud/hud_owner, icon, alpha, color)
 	. = ..()
@@ -294,25 +279,23 @@
 	hud.mymob.zone_selected = selecting
 	update_icon(UPDATE_OVERLAYS)
 
-
 /atom/movable/screen/zone_sel/Destroy()
 	QDEL_LIST_ASSOC_VAL(hover_overlays_cache)
 	QDEL_LIST_ASSOC_VAL(selecting_overlays_cache)
 	return ..()
 
-
 /atom/movable/screen/zone_sel/Click(location, control, params)
 	if(isobserver(usr))
 		return FALSE
 
-	var/list/PL = params2list(params)
-	var/icon_x = text2num(PL["icon-x"])
-	var/icon_y = text2num(PL["icon-y"])
+	var/list/modifiers = params2list(params)
+	var/icon_x = text2num(LAZYACCESS(modifiers, ICON_X))
+	var/icon_y = text2num(LAZYACCESS(modifiers, ICON_Y))
 	var/choice = get_zone_at(icon_x, icon_y)
 	if(!choice)
 		return TRUE
 
-	if(PL["alt"])
+	if(LAZYACCESS(modifiers, ALT_CLICK))
 		click_alt(usr, choice)
 		return
 
@@ -334,18 +317,18 @@
 	set_selected_zone(old_selecting, FALSE)
 	return CLICK_ACTION_SUCCESS
 
-
 /atom/movable/screen/zone_sel/MouseEntered(location, control, params)
 	. = ..()
 	MouseMove(location, control, params)
-
 
 /atom/movable/screen/zone_sel/MouseMove(location, control, params)
 	if(isobserver(usr))
 		return
 
-	var/list/PL = params2list(params)
-	var/choice = get_zone_at(text2num(PL["icon-x"]), text2num(PL["icon-y"]))
+	var/list/modifiers = params2list(params)
+	var/icon_x = text2num(LAZYACCESS(modifiers, ICON_X))
+	var/icon_y = text2num(LAZYACCESS(modifiers, ICON_Y))
+	var/choice = get_zone_at(icon_x, icon_y)
 
 	if(!choice)
 		cut_overlay(hover_overlays_cache[hovering])
@@ -365,13 +348,10 @@
 
 	add_overlay(hovering_olay)
 
-
 /atom/movable/screen/zone_sel/MouseExited(location, control, params)
 	if(!isobserver(usr) && hovering)
 		cut_overlay(hover_overlays_cache[hovering])
 		hovering = null
-	return ..()
-
 
 /atom/movable/screen/zone_sel/proc/get_zone_at(icon_x, icon_y)
 	switch(icon_y)
@@ -432,7 +412,6 @@
 				if(22 to 28)
 					return BODY_ZONE_WING
 
-
 /atom/movable/screen/zone_sel/proc/set_selected_zone(choice, update_overlay = TRUE)
 	if(!hud || !hud.mymob)
 		return FALSE
@@ -447,7 +426,6 @@
 			update_icon(UPDATE_OVERLAYS)
 	return TRUE
 
-
 /atom/movable/screen/zone_sel/update_overlays()
 	. = ..()
 	var/mutable_appearance/selecting_olay = selecting_overlays_cache[selecting]
@@ -456,15 +434,12 @@
 		selecting_overlays_cache[selecting] = selecting_olay
 	. += selecting_olay
 
-
 /atom/movable/screen/zone_sel/alien
 	icon = 'icons/mob/screen_alien.dmi'
 	overlay_file = 'icons/mob/screen_alien.dmi'
 
-
 /atom/movable/screen/zone_sel/robot
 	icon = 'icons/mob/screen_robot.dmi'
-
 
 /atom/movable/screen/craft
 	name = "crafting menu"
@@ -527,7 +502,6 @@
 	object_overlay = item_overlay
 	add_overlay(object_overlay)
 
-
 /atom/movable/screen/inventory/Click(location, control, params)
 	// At this point in client Click() code we have passed the 1/10 sec check and little else
 	// We don't even know if it's a middle click
@@ -549,20 +523,19 @@
 			return inv_item.Click(location, control, params)
 
 	if(usr.attack_ui(slot_id, params))
-		usr.update_inv_hands()
+		usr.update_held_items()
 
 	return TRUE
 
 
-/atom/movable/screen/inventory/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+/atom/movable/screen/inventory/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
 	cut_overlay(object_overlay)
 	QDEL_NULL(object_overlay)
 	if(could_be_click_lag())
-		Click(src_location, src_control, params)
+		Click(src_location, null, params)
 		drag_start = 0
 		return
 	return ..()
-
 
 /atom/movable/screen/inventory/MouseDrop_T(obj/item/I, mob/user, params)
 
@@ -602,13 +575,11 @@
 
 	I.pickup(user)
 
-
 /atom/movable/screen/inventory/hand
 	/// Previous UI style, used by user. Requires to properly update user's active hand overlay.
 	var/prev_ui_style
 	/// Currently used overlay for active hand. It's icon switches with user's theme.
 	var/mutable_appearance/active_overlay
-
 
 #define HAND_OVERLAY_BLOCKED 1
 #define HAND_OVERLAY_HANDCUFFED_LEFT 2
@@ -686,7 +657,6 @@
 #undef HAND_GRAB_NECK
 #undef HAND_GRAB_KILL
 
-
 /atom/movable/screen/inventory/hand/Click()
 	// At this point in client Click() code we have passed the 1/10 sec check and little else
 	// We don't even know if it's a middle click
@@ -713,7 +683,6 @@
 			user.activate_hand(ACTIVE_HAND_LEFT)
 	return TRUE
 
-
 /atom/movable/screen/swap_hand
 	name = "swap hand"
 
@@ -731,7 +700,6 @@
 		user.swap_hand()
 	return TRUE
 
-
 /atom/movable/screen/healths
 	name = "health"
 	icon_state = "health0"
@@ -741,6 +709,12 @@
 	name = "stamina"
 	icon_state = "stamina0"
 	screen_loc = ui_stamina
+
+/atom/movable/screen/nutrition_bar
+	name = "nutrition"
+	icon = 'icons/hud/screen_hunger.dmi'
+	icon_state = "default_full"
+	screen_loc = ui_nutrition
 
 /atom/movable/screen/healths/alien
 	icon = 'icons/mob/screen_alien.dmi'
@@ -779,7 +753,6 @@
 	name = "summoner health"
 	icon = 'icons/mob/guardian.dmi'
 	icon_state = "base"
-	screen_loc = ui_health
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 
 /atom/movable/screen/healthdoll

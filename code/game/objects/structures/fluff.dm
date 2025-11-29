@@ -6,10 +6,7 @@
 	icon = 'icons/obj/stationobjs.dmi'
 	icon_state = "minibar"
 	anchored = TRUE
-	density = FALSE
-	opacity = FALSE
 	var/deconstructible = TRUE
-
 
 /obj/structure/fluff/wrench_act(mob/living/user, obj/item/I)
 	if(!deconstructible)
@@ -28,7 +25,6 @@
 		span_notice("You break down [src] into scrap metal."),
 	)
 	qdel(src)
-
 
 /obj/structure/fluff/empty_terrarium //Empty terrariums are created when a preserved terrarium in a lavaland seed vault is activated.
 	name = "empty terrarium"
@@ -61,20 +57,22 @@
 /obj/structure/fluff/drake_statue //Ash drake status spawn on either side of the necropolis gate in lavaland.
 	name = "drake statue"
 	desc = "Величественная базальтовая скульптура гордого дрейка. Его глаза — шесть светящихся самоцветов."
-	ru_names = list(
-		NOMINATIVE = "статуя дрейка",
-		GENITIVE = "статуи дрейка",
-		DATIVE = "статуе дрейка",
-		ACCUSATIVE = "статую дрейка",
-		INSTRUMENTAL = "статуей дрейка",
-		PREPOSITIONAL = "статуе дрейка"
-	)
 	icon = 'icons/effects/64x64.dmi'
 	icon_state = "drake_statue"
 	pixel_x = -16
 	density = TRUE
 	deconstructible = FALSE
 	layer = EDGED_TURF_LAYER
+
+/obj/structure/fluff/drake_statue/get_ru_names()
+	return list(
+		NOMINATIVE = "статуя дрейка",
+		GENITIVE = "статуи дрейка",
+		DATIVE = "статуе дрейка",
+		ACCUSATIVE = "статую дрейка",
+		INSTRUMENTAL = "статуей дрейка",
+		PREPOSITIONAL = "статуе дрейка",
+	)
 
 /obj/structure/fluff/drake_statue/falling //A variety of statue in disrepair; parts are broken off and a gemstone is missing
 	desc = "A towering basalt sculpture of a drake. Cracks run down its surface and parts of it have fallen off."
@@ -83,7 +81,7 @@
 /obj/structure/fluff/divine
 	name = "Miracle"
 	icon = 'icons/obj/hand_of_god_structures.dmi'
-	anchored = TRUE
+	icon_state = null
 	density = TRUE
 
 /obj/structure/fluff/divine/nexus
@@ -105,13 +103,15 @@
 
 /obj/structure/fluff/grave/empty
 	name = "empty grave"
-	ru_names = list(
+	desc = "Разграбленная могила."
+	icon_state = "grave_empty"
+
+/obj/structure/fluff/grave/empty/get_ru_names()
+	return list(
 		NOMINATIVE = "пустая могила",
 		GENITIVE = "пустой могилы",
 		DATIVE = "пустой могиле",
 		ACCUSATIVE = "пустую могилу",
 		INSTRUMENTAL = "пустой могилой",
-		PREPOSITIONAL = "пустой могиле"
+		PREPOSITIONAL = "пустой могиле",
 	)
-	desc = "Разграбленная могила."
-	icon_state = "grave_empty"

@@ -23,10 +23,8 @@
 	. = ..()
 	update_icon()
 
-
 /turf/simulated/floor/light/broken_states()
 	return list("light_broken")
-
 
 /turf/simulated/floor/light/update_icon_state()
 	if(!on)
@@ -37,38 +35,37 @@
 	switch(state)
 		if(LIGHTFLOOR_ON)
 			icon_state = "light_on"
-			set_light(5, null,LIGHT_COLOR_LIGHTBLUE, l_on = TRUE)
+			set_light(5, null,LIGHT_COLOR_BLUE, l_on = TRUE)
 		if(LIGHTFLOOR_WHITE)
 			icon_state = "light_on-w"
-			set_light(5, null,LIGHT_COLOR_WHITE, l_on = TRUE)
+			set_light(5, null,COLOR_WHITE, l_on = TRUE)
 		if(LIGHTFLOOR_RED)
 			icon_state = "light_on-r"
-			set_light(5, null,LIGHT_COLOR_RED, l_on = TRUE)
+			set_light(5, null,COLOR_SOFT_RED, l_on = TRUE)
 		if(LIGHTFLOOR_GREEN)
 			icon_state = "light_on-g"
-			set_light(5, null,LIGHT_COLOR_PURE_GREEN, l_on = TRUE)
+			set_light(5, null,LIGHT_COLOR_ELECTRIC_GREEN, l_on = TRUE)
 		if(LIGHTFLOOR_YELLOW)
 			icon_state = "light_on-y"
-			set_light(5, null,"#FFFF00")
+			set_light(5, null,LIGHT_COLOR_DIM_YELLOW, l_on = TRUE)
 		if(LIGHTFLOOR_BLUE)
 			icon_state = "light_on-b"
-			set_light(5, null,LIGHT_COLOR_DARKBLUE, l_on = TRUE)
+			set_light(5, null,LIGHT_COLOR_DARK_BLUE, l_on = TRUE)
 		if(LIGHTFLOOR_PURPLE)
 			icon_state = "light_on-p"
 			set_light(5, null,LIGHT_COLOR_PURPLE, l_on = TRUE)
 		if(LIGHTFLOOR_GENERICCYCLE)
 			icon_state = "light_on-cycle_all"
-			set_light(5, null,LIGHT_COLOR_WHITE, l_on = TRUE)
+			set_light(5, null,COLOR_WHITE, l_on = TRUE)
 		if(LIGHTFLOOR_CYCLEA)
 			icon_state = "light_on-dancefloor_A"
-			set_light(5,null,LIGHT_COLOR_RED, l_on = TRUE)
+			set_light(5,null,COLOR_RED, l_on = TRUE)
 		if(LIGHTFLOOR_CYCLEB)
 			icon_state = "light_on-dancefloor_B"
-			set_light(5, null,LIGHT_COLOR_DARKBLUE, l_on = TRUE)
+			set_light(5, null,LIGHT_COLOR_DARK_BLUE, l_on = TRUE)
 		else
 			icon_state = "light_off"
 			set_light_on(FALSE)
-
 
 /turf/simulated/floor/light/BeforeChange()
 	set_light_on(FALSE)
@@ -78,7 +75,6 @@
 	if(!can_modify_colour)
 		return
 	toggle_light(!on)
-
 
 /turf/simulated/floor/light/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -97,7 +93,6 @@
 		update_icon()
 		to_chat(user, span_notice("You replace the light bulb."))
 		return .|ATTACK_CHAIN_BLOCKED_ALL
-
 
 /turf/simulated/floor/light/multitool_act(mob/user, obj/item/I)
 	. = TRUE
@@ -142,7 +137,6 @@
 	name = "dancefloor"
 	desc = "Funky floor."
 	state = LIGHTFLOOR_CYCLEB
-
 
 #undef LIGHTFLOOR_ON
 #undef LIGHTFLOOR_WHITE

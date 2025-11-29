@@ -2,14 +2,6 @@
 /obj/item/lighter
 	name = "cheap lighter"
 	desc = "Дешёвая пластиковая зажигалка."
-	ru_names = list(
-		NOMINATIVE = "дешёвая зажигалка",
-		GENITIVE = "дешёвой зажигалки",
-		DATIVE = "дешёвой зажигалке",
-		ACCUSATIVE = "дешёвую зажигалку",
-		INSTRUMENTAL = "дешёвой зажигалкой",
-		PREPOSITIONAL = "дешёвой зажигалке"
-	)
 	gender = FEMALE
 	icon = 'icons/obj/lighters.dmi'
 	icon_state = "lighter-g"
@@ -23,7 +15,6 @@
 	light_system = MOVABLE_LIGHT_DIRECTIONAL
 	light_range = 2
 	light_on = FALSE
-	light_power = 1
 	var/lit = FALSE
 	var/icon_on = "lighter-g-on"
 	var/icon_off = "lighter-g"
@@ -31,6 +22,16 @@
 	var/next_on_message
 	/// Cooldown until the next turned off message/sound can be activated
 	var/next_off_message
+
+/obj/item/lighter/get_ru_names()
+	return list(
+		NOMINATIVE = "дешёвая зажигалка",
+		GENITIVE = "дешёвой зажигалки",
+		DATIVE = "дешёвой зажигалке",
+		ACCUSATIVE = "дешёвую зажигалку",
+		INSTRUMENTAL = "дешёвой зажигалкой",
+		PREPOSITIONAL = "дешёвой зажигалке",
+	)
 
 /obj/item/lighter/random/New()
 	..()
@@ -67,7 +68,7 @@
 		user.balloon_alert(user, "включено")
 	else if(HAS_TRAIT(user, TRAIT_BADASS))
 		user.balloon_alert(user, "включено")
-		to_chat(user, span_notice("Как только вы зажгли [declent_ru(ACCUSATIVE)], [genderize_ru(user.gender, "его", "её", "его", "их")] пламя окутывает вашу руку, но вы даже не дёрнулись."))
+		to_chat(user, span_notice("Как только вы зажгли [declent_ru(ACCUSATIVE)], [GEND_HIS_HER(user)] пламя окутывает вашу руку, но вы даже не дёрнулись."))
 	else
 		user.balloon_alert(user, "включено")
 		user.apply_damage(5, BURN, def_zone = user.hand ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)	//INFERNO
@@ -101,7 +102,6 @@
 		playsound(src, 'sound/items/lighter/plastic_close.ogg', 25, TRUE)
 		next_off_message = world.time + 5 SECONDS
 
-
 /obj/item/lighter/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!lit)
 		return ..()
@@ -127,13 +127,12 @@
 	. = return_flags
 
 	if(istype(src, /obj/item/lighter/zippo))
-		cig.light(span_rose("[user] доста[pluralize_ru(user.gender, "ет", "ют")] [declent_ru(ACCUSATIVE)] и держ[pluralize_ru(user.gender, "ит", "ат")] [src.declent_ru(gender, "его", "её", "его", "их")] у [target.declent_ru(GENITIVE)]. Рука [user] тверда, как немигающее пламя, которым [genderize_ru(user.gender, "он", "она", "оно", "они")] прикурива[pluralize_ru(user.gender, "ет", "ют")] [cig.declent_ru(ACCUSATIVE)]."))
+		cig.light(span_rose("[user] доста[PLUR_ET_YUT(user)] [declent_ru(ACCUSATIVE)] и держ[PLUR_IT_AT(user)] [src.declent_ru(gender, "его", "её", "его", "их")] у [target.declent_ru(GENITIVE)]. Рука [user] тверда, как немигающее пламя, которым [GEND_HE_SHE(user)] прикурива[PLUR_ET_YUT(user)] [cig.declent_ru(ACCUSATIVE)]."))
 	else
-		cig.light(span_notice("[user] держ[pluralize_ru(user.gender, "ит", "ат")] [declent_ru(ACCUSATIVE)] у [target.declent_ru(GENITIVE)], зажигая [cig.declent_ru(GENITIVE)]."))
+		cig.light(span_notice("[user] держ[PLUR_IT_AT(user)] [declent_ru(ACCUSATIVE)] у [target.declent_ru(GENITIVE)], зажигая [cig.declent_ru(GENITIVE)]."))
 
 	playsound(src, 'sound/items/lighter/light.ogg', 25, TRUE)
-	target.update_inv_wear_mask()
-
+	target.update_worn_mask()
 
 /obj/item/lighter/process()
 	var/turf/location = get_turf(src)
@@ -145,14 +144,6 @@
 /obj/item/lighter/zippo
 	name = "Зажигалка Зиппо"
 	desc = "Металлическая бензиновая зажигалка Зиппо."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо",
-		GENITIVE = "зажигалки Зиппо",
-		DATIVE = "зажигалке Зиппо",
-		ACCUSATIVE = "зажигалку Зиппо",
-		INSTRUMENTAL = "зажигалкой Зиппо",
-		PREPOSITIONAL = "зажигалке Зиппо"
-	)
 	icon_state = "zippo"
 	item_state = "zippo"
 	icon_on = "zippoon"
@@ -160,6 +151,15 @@
 	lefthand_file = 'icons/mob/inhands/zippo_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/zippo_righthand.dmi'
 
+/obj/item/lighter/zippo/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо",
+		GENITIVE = "зажигалки Зиппо",
+		DATIVE = "зажигалке Зиппо",
+		ACCUSATIVE = "зажигалку Зиппо",
+		INSTRUMENTAL = "зажигалкой Зиппо",
+		PREPOSITIONAL = "зажигалке Зиппо",
+	)
 
 /obj/item/lighter/can_enter_storage(obj/item/storage/S, mob/user)
 	if(lit)
@@ -172,7 +172,7 @@
 	. = ..()
 	user.balloon_alert(user, "включено")
 	if(world.time > next_on_message)
-		user.visible_message(span_rose("Не отвлекаясь от дела, [user] одним плавным движением открыва[pluralize_ru(user.gender, "ет", "ют")] и зажига[pluralize_ru(user.gender, "ет", "ют")] [src.declent_ru(ACCUSATIVE)]."))
+		user.visible_message(span_rose("Не отвлекаясь от дела, [user] одним плавным движением открыва[PLUR_ET_YUT(user)] и зажига[PLUR_ET_YUT(user)] [src.declent_ru(ACCUSATIVE)]."))
 		playsound(src.loc, 'sound/items/zippolight.ogg', 25, TRUE)
 		next_on_message = world.time + 5 SECONDS
 
@@ -182,7 +182,7 @@
 		return
 	user.balloon_alert(user, "выключено")
 	if(world.time > next_off_message)
-		user.visible_message(span_rose("Вы слышите тихий щелчок, когда [user] закрыва[pluralize_ru(user.gender, "ет", "ют")] [src.declent_ru(ACCUSATIVE)], даже не смотря в её сторону. Во даёт!"))
+		user.visible_message(span_rose("Вы слышите тихий щелчок, когда [user] закрыва[PLUR_ET_YUT(user)] [src.declent_ru(ACCUSATIVE)], даже не смотря в её сторону. Во даёт!"))
 		playsound(src.loc, 'sound/items/zippoclose.ogg', 25, TRUE)
 		next_off_message = world.time + 5 SECONDS
 
@@ -196,239 +196,259 @@
 /obj/item/lighter/zippo/nt_rep
 	name = "gold engraved zippo"
 	desc = "Золотая зажигалка Зиппо с выгравированными буквами \"НТ\" на ней."
-	ru_names = list(
-		NOMINATIVE = "золотая зажигалка Зиппо",
-		GENITIVE = "золотой зажигалки Зиппо",
-		DATIVE = "золотой зажигалке Зиппо",
-		ACCUSATIVE = "золотую зажигалку Зиппо",
-		INSTRUMENTAL = "золотой зажигалкой Зиппо",
-		PREPOSITIONAL = "золотой зажигалке Зиппо"
-	)
 	icon_state = "zippo_nt_off"
 	item_state = "ntzippo"
 	icon_on = "zippo_nt_on"
 	icon_off = "zippo_nt_off"
 
+/obj/item/lighter/zippo/nt_rep/get_ru_names()
+	return list(
+		NOMINATIVE = "золотая зажигалка Зиппо",
+		GENITIVE = "золотой зажигалки Зиппо",
+		DATIVE = "золотой зажигалке Зиппо",
+		ACCUSATIVE = "золотую зажигалку Зиппо",
+		INSTRUMENTAL = "золотой зажигалкой Зиппо",
+		PREPOSITIONAL = "золотой зажигалке Зиппо",
+	)
+
 /obj/item/lighter/zippo/blue
 	name = "blue zippo lighter"
 	desc = "Зажигалка Зиппо, сделанная из какого-то синего металла."
-	ru_names = list(
-		NOMINATIVE = "синяя зажигалка Зиппо",
-		GENITIVE = "синей зажигалки Зиппо",
-		DATIVE = "синей зажигалке Зиппо",
-		ACCUSATIVE = "синюю зажигалку Зиппо",
-		INSTRUMENTAL = "синей зажигалкой Зиппо",
-		PREPOSITIONAL = "синей зажигалке Зиппо"
-	)
 	icon_state = "bluezippo"
 	item_state = "bluezippo"
 	icon_on = "bluezippoon"
 	icon_off = "bluezippo"
 
+/obj/item/lighter/zippo/blue/get_ru_names()
+	return list(
+		NOMINATIVE = "синяя зажигалка Зиппо",
+		GENITIVE = "синей зажигалки Зиппо",
+		DATIVE = "синей зажигалке Зиппо",
+		ACCUSATIVE = "синюю зажигалку Зиппо",
+		INSTRUMENTAL = "синей зажигалкой Зиппо",
+		PREPOSITIONAL = "синей зажигалке Зиппо",
+	)
+
 /obj/item/lighter/zippo/black
 	name = "black zippo lighter"
 	desc = "Чёрная зажигалка Зиппо."
-	ru_names = list(
-		NOMINATIVE = "чёрная зажигалка Зиппо",
-		GENITIVE = "чёрной зажигалки Зиппо",
-		DATIVE = "чёрной зажигалке Зиппо",
-		ACCUSATIVE = "чёрную зажигалку Зиппо",
-		INSTRUMENTAL = "чёрной зажигалкой Зиппо",
-		PREPOSITIONAL = "чёрной зажигалке Зиппо"
-	)
 	icon_state = "blackzippo"
 	item_state = "chapzippo"
 	icon_on = "blackzippoon"
 	icon_off = "blackzippo"
 
+/obj/item/lighter/zippo/black/get_ru_names()
+	return list(
+		NOMINATIVE = "чёрная зажигалка Зиппо",
+		GENITIVE = "чёрной зажигалки Зиппо",
+		DATIVE = "чёрной зажигалке Зиппо",
+		ACCUSATIVE = "чёрную зажигалку Зиппо",
+		INSTRUMENTAL = "чёрной зажигалкой Зиппо",
+		PREPOSITIONAL = "чёрной зажигалке Зиппо",
+	)
+
 /obj/item/lighter/zippo/engraved
 	name = "engraved zippo lighter"
 	desc = "Зажигалка Зиппо с замысловатой гравировкой."
-	ru_names = list(
-		NOMINATIVE = "гравированная зажигалка Зиппо",
-		GENITIVE = "гравированной зажигалки Зиппо",
-		DATIVE = "гравированной зажигалке Зиппо",
-		ACCUSATIVE = "гравированную зажигалку Зиппо",
-		INSTRUMENTAL = "гравированной зажигалкой Зиппо",
-		PREPOSITIONAL = "гравированной зажигалке Зиппо"
-	)
 	icon_state = "engravedzippo"
 	item_state = "engravedzippo"
 	icon_on = "engravedzippoon"
 	icon_off = "engravedzippo"
 
+/obj/item/lighter/zippo/engraved/get_ru_names()
+	return list(
+		NOMINATIVE = "гравированная зажигалка Зиппо",
+		GENITIVE = "гравированной зажигалки Зиппо",
+		DATIVE = "гравированной зажигалке Зиппо",
+		ACCUSATIVE = "гравированную зажигалку Зиппо",
+		INSTRUMENTAL = "гравированной зажигалкой Зиппо",
+		PREPOSITIONAL = "гравированной зажигалке Зиппо",
+	)
+
 /obj/item/lighter/zippo/gonzofist
 	name = "Gonzo Fist zippo"
 	desc = "Зажигалка Зиппо с культовым изображением Кулака Гонзо на матовой чёрной поверхности."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо с кулаком Гонзо",
-		GENITIVE = "зажигалки Зиппо с кулаком Гонзо",
-		DATIVE = "зажигалке Зиппо с кулаком Гонзо",
-		ACCUSATIVE = "зажигалку Зиппо с кулаком Гонзо",
-		INSTRUMENTAL = "зажигалкой Зиппо с кулаком Гонзо",
-		PREPOSITIONAL = "зажигалке Зиппо с кулаком Гонзо"
-	)
 	icon_state = "gonzozippo"
 	item_state = "gonzozippo"
 	icon_on = "gonzozippoon"
 	icon_off = "gonzozippo"
 
+/obj/item/lighter/zippo/gonzofist/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо с кулаком Гонзо",
+		GENITIVE = "зажигалки Зиппо с кулаком Гонзо",
+		DATIVE = "зажигалке Зиппо с кулаком Гонзо",
+		ACCUSATIVE = "зажигалку Зиппо с кулаком Гонзо",
+		INSTRUMENTAL = "зажигалкой Зиппо с кулаком Гонзо",
+		PREPOSITIONAL = "зажигалке Зиппо с кулаком Гонзо",
+	)
+
 /obj/item/lighter/zippo/cap
 	name = "Captain's zippo"
-	desc = "Ограниченная серия золотых Зиппо специально для капитанов станций НаноТрейзен. Выглядит очень роскошно."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Капитана",
-		GENITIVE = "зажигалки Зиппо Капитана",
-		DATIVE = "зажигалке Зиппо Капитана",
-		ACCUSATIVE = "зажигалку Зиппо Капитана",
-		INSTRUMENTAL = "зажигалкой Зиппо Капитана",
-		PREPOSITIONAL = "зажигалке Зиппо Капитана"
-	)
+	desc = "Ограниченная серия золотых Зиппо специально для капитанов станций \"Нанотрейзен\". Выглядит очень роскошно."
 	icon_state = "zippo_cap"
 	item_state = "capzippo"
 	icon_on = "zippo_cap_on"
 	icon_off = "zippo_cap"
 
+/obj/item/lighter/zippo/cap/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Капитана",
+		GENITIVE = "зажигалки Зиппо Капитана",
+		DATIVE = "зажигалке Зиппо Капитана",
+		ACCUSATIVE = "зажигалку Зиппо Капитана",
+		INSTRUMENTAL = "зажигалкой Зиппо Капитана",
+		PREPOSITIONAL = "зажигалке Зиппо Капитана",
+	)
+
 /obj/item/lighter/zippo/hop
 	name = "Head of Personnel zippo"
-	desc = "Ограниченная серия Зиппо для Глав станций НаноТрейзен. Старается изо всех сил выглядеть как капитанская."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Главы Персонала",
-		GENITIVE = "зажигалки Зиппо Главы Персонала",
-		DATIVE = "зажигалке Зиппо Главы Персонала",
-		ACCUSATIVE = "зажигалку Зиппо Главы Персонала",
-		INSTRUMENTAL = "зажигалкой Зиппо Главы Персонала",
-		PREPOSITIONAL = "зажигалке Зиппо Главы Персонала"
-	)
+	desc = "Ограниченная серия Зиппо для Глав станций \"Нанотрейзен\". Старается изо всех сил выглядеть как капитанская."
 	icon_state = "zippo_hop"
 	item_state = "hopzippo"
 	icon_on = "zippo_hop_on"
 	icon_off = "zippo_hop"
 
+/obj/item/lighter/zippo/hop/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Главы Персонала",
+		GENITIVE = "зажигалки Зиппо Главы Персонала",
+		DATIVE = "зажигалке Зиппо Главы Персонала",
+		ACCUSATIVE = "зажигалку Зиппо Главы Персонала",
+		INSTRUMENTAL = "зажигалкой Зиппо Главы Персонала",
+		PREPOSITIONAL = "зажигалке Зиппо Главы Персонала",
+	)
+
 /obj/item/lighter/zippo/hos
 	name = "Head of Security zippo"
-	desc = "Ограниченная серия Зиппо для Глав станций НаноТрейзен. Она просто не может не работать на крови и слезах клоунов."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Главы Службы Безопасности",
-		GENITIVE = "зажигалки Зиппо Главы Службы Безопасности",
-		DATIVE = "зажигалке Зиппо Главы Службы Безопасности",
-		ACCUSATIVE = "зажигалку Зиппо Главы Службы Безопасности",
-		INSTRUMENTAL = "зажигалкой Зиппо Главы Службы Безопасности",
-		PREPOSITIONAL = "зажигалке Зиппо Главы Службы Безопасности"
-	)
+	desc = "Ограниченная серия Зиппо для Глав станций \"Нанотрейзен\". Она просто не может не работать на крови и слезах клоунов."
 	icon_state = "zippo_hos"
 	item_state = "hoszippo"
 	icon_on = "zippo_hos_on"
 	icon_off = "zippo_hos"
 
+/obj/item/lighter/zippo/hos/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Главы Службы Безопасности",
+		GENITIVE = "зажигалки Зиппо Главы Службы Безопасности",
+		DATIVE = "зажигалке Зиппо Главы Службы Безопасности",
+		ACCUSATIVE = "зажигалку Зиппо Главы Службы Безопасности",
+		INSTRUMENTAL = "зажигалкой Зиппо Главы Службы Безопасности",
+		PREPOSITIONAL = "зажигалке Зиппо Главы Службы Безопасности",
+	)
+
 /obj/item/lighter/zippo/cmo
 	name = "Chief Medical Officer zippo"
-	desc = "Ограниченная серия Зиппо для Глав станций НаноТрейзен. Сделано из гипоаллергенной стали."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Главного Врача",
-		GENITIVE = "зажигалки Зиппо Главного Врача",
-		DATIVE = "зажигалке Зиппо Главного Врача",
-		ACCUSATIVE = "зажигалку Зиппо Главного Врача",
-		INSTRUMENTAL = "зажигалкой Зиппо Главного Врача",
-		PREPOSITIONAL = "зажигалке Зиппо Главного Врача"
-	)
+	desc = "Ограниченная серия Зиппо для Глав станций \"Нанотрейзен\". Сделано из гипоаллергенной стали."
 	icon_state = "zippo_cmo"
 	item_state = "bluezippo"
 	icon_on = "zippo_cmo_on"
 	icon_off = "zippo_cmo"
 
+/obj/item/lighter/zippo/cmo/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Главного Врача",
+		GENITIVE = "зажигалки Зиппо Главного Врача",
+		DATIVE = "зажигалке Зиппо Главного Врача",
+		ACCUSATIVE = "зажигалку Зиппо Главного Врача",
+		INSTRUMENTAL = "зажигалкой Зиппо Главного Врача",
+		PREPOSITIONAL = "зажигалке Зиппо Главного Врача",
+	)
+
 /obj/item/lighter/zippo/ce
 	name = "Chief Engineer zippo"
-	desc = "Ограниченная серия Зиппо для глав станций НаноТрейзен. Выглядит совсем потрескавшейся."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Старшего Инженера",
-		GENITIVE = "зажигалки Зиппо Старшего Инженера",
-		DATIVE = "зажигалке Зиппо Старшего Инженера",
-		ACCUSATIVE = "зажигалку Зиппо Старшего Инженера",
-		INSTRUMENTAL = "зажигалкой Зиппо Старшего Инженера",
-		PREPOSITIONAL = "зажигалке Зиппо Старшего Инженера"
-	)
+	desc = "Ограниченная серия Зиппо для глав станций \"Нанотрейзен\". Выглядит совсем потрескавшейся."
 	icon_state = "zippo_ce"
 	item_state = "cezippo"
 	icon_on = "zippo_ce_on"
 	icon_off = "zippo_ce"
 
+/obj/item/lighter/zippo/ce/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Старшего Инженера",
+		GENITIVE = "зажигалки Зиппо Старшего Инженера",
+		DATIVE = "зажигалке Зиппо Старшего Инженера",
+		ACCUSATIVE = "зажигалку Зиппо Старшего Инженера",
+		INSTRUMENTAL = "зажигалкой Зиппо Старшего Инженера",
+		PREPOSITIONAL = "зажигалке Зиппо Старшего Инженера",
+	)
+
 /obj/item/lighter/zippo/rd
 	name = "Research Director zippo"
-	desc = "Ограниченная серия Зиппо для глав станций НаноТрейзен. Работает на жидкой плазме."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Научного Руководителя",
-		GENITIVE = "зажигалки Зиппо Научного Руководителя",
-		DATIVE = "зажигалке Зиппо Научного Руководителя",
-		ACCUSATIVE = "зажигалку Зиппо Научного Руководителя",
-		INSTRUMENTAL = "зажигалкой Зиппо Научного Руководителя",
-		PREPOSITIONAL = "зажигалке Зиппо Научного Руководителя"
-	)
+	desc = "Ограниченная серия Зиппо для глав станций \"Нанотрейзен\". Работает на жидкой плазме."
 	icon_state = "zippo_rd"
 	item_state = "rdzippo"
 	icon_on = "zippo_rd_on"
 	icon_off = "zippo_rd"
 
+/obj/item/lighter/zippo/rd/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Научного Руководителя",
+		GENITIVE = "зажигалки Зиппо Научного Руководителя",
+		DATIVE = "зажигалке Зиппо Научного Руководителя",
+		ACCUSATIVE = "зажигалку Зиппо Научного Руководителя",
+		INSTRUMENTAL = "зажигалкой Зиппо Научного Руководителя",
+		PREPOSITIONAL = "зажигалке Зиппо Научного Руководителя",
+	)
+
 /obj/item/lighter/zippo/qm
 	name = "Quartermaster Lighter"
-	desc = "Ограниченная серия Зиппо для глав станций НаноТрейзен. Нужно 400.000 кредитов, чтобы держать эту зажигалку включеной 12 секунд."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо Квартирмейстера",
-		GENITIVE = "зажигалки Зиппо Квартирмейстера",
-		DATIVE = "зажигалке Зиппо Квартирмейстера",
-		ACCUSATIVE = "зажигалку Зиппо Квартирмейстера",
-		INSTRUMENTAL = "зажигалкой Зиппо Квартирмейстера",
-		PREPOSITIONAL = "зажигалке Зиппо Квартирмейстера"
-	)
+	desc = "Ограниченная серия Зиппо для глав станций \"Нанотрейзен\". Нужно 400.000 кредитов, чтобы держать эту зажигалку включеной 12 секунд."
 	icon_state = "zippo_qm"
 	item_state = "qmzippo"
 	icon_on = "zippo_qm_on"
 	icon_off = "zippo_qm"
 
+/obj/item/lighter/zippo/qm/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо Квартирмейстера",
+		GENITIVE = "зажигалки Зиппо Квартирмейстера",
+		DATIVE = "зажигалке Зиппо Квартирмейстера",
+		ACCUSATIVE = "зажигалку Зиппо Квартирмейстера",
+		INSTRUMENTAL = "зажигалкой Зиппо Квартирмейстера",
+		PREPOSITIONAL = "зажигалке Зиппо Квартирмейстера",
+	)
+
 /obj/item/lighter/zippo/detective
 	name = "Detective zippo"
 	desc = "Лимитированная версия зажигалки Зиппо для детектива. Кажется, что её доставили прямиком из нуарных фильмов."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо детектива",
-		GENITIVE = "зажигалки Зиппо детектива",
-		DATIVE = "зажигалке Зиппо детектива",
-		ACCUSATIVE = "зажигалку Зиппо детектива",
-		INSTRUMENTAL = "зажигалкой Зиппо детектива",
-		PREPOSITIONAL = "зажигалке Зиппо детектива"
-	)
 	icon_state = "zippo_dec"
 	item_state = "deczippo"
 	icon_on = "zippo_dec_on"
 	icon_off = "zippo_dec"
 
+/obj/item/lighter/zippo/detective/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо детектива",
+		GENITIVE = "зажигалки Зиппо детектива",
+		DATIVE = "зажигалке Зиппо детектива",
+		ACCUSATIVE = "зажигалку Зиппо детектива",
+		INSTRUMENTAL = "зажигалкой Зиппо детектива",
+		PREPOSITIONAL = "зажигалке Зиппо детектива",
+	)
+
 /obj/item/lighter/zippo/contractor
 	name = "contractor zippo lighter"
-	desc = "Уникальная чёрная Zippo с золотыми вкраплениями. Такие обычно достаются элите агентуры Синдиката."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо контрактора",
-		GENITIVE = "зажигалки Зиппо контрактора",
-		DATIVE = "зажигалке Зиппо контрактора",
-		ACCUSATIVE = "зажигалку Зиппо контрактора",
-		INSTRUMENTAL = "зажигалкой Зиппо контрактора",
-		PREPOSITIONAL = "зажигалке Зиппо контрактора"
-	)
+	desc = "Уникальная чёрная Zippo с золотыми вкраплениями. Такие обычно достаются элите агентуры \"Синдиката\"."
 	icon_state = "contractorzippo"
 	item_state = "contractorzippo"
 	icon_on = "contractorzippoon"
 	icon_off = "contractorzippo"
 
+/obj/item/lighter/zippo/contractor/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо контрактора",
+		GENITIVE = "зажигалки Зиппо контрактора",
+		DATIVE = "зажигалке Зиппо контрактора",
+		ACCUSATIVE = "зажигалку Зиппо контрактора",
+		INSTRUMENTAL = "зажигалкой Зиппо контрактора",
+		PREPOSITIONAL = "зажигалке Зиппо контрактора",
+	)
+
 //Ninja-Zippo//
 /obj/item/lighter/zippo/ninja
 	name = "\"Shinobi on a rice field\" zippo"
 	desc = "Zippo, сделанная на заказ. Она выглядит практически как упаковка китайской лапши. На ней есть пятно крови, и от неё несёт горелым рисом..."
-	ru_names = list(
-		NOMINATIVE = "зажигалка Зиппо \"Шиноби в рисовом поле\"",
-		GENITIVE = "зажигалки Зиппо \"Шиноби в рисовом поле\"",
-		DATIVE = "зажигалке Зиппо \"Шиноби в рисовом поле\"",
-		ACCUSATIVE = "зажигалку Зиппо \"Шиноби в рисовом поле\"",
-		INSTRUMENTAL = "зажигалкой Зиппо \"Шиноби в рисовом поле\"",
-		PREPOSITIONAL = "зажигалке Зиппо \"Шиноби в рисовом поле\""
-	)
 	icon = 'icons/obj/ninjaobjects.dmi'
 	lefthand_file = 'icons/mob/inhands/antag/ninja_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/antag/ninja_righthand.dmi'
@@ -437,20 +457,22 @@
 	icon_on = "zippo_ninja_on"
 	icon_off = "zippo_ninja"
 
+/obj/item/lighter/zippo/ninja/get_ru_names()
+	return list(
+		NOMINATIVE = "зажигалка Зиппо \"Шиноби в рисовом поле\"",
+		GENITIVE = "зажигалки Зиппо \"Шиноби в рисовом поле\"",
+		DATIVE = "зажигалке Зиппо \"Шиноби в рисовом поле\"",
+		ACCUSATIVE = "зажигалку Зиппо \"Шиноби в рисовом поле\"",
+		INSTRUMENTAL = "зажигалкой Зиппо \"Шиноби в рисовом поле\"",
+		PREPOSITIONAL = "зажигалке Зиппо \"Шиноби в рисовом поле\"",
+	)
+
 ///////////
 //MATCHES//
 ///////////
 /obj/item/match
 	name = "match"
 	desc = "Обычная спичка, предназначенная для поджигания курительных смесей."
-	ru_names = list(
-		NOMINATIVE = "спичка",
-		GENITIVE = "спички",
-		DATIVE = "спичке",
-		ACCUSATIVE = "спичку",
-		INSTRUMENTAL = "спичкой",
-		PREPOSITIONAL = "спичке"
-	)
 	gender = FEMALE
 	icon = 'icons/obj/cigarettes.dmi'
 	icon_state = "match_unlit"
@@ -464,6 +486,15 @@
 	pickup_sound = 'sound/items/handling/pickup/generic_small_pickup.ogg'
 	drop_sound = 'sound/items/handling/drop/generic_small_drop.ogg'
 
+/obj/item/match/get_ru_names()
+	return list(
+		NOMINATIVE = "спичка",
+		GENITIVE = "спички",
+		DATIVE = "спичке",
+		ACCUSATIVE = "спичку",
+		INSTRUMENTAL = "спичкой",
+		PREPOSITIONAL = "спичке",
+	)
 
 /obj/item/match/process()
 	var/turf/location = get_turf(src)
@@ -473,22 +504,18 @@
 	if(location)
 		location.hotspot_expose(700, 5)
 
-
 /obj/item/match/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	..()
 	matchignite()
-
 
 /obj/item/match/extinguish_light(force = FALSE)
 	if(!force)
 		return
 	matchburnout()
 
-
 /obj/item/match/update_icon_state()
 	icon_state = lit ? "match_lit" : "match_burnt"
 	item_state = lit ? "match_lit" : "match_burnt"
-
 
 /obj/item/match/update_name(updates = ALL)
 	. = ..()
@@ -510,9 +537,7 @@
 			ru_names[INSTRUMENTAL] = "сгоревшей спичкой"
 			ru_names[PREPOSITIONAL] = "сгоревшей спичке"
 		if(!lit && !burnt)
-			ru_names = initial(ru_names)
-
-
+			ru_names = get_ru_names_cached()
 
 /obj/item/match/update_desc(updates = ALL)
 	. = ..()
@@ -532,7 +557,6 @@
 		update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
 		return TRUE
 
-
 /obj/item/match/proc/matchburnout()
 	if(lit)
 		lit = FALSE
@@ -544,11 +568,9 @@
 		update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
 		return TRUE
 
-
 /obj/item/match/dropped(mob/user, slot, silent = FALSE)
 	matchburnout()
 	. = ..()
-
 
 /obj/item/match/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!lit)
@@ -576,16 +598,15 @@
 
 	if(istype(src, /obj/item/match/unathi))
 		if(prob(50))
-			cig.light(span_rose("[user] изверга[pluralize_ru(user.gender, "ет", "ют")] пламя на [target.declent_ru(ACCUSATIVE)] и зажига[pluralize_ru(user.gender, "ет", "ют")] [cig.declent_ru(ACCUSATIVE)], чуть не опалив [genderize_ru(target.gender, "его", "её", "его", "их")] лицо!"))
+			cig.light(span_rose("[user] изверга[PLUR_ET_YUT(user)] пламя на [target.declent_ru(ACCUSATIVE)] и зажига[PLUR_ET_YUT(user)] [cig.declent_ru(ACCUSATIVE)], чуть не опалив [GEND_HIS_HER(target)] лицо!"))
 			matchburnout()
 		else
-			cig.light(span_rose("[user] изверга[pluralize_ru(user.gender, "ет", "ют")] пламя на [target.declent_ru(ACCUSATIVE)] , опаливая [genderize_ru(target.gender, "его", "её", "его", "их")] лицо и зажигая [cig.declent_ru(ACCUSATIVE)]."))
+			cig.light(span_rose("[user] изверга[PLUR_ET_YUT(user)] пламя на [target.declent_ru(ACCUSATIVE)] , опаливая [GEND_HIS_HER(target)] лицо и зажигая [cig.declent_ru(ACCUSATIVE)]."))
 			target.apply_damage(5, BURN, def_zone = BODY_ZONE_HEAD)
 			playsound(src, 'sound/effects/unathiignite.ogg', 40, FALSE)
 	else
-		cig.light(span_notice("[user] держ[pluralize_ru(user.gender, "ит", "ат")] [declent_ru(ACCUSATIVE)] у [target.declent_ru(GENITIVE)], и зажига[pluralize_ru(user.gender, "ет", "ют")] [cig.declent_ru(ACCUSATIVE)]."))
+		cig.light(span_notice("[user] держ[PLUR_IT_AT(user)] [declent_ru(ACCUSATIVE)] у [target.declent_ru(GENITIVE)], и зажига[PLUR_ET_YUT(user)] [cig.declent_ru(ACCUSATIVE)]."))
 		playsound(src, 'sound/items/lighter/light.ogg', 25, TRUE)
-
 
 /obj/item/match/decompile_act(obj/item/matter_decompiler/C, mob/user)
 	if(burnt)
@@ -594,67 +615,62 @@
 		return TRUE
 	return ..()
 
-
 /obj/item/proc/help_light_cig(mob/living/M)
 	var/mask_item = M.get_item_by_slot(ITEM_SLOT_MASK)
 	if(istype(mask_item, /obj/item/clothing/mask/cigarette))
 		return mask_item
 
-
 /obj/item/match/firebrand
 	name = "firebrand"
 	desc = "Незажжённая лучина. Интересно, почему её не называют просто палкой?"
-	ru_names = list(
+	smoketime = 20 //40 seconds
+
+/obj/item/match/firebrand/get_ru_names()
+	return list(
 		NOMINATIVE = "лучина",
 		GENITIVE = "лучины",
 		DATIVE = "лучине",
 		ACCUSATIVE = "лучину",
 		INSTRUMENTAL = "лучиной",
-		PREPOSITIONAL = "лучине"
+		PREPOSITIONAL = "лучине",
 	)
-	smoketime = 20 //40 seconds
-
 
 /obj/item/match/firebrand/Initialize(mapload)
 	. = ..()
 	matchignite()
 
-
 /obj/item/match/unathi
 	name = "small blaze"
 	desc = "Ваше собственное маленькое пламя, которое в данный момент находится прямо у вас во рту."
-	ru_names = list(
-		NOMINATIVE = "маленькое пламя",
-		GENITIVE = "маленького пламени",
-		DATIVE = "маленькому пламени",
-		ACCUSATIVE = "маленькое пламея",
-		INSTRUMENTAL = "маленьким пламенем",
-		PREPOSITIONAL = "маленьком плами"
-	)
 	icon_state = "match_unathi"
 	attack_verb = null
-	force = 0
 	item_flags = DROPDEL|ABSTRACT
 	origin_tech = null
 	lit = TRUE
 	w_class = WEIGHT_CLASS_BULKY //to prevent it going to pockets
 
+/obj/item/match/unathi/get_ru_names()
+	return list(
+		NOMINATIVE = "маленькое пламя",
+		GENITIVE = "маленького пламени",
+		DATIVE = "маленькому пламени",
+		ACCUSATIVE = "маленькое пламея",
+		INSTRUMENTAL = "маленьким пламенем",
+		PREPOSITIONAL = "маленьком плами",
+	)
 
 /obj/item/match/unathi/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
 
-
 /obj/item/match/unathi/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
 	return	// we are already burning
-
 
 /obj/item/match/unathi/matchburnout()
 	if(!lit)
 		return
 	lit = FALSE //to avoid a qdel loop
 	qdel(src)
-
 
 /obj/item/match/unathi/Destroy()
 	. = ..()

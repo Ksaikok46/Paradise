@@ -18,8 +18,8 @@
 *   Initialising
 ********************/
 
-/obj/machinery/kitchen_machine/grill/New()
-	..()
+/obj/machinery/kitchen_machine/grill/Initialize(mapload)
+	. = ..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/grill(null)
 	component_parts += new /obj/item/stock_parts/micro_laser(null)
@@ -28,8 +28,8 @@
 	component_parts += new /obj/item/stack/cable_coil(null, 5)
 	RefreshParts()
 
-/obj/machinery/kitchen_machine/grill/upgraded/New()
-	..()
+/obj/machinery/kitchen_machine/grill/upgraded/Initialize(mapload)
+	. = ..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/grill(null)
 	component_parts += new /obj/item/stock_parts/micro_laser/ultra(null)
@@ -43,7 +43,6 @@
 	for(var/obj/item/stock_parts/micro_laser/M in component_parts)
 		E += M.rating
 	efficiency = round((E/2), 1) // There's 2 lasers, so halve the effect on the efficiency to keep it balanced
-
 
 /obj/machinery/kitchen_machine/grill/special_grab_attack(atom/movable/grabbed_thing, mob/living/grabber)
 	if(!ishuman(grabbed_thing) || !Adjacent(grabbed_thing))

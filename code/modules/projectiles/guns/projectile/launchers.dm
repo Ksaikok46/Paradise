@@ -5,12 +5,11 @@
 	desc = "A break-operated grenade launcher."
 	name = "grenade launcher"
 	icon_state = "dshotgun-sawn"
-	item_state = "gun"
 	mag_type = /obj/item/ammo_box/magazine/internal/grenadelauncher
 	fire_sound = 'sound/weapons/gunshots/1grenlauncher.ogg'
-	w_class = WEIGHT_CLASS_NORMAL
 	accuracy = GUN_ACCURACY_RIFLE
-
+	attachable_allowed = GUN_MODULE_CLASS_NONE
+	recoil = GUN_RECOIL_HIGH
 
 /obj/item/gun/projectile/revolver/grenadelauncher/multi
 	desc = "A revolving 6-shot grenade launcher."
@@ -25,6 +24,7 @@
 	icon = 'icons/obj/mecha/mecha_equipment.dmi'
 	icon_state = "mecha_grenadelnchr"
 	accuracy = GUN_ACCURACY_RIFLE
+	recoil = GUN_RECOIL_LOW
 
 /obj/item/gun/projectile/revolver/grenadelauncher/multi/cyborg/attack_self()
 	return
@@ -40,16 +40,14 @@
 	burst_size = 1
 	fire_delay = 0
 	actions_types = null
-	accuracy = GUN_ACCURACY_DEFAULT
+	accuracy = GUN_ACCURACY_MINIMAL
+	fire_modes = GUN_MODE_SINGLE_ONLY
 
-
-/obj/item/gun/projectile/automatic/gyropistol/process_chamber(eject_casing = 0, empty_chamber = 1)
+/obj/item/gun/projectile/automatic/gyropistol/handle_chamber(eject_casing = 0, empty_chamber = 1)
 	..()
-
 
 /obj/item/gun/projectile/automatic/gyropistol/update_icon_state()
 	icon_state = "[initial(icon_state)][magazine ? "loaded" : ""]"
-
 
 /obj/item/gun/projectile/automatic/speargun
 	name = "kinetic speargun"
@@ -59,7 +57,6 @@
 	w_class = WEIGHT_CLASS_BULKY
 	origin_tech = "combat=4;engineering=4"
 	force = 10
-	can_suppress = FALSE
 	mag_type = /obj/item/ammo_box/magazine/internal/speargun
 	fire_sound = 'sound/weapons/genhit.ogg'
 	burst_size = 1
@@ -67,25 +64,22 @@
 	select = 0
 	actions_types = null
 	accuracy = GUN_ACCURACY_DEFAULT
-
+	recoil = null
+	fire_modes = GUN_MODE_SINGLE_ONLY
 
 /obj/item/gun/projectile/automatic/speargun/update_icon_state()
 	return
 
-
 /obj/item/gun/projectile/automatic/speargun/attack_self()
 	return
-
 
 /obj/item/gun/projectile/automatic/speargun/can_shoot(mob/user)
 	if(chambered)
 		return TRUE
 	return FALSE
 
-
-/obj/item/gun/projectile/automatic/speargun/process_chamber(eject_casing = FALSE, empty_chamber = TRUE)
+/obj/item/gun/projectile/automatic/speargun/handle_chamber(eject_casing = FALSE, empty_chamber = TRUE)
 	. = ..()
-
 
 /obj/item/gun/projectile/automatic/speargun/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/ammo_box) || istype(I, /obj/item/ammo_casing))
@@ -101,7 +95,6 @@
 
 	return ..()
 
-
 /obj/item/gun/projectile/revolver/rocketlauncher //nice revolver you got here
 	name = "PML-9"
 	desc = "A reusable rocket propelled grenade launcher. The words \"NT this way\" and an arrow have been written near the barrel."
@@ -112,10 +105,11 @@
 	w_class = WEIGHT_CLASS_BULKY
 	weapon_weight = WEAPON_HEAVY
 	can_holster = FALSE
-	flags = CONDUCT
 	show_live_rounds = FALSE
 	accuracy = GUN_ACCURACY_RIFLE
-
+	attachable_allowed = GUN_MODULE_CLASS_NONE
+	recoil = GUN_RECOIL_MEDIUM
+	can_air_shoot = FALSE
 
 /obj/item/gun/projectile/revolver/rocketlauncher/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/ammo_box) || istype(I, /obj/item/ammo_casing))
@@ -131,16 +125,13 @@
 
 	return ..()
 
-
 /obj/item/gun/projectile/revolver/rocketlauncher/can_shoot(mob/user)
 	if(chambered)
 		return TRUE
 	return FALSE
 
-
-/obj/item/gun/projectile/revolver/rocketlauncher/process_chamber(eject_casing = FALSE, empty_chamber = TRUE)
+/obj/item/gun/projectile/revolver/rocketlauncher/handle_chamber(eject_casing = FALSE, empty_chamber = TRUE)
 	. = ..()
-
 
 /obj/item/gun/projectile/revolver/rocketlauncher/chamber_round()
 	if(chambered || !magazine)
@@ -149,13 +140,10 @@
 		chambered = magazine.get_round()
 		chambered.forceMove(src)
 
-
 /obj/item/gun/projectile/revolver/rocketlauncher/get_ammo(countchambered = TRUE, countempties = TRUE)
 	. = ..()
 
-
-/obj/item/gun/projectile/revolver/rocketlauncher/attack_self(mob/living/user)
-	add_fingerprint(user)
+/obj/item/gun/projectile/revolver/rocketlauncher/unload_act(mob/user)
 	var/num_unloaded = 0
 	var/atom/drop_loc = drop_location()
 	while(get_ammo(FALSE) > 0)
@@ -184,22 +172,19 @@
 	else
 		balloon_alert(user, "уже разряжено!")
 
-
 /obj/item/gun/projectile/revolver/rocketlauncher/update_icon_state()
 	return
-
 
 /obj/item/gun/projectile/revolver/rocketlauncher/update_overlays()
 	. = ..()
 	if(!chambered)
 		. += "[icon_state]_empty"
 
-
 /obj/item/gun/projectile/revolver/rocketlauncher/suicide_act(mob/user)
 	user.visible_message("<span class='warning'>[user] aims [src] at the ground! It looks like [user.p_theyre()] performing a sick rocket jump!<span>")
 	if(can_shoot(user))
 		ADD_TRAIT(user, TRAIT_NO_TRANSFORM, UNIQUE_TRAIT_SOURCE(src))
-		playsound(src, 'sound/weapons/rocketlaunch.ogg', 80, 1, 5)
+		playsound(src, 'sound/weapons/rocketlaunch.ogg', 80, TRUE, 5)
 		animate(user, pixel_z = 300, time = 3 SECONDS, easing = LINEAR_EASING)
 		sleep(7 SECONDS)
 		animate(user, pixel_z = 0, time = 0.5 SECONDS, easing = LINEAR_EASING)

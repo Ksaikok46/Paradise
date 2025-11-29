@@ -1,14 +1,6 @@
 /obj/item/pinpointer/crew/contractor
 	name = "contractor pinpointer"
 	desc = "Портативное устройство слежения, которое указывает на членов экипажа, не используя датчики костюма, ценой снижения точности."
-	ru_names = list(
-		NOMINATIVE = "целеуказатель Контрактника",
-		GENITIVE = "целеуказателя Контрактника",
-		DATIVE = "целеуказателю Контрактника",
-		ACCUSATIVE = "целеуказатель Контрактника",
-		INSTRUMENTAL = "целеуказателем Контрактника",
-		PREPOSITIONAL = "целеуказателе Контрактника"
-	)
 	icon_state = "pinoff_contractor"
 	item_state = "pinoff_contractor"
 	icon_off = "pinoff_contractor"
@@ -22,6 +14,15 @@
 	/// The first person to have used the item. If this is set already, no one else can use it.
 	var/mob/owner
 
+/obj/item/pinpointer/crew/contractor/get_ru_names()
+	return list(
+		NOMINATIVE = "целеуказатель Контрактника",
+		GENITIVE = "целеуказателя Контрактника",
+		DATIVE = "целеуказателю Контрактника",
+		ACCUSATIVE = "целеуказатель Контрактника",
+		INSTRUMENTAL = "целеуказателем Контрактника",
+		PREPOSITIONAL = "целеуказателе Контрактника",
+	)
 
 /obj/item/pinpointer/crew/contractor/update_icon_state()
 	if(mode == 0)	// MODE_OFF
@@ -41,12 +42,10 @@
 	else if(ISINRANGE(prev_dist, min_range + 16, INFINITY))
 		icon_state = icon_far
 
-
 /obj/item/pinpointer/crew/contractor/is_trackable(mob/living/carbon/human/pin_target)
 	source_turf = get_turf(src)
 	target_turf = get_turf(pin_target)
 	return source_turf && target_turf && source_turf.z == target_turf.z
-
 
 /obj/item/pinpointer/crew/contractor/cycle(mob/user, silent = FALSE)
 	if(owner)

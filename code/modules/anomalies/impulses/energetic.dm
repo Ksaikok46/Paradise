@@ -36,7 +36,6 @@
 		anomaly.jump(turf)
 		anomaly.after_move()
 
-
 /datum/anomaly_impulse/move/energ_fastmove/tier1
 	period_low = 5 SECONDS
 	period_high = 20 SECONDS
@@ -110,7 +109,6 @@
 	shock_damage_low = 120
 	shock_damage_high = 150
 
-
 /datum/anomaly_impulse/move/machinery_jump
 	name = "Перемещение по машинерии"
 	desc = "Аномалия прыгает по энергосети к ближайшей машинерии. \
@@ -162,7 +160,7 @@
 /datum/anomaly_impulse/move/machinery_destroy/impulse()
 	. = ..()
 	for(var/obj/machinery/mob in range(10, owner))
-		explosion(get_turf(mob), -1, 1, 2, cause = "machinery_destroy impulse")
+		explosion(get_turf(mob), devastation_range = -1, heavy_impact_range = 1, light_impact_range = 2, cause = "machinery_destroy impulse")
 		new /obj/effect/anomaly/energetic/tier1(get_turf(mob))
 		qdel(mob)
 		if(prob(30))

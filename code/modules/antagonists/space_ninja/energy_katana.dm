@@ -22,12 +22,10 @@
 	throwforce = 20
 	block_chance = 50
 	armour_penetration = 50
-	w_class = WEIGHT_CLASS_NORMAL
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	attack_verb = list("атаковал", "порезал", "уколол", "полоснул", "рубанул", "пронзил")
 	slot_flags = ITEM_SLOT_BELT|ITEM_SLOT_BACK
 	sharp = TRUE
-	max_integrity = 200
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	var/datum/effect_system/spark_spread/spark_system
 	var/datum/action/innate/dash/ninja/jaunt
@@ -44,6 +42,15 @@
 	spark_system.set_up(5, 0, src)
 	spark_system.attach(src)
 
+/obj/item/melee/energy_katana/ComponentInitialize()
+	. = ..()
+	AddComponent( \
+		/datum/component/cleave_attack, \
+		swing_speed_mod = 1.75, \
+		afterswing_slowdown = 0, \
+		swing_sound = SFX_BLADE_SCIFI_SWING \
+	)
+
 /obj/item/melee/energy_katana/afterattack(atom/target, mob/user, proximity, params)
 	. = ..()
 	if(user && user.a_intent == INTENT_DISARM && !target.density)
@@ -57,14 +64,13 @@
 			var/obj/item/organ/external/affecting = H.get_organ(user.hand ? BODY_ZONE_PRECISE_L_HAND : BODY_ZONE_PRECISE_R_HAND)
 			if(affecting.droplimb())
 				H.UpdateDamageIcon()
-				playsound(src, 'sound/creatures/terrorspiders/rip.ogg', 120, 1)
+				playsound(src, 'sound/creatures/terrorspiders/rip.ogg', 120, TRUE)
 				to_chat(user, span_userdanger("That was a bad idea."))
 				H.emote("scream")
 
-
 /obj/item/melee/energy_katana/pickup(mob/living/user)
 	. = ..()
-	if(user && user.client)
+	if(user?.client)
 		jaunt.Grant(user, src)
 		user.client.mouse_pointer_icon = file(jaunt.update_cursor())
 		jaunt.update_action_style(color_style)
@@ -75,14 +81,12 @@
 		to_chat(user, span_userdanger("Oh fuck, it hurts!."))
 		playsound(user, 'sound/weapons/bladeslice.ogg', 100, TRUE)
 
-
 /obj/item/melee/energy_katana/dropped(mob/user, slot, silent = FALSE)
 	. = ..()
-	if(user && user.client)
+	if(user?.client)
 		jaunt.Remove(user)
 		user.client.mouse_pointer_icon = initial(user.client.mouse_pointer_icon)
 		user.update_icons()
-
 
 /obj/item/melee/energy_katana/attack(mob/living/target, mob/living/carbon/human/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!isninja(user) && !isrobot(user) && ishuman(user))
@@ -94,7 +98,6 @@
 				user.emote("scream")
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
-
 
 //If we hit the Ninja who owns this Katana, they catch it.
 //Works for if the Ninja throws it or it throws itself(nope) or someone tries
@@ -130,7 +133,7 @@
 
 	if(doSpark)
 		spark_system.start()
-		playsound(get_turf(src), "sparks", 50, TRUE, 5)
+		playsound(get_turf(src), SFX_SPARKS, 50, TRUE, 5)
 
 	var/msg = ""
 
@@ -153,15 +156,16 @@
 		to_chat(user, span_notice("[msg]"))
 
 /obj/item/melee/energy_katana/suicide_act(mob/user)
-	user.visible_message(span_suicide("[user] пронза[pluralize_ru(user.gender,"ет","ют")] свой живот с помощью [src]! Похоже, [genderize_ru(user.gender,"он","она","оно","они")] пыта[pluralize_ru(user.gender,"ется","ются")] совершить сеппуку!"))
+	user.visible_message(span_suicide("[user] пронза[PLUR_ET_YUT(user)] свой живот с помощью [src]! Похоже, [GEND_HE_SHE(user)] пыта[PLUR_ET_YUT(user)]ся совершить сеппуку!"))
 	return BRUTELOSS
 
 /datum/action/innate/dash/ninja
 	name = "Энергорывок"
 	desc = "Мгновенно переместиться в выбранную точку. Просто используйте катану в обезоруживающем намерении."
-	icon_icon = 'icons/mob/actions/actions_ninja.dmi'
+	button_icon = 'icons/mob/actions/actions_ninja.dmi'
 	button_icon_state = "arrows_3"
 	button_icon = 'icons/mob/actions/actions_ninja.dmi'
+	background_icon = 'icons/mob/actions/actions_ninja.dmi'
 	background_icon_state = "background_green"
 	current_charges = 3
 	max_charges = 3
@@ -187,12 +191,9 @@
 		background_icon_state = "background_[color_style]"
 	UpdateButtonIcon()
 
-/datum/action/innate/dash/ninja/apply_unavailable_effect()
-	return
-
 /datum/action/innate/dash/ninja/charge()
 	. = ..()
-	if(owner && owner.client)
+	if(owner?.client)
 		owner.client.mouse_pointer_icon = file(update_cursor())
 		var/obj/item/melee/energy_katana/katana = dashing_item
 		update_action_style(katana.color_style)
@@ -203,7 +204,7 @@
 /obj/item/melee/energy_katana/borg
 	name = "robotic energy katana"
 	desc = "A katana infused with strong energy. Integrated inside a robot! Cyborg ninja's doesn't sound so funny anymore?"
-	// Борг-ниндзя - чёрно-красный. Катана тоже будет красной
+	// Борг-ниндзя — чёрно-красный. Катана тоже будет красной
 	icon_state = "energy_katana_red"
 	item_state = "energy_katana_red"
 	force = 30

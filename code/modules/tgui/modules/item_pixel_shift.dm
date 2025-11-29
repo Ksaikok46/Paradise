@@ -10,13 +10,11 @@
 
 	item_pixel_shift.ui_interact(usr)
 
-
 /datum/ui_module/item_pixel_shift
 	name = "Item Pixel Shift"
 	var/pixels_per_click = 1
 	var/random_drop_on = TRUE
 	var/init_no_random_drop = FALSE
-
 
 /datum/ui_module/item_pixel_shift/New(datum/_host)
 	. = ..()
@@ -25,25 +23,22 @@
 		random_drop_on = FALSE
 		init_no_random_drop = TRUE
 
-
 /datum/ui_module/item_pixel_shift/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "ItemPixelShift", name)
 		ui.open()
 
-
 /datum/ui_module/item_pixel_shift/ui_data(mob/user)
 	var/obj/item/source = host
 	var/list/data = list(
 		"pixel_x" = source.pixel_x,
 		"pixel_y" = source.pixel_y,
-		"max_shift_x" = (initial(source.pixel_x) + world.icon_size / 2),
-		"max_shift_y" = (initial(source.pixel_y) + world.icon_size / 2),
+		"max_shift_x" = (initial(source.pixel_x) + (ICON_SIZE_X / 2)),
+		"max_shift_y" = (initial(source.pixel_y) + (ICON_SIZE_Y / 2)),
 		"random_drop_on" = random_drop_on,
 	)
 	return data
-
 
 /datum/ui_module/item_pixel_shift/ui_act(action, list/params)
 	if(..())
@@ -57,7 +52,7 @@
 	if(!isturf(source.loc) || usr.incapacitated() || !in_range(usr, source) || source.anchored || source.density)
 		return
 
-	var/shift_max = world.icon_size / 2
+	var/shift_max = ICON_SIZE_ALL / 2
 	var/shift_limit_x = initial(source.pixel_x) + shift_max
 	var/shift_limit_y = initial(source.pixel_y) + shift_max
 

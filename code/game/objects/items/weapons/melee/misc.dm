@@ -19,11 +19,18 @@
 	slot_flags = ITEM_SLOT_BELT
 	force = 10
 	throwforce = 7
-	w_class = WEIGHT_CLASS_NORMAL
 	origin_tech = "combat=5"
 	attack_verb = list("выпорол", "хлестнул", "стегнул", "проучил")
 	hitsound = 'sound/weapons/slash.ogg' //pls replace
 
+/obj/item/melee/chainofcommand/ComponentInitialize()
+	. = ..()
+	AddComponent( \
+		/datum/component/cleave_attack, \
+		swing_speed_mod = 1, \
+		afterswing_slowdown = 0, \
+		swing_sound = SFX_GENERIC_SWING_LIGHT \
+	)
 
 /obj/item/melee/chainofcommand/suicide_act(mob/user)
 	to_chat(viewers(user), span_suicide("[user] is strangling [user.p_them()]self with the [src.name]! It looks like [user.p_theyre()] trying to commit suicide."))
@@ -49,6 +56,16 @@
 	materials = list(MAT_METAL = 1000)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF // Theft targets should be hard to destroy
 
+/obj/item/melee/rapier/ComponentInitialize()
+	. = ..()
+	AddComponent( \
+		/datum/component/cleave_attack, \
+		swing_speed_mod = 1, \
+		afterswing_slowdown = -0.25, \
+		slowdown_duration = 0.5 SECONDS, \
+		swing_sound = SFX_RAPIER_SWING \
+	)
+
 /obj/item/melee/rapier/captain
 	name = "captain's rapier"
 	desc = "An elegant weapon, for a more civilized age."
@@ -60,20 +77,19 @@
 	. = ..()
 	AddElement(/datum/element/high_value_item)
 
-
 /obj/item/melee/rapier/syndie
 	name = "plastitanium rapier"
 	desc = "A thin blade made of plastitanium with a diamond tip. It appears to be coated in a persistent layer of an unknown substance."
 	icon_state = "syndie_rapier"
 	item_state = "syndie_rapier"
 	origin_tech = "combat=5;biotech=5;syndicate=4"
+	force = 22
 	materials = null
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 
-
 /obj/item/melee/rapier/syndie/ComponentInitialize()
-	AddElement(/datum/element/after_attack/attack_effect_sleep, 30, 10 SECONDS)
-
+	. = ..()
+	AddElement(/datum/element/after_attack/attack_effect_sleep, 45, 5 SECONDS)
 
 /obj/item/melee/rapier/centcomm
 	name = "centcomm plastitanium rapier"
@@ -89,8 +105,8 @@
 	actions_types = list(/datum/action/item_action/toggle_rapier_nodrop)
 
 /obj/item/melee/rapier/centcomm/ComponentInitialize()
+	. = ..()
 	AddElement(/datum/element/after_attack/attack_effect_sleep, 100, 10 SECONDS)
-
 
 /obj/item/melee/rapier/centcomm/attack_self(mob/user)
 	. = ..()
@@ -105,7 +121,6 @@
 		ADD_TRAIT(src, TRAIT_NODROP, CENTCOMM_RAPIER_TRAIT)
 		to_chat(usr, span_warning("Вы сжимаете рукоятку [src] со всей силы. Теперь ничто не может выбить у вас оружие из рук!"))
 
-
 /obj/item/melee/mantisblade
 	name = "Gorlex mantis blade"
 	desc = "A blade designed to be hidden just beneath the skin. The brain is directly linked to this bad boy, allowing it to spring into action."
@@ -113,8 +128,6 @@
 	item_state = "syndie_mantis"
 	force = 25
 	throwforce = 20
-	w_class = WEIGHT_CLASS_NORMAL
-	block_chance = 35
 	armour_penetration = 40
 	sharp = TRUE
 	item_flags = NOSHARPENING
@@ -125,6 +138,15 @@
 	/// Whether we are currently performing double attack
 	var/attack_in_progress = FALSE
 
+/obj/item/melee/mantisblade/ComponentInitialize()
+	. = ..()
+	AddComponent( \
+		/datum/component/cleave_attack, \
+		arc_size = 180, \
+		afterswing_slowdown = -0.25, \
+		slowdown_duration = 2 SECONDS, \
+		swing_sound = SFX_KATANA_SWING \
+	)
 
 /obj/item/melee/mantisblade/equipped(mob/user, slot, initial = FALSE)
 	. = ..()
@@ -134,65 +156,109 @@
 	else
 		transform = matrix(-1, 0, 0, 0, 1, 0)
 
+	RegisterSignal(user, COMSIG_MOB_CLICKON, PROC_REF(lunge))
+
+/obj/item/melee/mantisblade/dropped(mob/user, slot, silent)
+	. = ..()
+	UnregisterSignal(user, COMSIG_MOB_CLICKON)
 
 /obj/item/melee/mantisblade/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
+
 	if(!ATTACK_CHAIN_SUCCESS_CHECK(.) || attack_in_progress || user.a_intent != INTENT_HARM)
 		return .
+
 	var/obj/item/melee/mantisblade/secondsword = user.get_inactive_hand()
 	if(!istype(secondsword, /obj/item/melee/mantisblade))
 		return .
-	addtimer(CALLBACK(secondsword, PROC_REF(mantis_attack), target, user, params, def_zone), 0.2 SECONDS)
 
+	addtimer(CALLBACK(secondsword, PROC_REF(mantis_attack), target, user, params, def_zone), 0.2 SECONDS)
 
 /obj/item/melee/mantisblade/proc/mantis_attack(mob/living/target, mob/living/user, params, def_zone)
 	if(QDELETED(src) || QDELETED(target) || !user.is_in_hands(src) || !user.Adjacent(target))
 		return
+
 	attack_in_progress = TRUE
 	attack(target, user, params, def_zone)
 	attack_in_progress = FALSE
 
+/obj/item/melee/mantisblade/proc/lunge(mob/living/user, turf/clicked_turf, list/modifiers)
+	SIGNAL_HANDLER
+	if(QDELETED(src) || !user.is_in_hands(src))
+		return
+	if(HAS_TRAIT_FROM(user, TRAIT_CANT_LUNGE, MANTIS_BLADE_TRAIT))
+		return
+	if(get_dist(user, clicked_turf) <= 1)
+		return
+	if(!LAZYACCESS(modifiers, LEFT_CLICK))
+		return
+	if(IS_HORIZONTAL(user))
+		return
+	if(HAS_TRAIT(user, TRAIT_IMMOBILIZED) || HAS_TRAIT(user, TRAIT_INCAPACITATED))
+		return
 
+	user.apply_status_effect(STATUS_EFFECT_LUNGING)
+	user.throw_at(clicked_turf, 4, 5, src, FALSE, TRUE, callback = CALLBACK(user, TYPE_PROC_REF(/mob/living, remove_status_effect), STATUS_EFFECT_LUNGING))
+	ADD_TRAIT(user, TRAIT_CANT_LUNGE, MANTIS_BLADE_TRAIT)
+	addtimer(CALLBACK(src, PROC_REF(allow_lunge), user), 6 SECONDS)
+
+/obj/item/melee/mantisblade/proc/allow_lunge(mob/living/user)
+	if(!HAS_TRAIT_FROM(user, TRAIT_CANT_LUNGE, MANTIS_BLADE_TRAIT))
+		return
+	REMOVE_TRAIT(user, TRAIT_CANT_LUNGE, MANTIS_BLADE_TRAIT)
+	user.balloon_alert(user, "выпад доступен")
 
 /obj/item/melee/mantisblade/afterattack(atom/target, mob/user, proximity)
-    if(!proximity)
-        return
-    if(prob(25))
-        do_sparks(rand(1,6), 1, loc)
-    if(istype(target, /obj/machinery/door/airlock))
-        var/obj/machinery/door/airlock/A = target
+	. = ..()
 
-        if(!A.requiresID() || A.allowed(user))
-            return
+	if(!proximity)
+		return
 
-        if(A.locked)
-            to_chat(user, span_notice("The airlock's bolts prevent it from being forced."))
-            return
+	if(prob(25))
+		do_sparks(rand(1, 6), TRUE, loc)
 
-        if(A.arePowerSystemsOn())
-            user.visible_message(
+	if(is_airlock(target))
+		var/obj/machinery/door/airlock/A = target
+
+		if(!A.requiresID() || A.allowed(user))
+			return
+
+		if(A.locked)
+			to_chat(user, span_notice("The airlock's bolts prevent it from being forced."))
+			return
+
+		if(A.arePowerSystemsOn())
+			user.visible_message(
 				span_warning("[user] jams [user.p_their()] [name] into the airlock and starts prying it open!"),
 				span_warning("You start forcing the airlock open."),
 				span_warning("You hear a metal screeching sound.")
 			)
-            playsound(A, 'sound/machines/airlock_alien_prying.ogg', 150, TRUE)
-            if(!do_after(user, 2.5 SECONDS, A))
-                return
-        user.visible_message(
+			playsound(A, 'sound/machines/airlock_alien_prying.ogg', 150, TRUE)
+			if(!do_after(user, 2.5 SECONDS, A))
+				return
+		user.visible_message(
 			span_warning("[user] forces the airlock open with [user.p_their()] [name]!"),
 			span_warning("You force open the airlock."),
 			span_warning("You hear a metal screeching sound.")
 		)
-        A.open(TRUE)
+		A.open(TRUE)
 
 /obj/item/melee/mantisblade/shellguard
 	name = "Shellguard mantis blade"
 	force = 15
 	armour_penetration = 20
-	block_chance = 20
-	block_type = MELEE_ATTACKS
 	icon_state = "mantis"
 	item_state = "mantis"
+
+/obj/item/melee/mantisblade/shellguard/ComponentInitialize()
+	. = ..()
+	AddComponent( \
+		/datum/component/cleave_attack, \
+		swing_speed_mod = 2, \
+		afterswing_slowdown = -0.15, \
+		slowdown_duration = 1 SECONDS, \
+		swing_sound = SFX_KATANA_SWING \
+	)
 
 /obj/item/melee/icepick
 	name = "ice pick"
@@ -211,7 +277,6 @@
 	item_state = "candy_sword"
 	force = 10
 	throwforce = 7
-	w_class = WEIGHT_CLASS_NORMAL
 	attack_verb = list("полоснул", "уколол", "ударил")
 
 /obj/item/melee/flyswatter
@@ -236,6 +301,15 @@
 					/obj/item/queen_bee
 	))
 
+/obj/item/melee/flyswatter/ComponentInitialize()
+	. = ..()
+	AddComponent( \
+		/datum/component/cleave_attack, \
+		swing_speed_mod = 1, \
+		afterswing_slowdown = 0, \
+		no_multi_hit = TRUE \
+	)
+
 /obj/item/melee/flyswatter/afterattack(atom/target, mob/user, proximity_flag, params)
 	. = ..()
 	if(proximity_flag)
@@ -251,7 +325,6 @@
 /obj/item/melee/bigiron
 	name = "Big Iron"
 	desc = "It is a very old rusty and racist iron. Used to beat the living shit out of these filthy xenos."
-	w_class = WEIGHT_CLASS_NORMAL
 	force = 8
 	throwforce = 8
 	var/bonus_damage = 10

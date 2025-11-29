@@ -11,7 +11,6 @@
 
 	RegisterSignal(src, SIGNAL_ADDTRAIT(TRAIT_EMBEDIMMUNE), PROC_REF(on_embedimmune_trait_gain))
 
-
 /// Called when [TRAIT_FAT] is gained or lost
 /mob/living/carbon/human/proc/on_fat(datum/source)
 	SIGNAL_HANDLER
@@ -26,14 +25,12 @@
 		remove_movespeed_modifier(/datum/movespeed_modifier/obesity)
 		remove_movespeed_modifier(/datum/movespeed_modifier/obesity_flying)
 
-
 /// Called when [TRAIT_NO_DNA] is gained
 /mob/living/carbon/human/proc/on_no_dna_trait_gain(datum/source)
 	SIGNAL_HANDLER
 
 	for(var/datum/dna/gene/gene as anything in GLOB.dna_genes)
 		force_gene_block(gene.block, FALSE)
-
 
 /// Called when [TRAIT_VIRUSIMMUNE] is gained
 /mob/living/carbon/proc/on_virusimmune_trait_gain(datum/source)
@@ -46,18 +43,16 @@
 		if(!disease.ignore_immunity)
 			disease.cure()
 
-
 /// Called when [TRAIT_NO_HUNGER] is gained
 /mob/living/carbon/human/proc/on_no_hunger_trait_gain(datum/source)
 	SIGNAL_HANDLER
 
 	// When gaining NOHUNGER, we restore nutrition to normal levels, since we no longer interact with the hunger system
 	set_nutrition(NUTRITION_LEVEL_FED, forced = TRUE)
-	handle_nutrition_alerts()
 	satiety = 0
 	overeatduration = 0
 	REMOVE_TRAIT(src, TRAIT_FAT, FATNESS_TRAIT)
-
+	update_nutrition_hud()
 
 /// Called when [TRAIT_EMBEDIMMUNE] is gained
 /mob/living/carbon/human/proc/on_embedimmune_trait_gain(datum/source)

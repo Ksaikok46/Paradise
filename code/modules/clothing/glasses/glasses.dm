@@ -4,7 +4,6 @@
 		// Pre-upgraded upgradable glasses
 		upgrade_prescription()
 
-
 /obj/item/clothing/glasses/attackby(obj/item/I, mob/living/carbon/human/user, params)
 	if(!ishuman(user) || user.incapacitated())
 		return ..()
@@ -24,11 +23,9 @@
 
 	return ..()
 
-
 /obj/item/clothing/glasses/update_name(updates = ALL)
 	. = ..()
 	name = prescription ? "prescription [initial(name)]" : initial(name)
-
 
 /obj/item/clothing/glasses/proc/upgrade_prescription(obj/item/I, mob/living/carbon/human/user)
 	if(!I)
@@ -41,7 +38,6 @@
 		to_chat(user, span_notice("You fit [src] with lenses from [I]."))
 		if(user.glasses == src)
 			user.update_nearsighted_effects()
-
 
 /obj/item/clothing/glasses/proc/remove_prescription(mob/living/carbon/human/user)
 	var/obj/item/clothing/glasses/regular/prescription_glasses = locate() in src
@@ -60,7 +56,6 @@
 		if(user.glasses == src)
 			user.update_nearsighted_effects()
 
-
 /obj/item/clothing/glasses/screwdriver_act(mob/living/user, obj/item/I)
 	if(!prescription)
 		to_chat(user, span_notice("There are no prescription lenses in [src]."))
@@ -69,7 +64,6 @@
 		return TRUE
 	remove_prescription(user)
 	return TRUE
-
 
 /obj/item/clothing/glasses/visor_toggling(mob/user)
 	. = ..()
@@ -81,7 +75,6 @@
 		see_in_dark ^= initial(see_in_dark)
 	if(visor_vars_to_toggle & VISOR_INVISVIEW)
 		invis_view ^= initial(invis_view)
-
 
 /obj/item/clothing/glasses/meson
 	name = "Optical Meson Scanner"
@@ -102,8 +95,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/meson/sunglasses
 	name = "Meson Sunglasses"
@@ -152,7 +145,6 @@
 	flags_cover = NONE
 	prescription_upgradable = FALSE
 
-
 /obj/item/clothing/glasses/meson/cyber/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
@@ -160,16 +152,18 @@
 /obj/item/clothing/glasses/meson/visor
 	name = "Meson Optical Visor"
 	desc = "Технологичный визор для глаз. Корпус выполнен из прочного титана, а на лицевой части устройства расположены датчики, камеры и сенсоры, способные получать, обрабатывать и передавать на сетчатку носителя данные об окружающем пространстве."
-	ru_names = list(
+	icon_state = "mesonvisor"
+	item_state = "mesonvisor"
+
+/obj/item/clothing/glasses/meson/visor/get_ru_names()
+	return list(
 		NOMINATIVE = "мезонный оптический визор",
 		GENITIVE = "мезонного оптического визора",
 		DATIVE = "мезонному оптическому визору",
 		ACCUSATIVE = "мезонный оптический визор",
 		INSTRUMENTAL = "мезонным оптическим визором",
-		PREPOSITIONAL = "мезонном оптическом визоре"
+		PREPOSITIONAL = "мезонном оптическом визоре",
 	)
-	icon_state = "mesonvisor"
-	item_state = "mesonvisor"
 
 /obj/item/clothing/glasses/meson/monocle
 	name = "Meson Monocle Scanner"
@@ -179,7 +173,7 @@
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
 	)
 
 /obj/item/clothing/glasses/science
@@ -188,7 +182,6 @@
 	icon_state = "purple"
 	item_state = "purple"
 	origin_tech = "magnets=2;engineering=1"
-	prescription_upgradable = FALSE
 	examine_extensions = EXAMINE_HUD_SCIENCE
 	resistance_flags = ACID_PROOF
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 100)
@@ -200,8 +193,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 	actions_types = list(/datum/action/item_action/toggle_research_scanner)
 
 /obj/item/clothing/glasses/science/item_action_slot_check(slot, mob/user, datum/action/action)
@@ -212,7 +205,6 @@
 	name = "Night Vision Science Goggle"
 	desc = "Now you can science in darkness."
 	icon_state = "nvpurple"
-	item_state = "purple"
 	see_in_dark = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //don't render darkness while wearing these
 
@@ -225,16 +217,18 @@
 /obj/item/clothing/glasses/science/visor
 	name = "Science Optical Visor"
 	desc = "Технологичный визор для глаз. Корпус выполнен из прочного титана, а на лицевой части устройства расположены датчики, камеры и сенсоры, способные получать, обрабатывать и передавать на сетчатку носителя данные об окружающем пространстве."
-	ru_names = list(
+	icon_state = "sciencevisor"
+	item_state = "sciencevisor"
+
+/obj/item/clothing/glasses/science/visor/get_ru_names()
+	return list(
 		NOMINATIVE = "научный оптический визор",
 		GENITIVE = "научного оптического визора",
 		DATIVE = "научному оптическому визору",
 		ACCUSATIVE = "научный оптический визор",
 		INSTRUMENTAL = "научным оптическим визором",
-		PREPOSITIONAL = "научном оптическом визоре"
+		PREPOSITIONAL = "научном оптическом визоре",
 	)
-	icon_state = "sciencevisor"
-	item_state = "sciencevisor"
 
 /obj/item/clothing/glasses/science/monocle
 	name = "Science HUD monocle"
@@ -244,7 +238,7 @@
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
 	)
 
 /obj/item/clothing/glasses/janitor
@@ -259,8 +253,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/night
 	name = "Night Vision Goggles"
@@ -279,8 +273,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/eyepatch
 	name = "eyepatch"
@@ -296,8 +290,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/monocle
 	name = "monocle"
@@ -314,8 +308,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/material
 	name = "Optical Material Scanner"
@@ -333,8 +327,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/material/cyber
 	name = "Eye Replacement Implant"
@@ -343,11 +337,9 @@
 	item_state = "eyepatch"
 	flags_cover = NONE
 
-
 /obj/item/clothing/glasses/material/cyber/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
-
 
 /obj/item/clothing/glasses/material/lighting
 	name = "Neutron Goggles"
@@ -356,11 +348,9 @@
 	vision_flags = NONE
 	lighting_alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
 
-
 /obj/item/clothing/glasses/material/lighting/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
-
 
 /obj/item/clothing/glasses/regular
 	name = "prescription glasses"
@@ -377,11 +367,10 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/regular/hipster
-	name = "prescription glasses"
 	desc = "Made by Uncool. Co."
 	icon_state = "hipster_glasses"
 	item_state = "hipster_glasses"
@@ -400,8 +389,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/gglasses
 	name = "Green Glasses"
@@ -417,8 +406,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 	prescription_upgradable = TRUE
 
 /obj/item/clothing/glasses/sunglasses
@@ -439,8 +428,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/sunglasses_fake
 	desc = "Cheap, plastic sunglasses. They don't even have UV protection."
@@ -455,8 +444,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/sunglasses_fake/holo
 	desc = "Protects against the holographic UV rays of the holographic sun."
@@ -503,7 +492,6 @@
 
 	COOLDOWN_START(src, use_cooldown, 5 MINUTES)
 
-
 /obj/item/clothing/glasses/sunglasses/reagent
 	name = "sunscanners"
 	desc = "Strangely ancient technology used to help provide rudimentary eye color. Outfitted with apparatus to scan individual reagents."
@@ -526,18 +514,16 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/sunglasses/lasers
 	desc = "A peculiar set of sunglasses; they have various chips and other panels attached to the sides of the frames."
 	name = "high-tech sunglasses"
 
-
 /obj/item/clothing/glasses/sunglasses/lasers/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
-
 
 /obj/item/clothing/glasses/sunglasses/lasers/equipped(mob/user, slot, initial = FALSE) //grant them laser eyes upon equipping it.
 	. = ..()
@@ -545,13 +531,11 @@
 		ADD_TRAIT(user, TRAIT_LASEREYES, UNIQUE_TRAIT_SOURCE(src))
 		user.update_mutations()
 
-
 /obj/item/clothing/glasses/sunglasses/lasers/dropped(mob/living/user, slot, silent = FALSE)
 	. = ..()
 	if(slot == ITEM_SLOT_EYES)
 		REMOVE_TRAIT(user, TRAIT_LASEREYES, UNIQUE_TRAIT_SOURCE(src))
 		user.update_mutations()
-
 
 /obj/item/clothing/glasses/welding
 	name = "welding goggles"
@@ -641,8 +625,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/thermal/emp_act(severity)
 	if(ishuman(loc))
@@ -678,7 +662,7 @@
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
-		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi'
+		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
 	)
 
 /obj/item/clothing/glasses/thermal/eyepatch
@@ -699,11 +683,9 @@
 	icon_state = "cybereye-red"
 	item_state = "eyepatch"
 
-
 /obj/item/clothing/glasses/thermal/cyber/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
-
 
 /obj/item/clothing/glasses/hud/godeye
 	name = "eye of god"
@@ -726,19 +708,16 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
-
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/hud/godeye/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, INNATE_TRAIT)
 
-
 /obj/item/clothing/glasses/hud/godeye/update_icon_state()
 	icon_state = "[double_eye ? "double" : ""]godeye"
 	item_state = "[double_eye ? "double" : ""]godeye"
-
 
 /obj/item/clothing/glasses/hud/godeye/update_desc(updates = ALL)
 	. = ..()
@@ -746,7 +725,6 @@
 		desc = initial(desc)
 		return
 	desc = "A pair of strange eyes, said to have been torn from an omniscient creature that used to roam the wastes. There's no real reason to have two, but that isn't stopping you."
-
 
 /obj/item/clothing/glasses/hud/godeye/attackby(obj/item/I, mob/user, params)
 	if(istype(I, type) && I != src && I.loc == user)
@@ -762,13 +740,11 @@
 
 	return ..()
 
-
 /obj/item/clothing/glasses/tajblind
 	name = "embroidered veil"
 	desc = "An Ahdominian made veil that allows the user to see while obscuring their eyes."
 	icon_state = "tajblind"
 	item_state = "tajblind"
-	flags_cover = GLASSESCOVERSEYES
 	actions_types = list(/datum/action/item_action/toggle)
 	tint = 3
 
@@ -780,8 +756,8 @@
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_WOLPIN = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_NEARA = 'icons/mob/clothing/species/monkey/eyes.dmi',
-		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi'
-		)
+		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
+	)
 
 /obj/item/clothing/glasses/tajblind/eng
 	name = "industrial veil"
@@ -793,17 +769,14 @@
 	flash_protect = FLASH_PROTECTION_WELDER
 	var/flash_protect_up = FLASH_PROTECTION_NONE
 
-
 /obj/item/clothing/glasses/tajblind/eng/sunglasses
 	flash_protect_up = FLASH_PROTECTION_FLASH
 	tint_up = 1
-
 
 /obj/item/clothing/glasses/tajblind/eng/toggle_veil(mob/user)
 	. = ..()
 	if(.)
 		flash_protect = up ? flash_protect_up : initial(flash_protect)
-
 
 /obj/item/clothing/glasses/tajblind/sci
 	name = "hi-tech veil"
@@ -830,10 +803,8 @@
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint_up = 1
 
-
 /obj/item/clothing/glasses/tajblind/attack_self(mob/user)
 	toggle_veil(user)
-
 
 /obj/item/clothing/glasses/proc/toggle_veil(mob/living/carbon/human/user)
 	if(user.incapacitated())
@@ -844,7 +815,6 @@
 	if(user.glasses == src)
 		to_chat(user, span_notice("[up ? "You activate [src], allowing you to see." : "You deactivate [src], obscuring your vision."]"))
 		user.wear_glasses_update(src)
-
 
 /obj/item/clothing/glasses/sunglasses/blindfold/cucumbermask
 	desc = "A simple pair of two cucumber slices. Medically proven to be able to heal your eyes over time."
@@ -867,7 +837,7 @@
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/eyes.dmi',
-		)
+	)
 
 /obj/item/clothing/glasses/heart/Initialize(mapload)
 	. = ..()

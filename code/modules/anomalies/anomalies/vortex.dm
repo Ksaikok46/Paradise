@@ -1,6 +1,5 @@
 /obj/effect/anomaly/vortex
 	anomaly_type = ANOMALY_TYPE_VORTEX
-	icon_state = "bhole3"
 	/// Minimum radius at which surrounding objects are attracted.
 	var/grav_pull_range_low = 0
 	/// Maximum radius at which surrounding objects are attracted.
@@ -37,7 +36,7 @@
 	. = ..()
 
 /obj/effect/anomaly/vortex/proc/pull(atom/movable/atom)
-	if (QDELETED(atom))
+	if(QDELETED(atom))
 		return
 
 	// a - vector atom->src
@@ -115,14 +114,6 @@
 
 /obj/effect/anomaly/vortex/tier1
 	name = "малая вихревая аномалия"
-	ru_names = list(
-		NOMINATIVE = "малая вихревая аномалия", \
-		GENITIVE = "малой вихревой аномалии", \
-		DATIVE = "малой вихревой аномалии", \
-		ACCUSATIVE = "малую вихревую аномалию", \
-		INSTRUMENTAL = "малой вихревой аномалией", \
-		PREPOSITIONAL = "малой вихревой аномалии"
-	)
 	core_type = /obj/item/assembly/signaler/core/vortex/tier1
 	stronger_anomaly_type = /obj/effect/anomaly/vortex/tier2
 	tier = 1
@@ -134,18 +125,19 @@
 	grav_pull_range_low = 1
 	grav_pull_range_high = 2
 	grav_pull_strength = STAGE_THREE
-	collapse_range = 0
+
+/obj/effect/anomaly/vortex/tier1/get_ru_names()
+	return list(
+		NOMINATIVE = "малая вихревая аномалия", \
+		GENITIVE = "малой вихревой аномалии", \
+		DATIVE = "малой вихревой аномалии", \
+		ACCUSATIVE = "малую вихревую аномалию", \
+		INSTRUMENTAL = "малой вихревой аномалией", \
+		PREPOSITIONAL = "малой вихревой аномалии",
+	)
 
 /obj/effect/anomaly/vortex/tier2
 	name = "вихревая аномалия"
-	ru_names = list(
-		NOMINATIVE = "вихревая аномалия", \
-		GENITIVE = "вихревой аномалии", \
-		DATIVE = "вихревой аномалии", \
-		ACCUSATIVE = "вихревую аномалию", \
-		INSTRUMENTAL = "вихревой аномалией", \
-		PREPOSITIONAL = "вихревой аномалии"
-	)
 	core_type = /obj/item/assembly/signaler/core/vortex/tier2
 	weaker_anomaly_type = /obj/effect/anomaly/vortex/tier1
 	stronger_anomaly_type = /obj/effect/anomaly/vortex/tier3
@@ -160,16 +152,18 @@
 	grav_pull_strength = STAGE_FOUR
 	collapse_range = 1
 
+/obj/effect/anomaly/vortex/tier2/get_ru_names()
+	return list(
+		NOMINATIVE = "вихревая аномалия", \
+		GENITIVE = "вихревой аномалии", \
+		DATIVE = "вихревой аномалии", \
+		ACCUSATIVE = "вихревую аномалию", \
+		INSTRUMENTAL = "вихревой аномалией", \
+		PREPOSITIONAL = "вихревой аномалии",
+	)
+
 /obj/effect/anomaly/vortex/tier3
 	name = "большая вихревая аномалия"
-	ru_names = list(
-		NOMINATIVE = "большая вихревая аномалия", \
-		GENITIVE = "большой вихревой аномалии", \
-		DATIVE = "большой вихревой аномалии", \
-		ACCUSATIVE = "большую вихревую аномалию", \
-		INSTRUMENTAL = "большой вихревой аномалией", \
-		PREPOSITIONAL = "большой вихревой аномалии"
-	)
 	core_type = /obj/item/assembly/signaler/core/vortex/tier3
 	weaker_anomaly_type = /obj/effect/anomaly/vortex/tier2
 	tier = 3
@@ -183,6 +177,16 @@
 	grav_pull_strength = STAGE_FIVE
 	collapse_range = 3
 	has_warp = TRUE
+
+/obj/effect/anomaly/vortex/tier3/get_ru_names()
+	return list(
+		NOMINATIVE = "большая вихревая аномалия", \
+		GENITIVE = "большой вихревой аномалии", \
+		DATIVE = "большой вихревой аномалии", \
+		ACCUSATIVE = "большую вихревую аномалию", \
+		INSTRUMENTAL = "большой вихревой аномалией", \
+		PREPOSITIONAL = "большой вихревой аномалии",
+	)
 
 /obj/effect/anomaly/vortex/tier3/New()
 	. = ..()
@@ -200,14 +204,6 @@
 
 /obj/effect/anomaly/vortex/tier4
 	name = "колоссальная вихревая аномалия"
-	ru_names = list(
-		NOMINATIVE = "колоссальная вихревая аномалия", \
-		GENITIVE = "колоссальной вихревой аномалии", \
-		DATIVE = "колоссальной вихревой аномалии", \
-		ACCUSATIVE = "колоссальную вихревую аномалию", \
-		INSTRUMENTAL = "колоссальной вихревой аномалией", \
-		PREPOSITIONAL = "колоссальной вихревой аномалии"
-	)
 	core_type = /obj/item/assembly/signaler/core/vortex/tier3/tier4
 	weaker_anomaly_type = /obj/effect/anomaly/vortex/tier3
 	tier = 4
@@ -222,6 +218,16 @@
 	grav_pull_strength = STAGE_SIX
 	collapse_range = 15
 	has_warp = TRUE
+
+/obj/effect/anomaly/vortex/tier4/get_ru_names()
+	return list(
+		NOMINATIVE = "колоссальная вихревая аномалия", \
+		GENITIVE = "колоссальной вихревой аномалии", \
+		DATIVE = "колоссальной вихревой аномалии", \
+		ACCUSATIVE = "колоссальную вихревую аномалию", \
+		INSTRUMENTAL = "колоссальной вихревой аномалией", \
+		PREPOSITIONAL = "колоссальной вихревой аномалии",
+	)
 
 /obj/effect/anomaly/vortex/tier4/New()
 	. = ..()

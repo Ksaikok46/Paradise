@@ -14,8 +14,8 @@
 	has_specials = 1
 	upgradeable = 1
 
-/obj/machinery/cooker/deepfryer/New()
-	..()
+/obj/machinery/cooker/deepfryer/Initialize(mapload)
+	. = ..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/deepfryer(null)
 	component_parts += new /obj/item/stock_parts/micro_laser(null)
@@ -23,8 +23,8 @@
 	component_parts += new /obj/item/stack/cable_coil(null, 5)
 	RefreshParts()
 
-/obj/machinery/cooker/deepfryer/upgraded/New()
-	..()
+/obj/machinery/cooker/deepfryer/upgraded/Initialize(mapload)
+	. = ..()
 	component_parts = list()
 	component_parts += new /obj/item/circuitboard/deepfryer(null)
 	component_parts += new /obj/item/stock_parts/micro_laser/ultra(null)
@@ -42,7 +42,6 @@
 /obj/machinery/cooker/deepfryer/gettype()
 	var/obj/item/reagent_containers/food/snacks/deepfryholder/type = new(get_turf(src))
 	return type
-
 
 /obj/machinery/cooker/deepfryer/special_grab_attack(atom/movable/grabbed_thing, mob/living/grabber)
 	if(!ishuman(grabbed_thing) || !Adjacent(grabbed_thing))
@@ -64,7 +63,6 @@
 	add_attack_logs(grabber, victim, "Deep-fried with [src]")
 	//Removes the grip so the person MIGHT have a small chance to run the fuck away and to prevent rapid dunks.
 	grabber.stop_pulling()
-
 
 /obj/machinery/cooker/deepfryer/checkSpecials(obj/item/I)
 	if(!I)
@@ -139,7 +137,7 @@
 	input = /obj/item/organ/external
 	output = /obj/item/reagent_containers/food/snacks/fried_vox
 
-/datum/deepfryer_special/fried_vox/validate(var/obj/item/I)
+/datum/deepfryer_special/fried_vox/validate(obj/item/I)
 	if(!..())
 		return FALSE
 	var/obj/item/organ/external/E = I

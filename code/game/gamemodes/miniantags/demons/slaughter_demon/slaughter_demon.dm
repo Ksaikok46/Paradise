@@ -1,13 +1,5 @@
 /mob/living/simple_animal/demon/slaughter
 	name = "slaughter demon"
-	ru_names = list(
-		NOMINATIVE = "демон резни",
-		GENITIVE = "демона резни",
-		DATIVE = "демону резни",
-		ACCUSATIVE = "демона резни",
-		INSTRUMENTAL = "демоном резни",
-		PREPOSITIONAL = "демоне резни"
-	)
 	real_name = "slaughter demon"
 	desc = "Огромное угрожающее существо, покрытое бронированной чёрной чешуёй. Вам стоит бежать!"
 	speak = list("ire", "ego", "nahlizet", "certum", "veri", "jatkaa", "balaq", "mgar", "karazet", "geeri", "orkan", "allaq")
@@ -19,18 +11,26 @@
 	var/feast_sound = 'sound/misc/demon_consume.ogg'
 	var/devoured = 0
 
-	var/list/consumed_mobs = list()
-	var/list/nearby_mortals = list()
+	var/list/consumed_mobs
 
 	var/cooldown = 0
 	var/gorecooldown = 0
 
-	playstyle_string = "<b><span class='userdanger'>Вы – Демон Резни!</span></b><br> \
-						<b>Вы - ужасное существо из иного измерения. У вас одна цель: убивать.</b><br> \
+	playstyle_string = "<b><span class='userdanger'>Вы — Демон Резни!</span></b><br> \
+						<b>Вы — ужасное существо из иного измерения. У вас одна цель: убивать.</b><br> \
 						<b>Вы можете использовать способность \"Кровавый путь\" на лужах крови, чтобы перемещаться через них, появляясь и исчезая на станции по своему желанию.</b><br> \
 						<b>Если вы тащите мёртвое или находящееся в критическом состоянии существо, когда входите в лужу крови, он последует за вами, что позволит вам поглотить его.</b><br> \
 						<b>Вы двигаетесь быстро, покидая лужу крови, но материальный мир скоро лишит вас сил и сделает медлительным.</b>"
 
+/mob/living/simple_animal/demon/slaughter/get_ru_names()
+	return list(
+		NOMINATIVE = "демон резни",
+		GENITIVE = "демона резни",
+		DATIVE = "демону резни",
+		ACCUSATIVE = "демона резни",
+		INSTRUMENTAL = "демоном резни",
+		PREPOSITIONAL = "демоне резни",
+	)
 
 /mob/living/simple_animal/demon/slaughter/Initialize(mapload)
 	. = ..()
@@ -42,13 +42,15 @@
 	if(istype(loc, /obj/effect/dummy/slaughter))
 		bloodspell.phased = TRUE
 
-
 /mob/living/simple_animal/demon/slaughter/Destroy()
 	// Only execute the below if we successfully died
-	for(var/mob/living/M in consumed_mobs)
-		release_consumed(M)
-	. = ..()
 
+	if(!consumed_mobs)
+		return ..()
+
+	for(var/mob/living/mob as anything in consumed_mobs)
+		release_consumed(mob)
+	. = ..()
 
 /mob/living/simple_animal/demon/slaughter/attempt_objectives()
 	if(!..())
@@ -72,40 +74,30 @@
 	messages.Add(span_motd("С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/Slaughter_Demon\">Демон резни</a>"))
 	to_chat(src, chat_box_red(messages.Join("<br>")))
 
-
-
 /obj/effect/decal/cleanable/blood/innards
 	icon = 'icons/obj/surgery.dmi'
 	icon_state = "innards"
 	name = "pile of viscera"
 	desc = "Омерзительная масса из разорванной плоти и органов."
-	ru_names = list(
+
+/obj/effect/decal/cleanable/blood/innards/get_ru_names()
+	return list(
 		NOMINATIVE = "кровавое месиво",
 		GENITIVE = "кровавого месива",
 		DATIVE = "кровавому месиву",
 		ACCUSATIVE = "кровавое месиво",
 		INSTRUMENTAL = "кровавым месивом",
-		PREPOSITIONAL = "кровавом месиве"
+		PREPOSITIONAL = "кровавом месиве",
 	)
 
-
-/mob/living/simple_animal/demon/slaughter/proc/release_consumed(mob/living/M)
-	M.forceMove(get_turf(src))
-
+/mob/living/simple_animal/demon/slaughter/proc/release_consumed(mob/living/consumed)
+	consumed?.forceMove(get_turf(src))
 
 // Cult slaughter demon
 /mob/living/simple_animal/demon/slaughter/cult //Summoned as part of the cult objective "Bring the Slaughter"
 	name = "harbinger of the slaughter"
 	real_name = "harbinger of the Slaughter"
 	desc = "Ужасное существо, обитающее за гранью здравого смысла."
-	ru_names = list(
-		NOMINATIVE = "вестник резни",
-		GENITIVE = "вестника резни",
-		DATIVE = "вестнику резни",
-		ACCUSATIVE = "вестника резни",
-		INSTRUMENTAL = "вестником резни",
-		PREPOSITIONAL = "вестнике резни"
-	)
 	maxHealth = 500
 	health = 500
 	melee_damage_upper = 60
@@ -118,9 +110,18 @@
 							в лужу крови, вы поглотите его через некоторое время и полностью восстановите здоровье. Вы можете использовать способность \"Чувствовать Жертв\" на вкладке Культиста, \
 							чтобы найти случайного живого еретика.</b>"
 
+/mob/living/simple_animal/demon/slaughter/cult/get_ru_names()
+	return list(
+		NOMINATIVE = "вестник резни",
+		GENITIVE = "вестника резни",
+		DATIVE = "вестнику резни",
+		ACCUSATIVE = "вестника резни",
+		INSTRUMENTAL = "вестником резни",
+		PREPOSITIONAL = "вестнике резни",
+	)
+
 /mob/living/simple_animal/demon/slaughter/cult/attempt_objectives()
 	return
-
 
 /obj/effect/proc_holder/spell/sense_victims
 	name = "Охота за душами"
@@ -128,19 +129,15 @@
 	base_cooldown = 0
 	clothes_req = FALSE
 	human_req = FALSE
-	cooldown_min = 0
 	overlay = null
 	action_icon_state = "bloodcrawl"
 	action_background_icon_state = "bg_cult"
 
-
 /obj/effect/proc_holder/spell/sense_victims/create_new_targeting()
 	return new /datum/spell_targeting/alive_mob_list
 
-
 /obj/effect/proc_holder/spell/sense_victims/valid_target(mob/living/target, user)
 	return target.stat == CONSCIOUS && target.key && !iscultist(target) // Only conscious, non cultist players
-
 
 /obj/effect/proc_holder/spell/sense_victims/cast(list/targets, mob/user)
 	var/mob/living/victim = targets[1]
@@ -150,14 +147,13 @@
 	if(!A)
 		to_chat(user, span_warning("Вы не смогли найти разумных еретиков для Резни."))
 		return
-	to_chat(user, span_danger("Вы чувствуете испуганную душу в [A.declent_ru(PREPOSITIONAL)]. <b>Покажите [genderize_ru(victim.gender,"ему","ей","ему","им")] ошибку [genderize_ru(victim.gender,"его","её","его","их")] пути.</b>"))
-
+	to_chat(user, span_danger("Вы чувствуете испуганную душу в [A.declent_ru(PREPOSITIONAL)]. <b>Покажите [GEND_HIM_HER(victim)] ошибку [GEND_HIS_HER(victim)] пути.</b>"))
 
 /mob/living/simple_animal/demon/slaughter/cult/Initialize(mapload)
 	. = ..()
 	spawn(0.5 SECONDS)
 		var/list/demon_candidates = SSghost_spawns.poll_candidates("Хотите сыграть за демона резни?", ROLE_DEMON, TRUE, 10 SECONDS, source = /mob/living/simple_animal/demon/slaughter/cult)
-		if(!demon_candidates.len)
+		if(!length(demon_candidates))
 			log_game("[src] has failed to spawn, because no one enrolled.")
 			visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] исчезает во вспышке красного света!"))
 			qdel(src)
@@ -171,7 +167,7 @@
 			return
 		var/client/C = M.client
 
-		S.key = C.key
+		S.possess_by_player(C.key)
 		S.mind.assigned_role = "Harbinger of the Slaughter"
 		S.mind.special_role = "Harbinger of the Slaughter"
 		to_chat(S, playstyle_string)
@@ -185,7 +181,6 @@
 		var/list/messages = list(S.mind.prepare_announce_objectives(FALSE))
 		to_chat(S, chat_box_red(messages.Join("<br>")))
 		log_game("[S.key] has become Slaughter demon.")
-
 
 /**
  * The loot from killing a slaughter demon - can be consumed to allow the user to blood crawl.
@@ -212,11 +207,9 @@
 	to_chat(user, span_warning("...и вы не чувствуете никаких изменений."))
 	qdel(src)
 
-
 /obj/item/organ/internal/heart/demon/slaughter/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	M?.mind?.AddSpell(new /obj/effect/proc_holder/spell/bloodcrawl(null))
-
 
 /obj/item/organ/internal/heart/demon/slaughter/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	if(M.mind)
@@ -225,7 +218,6 @@
 		M.mind.RemoveSpell(/obj/effect/proc_holder/spell/bloodcrawl)
 	. = ..()
 
-
 /**
  * LAUGHTER DEMON
  */
@@ -233,14 +225,6 @@
 	// The laughter demon! It's everyone's best friend! It just wants to hug
 	// them so much, it wants to hug everyone at once!
 	name = "laughter demon"
-	ru_names = list(
-		NOMINATIVE = "демон смеха",
-		GENITIVE = "демона смеха",
-		DATIVE = "демону смеха",
-		ACCUSATIVE = "демона смеха",
-		INSTRUMENTAL = "демоном смеха",
-		PREPOSITIONAL = "демоне смеха"
-	)
 	real_name = "laughter demon"
 	desc = "Огромное милое существо, покрытое броней с розовыми бантиками."
 	speak_emote = list("хихикает", "смеётся", "посмеивается")
@@ -264,16 +248,25 @@
 	playstyle_string = "<font color='#FF69B4'><b><span class='userdanger'>Вы — Демон Смеха!</span></b></font><br> \
 						<font color='#FF69B4'><b>Вы — очаровательное, и слегка пугающее, существо, которое обожает объятия и смех. Ваша цель — распространять радость, веселье и... немного хаоса!</b></font><br> \
 						<font color='#FF69B4'><b>Вы можете использовать способность \"Кровавый путь\", чтобы перемещаться через милые лужи крови, появляясь и исчезая по своему желанию.</b></font><br> \
-						<font color='#FF69B4'><b>Если вы тащите кого-то в лужу крови – они получат порцию вашего веселья и обнимашек. Вы быстро двигаетесь и восстанавливаетесь в лужах крови, но будьте осторожны: слишком много серьёзности может ослабить вас!</b></font><br> \
+						<font color='#FF69B4'><b>Если вы тащите кого-то в лужу крови — они получат порцию вашего веселья и обнимашек. Вы быстро двигаетесь и восстанавливаетесь в лужах крови, но будьте осторожны: слишком много серьёзности может ослабить вас!</b></font><br> \
 						<font color='#FF69B4'><b>Помните: смех — это ваше оружие, а объятия — ваш стиль. ДЕЛАЙТЕ МИР ЯРЧЕ И СМЕШНЕЕ!</b></font>"
+
+/mob/living/simple_animal/demon/slaughter/laughter/get_ru_names()
+	return list(
+		NOMINATIVE = "демон смеха",
+		GENITIVE = "демона смеха",
+		DATIVE = "демону смеха",
+		ACCUSATIVE = "демона смеха",
+		INSTRUMENTAL = "демоном смеха",
+		PREPOSITIONAL = "демоне смеха",
+	)
 
 /mob/living/simple_animal/demon/slaughter/laughter/release_consumed(mob/living/M)
 	if(M.revive())
 		M.grab_ghost(force = TRUE)
-		playsound(get_turf(src), feast_sound, 50, 1, -1)
+		playsound(get_turf(src), feast_sound, 50, TRUE, -1)
 		to_chat(M, span_clown("Вы покидаете тёплые объятия [declent_ru(GENITIVE)] и чувствуете себя готовым покорить мир."))
 	..(M)
-
 
 //Objectives and helpers.
 
@@ -283,12 +276,10 @@
 	antag_menu_name = "Поглотить смертных"
 	var/targetKill = 10
 
-
 /datum/objective/slaughter/New()
 	targetKill = rand(10,20)
 	explanation_text = "Поглотить [targetKill] смертн[declension_ru(targetKill, "ого", "ых", "ых")]."
 	..()
-
 
 /datum/objective/slaughter/check_completion()
 	var/kill_count = 0
@@ -304,33 +295,31 @@
 
 	return FALSE
 
-
 /datum/objective/demonFluff
 	needs_target = FALSE
-
 
 /datum/objective/demonFluff/New()
 	find_target()
 	var/targetname = "someone"
 	if(target?.current)
 		targetname = target.current.real_name
-	var/list/explanation_texts = list("Залейте кровью весь мостик.", \
-									 "Залейте кровью весь бриг.", \
-									 "Залейте кровью всю церковь.", \
-									 "Убейте или уничтожьте всех чистоботов или медботов.", \
-									 "Нанесите удар жертве и скройтесь... Заставьте их обагрить всё своей кровью.", \
-									 "Охотьтесь на тех, кто попытается охотиться на вас.", \
-									 "Охотьтесь на тех, кто в страхе убегает от вас.", \
-									 "Покажите [targetname] силу крови.", \
-									 "Сведите [targetname] с ума демоническим шепотом."
-									 )
+	var/list/explanation_texts = list(
+		"Залейте кровью весь мостик.", \
+		"Залейте кровью весь бриг.", \
+		"Залейте кровью всю церковь.", \
+		"Убейте или уничтожьте всех чистоботов или медботов.", \
+		"Нанесите удар жертве и скройтесь... Заставьте их обагрить всё своей кровью.", \
+		"Охотьтесь на тех, кто попытается охотиться на вас.", \
+		"Охотьтесь на тех, кто в страхе убегает от вас.", \
+		"Покажите [targetname] силу крови.", \
+		"Сведите [targetname] с ума демоническим шепотом."
+	)
 
 	// As this is a fluff objective, we don't need a target, so we want to null it out.
 	// We don't want the demon getting a "Time for Plan B" message if the target cryos.
 	target = null
 	explanation_text = pick(explanation_texts)
 	..()
-
 
 /datum/objective/demonFluff/check_completion()
 	return TRUE

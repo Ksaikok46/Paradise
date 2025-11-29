@@ -6,7 +6,6 @@
  *		Barcode Scanner
  */
 
-
 /*
  * Bookcase
  */
@@ -14,14 +13,6 @@
 /obj/structure/bookcase
 	name = "bookcase"
 	desc = "Большой книжный шкаф."
-	ru_names = list(
-		NOMINATIVE = "книжный шкаф",
-		GENITIVE = "книжного шкафа",
-		DATIVE = "книжному шкафу",
-		ACCUSATIVE = "книжный шкаф",
-		INSTRUMENTAL = "книжным шкафом",
-		PREPOSITIONAL = "книжном шкафе"
-	)
 	gender = MALE
 	icon = 'icons/obj/library.dmi'
 	icon_state = "book-0"
@@ -33,14 +24,28 @@
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 0)
 	/// Typecache of the things allowed in the bookcase. Populated in [/proc/generate_allowed_books()] on Initialize.
 	var/list/allowed_books
+	/// When enabled, books_to_load number of random books will be generated for this bookcase when first interacted with.
+	var/load_random_books = FALSE
+	/// The category of books to pick from when populating random books.
+	var/random_category = null
+	/// How many random books to generate.
+	var/books_to_load = 0
 
+/obj/structure/bookcase/get_ru_names()
+	return list(
+		NOMINATIVE = "книжный шкаф",
+		GENITIVE = "книжного шкафа",
+		DATIVE = "книжному шкафу",
+		ACCUSATIVE = "книжный шкаф",
+		INSTRUMENTAL = "книжным шкафом",
+		PREPOSITIONAL = "книжном шкафе",
+	)
 
 /obj/structure/bookcase/Initialize(mapload)
 	. = ..()
 	generate_allowed_books()
 	if(mapload)
 		addtimer(CALLBACK(src, PROC_REF(take_contents)), 0)
-
 
 /obj/structure/bookcase/examine(mob/user)
 	if(length(contents) > 0)
@@ -53,7 +58,6 @@
 /obj/structure/bookcase/add_debris_element()
 	AddElement(/datum/element/debris, DEBRIS_WOOD, -40, 5)
 
-
 /// Populates typecache with the things allowed to store
 /obj/structure/bookcase/proc/generate_allowed_books()
 	allowed_books = typecacheof(list(
@@ -62,7 +66,6 @@
 		/obj/item/storage/bible,
 		/obj/item/tome,
 	))
-
 
 /// This is called on Initialize to add contents on the tile
 /obj/structure/bookcase/proc/take_contents()
@@ -84,8 +87,6 @@
 	balloon_alert(user, "поставлено на полку")
 	add_fingerprint(user)
 	update_icon(UPDATE_ICON_STATE)
-
-
 
 /obj/structure/bookcase/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -121,7 +122,6 @@
 
 	return ..()
 
-
 /obj/structure/bookcase/screwdriver_act(mob/user, obj/item/I)
 	if(obj_flags & NODECONSTRUCT)
 		return FALSE
@@ -134,10 +134,8 @@
 	TOOL_DISMANTLE_SUCCESS_MESSAGE
 	deconstruct(TRUE)
 
-
 /obj/structure/bookcase/wrench_act(mob/user, obj/item/I)
 	return default_unfasten_wrench(user, I, 0)
-
 
 /obj/structure/bookcase/attack_hand(mob/user)
 	if(!length(contents))
@@ -163,8 +161,7 @@
 	for(var/atom/movable/thing as anything in contents)
 		if(is_type_in_typecache(thing, allowed_books))
 			thing.forceMove(drop_loc)
-	..()
-
+	return ..()
 
 /obj/structure/bookcase/update_icon_state()
 	icon_state = "book-[min(length(contents), 5)]"
@@ -184,24 +181,20 @@
 		ru_names[INSTRUMENTAL] += manual_name_ru
 		ru_names[PREPOSITIONAL] += manual_name_ru
 
-
 /obj/structure/bookcase/manuals/medical
 	manual_name = "Medical Manuals "
 	manual_name_ru = " с учебниками по медицине"
 
-/obj/structure/bookcase/manuals/medical/Initialize()
+/obj/structure/bookcase/manuals/medical/Initialize(mapload)
 	. = ..()
 	new /obj/item/book/manual/medical_cloning(src)
 	update_icon(UPDATE_ICON_STATE)
-
 
 /obj/structure/bookcase/manuals/engineering
 	manual_name = "Engineering Manuals "
 	manual_name_ru = " с руководствами по инженерному делу"
 
-
-
-/obj/structure/bookcase/manuals/engineering/Initialize()
+/obj/structure/bookcase/manuals/engineering/Initialize(mapload)
 	. = ..()
 	new /obj/item/book/manual/engineering_construction(src)
 	new /obj/item/book/manual/engineering_particle_accelerator(src)
@@ -211,18 +204,14 @@
 	new /obj/item/book/manual/robotics_cyborgs(src)
 	update_icon(UPDATE_ICON_STATE)
 
-
 /obj/structure/bookcase/manuals/research_and_development
 	manual_name = "R&D Manuals "
 	manual_name_ru = " с учебниками по научной деятельности"
 
-
-
-/obj/structure/bookcase/manuals/research_and_development/Initialize()
+/obj/structure/bookcase/manuals/research_and_development/Initialize(mapload)
 	. = ..()
 	new /obj/item/book/manual/research_and_development(src)
 	update_icon(UPDATE_ICON_STATE)
-
 
 /*
  * Book
@@ -230,14 +219,6 @@
 /obj/item/book
 	name = "book"
 	desc = "Напечатанная книга в твёрдом переплёте."
-	ru_names = list(
-		NOMINATIVE = "книга",
-		GENITIVE = "книги",
-		DATIVE = "книге",
-		ACCUSATIVE = "книгу",
-		INSTRUMENTAL = "книгой",
-		PREPOSITIONAL = "книге"
-	)
 	gender = FEMALE
 	icon = 'icons/obj/library.dmi'
 	lefthand_file = 'icons/mob/inhands/equipment/library_lefthand.dmi'
@@ -247,7 +228,6 @@
 	throw_speed = 1
 	throw_range = 5
 	force = 2
-	w_class = WEIGHT_CLASS_NORMAL		 //upped to three because books are, y'know, pretty big. (and you could hide them inside eachother recursively forever)
 	attack_verb = list("ударил", "огрел")
 	resistance_flags = FLAMMABLE
 	drop_sound = 'sound/items/handling/drop/book_drop.ogg'
@@ -272,6 +252,16 @@
 	/// Book DRM. If this var is TRUE, it cannot be scanned and re-uploaded
 	var/has_drm = FALSE
 
+/obj/item/book/get_ru_names()
+	return list(
+		NOMINATIVE = "книга",
+		GENITIVE = "книги",
+		DATIVE = "книге",
+		ACCUSATIVE = "книгу",
+		INSTRUMENTAL = "книгой",
+		PREPOSITIONAL = "книге",
+	)
+
 /obj/item/book/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/falling_hazard, damage = 5, hardhat_safety = TRUE, crushes = FALSE, impact_sound = drop_sound)
@@ -289,7 +279,7 @@
 /obj/item/book/attack_self(mob/user)
 	if(carved)
 		if(store)
-			to_chat(user, span_notice("[capitalize(store.declent_ru(NOMINATIVE))] выпада[pluralize_ru(store, "ет", "ют")] из \"[title]\"!"))
+			to_chat(user, span_notice("[capitalize(store.declent_ru(NOMINATIVE))] выпада[PLUR_ET_YUT(store)] из \"[title]\"!"))
 			store.forceMove(get_turf(loc))
 			store = null
 			return
@@ -302,11 +292,10 @@
 		popup.set_content("<tt><i>Автор — [author].</i></tt><br>" + "[dat]")
 		popup.open(TRUE)
 		if(!isobserver(user))
-			user.visible_message("[user] открыва[pluralize_ru(user.gender, "ет", "ют")] книгу под заголовком \"[title]\" и начина[pluralize_ru(user.gender, "ет", "ют")] внимательно её читать.")
+			user.visible_message("[user] открыва[PLUR_ET_YUT(user)] книгу под заголовком \"[title]\" и начина[PLUR_ET_YUT(user)] внимательно её читать.")
 		onclose(user, "book")
 	else
 		to_chat(user, "Эта книга полностью пуста!")
-
 
 /obj/item/book/attackby(obj/item/I, mob/user, params)
 	if(carved)
@@ -336,20 +325,20 @@
 			return ATTACK_CHAIN_PROCEED
 		var/choice = tgui_input_list(user, "Что вы хотели бы изменить?", "Редактура", list("Заголовок", "Содержание", "Автор", "Отмена"))
 		switch(choice)
-			if("Title")
+			if("Заголовок")
 				var/newtitle = reject_bad_text(tgui_input_text(user, "Напишите новый заголовок:", "Название", title))
 				if(isnull(newtitle))
 					balloon_alert(user, "недопустимый формат!")
 					return ATTACK_CHAIN_PROCEED
 				name = newtitle
 				title = newtitle
-			if("Contents")
+			if("Содержание")
 				var/content = tgui_input_text(user, "Напишите содержание книги (HTML ЗАПРЕЩЁН):", "Содержание", max_length = MAX_BOOK_MESSAGE_LEN, multiline = TRUE)
 				if(isnull(content))
 					balloon_alert(user, "недопустимое содержание!")
 					return ATTACK_CHAIN_PROCEED
 				dat += content
-			if("Author")
+			if("Автор")
 				var/newauthor = tgui_input_text(user, "Напишите имя автора:", "Автор", author, MAX_NAME_LEN)
 				if(isnull(newauthor))
 					balloon_alert(user, "недопустимое имя!")
@@ -399,10 +388,8 @@
 
 	return ..()
 
-
 /obj/item/book/wirecutter_act(mob/user, obj/item/I)
 	return carve_book(user, I)
-
 
 /obj/item/book/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(user.a_intent == INTENT_HELP)
@@ -412,7 +399,6 @@
 		force = initial(force)
 		attack_verb = list("ударил", "огрел")
 	return ..()
-
 
 /obj/item/book/proc/carve_book(mob/user, obj/item/I)
 	if(I.tool_behaviour != TOOL_WIRECUTTER) //Only sharp and wirecutter things can carve books
@@ -426,10 +412,9 @@
 	balloon_alert(user, "режем страницы...")
 	if(!I.use_tool(src, user, 3 SECONDS, volume = I.tool_volume) || carved)
 		return FALSE
-	balloon_alert(user, "страницы вырезаны.")
+	balloon_alert(user, "страницы вырезаны")
 	carved = TRUE
 	return TRUE
-
 
 /*
  * Barcode Scanner
@@ -437,14 +422,6 @@
 /obj/item/barcodescanner
 	name = "barcode scanner"
 	desc = "Небольшое устройство для считывания штрих-кода с книг."
-	ru_names = list(
-		NOMINATIVE = "сканнер штрих-кодов",
-		GENITIVE = "сканнера штрих-кодов",
-		DATIVE = "сканнеру штрих-кодов",
-		ACCUSATIVE = "сканнер штрих-кодов",
-		INSTRUMENTAL = "сканнером штрих-кодов",
-		PREPOSITIONAL = "сканнере штрих-кодов"
-	)
 	gender = MALE
 	icon = 'icons/obj/library.dmi'
 	lefthand_file = 'icons/mob/inhands/equipment/library_lefthand.dmi'
@@ -456,7 +433,17 @@
 	w_class = WEIGHT_CLASS_TINY
 	var/obj/machinery/computer/library/checkout/computer // Associated computer - Modes 1 to 3 use this
 	var/obj/item/book/book	 //  Currently scanned book
-	var/mode = 0 					// 0 - Scan only, 1 - Scan and Set Buffer, 2 - Scan and Attempt to Check In, 3 - Scan and Attempt to Add to Inventory
+	var/mode = 0					// 0 - Scan only, 1 - Scan and Set Buffer, 2 - Scan and Attempt to Check In, 3 - Scan and Attempt to Add to Inventory
+
+/obj/item/barcodescanner/get_ru_names()
+	return list(
+		NOMINATIVE = "сканнер штрих-кодов",
+		GENITIVE = "сканнера штрих-кодов",
+		DATIVE = "сканнеру штрих-кодов",
+		ACCUSATIVE = "сканнер штрих-кодов",
+		INSTRUMENTAL = "сканнером штрих-кодов",
+		PREPOSITIONAL = "сканнере штрих-кодов",
+	)
 
 /obj/item/barcodescanner/attack_self(mob/user)
 	mode += 1

@@ -166,12 +166,11 @@
 		else
 			clear_alert("succumb")
 
-
 /mob/living/update_stamina_hud(shown_stamina_loss)
 	if(!client || !stamina_bar)
 		return
 
-	var/stam_crit_threshold = maxHealth - HEALTH_THRESHOLD_CRIT
+	var/stam_crit_threshold = max_stamina - HEALTH_THRESHOLD_CRIT
 
 	if(stat == DEAD)
 		stamina_bar.icon_state = "stamina_dead"
@@ -182,19 +181,31 @@
 
 	if(shown_stamina_loss >= stam_crit_threshold)
 		stamina_bar.icon_state = "stamina_crit"
-	else if(shown_stamina_loss > maxHealth * 0.8)
+	else if(shown_stamina_loss > max_stamina * 0.8)
 		stamina_bar.icon_state = "stamina_5"
-	else if(shown_stamina_loss > maxHealth * 0.6)
+	else if(shown_stamina_loss > max_stamina * 0.6)
 		stamina_bar.icon_state = "stamina_4"
-	else if(shown_stamina_loss > maxHealth * 0.4)
+	else if(shown_stamina_loss > max_stamina * 0.4)
 		stamina_bar.icon_state = "stamina_3"
-	else if(shown_stamina_loss > maxHealth * 0.2)
+	else if(shown_stamina_loss > max_stamina * 0.2)
 		stamina_bar.icon_state = "stamina_2"
 	else if(shown_stamina_loss > 0)
 		stamina_bar.icon_state = "stamina_1"
 	else
 		stamina_bar.icon_state = "stamina_full"
 
+/mob/living/update_nutrition_hud()
+	if(!client || !nutrition_bar)
+		return
+
+	if(HAS_TRAIT(src, TRAIT_NO_HUNGER) && dna.species.hunger_type)
+		nutrition_bar.icon_state = "[dna.species.hunger_type]_" + "full"
+		return
+
+	if(dna.species.hunger_type)
+		nutrition_bar.icon_state = "[dna.species.hunger_type]_" + current_nutrition_level.icon_state
+
+	med_hud_set_status()
 
 /mob/living/simple_animal/update_health_hud()
 	if(!client)
@@ -223,7 +234,7 @@
 		livingdoll.icon_state = "living[severity]"
 		if(!livingdoll.filtered)
 			var/icon/mob_mask = icon(icon, icon_state)
-			if(mob_mask.Height() > world.icon_size || mob_mask.Width() > world.icon_size)
+			if(get_cached_height() > ICON_SIZE_Y || get_cached_width() > ICON_SIZE_X)
 				var/health_doll_icon_state = health_doll_icon ? health_doll_icon : "megasprite"
 				mob_mask = icon('icons/mob/screen_gen.dmi', health_doll_icon_state) //swap to something generic if they have no special doll
 			livingdoll.add_filter("mob_shape_mask", 1, alpha_mask_filter(icon = mob_mask))
@@ -234,11 +245,9 @@
 	else
 		clear_fullscreen("brute")
 
-
 /mob/living/proc/handle_gravity(seconds_per_tick, times_fired)
 	if(abs(gravity_state) > STANDARD_GRAVITY)
 		handle_high_gravity(gravity_state, seconds_per_tick, times_fired)
-
 
 /mob/living/carbon/handle_gravity(seconds_per_tick, times_fired)
 	. = ..()
@@ -252,14 +261,12 @@
 	if(!buckled)
 		ADD_TRAIT(src, TRAIT_FLOORED, GRAVITATION_TRAIT)
 
-
 /mob/living/proc/gravity_animate()
 	if(!get_filter("gravity"))
 		add_filter("gravity",1,list("type"="motion_blur", "x"=0, "y"=0))
 
 	animate(get_filter("gravity"), y = 1, time = 10, loop = -1)
 	animate(y = 0, time = 10)
-
 
 /mob/living/proc/handle_high_gravity(gravity, seconds_per_tick, times_fired)
 	if(abs(gravity) < HIGH_GRAVITY_SLOWDOWN)
@@ -292,7 +299,6 @@
 		AdjustStuttering(5 SECONDS, bound_upper = 10 SECONDS)	//It will hamper your voice, being choked and all.
 		if(!breathing_tube)
 			AdjustLoseBreath(3 SECONDS, bound_upper = 6 SECONDS)
-
 
 /// Handles mob SSD status.
 /mob/living/proc/handle_SSD(seconds_per_tick)

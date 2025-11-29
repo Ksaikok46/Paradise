@@ -31,7 +31,6 @@
 
 	faction = list("faithless")
 
-
 /mob/living/simple_animal/ascendant_shadowling/Initialize(mapload)
 	. = ..()
 
@@ -51,17 +50,15 @@
 /mob/living/simple_animal/ascendant_shadowling/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	return TRUE //copypasta from carp code
 
-/mob/living/simple_animal/ascendant_shadowling/ex_act(severity)
+/mob/living/simple_animal/ascendant_shadowling/ex_act(severity, target)
 	return //You think an ascendant can be hurt by bombs? HA
 
 /mob/living/simple_animal/ascendant_shadowling/singularity_act()
 	return 0 //Well hi, fellow god! How are you today?
 
-
 /mob/living/simple_animal/ascendant_shadowling/update_overlays()
 	. = ..()
 	. += "shadowling_ascended_ms"
-
 
 /mob/living/simple_animal/ascendant_shadowling/proc/announce(text, size = 4, new_sound = null)
 	var/message = "<font size=[size]><span class='shadowling'><b>\"[text]\"</font></span>"

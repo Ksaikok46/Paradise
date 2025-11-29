@@ -1,7 +1,6 @@
 #define POINT_TIME (2.5 SECONDS)
 #define BUBBLE_TIME (4 SECONDS)
 
-
 /**
  * Point at an atom
  *
@@ -27,8 +26,8 @@
 	var/obj/visual = new /obj/effect/temp_visual/point(source_turf, invisibility)
 
 	/// Set position
-	var/final_x = (pointed_turf.x - source_turf.x) * world.icon_size + pointed_atom.pixel_x
-	var/final_y = (pointed_turf.y - source_turf.y) * world.icon_size + pointed_atom.pixel_y
+	var/final_x = (pointed_turf.x - source_turf.x) * ICON_SIZE_X + pointed_atom.pixel_x
+	var/final_y = (pointed_turf.y - source_turf.y) * ICON_SIZE_Y + pointed_atom.pixel_y
 
 	/// Set rotation
 	var/matrix/rotated_matrix = new()
@@ -36,7 +35,6 @@
 	visual.transform = rotated_matrix
 
 	animate(visual, pixel_x = final_x, pixel_y = final_y, time = 0.5 SECONDS, easing = QUAD_EASING)
-
 
 /**
  * Create a bubble pointing at a particular icon and icon state.
@@ -63,7 +61,7 @@
 	thought_bubble.overlays += pointed_atom_appearance
 
 	var/hover_outline_index = pointed_atom.get_filter("hover_outline")
-	if (!isnull(hover_outline_index))
+	if(!isnull(hover_outline_index))
 		pointed_atom_appearance.filters.Cut(hover_outline_index, hover_outline_index + 1)
 
 	thought_bubble.pixel_x = 16
@@ -91,9 +89,9 @@
 	animate(alpha = 255, time = BUBBLE_TIME - 1 SECONDS)
 	animate(alpha = 0, time = 0.5 SECONDS, easing = EASE_IN)
 
-
 /atom/movable/proc/clear_point_bubble(obj/effect/thought_bubble)
 	LAZYREMOVE(update_on_z, thought_bubble)
+	vis_contents -= thought_bubble
 	qdel(thought_bubble)
 
 /obj/effect/temp_visual/point
@@ -106,11 +104,9 @@
 	duration = POINT_TIME
 	randomdir = FALSE
 
-
 /obj/effect/temp_visual/point/Initialize(mapload, set_invis = 0)
 	. = ..()
 	invisibility = set_invis
-
 
 /**
  * Point at an atom
@@ -142,7 +138,6 @@
 
 	DEFAULT_QUEUE_OR_CALL_VERB(VERB_CALLBACK(src, PROC_REF(run_pointed), target))
 
-
 /**
  * Possibly delayed verb that finishes the pointing process starting in [/mob/verb/pointed()].
  * Either called immediately or in the tick after pointed() was called, as per the [DEFAULT_QUEUE_OR_CALL_VERB()] macro.
@@ -158,7 +153,6 @@
 	point_at(target)
 
 	return TRUE
-
 
 #undef POINT_TIME
 #undef BUBBLE_TIME

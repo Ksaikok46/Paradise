@@ -1,6 +1,6 @@
 /* Beds... get your mind out of the gutter, they're for sleeping!
  * Contains:
- * 		Beds
+ *		Beds
  *		Roller beds
  *		Dog Beds
  */
@@ -25,7 +25,6 @@
 	var/buildstacktype = /obj/item/stack/sheet/metal
 	var/buildstackamount = 2
 	var/comfort = 2 // default comfort
-
 
 /obj/structure/bed/psych
 	name = "psych bed"
@@ -57,50 +56,55 @@
 /obj/structure/bed/wicker
 	name = "wicker bed"
 	desc = "Большая кровать, сотканная из чего-то, напоминающего ткань. Выглядит достаточно удобно."
-	ru_names = list(
-		NOMINATIVE = "плетёная кровать",
-		GENITIVE = "плетёной кровати",
-		DATIVE = "плетёной кровати",
-		ACCUSATIVE = "плетёную кровать",
-		INSTRUMENTAL = "плетёной кроватью",
-		PREPOSITIONAL = "плетёной кровати"
-	)
 	icon_state = "wicker_bed"
 	comfort = 1.5
 	buildstacktype = /obj/item/stack/sheet/cloth
 	buildstackamount = 5
 
+/obj/structure/bed/wicker/get_ru_names()
+	return list(
+		NOMINATIVE = "плетёная кровать",
+		GENITIVE = "плетёной кровати",
+		DATIVE = "плетёной кровати",
+		ACCUSATIVE = "плетёную кровать",
+		INSTRUMENTAL = "плетёной кроватью",
+		PREPOSITIONAL = "плетёной кровати",
+	)
+
 /obj/structure/bed/leather
 	name = "leather bed"
 	desc = "Куски кожи, грубо сшитые друг с другом и прикреплённые к деревянной раме. Не самое удобное место для лежания."
-	ru_names = list(
+	icon_state = "leather_bed"
+	comfort = 1.2
+	buildstacktype = /obj/item/stack/sheet/leather
+
+/obj/structure/bed/leather/get_ru_names()
+	return list(
 		NOMINATIVE = "кровать из кожи",
 		GENITIVE = "кровати из кожи",
 		DATIVE = "кровати из кожи",
 		ACCUSATIVE = "кровать из кожи",
 		INSTRUMENTAL = "кроватью из кожи",
-		PREPOSITIONAL = "кровати из кожи"
+		PREPOSITIONAL = "кровати из кожи",
 	)
-	icon_state = "leather_bed"
-	comfort = 1.2
-	buildstacktype = /obj/item/stack/sheet/leather
-	buildstackamount = 2
 
 /obj/structure/bed/wooden
 	name = "wooden bed"
 	desc = "Кровать, сделанная из качественной древесины. Выглядит очень мило и уютно."
-	ru_names = list(
+	icon_state = "wooden_bed"
+	comfort = 2.5
+	buildstacktype = /obj/item/stack/sheet/wood
+	buildstackamount = 5
+
+/obj/structure/bed/wooden/get_ru_names()
+	return list(
 		NOMINATIVE = "деревянная кровать",
 		GENITIVE = "деревянной кровати",
 		DATIVE = "деревянной кровати",
 		ACCUSATIVE = "деревянную кровать",
 		INSTRUMENTAL = "деревянной кроватью",
-		PREPOSITIONAL = "деревянной кровати"
+		PREPOSITIONAL = "деревянной кровати",
 	)
-	icon_state = "wooden_bed"
-	comfort = 2.5
-	buildstacktype = /obj/item/stack/sheet/wood
-	buildstackamount = 5
 
 /obj/structure/bed/proc/handle_rotation()
 	return
@@ -108,7 +112,7 @@
 /obj/structure/bed/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(obj_flags & NODECONSTRUCT)
-		to_chat(user, "<span class='warning'>You can't figure out how to deconstruct [src]!</span>")
+		to_chat(user, span_warning("You can't figure out how to deconstruct [src]!"))
 		return
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
@@ -119,7 +123,6 @@
 		if(buildstacktype)
 			new buildstacktype(loc, buildstackamount)
 	..()
-
 
 /*
  * Roller beds
@@ -136,7 +139,6 @@
 	var/icon_up = "up"
 	var/icon_down = "down"
 	var/folded = /obj/item/roller
-
 
 /obj/structure/bed/roller/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -167,22 +169,18 @@
 
 	return ..()
 
-
 /obj/structure/bed/roller/update_icon_state()
 	icon_state = has_buckled_mobs() ? icon_up : icon_down
-
 
 /obj/structure/bed/roller/post_buckle_mob(mob/living/target)
 	set_density(TRUE)
 	update_icon(UPDATE_ICON_STATE)
 	target.pixel_y = target.base_pixel_y + 3
 
-
 /obj/structure/bed/roller/post_unbuckle_mob(mob/living/target)
 	set_density(FALSE)
 	update_icon(UPDATE_ICON_STATE)
 	target.pixel_y = target.base_pixel_y + target.body_position_pixel_y_offset
-
 
 /obj/structure/bed/roller/holo
 	name = "holo stretcher"
@@ -201,12 +199,10 @@
 	var/extended = /obj/structure/bed/roller
 	w_class = WEIGHT_CLASS_BULKY // Can't be put in backpacks.
 
-
 /obj/item/roller/attack_self(mob/user)
 	var/obj/structure/bed/roller/R = new extended(drop_location())
 	R.add_fingerprint(user)
 	qdel(src)
-
 
 /obj/item/roller/attackby(obj/item/I, mob/user, params)
 	if(user.a_intent == INTENT_HARM)
@@ -235,8 +231,7 @@
 
 	return ..()
 
-
-/obj/structure/bed/roller/MouseDrop(atom/over_object, src_location, over_location, src_control, over_control, params)
+/obj/structure/bed/roller/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
 	if(!has_buckled_mobs() && over_object == usr && ishuman(usr) && !usr.incapacitated() && !HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) && usr.Adjacent(src))
 		usr.visible_message(
 			span_notice("[usr] collapses [src]."),
@@ -248,7 +243,6 @@
 		return FALSE
 	return ..()
 
-
 /obj/item/roller/holo
 	name = "holo stretcher"
 	desc = "A retracted hardlight stretcher that can be carried around."
@@ -258,7 +252,6 @@
 	extended = /obj/structure/bed/roller/holo
 	collectable = FALSE
 
-
 /obj/item/roller_holder
 	name = "roller bed rack"
 	desc = "A rack for carrying a collapsed roller bed."
@@ -266,17 +259,14 @@
 	icon_state = "folded"
 	var/obj/item/roller/held = /obj/item/roller
 
-
 /obj/item/roller_holder/Initialize(mapload)
 	. = ..()
 	if(ispath(held, /obj/item/roller))
 		held = new held(src)
 
-
 /obj/item/roller_holder/Destroy()
 	QDEL_NULL(held)
 	return ..()
-
 
 /obj/item/roller_holder/attack_self(mob/user)
 	if(!held)
@@ -287,8 +277,6 @@
 	var/obj/structure/bed/roller/roller = new held.extended(drop_location())
 	roller.add_fingerprint(user)
 	QDEL_NULL(held)
-
-
 
 /*
  * Dog beds

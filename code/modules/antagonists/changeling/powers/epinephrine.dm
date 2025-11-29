@@ -9,7 +9,6 @@
 	req_human = TRUE
 	req_stat = UNCONSCIOUS
 
-
 /datum/action/changeling/epinephrine/sting_action(mob/living/user)
 
 	if(user.body_position == LYING_DOWN)
@@ -22,7 +21,7 @@
 	user.SetStunned(0)
 	user.SetWeakened(0)
 	user.SetKnockdown(0)
-	user.adjustStaminaLoss(-95)
+	user.setStaminaLoss(0)
 	user.set_resting(FALSE, instant = TRUE)
 	user.get_up(instant = TRUE)
 	user.reagents.add_reagent("synaptizine", 20)

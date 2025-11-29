@@ -1,7 +1,3 @@
-#define CQC_ARENA_RADIUS	6 //how much tiles away from a center players will spawn
-#define RANGED_ARENA_RADIUS	10
-
-
 /**
  * This datum is designed to determine special settings for thunderdome battle.
  */
@@ -17,7 +13,6 @@
 /datum/thunderdome_gamemode/melee
 	name = "Thunderdome Melee Challenge"
 	arena_radius = CQC_ARENA_RADIUS
-	preview_icon = "thunderman_preview_CqC"
 	brawler_type = /obj/effect/mob_spawn/human/thunderdome/cqc
 	random_items_count = 2
 	item_pool = list(
@@ -55,7 +50,7 @@
 		/obj/item/storage/box/syndie_kit/dangertray = 1,
 		/obj/item/gun/magic/hook = 1,
 		/obj/item/twohanded/bamboospear = 1,
-		/obj/item/twohanded/required/chainsaw = 1,
+		/obj/item/twohanded/chainsaw_handmade = 1,
 		/obj/item/kitchen/knife/butcher/meatcleaver = 1,
 		/obj/item/rune_scimmy = 1,
 		/obj/item/twohanded/spear/bonespear/chitinspear = 1,
@@ -65,8 +60,7 @@
 		/obj/item/gun/magic/staff/spellblade = 1,
 		/obj/item/spellbook/oneuse/goliath_dash = 1,
 		/obj/item/his_grace/no_sound = 1,
-		)
-
+	)
 
 /datum/thunderdome_gamemode/ranged
 	name = "Thunderdome Ranger Challenge"
@@ -116,9 +110,10 @@
 		/obj/item/gun/projectile/automatic/gyropistol = 2,
 		/obj/item/gun/projectile/automatic/sfg = 2,
 		/obj/item/gun/projectile/automatic/sp91rc = 2,
+		/obj/item/gun/projectile/automatic/sparkle_a12 = 2,
 		/obj/item/gun/projectile/automatic/m90 = 2,
-		/obj/item/gun/projectile/automatic/rusted/aksu = 2,
-		/obj/item/gun/projectile/automatic/rusted/ppsh = 2,
+		/obj/item/gun/projectile/automatic/aksu = 2,
+		/obj/item/gun/projectile/automatic/ppsh = 2,
 		/obj/item/gun/projectile/automatic/shotgun/minotaur = 2,
 		/obj/item/gun/projectile/automatic/lr30 = 2,
 		/obj/item/gun/energy/sniperrifle = 1,
@@ -131,7 +126,7 @@
 		/obj/item/gun/magic/staff/spellblade = 1,
 		/obj/item/spellbook/oneuse/goliath_dash = 1,
 		/obj/item/spellbook/oneuse/forcewall = 1,
-		)
+	)
 
 /datum/thunderdome_gamemode/mixed
 	name = "Thunderdome Mixed Challenge"
@@ -211,9 +206,10 @@
 		/obj/item/gun/projectile/automatic/gyropistol = 1,
 		/obj/item/gun/projectile/automatic/sfg = 1,
 		/obj/item/gun/projectile/automatic/sp91rc = 1,
+		/obj/item/gun/projectile/automatic/sparkle_a12 = 2,
 		/obj/item/gun/projectile/automatic/m90 = 1,
-		/obj/item/gun/projectile/automatic/rusted/aksu = 1,
-		/obj/item/gun/projectile/automatic/rusted/ppsh = 1,
+		/obj/item/gun/projectile/automatic/aksu = 1,
+		/obj/item/gun/projectile/automatic/ppsh = 1,
 		/obj/item/gun/projectile/automatic/shotgun/minotaur = 1,
 		/obj/item/gun/projectile/automatic/lr30 = 1,
 		/obj/item/gun/energy/sniperrifle = 1,
@@ -224,7 +220,7 @@
 		/obj/item/gun/energy/laser/scatter = 1,
 		/obj/item/gun/energy/bsg/prebuilt = 1,
 		/obj/item/twohanded/bamboospear = 1,
-		/obj/item/twohanded/required/chainsaw = 1,
+		/obj/item/twohanded/chainsaw_handmade = 1,
 		/obj/item/kitchen/knife/butcher/meatcleaver = 1,
 		/obj/item/rune_scimmy = 1,
 		/obj/item/twohanded/spear/bonespear/chitinspear = 1,
@@ -235,4 +231,4 @@
 		/obj/item/spellbook/oneuse/goliath_dash = 1,
 		/obj/item/spellbook/oneuse/forcewall = 1,
 		/obj/item/his_grace/no_sound = 1,
-		)
+	)

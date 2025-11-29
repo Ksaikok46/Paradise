@@ -1,13 +1,10 @@
 /datum/action/item_action/advanced/ninja/ninja_sword_recall
 	name = "Recall Energy Katana"
 	desc = "Teleports the Energy Katana linked to this suit to its wearer. Energy cost: 200"
-	use_itemicon = FALSE
 	check_flags = FALSE
-	charge_type = ADV_ACTION_TYPE_RECHARGE
 	charge_max = 0.5 SECONDS
 	button_icon_state = "energy_katana_green"
-	icon_icon = 'icons/obj/ninjaobjects.dmi'
-	button_icon = 'icons/mob/actions/actions_ninja.dmi'
+	button_icon = 'icons/obj/ninjaobjects.dmi'
 	background_icon_state = "background_green"
 	action_initialisation_text = "Katana Recall System"
 
@@ -49,7 +46,7 @@
 				energyKatana.returnToOwner(ninja, 1)
 				return
 			energyKatana.spark_system.start()
-			playsound(ninja, "sparks", 50, TRUE, -9)
+			playsound(ninja, SFX_SPARKS, 50, TRUE, -9)
 			ninja.visible_message(span_danger("\the [energyKatana] flies towards [ninja]!"),span_warning("You hold out your hand and \the [energyKatana] flies towards you!"))
 			energyKatana.throw_at(ninja, distance+1, energyKatana.throw_speed)
 

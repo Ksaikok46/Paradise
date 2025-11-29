@@ -1,14 +1,6 @@
 /obj/item/weldingtool/sword
 	name = "welding sword"
 	desc = "Сварочный аппарат, кустарно модифицированный каким-то умельцем. Судя по всему, автор этого творения черпал вдохновение от энергетических мечей."
-	ru_names = list(
-		NOMINATIVE = "сварочный меч",
-		GENITIVE = "сварочного меча",
-		DATIVE = "сварочному мечу",
-		ACCUSATIVE = "сварочный меч",
-		INSTRUMENTAL = "сварочным мечом",
-		PREPOSITIONAL = "сварочном мече"
-	)
 	icon = 'icons/obj/items.dmi'
 	lefthand_file = 'icons/mob/inhands/melee_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/melee_righthand.dmi'
@@ -27,6 +19,15 @@
 	/// Сan be combined with other similar item
 	var/combinable = TRUE
 
+/obj/item/weldingtool/sword/get_ru_names()
+	return list(
+		NOMINATIVE = "сварочный меч",
+		GENITIVE = "сварочного меча",
+		DATIVE = "сварочному мечу",
+		ACCUSATIVE = "сварочный меч",
+		INSTRUMENTAL = "сварочным мечом",
+		PREPOSITIONAL = "сварочном мече",
+	)
 
 /obj/item/weldingtool/sword/toggle_welder(turn_off)
 	. = ..()
@@ -82,14 +83,6 @@
 /obj/item/weldingtool/sword/double
 	name = "double-bladed welding sword"
 	desc = "Два кустарно модифицированных сварочных аппарата, скреплённых вместе, образуя некое подобие двойного энергетического меча. Настоящее чудо ассистентской мысли."
-	ru_names = list(
-		NOMINATIVE = "двойной сварочный меч",
-		GENITIVE = "двойного сварочного меча",
-		DATIVE = "двойному сварочному мечу",
-		ACCUSATIVE = "двойной сварочный меч",
-		INSTRUMENTAL = "двойным сварочным мечом",
-		PREPOSITIONAL = "двойном сварочном мече"
-	)
 	icon_state = "fuelsworddouble"
 	item_state = "fuelsworddouble"
 	lefthand_file = 'icons/mob/inhands/twohanded_lefthand.dmi'
@@ -102,6 +95,16 @@
 	origin_tech = "combat=5;magnets=5;plasmatech=6;"
 	combinable = FALSE
 
+/obj/item/weldingtool/sword/double/get_ru_names()
+	return list(
+		NOMINATIVE = "двойной сварочный меч",
+		GENITIVE = "двойного сварочного меча",
+		DATIVE = "двойному сварочному мечу",
+		ACCUSATIVE = "двойной сварочный меч",
+		INSTRUMENTAL = "двойным сварочным мечом",
+		PREPOSITIONAL = "двойном сварочном мече",
+	)
+
 /obj/item/weldingtool/sword/double/ComponentInitialize()
 	AddComponent(/datum/component/two_handed, \
 		force_unwielded = force, \
@@ -113,24 +116,19 @@
 		unwield_callback = CALLBACK(src, PROC_REF(unwield)), \
 	)
 
-
 /obj/item/weldingtool/sword/double/proc/wield(obj/item/source, mob/living/carbon/user)
 	toggle_welder()
-
 
 /obj/item/weldingtool/sword/double/proc/unwield(obj/item/source, mob/living/carbon/user)
 	toggle_welder()
 
-
 /obj/item/weldingtool/sword/double/remove_fuel(amount)
 	reagents.remove_reagent("fuel", amount * requires_fuel)
-	if(!GET_FUEL && tool_enabled)
+	if(!(reagents.get_reagent_amount("fuel")) && tool_enabled)
 		attack_self(usr)
-
 
 /obj/item/weldingtool/sword/double/try_toggle_welder(mob/user, manual_toggle = TRUE)
 	return ..(user, manual_toggle = FALSE)
-
 
 /obj/item/weldingtool/sword/double/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
@@ -139,7 +137,6 @@
 
 	if(prob(50))
 		INVOKE_ASYNC(src, GLOBAL_PROC_REF(jedi_spin), user)
-
 
 /obj/item/weldingtool/sword/double/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(tool_enabled)

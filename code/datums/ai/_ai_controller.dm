@@ -126,11 +126,10 @@ multiple modular subtrees with behaviors
 		return FALSE
 	return TRUE
 
-
 /// Runs any actions that are currently running
 /datum/ai_controller/process(delta_time)
 	if(!able_to_run())
-		SSmove_manager.stop_looping(pawn) //stop moving
+		GLOB.move_manager.stop_looping(pawn) //stop moving
 		return //this should remove them from processing in the future through event-based stuff.
 
 	if(!LAZYLEN(current_behaviors) && idle_behavior)
@@ -144,16 +143,16 @@ multiple modular subtrees with behaviors
 	for(var/i in current_behaviors)
 		var/datum/ai_behavior/current_behavior = i
 
-
 		// Convert the current behaviour action cooldown to realtime seconds from deciseconds.current_behavior
 		// Then pick the max of this and the delta_time passed to ai_controller.process()
 		// Action cooldowns cannot happen faster than delta_time, so delta_time should be the value used in this scenario.
 		var/action_delta_time = max(current_behavior.action_cooldown * 0.1, delta_time)
 
-		if(current_behavior.behavior_flags & AI_BEHAVIOR_REQUIRE_MOVEMENT) //Might need to move closer
+		if(current_behavior.behavior_flags & AI_BEHAVIOR_REQUIRE_MOVEMENT) // Might need to move closer
 			if(!current_movement_target)
-				stack_trace("[pawn] wants to perform action type [current_behavior.type] which requires movement, but has no current movement target!")
-				return //This can cause issues, so don't let these slide.
+				// stack_trace("[pawn] wants to perform action type [current_behavior.type] which requires movement, but has no current movement target!")
+				return // This can cause issues, so don't let these slide.
+
 			if(current_behavior.required_distance >= get_dist(pawn, current_movement_target)) ///Are we close enough to engage?
 				if(ai_movement.moving_controllers[src] == current_movement_target) //We are close enough, if we're moving stop.
 					ai_movement.stop_moving_towards(src)
@@ -176,7 +175,6 @@ multiple modular subtrees with behaviors
 				continue
 			ProcessBehavior(action_delta_time, current_behavior)
 			return
-
 
 ///This is where you decide what actions are taken by the AI.
 /datum/ai_controller/proc/SelectBehaviors(delta_time)

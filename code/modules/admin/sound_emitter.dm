@@ -9,20 +9,8 @@
 /obj/effect/sound_emitter
 	name = "sound emitter"
 	desc = "Издаёт звуки, наверное."
-	ru_names = list(
-		NOMINATIVE = "излучатель звука",
-		GENITIVE = "излучателя звука",
-		DATIVE = "излучателю звука",
-		ACCUSATIVE = "излучатель звука",
-		INSTRUMENTAL = "излучателем звука",
-		PREPOSITIONAL = "излучателе звука",
-	)
-	icon = 'icons/effects/effects.dmi'
 	icon_state = "shield2"
 	invisibility = INVISIBILITY_OBSERVER
-	anchored = TRUE
-	density = FALSE
-	opacity = FALSE
 	alpha = 175
 	var/sound_file //The sound file the emitter plays
 	var/sound_volume = 50 //The volume the sound file is played at
@@ -31,6 +19,16 @@
 	var/emitter_range = SOUND_EMITTER_ZLEVEL //The range this emitter's sound is heard at; this isn't a number, but a string (see the defines above)
 	var/list/hearing_mobs
 	var/started = FALSE
+
+/obj/effect/sound_emitter/get_ru_names()
+	return list(
+		NOMINATIVE = "излучатель звука",
+		GENITIVE = "излучателя звука",
+		DATIVE = "излучателю звука",
+		ACCUSATIVE = "излучатель звука",
+		INSTRUMENTAL = "излучателем звука",
+		PREPOSITIONAL = "излучателе звука",
+	)
 
 /obj/effect/sound_emitter/Destroy(force)
 	. = ..()
@@ -116,7 +114,7 @@
 		if(!new_label)
 			return
 		maptext = MAPTEXT(new_label)
-		to_chat(user, span_notice("Новая маркировка - [maptext]."))
+		to_chat(user, span_notice("Новая маркировка — [maptext]."))
 
 	if(href_list["edit_sound_file"])
 		var/new_file = input(user, "Выберите звуковой файл", "Звуковой излучатель") as null|sound
@@ -139,7 +137,7 @@
 		if(!new_mode)
 			return
 		motus_operandi = mode_list[new_mode]
-		to_chat(user, span_notice("Выбраный режим - [motus_operandi]."))
+		to_chat(user, span_notice("Выбраный режим — [motus_operandi]."))
 
 	if(href_list["edit_range"])
 		var/new_range
@@ -148,7 +146,7 @@
 		if(!new_range)
 			return
 		emitter_range = range_list[new_range]
-		to_chat(user, span_notice("Выбранная дальность - [emitter_range]."))
+		to_chat(user, span_notice("Выбранная дальность — [emitter_range]."))
 
 	if(href_list["edit_radius"])
 		var/new_radius = tgui_input_number(user, "Введите радиус", "Звуковой излучатель", sound_volume, 127)

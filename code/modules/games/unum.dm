@@ -2,17 +2,18 @@
 /obj/item/deck/unum
 	name = "UNUM! deck"
 	desc = "Колода карт UNUM! Правила для домашних ссор не входят в комплект."
-	ru_names = list(
+	icon_state = "deck_unum_full"
+	card_style = "unum"
+
+/obj/item/deck/unum/get_ru_names()
+	return list(
 		NOMINATIVE = "колода карт UNUM",
 		GENITIVE = "колоды карт UNUM",
 		DATIVE = "колоде карт UNUM",
 		ACCUSATIVE = "колоду карт UNUM",
 		INSTRUMENTAL = "колодой карт UNUM",
-		PREPOSITIONAL = "колоде карт UNUM"
+		PREPOSITIONAL = "колоде карт UNUM",
 	)
-	icon_state = "deck_unum_full"
-	card_style = "unum"
-
 
 /obj/item/deck/unum/build_deck()
 	var/list/ru_color = list(
@@ -32,7 +33,6 @@
 	for(var/k in 0 to 3)
 		cards += new /datum/playingcard("Дикая карта", "sc_Wildcard_[card_style]", "singlecard_down_[card_style]")
 		cards += new /datum/playingcard("Дикая +4", "sc_Draw 4_[card_style]", "singlecard_down_[card_style]")
-
 
 /obj/item/deck/unum/update_icon_state()
 	if(!LAZYLEN(cards))

@@ -17,7 +17,6 @@
 		For some reason or another you can move while not touching the ground
 */
 
-
 // STATUS EFFECTS
 // All of these are handed by a status_effect in `debuffs.dm` their durations are measured in deciseconds, so the seconds define is used wherever possible, even with decimal seconds values.
 // Status effects sorted alphabetically:
@@ -313,6 +312,12 @@
 /mob/living/proc/AdjustEyeBlurry(amount, bound_lower = 0, bound_upper = INFINITY)
 	SetEyeBlurry(directional_bounded_sum(AmountEyeBlurry(), amount, bound_lower, bound_upper))
 
+// MARK: Temperature
+/mob/living/proc/smooth_body_temperature(target_temperature)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
+		return
+	SET_STATUS_EFFECT_STRENGTH(STATUS_EFFECT_TEMPERATURE, target_temperature)
+
 /// HALLUCINATION
 /mob/living/proc/AmountHallucinate()
 	RETURN_STATUS_EFFECT_STRENGTH(STATUS_EFFECT_HALLUCINATION)
@@ -430,6 +435,37 @@
 
 /mob/living/proc/AdjustSilence(amount, bound_lower = 0, bound_upper = INFINITY)
 	SetSilence(directional_bounded_sum(AmountSilenced(), amount, bound_lower, bound_upper))
+
+/* UNCONSCIOUS */
+/mob/living/proc/is_unconscious() //If we're unconscious
+	return has_status_effect(/datum/status_effect/incapacitating/unconscious)
+
+/mob/living/proc/amount_unconscious() //How many deciseconds remain in our unconsciousness
+	var/datum/status_effect/incapacitating/unconscious/effect = is_unconscious()
+	if(effect)
+		return effect.duration - world.time
+	return FALSE
+
+/mob/living/proc/unconscious(amount, ignore_canstun = FALSE) //Can't go below remaining duration
+	return set_unconscious(amount, ignore_canstun)
+
+/mob/living/proc/set_unconscious(amount, ignore_canstun = FALSE) //Sets remaining duration
+	if(SEND_SIGNAL(src, COMSIG_LIVING_STATUS_UNCONSCIOUS, amount, ignore_canstun) & COMPONENT_NO_EFFECT)
+		return
+	if(check_incapacitating_immunity(CANUNCONSCIOUS, ignore_canstun))
+		return
+	var/datum/status_effect/incapacitating/unconscious/effect = is_unconscious()
+	if(amount <= 0)
+		if(effect)
+			qdel(effect)
+	else if(effect)
+		effect.duration = world.time + amount
+	else
+		effect = apply_status_effect(/datum/status_effect/incapacitating/unconscious, amount)
+	return effect
+
+/mob/living/proc/adjust_unconscious(amount, ignore_canstun = FALSE, bound_lower = 0, bound_upper = INFINITY) //Adds to remaining duration
+	return set_unconscious(directional_bounded_sum(amount_unconscious(), amount, bound_lower, bound_upper), ignore_canstun)
 
 /// SLEEPING
 /mob/living/proc/IsSleeping()
@@ -629,7 +665,6 @@
 /mob/living/proc/IsKnockdown() //If we're knocked down
 	return has_status_effect(STATUS_EFFECT_KNOCKDOWN)
 
-
 /mob/living/proc/AmountKnockdown() //How many deciseconds remain in our knockdown
 	var/datum/status_effect/incapacitating/knockdown/K = IsKnockdown()
 	if(K)
@@ -675,6 +710,16 @@
 	else if(amount > 0)
 		K = apply_status_effect(STATUS_EFFECT_KNOCKDOWN, amount)
 	return K
+
+/mob/living/proc/unbuckle_if_not_cuffed()
+	if(!buckled)
+		return
+
+	var/mob/living/carbon/carbon = src
+	if(!istype(carbon) || carbon.handcuffed)
+		return
+
+	buckled.unbuckle_mob(src, force = TRUE)
 
 // MARK: IMMOBILIZED
 
@@ -740,7 +785,6 @@
 
 /mob/living/IsWeakened()
 	return has_status_effect(STATUS_EFFECT_WEAKENED)
-
 
 /mob/living/proc/AmountWeakened() //How many deciseconds remain in our Weakened status effect
 	var/datum/status_effect/incapacitating/weakened/P = IsWeakened()
@@ -867,12 +911,10 @@
 	REMOVE_TRAIT(src, TRAIT_IGNORESLOWDOWN, source)
 	update_movespeed()
 
-
 /// Ignores all slowdowns that lack the IGNORE_NOSLOW flag.
 /mob/living/proc/ignore_slowdown(source)
 	ADD_TRAIT(src, TRAIT_IGNORESLOWDOWN, source)
 	update_movespeed()
-
 
 /// Ignores specific slowdowns. Accepts a list of slowdowns.
 /mob/living/proc/add_movespeed_mod_immunities(source, slowdown_type, update = TRUE)
@@ -887,7 +929,6 @@
 		LAZYADDASSOCLIST(movespeed_mod_immunities, slowdown_type, source)
 	if(update)
 		update_movespeed()
-
 
 /// Unignores specific slowdowns. Accepts a list of slowdowns.
 /mob/living/proc/remove_movespeed_mod_immunities(source, slowdown_type, update = TRUE)

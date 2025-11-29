@@ -44,14 +44,11 @@
 	magpulse_name = "anchoring spikes"
 	slowdown_active = 2
 
-
 /obj/item/clothing/shoes/magboots/update_icon_state()
 	icon_state = "[base_icon_state][magpulse]"
 
-
 /obj/item/clothing/shoes/magboots/attack_self(mob/user)
 	toggle_magpulse(user)
-
 
 /obj/item/clothing/shoes/magboots/proc/toggle_magpulse(mob/user, silent = FALSE)
 	magpulse = !magpulse
@@ -68,10 +65,9 @@
 		to_chat(user, "You [magpulse ? "enable" : "disable"] the [magpulse_name].")
 	update_equipped_item()
 
-
 /obj/item/clothing/shoes/magboots/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>Its [magpulse_name] appears to be [magpulse ? "enabled" : "disabled"].</span>"
+	. += span_notice("Its [magpulse_name] appears to be [magpulse ? "enabled" : "disabled"].")
 
 /obj/item/clothing/shoes/magboots/advance
 	desc = "Advanced magnetic boots that have a lighter magnetic pull, placing less burden on the wearer."
@@ -101,31 +97,33 @@
 	icon_state = "advsyndiemag0"
 	base_icon_state = "advsyndiemag"
 	slowdown_active = SHOES_SLOWDOWN
-	active_traits = list(TRAIT_NEGATES_GRAVITY, TRAIT_NO_SLIP_ICE, TRAIT_NO_SLIP_WATER, TRAIT_NO_SLIP_SLIDE, TRAIT_GUSTPROTECTION)
+	active_traits = list(TRAIT_NEGATES_GRAVITY, TRAIT_NO_SLIP_ALL, TRAIT_NO_SLIP_SLIDE, TRAIT_GUSTPROTECTION)
 
 /obj/item/clothing/shoes/magboots/clown
 	name = "clown shoes"
 	desc = "Это обычные башмаки клоуна. Чёрт возьми, они такие огромные! Сбоку мигает красная лампочка."
-	ru_names = list(
-		NOMINATIVE = "клоунские башмаки",
-		GENITIVE = "клоунских башмаков",
-		DATIVE = "клоунским башмакам",
-		ACCUSATIVE = "клоунские башмаки",
-		INSTRUMENTAL = "клоунскими башмаками",
-		PREPOSITIONAL = "клоунских башмаках"
-	)
 	icon_state = "clownmag0"
 	base_icon_state = "clownmag"
 	item_state = "clown_shoes"
-	slowdown = SHOES_SLOWDOWN+1
-	slowdown_active = SHOES_SLOWDOWN+1
-	slowdown_passive = SHOES_SLOWDOWN+1
+	slowdown = SHOES_SLOWDOWN + 1
+	slowdown_active = SHOES_SLOWDOWN + 1
+	slowdown_passive = SHOES_SLOWDOWN + 1
 	magpulse_name = "honk-powered traction system"
 	item_color = "clown"
 	origin_tech = "magnets=4;syndicate=2"
 	pickup_sound = 'sound/items/handling/pickup/shoes_pickup.ogg'
 	drop_sound = 'sound/items/handling/drop/shoes_drop.ogg'
 	var/enabled_waddle = TRUE
+
+/obj/item/clothing/shoes/magboots/clown/get_ru_names()
+	return list(
+		NOMINATIVE = "клоунские башмаки",
+		GENITIVE = "клоунских башмаков",
+		DATIVE = "клоунским башмакам",
+		ACCUSATIVE = "клоунские башмаки",
+		INSTRUMENTAL = "клоунскими башмаками",
+		PREPOSITIONAL = "клоунских башмаках",
+	)
 
 /obj/item/clothing/shoes/magboots/clown/Initialize(mapload)
 	. = ..()
@@ -165,8 +163,6 @@
 	light_system = MOVABLE_LIGHT
 	light_on = FALSE
 	light_range = 2
-	light_power = 1
-
 
 /obj/item/clothing/shoes/magboots/wizard/toggle_magpulse(mob/user, silent = FALSE)
 	if(!user || !user.mind)

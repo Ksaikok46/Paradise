@@ -1,9 +1,7 @@
 // Special AI/pAI PDAs that cannot explode.
 /obj/item/pda/silicon
-	icon_state = "NONE"
 	detonate = 0
 	ttone = "data"
-
 
 /obj/item/pda/silicon/proc/set_name_and_job(newname as text, newjob as text, newrank as null|text)
 	owner = newname
@@ -16,7 +14,6 @@
 	custom_name = newname
 	update_appearance(UPDATE_NAME)
 
-
 /obj/item/pda/silicon/verb/cmd_send_pdamesg()
 	set category = STATPANEL_AIIM
 	set name = "Сообщение на КПК"
@@ -24,16 +21,16 @@
 
 	if(!can_use(usr))
 		return
-	var/datum/data/pda/app/messenger/M = find_program(/datum/data/pda/app/messenger)
-	if(!M)
+	var/datum/data/pda/app/messenger/messenger = find_program(/datum/data/pda/app/messenger)
+	if(!messenger)
 		to_chat(usr, span_warning("Cannot use messenger!"))
-	var/list/plist = M.available_pdas()
+	var/list/plist = messenger.available_pdas()
 	if(plist)
 		var/c = tgui_input_list(usr, "Please select a PDA", "Send message", sortList(plist))
 		if(!c) // if the user hasn't selected a PDA file we can't send a message
 			return
 		var/selected = plist[c]
-		M.create_message(usr, selected)
+		messenger.create_message(selected, usr)
 
 /obj/item/pda/silicon/verb/cmd_show_message_log()
 	set category = STATPANEL_AIIM
@@ -65,7 +62,6 @@
 	M.toff = !M.toff
 	to_chat(usr, span_notice("PDA sender/receiver toggled [(M.toff ? "Off" : "On")]!"))
 
-
 /obj/item/pda/silicon/verb/cmd_toggle_pda_silent()
 	set category = STATPANEL_AIIM
 	set name = "Беззвучный режим"
@@ -80,7 +76,7 @@
 /obj/item/pda/silicon/attack_self(mob/user as mob)
 	if((honkamt > 0) && (prob(60))) //For clown virus.
 		honkamt--
-		playsound(loc, 'sound/items/bikehorn.ogg', 30, 1)
+		playsound(loc, 'sound/items/bikehorn.ogg', 30, TRUE)
 	return
 
 /obj/item/pda/silicon/ai/can_use()

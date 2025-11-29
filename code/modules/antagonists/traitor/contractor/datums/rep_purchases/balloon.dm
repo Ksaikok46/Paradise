@@ -1,6 +1,6 @@
 /**
-  * # Rep Purchase - Contractor Balloon
-  */
+ * # Rep Purchase - Contractor Balloon
+ */
 /datum/rep_purchase/item/balloon
 	name = "Воздушный шарик Контрактника"
 	description = "Изящный воздушный шар, выполненный в чёрно-золотых тонах и украшенный символикой Контрактника. \
@@ -23,15 +23,17 @@
 
 /obj/item/toy/syndicateballoon/contractor
 	name = "contractor balloon"
-	desc = "Черно-золотой шар, который носят только легендарные агенты Синдиката."
-	ru_names = list(
+	desc = "Черно-золотой шар, который носят только легендарные агенты \"Синдиката\"."
+	gender = MALE
+	icon_state = "contractorballoon"
+	item_state = "contractorballoon"
+
+/obj/item/toy/syndicateballoon/contractor/get_ru_names()
+	return list(
 		NOMINATIVE = "воздушный шарик контрактника",
 		GENITIVE = "воздушного шарика контрактника",
 		DATIVE = "воздушному шарику контрактника",
 		ACCUSATIVE = "воздушный шарик контрактника",
 		INSTRUMENTAL = "воздушным шариком контрактника",
-		PREPOSITIONAL = "воздушном шарике контрактника"
+		PREPOSITIONAL = "воздушном шарике контрактника",
 	)
-	gender = MALE
-	icon_state = "contractorballoon"
-	item_state = "contractorballoon"

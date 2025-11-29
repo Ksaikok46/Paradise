@@ -4,7 +4,6 @@
 	flags = CONDUCT
 	slot_flags = ITEM_SLOT_BACK
 	hitsound = 'sound/weapons/smash.ogg'
-	w_class = WEIGHT_CLASS_NORMAL
 	pressure_resistance = ONE_ATMOSPHERE * 5
 	force = 5
 	throwforce = 10
@@ -18,7 +17,6 @@
 	var/volume = 70
 	var/fillable = TRUE
 
-
 /obj/item/tank/Initialize(mapload)
 	. = ..()
 
@@ -29,7 +27,6 @@
 	populate_gas()
 
 	START_PROCESSING(SSobj, src)
-
 
 /obj/item/tank/Destroy()
 	QDEL_NULL(air_contents)
@@ -43,7 +40,6 @@
 
 /obj/item/tank/ui_action_click(mob/user, datum/action/action, leftclick)
 	toggle_internals(user)
-
 
 /obj/item/tank/proc/toggle_internals(mob/living/carbon/user, silent = FALSE)
 	if(!iscarbon(user))
@@ -89,7 +85,6 @@
 	user.internal = src
 	user.update_action_buttons_icon()
 
-
 /obj/item/tank/examine(mob/user, show_contents_info = TRUE)
 	. = ..()
 
@@ -102,7 +97,7 @@
 
 	if(!in_range(src, user))
 		if(icon == src)
-			. += "<span class='notice'>It's \a [bicon(icon)][src]! If you want any more information you'll need to get closer.</span>"
+			. += span_notice("It's \a [icon2html(icon, user)][src]! If you want any more information you'll need to get closer.")
 		return
 
 	var/celsius_temperature = air_contents.temperature - T0C
@@ -121,8 +116,8 @@
 	else
 		descriptive = "furiously hot"
 
-	. += "<span class='notice'>\The [bicon(icon)][src] feels [descriptive]</span>"
-	. += "<span class='notice'>The pressure gauge displays [round(air_contents.return_pressure())] kPa</span>"
+	. += span_notice("[icon2html(icon, user)] [src] feels [descriptive]")
+	. += span_notice("The pressure gauge displays [round(air_contents.return_pressure())] kPa")
 
 /obj/item/tank/blob_act(obj/structure/blob/B)
 	if(B && B.loc == loc && !QDELETED(src))
@@ -144,7 +139,6 @@
 		playsound(src.loc, 'sound/effects/spray.ogg', 10, TRUE, -3)
 	qdel(src)
 
-
 /obj/item/tank/attackby(obj/item/I, mob/user, params)
 	. = ..()
 	if(ATTACK_CHAIN_CANCEL_CHECK(.))
@@ -155,8 +149,6 @@
 
 	if(istype(I, /obj/item/assembly_holder) && bomb_assemble(I, user))
 		. |= ATTACK_CHAIN_SUCCESS
-
-
 
 /obj/item/tank/attack_self(mob/user as mob)
 	if(!(air_contents))
@@ -246,7 +238,6 @@
 	air_contents.react()
 	check_status()
 
-
 /obj/item/tank/proc/check_status()
 	//Handle exploding, leaking, and rupturing of the tank
 
@@ -258,7 +249,6 @@
 		if(!istype(loc,/obj/item/transfer_valve))
 			message_admins("Explosive tank rupture! last key to touch the tank was [fingerprintslast] at [ADMIN_COORDJMP(src)]")
 			add_game_logs("Explosive tank rupture! last key to touch the tank was [fingerprintslast] at [COORD(src)]")
-//		to_chat(world, "<span class='notice'>[x],[y] tank is exploding: [pressure] kPa</span>")
 		//Give the gas a chance to build up more pressure through reacting
 		air_contents.react()
 		air_contents.react()
@@ -267,28 +257,24 @@
 		var/range = (pressure-TANK_FRAGMENT_PRESSURE)/TANK_FRAGMENT_SCALE
 		var/turf/epicenter = get_turf(loc)
 
-//		to_chat(world, "<span class='notice'>Exploding Pressure: [pressure] kPa, intensity: [range]</span>")
-
-		explosion(epicenter, round(range*0.25), round(range*0.5), round(range), round(range*1.5), cause = src)
+		explosion(epicenter, devastation_range = round(range*0.25), heavy_impact_range = round(range*0.5), light_impact_range = round(range), flash_range = round(range*1.5), cause = src)
 		if(istype(loc,/obj/item/transfer_valve))
 			qdel(loc)
 		else
 			qdel(src)
 
 	else if(pressure > TANK_RUPTURE_PRESSURE)
-//		to_chat(world, "<span class='notice'>[x],[y] tank is rupturing: [pressure] kPa, integrity [integrity]</span>")
 		if(integrity <= 0)
 			var/turf/simulated/T = get_turf(src)
 			if(!T)
 				return
 			T.assume_air(air_contents)
-			playsound(loc, 'sound/effects/spray.ogg', 10, 1, -3)
+			playsound(loc, 'sound/effects/spray.ogg', 10, TRUE, -3)
 			qdel(src)
 		else
 			integrity--
 
 	else if(pressure > TANK_LEAK_PRESSURE)
-//		to_chat(world, "<span class='notice'>[x],[y] tank is leaking: [pressure] kPa, integrity [integrity]</span>")
 		if(integrity <= 0)
 			var/turf/simulated/T = get_turf(src)
 			if(!T)

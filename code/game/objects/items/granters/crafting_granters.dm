@@ -24,16 +24,8 @@
 /obj/item/book/granter/crafting_recipe/combat_baking
 	name = "the anarchist's cookbook"
 	desc = "Знаменитая книга рецептов, которая поможет вам научиться печь такие круассаны, за которые можно и умереть."
-	ru_names = list(
-		NOMINATIVE = "поваренная книга анархиста",
-		GENITIVE = "поваренной книги анархиста",
-		DATIVE = "поваренной книге анархиста",
-		ACCUSATIVE = "поваренную книгу анархиста",
-		INSTRUMENTAL = "поваренной книгой анархиста",
-		PREPOSITIONAL = "поваренной книге анархиста"
-	)
 	crafting_recipe_types = list(
-		/datum/crafting_recipe/throwing_croissant
+		/datum/crafting_recipe/throwing_croissant,
 	)
 	icon_state = "cooking_learing_illegal"
 	remarks = list(
@@ -42,6 +34,16 @@
 		"\"Это лучшее, что может быть после нарезанного хлеба!\"",
 		"\"Я не оставлю ни следа, кроме крошек!\"",
 		"\"Кто бы мог подумать, что хлеб может причинить такую сильную боль?\""
+	)
+
+/obj/item/book/granter/crafting_recipe/combat_baking/get_ru_names()
+	return list(
+		NOMINATIVE = "поваренная книга анархиста",
+		GENITIVE = "поваренной книги анархиста",
+		DATIVE = "поваренной книге анархиста",
+		ACCUSATIVE = "поваренную книгу анархиста",
+		INSTRUMENTAL = "поваренной книгой анархиста",
+		PREPOSITIONAL = "поваренной книге анархиста",
 	)
 
 /obj/item/book/granter/crafting_recipe/combat_baking/recoil(mob/living/user)

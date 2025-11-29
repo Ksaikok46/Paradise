@@ -1,7 +1,6 @@
 /datum/gear/racial
 	sort_category = "Расовое"
 	subtype_path = /datum/gear/racial
-	cost = 1
 	var/list/whitelisted_species
 
 /datum/gear/racial/can_select(client/cl, job_name, species_name, silent = FALSE)
@@ -23,12 +22,10 @@
 
 	return FALSE
 
-
 /datum/gear/racial/get_header_tips()
 	return "\[Раса: [russian_list(whitelisted_species)]\] "
 
-
- // TAJARAN //
+// TAJARAN //
 
 /datum/gear/racial/taj
 	index_name = "embroidered veil"
@@ -86,14 +83,12 @@
 	path = /obj/item/clothing/glasses/hud/skills/tajblind
 	allowed_roles = list(JOB_TITLE_HOP, JOB_TITLE_CAPTAIN)
 
-
 // GREY //
 
 /datum/gear/racial/language_chip
 	index_name = "selected language chip"
 	path = /obj/item/translator_chip/sol
 	whitelisted_species = list(SPECIES_GREY)
-
 
 /datum/gear/racial/language_chip/New()
 	. = ..()
@@ -104,10 +99,66 @@
 
 	gear_tweaks += new /datum/gear_tweak/path(available_chips, src)
 
-
 // HUMAN //
 
 /datum/gear/racial/satan
 	index_name = "Satanic clothes"
 	path = /obj/item/clothing/under/satan
 	whitelisted_species = list(SPECIES_HUMAN)
+
+/datum/gear/racial/seccie
+	index_name = "seccie clothes"
+	path = /obj/item/clothing/under/tchaikowsky/sechighwaist
+	whitelisted_species = list(SPECIES_HUMAN)
+	allowed_roles = list(JOB_TITLE_HOS, JOB_TITLE_WARDEN, JOB_TITLE_DETECTIVE, JOB_TITLE_OFFICER, JOB_TITLE_PILOT)
+
+/datum/gear/racial/highwaistpants
+	index_name = "high waist pants"
+	path = /obj/item/clothing/under/tchaikowsky/highwaistpants
+	whitelisted_species = list(SPECIES_HUMAN)
+
+/datum/gear/racial/eveningdress
+	index_name = "evening dress"
+	path = /obj/item/clothing/under/tchaikowsky/evening_dress
+	whitelisted_species = list(SPECIES_HUMAN)
+
+/datum/gear/racial/eveningdress/New()
+	..()
+	var/list/eveningdresses = list(
+		/obj/item/clothing/under/tchaikowsky/evening_dress,
+		/obj/item/clothing/under/tchaikowsky/evening_dress/cyan
+	)
+	gear_tweaks += new /datum/gear_tweak/path(eveningdresses, src, TRUE)
+
+/datum/gear/racial/formaldress
+	index_name = "formal dress"
+	path = /obj/item/clothing/under/tchaikowsky/dress
+	whitelisted_species = list(SPECIES_HUMAN)
+
+/datum/gear/racial/formaldress/New()
+	..()
+	var/list/formdresses = list(/obj/item/clothing/under/tchaikowsky/dress,
+							/obj/item/clothing/under/tchaikowsky/dress/black)
+	gear_tweaks += new /datum/gear_tweak/path(formdresses, src, TRUE)
+
+/datum/gear/racial/baseball
+	index_name = "baseball uniform"
+	path = /obj/item/clothing/under/tchaikowsky/baseball
+	whitelisted_species = list(SPECIES_HUMAN)
+
+/datum/gear/racial/baseball/New()
+	..()
+	var/list/baseballuniform = list(/obj/item/clothing/under/tchaikowsky/baseball,
+								/obj/item/clothing/under/tchaikowsky/baseball/brown)
+	gear_tweaks += new /datum/gear_tweak/path(baseballuniform, src, TRUE)
+
+/datum/gear/racial/baseballcap
+	index_name = "baseball cap"
+	path = /obj/item/clothing/head/tchaikowsky/baseballcap
+	whitelisted_species = list(SPECIES_HUMAN)
+
+/datum/gear/racial/baseballcap/New()
+	..()
+	var/list/baseballcap = list(/obj/item/clothing/head/tchaikowsky/baseballcap,
+							/obj/item/clothing/head/tchaikowsky/baseballcap/brown)
+	gear_tweaks += new /datum/gear_tweak/path(baseballcap, src, TRUE)
