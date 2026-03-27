@@ -153,7 +153,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return default_unfasten_wrench(user, I, 1 SECONDS)
 
 /obj/machinery/bsa/back/multitool_act(mob/living/user, obj/item/I)
-	if(!istype(I, /obj/item/multitool))
+	if(!ismultitool(I))
 		return FALSE
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -181,7 +181,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return default_unfasten_wrench(user, I, 1 SECONDS)
 
 /obj/machinery/bsa/front/multitool_act(mob/living/user, obj/item/I)
-	if(!istype(I, /obj/item/multitool))
+	if(!ismultitool(I))
 		return FALSE
 	. = TRUE
 	if(!I.use_tool(src, user, volume = I.tool_volume))
@@ -211,7 +211,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return default_unfasten_wrench(user, I, 1 SECONDS)
 
 /obj/machinery/bsa/middle/multitool_act(mob/living/user, obj/item/I)
-	if(!istype(I, /obj/item/multitool))
+	if(!ismultitool(I))
 		return FALSE
 	. = TRUE
 	var/obj/item/multitool/multitool = I
@@ -224,11 +224,11 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	if(istype(multitool.buffer, /obj/machinery/bsa/back))
 		back = multitool.buffer
 		multitool.buffer = null
-		to_chat(user, span_notice("Вы соединили [src.declent_ru(ACCUSATIVE)] с [back.declent_ru(INSTRUMENTAL)]."))
+		to_chat(user, span_notice("Вы соединили [declent_ru(ACCUSATIVE)] с [back.declent_ru(INSTRUMENTAL)]."))
 	else if(istype(multitool.buffer, /obj/machinery/bsa/front))
 		front = multitool.buffer
 		multitool.buffer = null
-		to_chat(user, span_notice("Вы соединили [src.declent_ru(ACCUSATIVE)] с [front.declent_ru(INSTRUMENTAL)]."))
+		to_chat(user, span_notice("Вы соединили [declent_ru(ACCUSATIVE)] с [front.declent_ru(INSTRUMENTAL)]."))
 
 /obj/machinery/bsa/middle/proc/check_completion()
 	if(!front || !back)
@@ -416,6 +416,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /obj/item/circuitboard/machine/bsa/back
 	board_name = "Bluespace Artillery Generator"
+	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/bsa/back
 	origin_tech = "engineering=2;combat=2;bluespace=2" //No freebies!
 	req_components = list(
@@ -425,6 +426,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /obj/item/circuitboard/machine/bsa/middle
 	board_name = "Bluespace Artillery Fusor"
+	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/bsa/middle
 	origin_tech = "engineering=2;combat=2;bluespace=2"
 	req_components = list(
@@ -434,6 +436,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /obj/item/circuitboard/machine/bsa/front
 	board_name = "Bluespace Artillery Bore"
+	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/bsa/front
 	origin_tech = "engineering=2;combat=2;bluespace=2"
 	req_components = list(
@@ -443,6 +446,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 
 /obj/item/circuitboard/computer/bsa_control
 	board_name = "Bluespace Artillery Controls"
+	greyscale_colors = CIRCUIT_COLOR_SECURITY
 	build_path = /obj/machinery/computer/bsa_control
 	origin_tech = "engineering=2;combat=2;bluespace=2"
 
@@ -692,7 +696,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return TRUE
 
 /obj/machinery/computer/bsa_control/proc/get_target_name()
-	if(istype(target,/area))
+	if(isarea(target))
 		var/area/A = target
 		return A.name
 	else if(istype(target,/obj/item/gps))
@@ -703,7 +707,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	return aim_turf
 
 /obj/machinery/computer/bsa_control/proc/detect_target_turf()
-	if(istype(target,/area))
+	if(isarea(target))
 		var/area/A = target
 		var/turf/center = A.get_center_turf()
 		if(center)

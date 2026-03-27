@@ -10,7 +10,7 @@
 	layer = WALL_OBJ_LAYER
 	resistance_flags = FIRE_PROOF
 	damage_deflection = 12
-	armor = list(MELEE = 50, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 0, BIO = 0, RAD = 0, FIRE = 90, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 0, BIO = 0, FIRE = 90, ACID = 50)
 	var/datum/wires/camera/wires = null // Wires datum
 	max_integrity = 100
 	integrity_failure = 50
@@ -425,7 +425,7 @@
 	var/turf/T = get_turf(src)
 	cam["name"] = sanitize(c_tag)
 	cam["deact"] = !can_use()
-	cam["camera"] = "\ref[src]"
+	cam["camera"] = UID()
 	if(T)
 		cam["x"] = T.x
 		cam["y"] = T.y
@@ -496,7 +496,7 @@
 /obj/machinery/camera/mortar/blob_act(obj/structure/blob/B)
 	return
 
-/obj/machinery/camera/mortar/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay)
+/obj/machinery/camera/mortar/fire_act(exposed_temperature, exposed_volume)
 	return
 
 /obj/machinery/camera/mortar/flamer_fire_act(damage)

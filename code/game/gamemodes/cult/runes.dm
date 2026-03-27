@@ -276,7 +276,7 @@ structure_check() searches for nearby cultist structures required for the invoca
 				brain.forceMove(T)
 				O = brain // Convoluted way of making the brain disappear
 
-		else if(istype(O, /obj/item/organ/internal/brain)) // Offering a brain
+		else if(is_internal_organ_brain(O)) // Offering a brain
 			var/obj/item/organ/internal/brain/brain = O
 			b_mob = brain.brainmob
 
@@ -353,6 +353,8 @@ structure_check() searches for nearby cultist structures required for the invoca
 					for(var/obj/item/organ/external/bodypart as anything in H.bodyparts)
 						bodypart.mend_fracture()
 						bodypart.stop_internal_bleeding()
+						bodypart.stop_arterial_bleeding()
+						bodypart.stop_bleeding()
 					for(var/datum/disease/critical/crit in H.diseases) // cure all crit conditions
 						crit.cure()
 
@@ -395,6 +397,13 @@ structure_check() searches for nearby cultist structures required for the invoca
 	playsound(offering, 'sound/misc/demon_consume.ogg', 100, TRUE)
 
 	if((ishuman(offering) || isrobot(offering) || isbrain(offering)) && offering.mind)
+		if(isrobot(offering))
+			var/mob/living/silicon/robot/robot = offering
+			if(robot.shell && robot.mainframe)
+				robot.evacuate_ai(DANGER_LVL_INSTA_DEATH)
+				robot.dust()
+				playsound(offering, 'sound/magic/disintegrate.ogg', 100, TRUE)
+				return TRUE
 		var/obj/item/soulstone/stone = new /obj/item/soulstone(get_turf(src))
 		stone.invisibility = INVISIBILITY_MAXIMUM // So it's not picked up during transfer_soul()
 		stone.transfer_soul("FORCE", offering, user) // If it cannot be added
@@ -492,7 +501,7 @@ structure_check() searches for nearby cultist structures required for the invoca
 		playsound(target, 'sound/misc/exit_blood.ogg', 50, TRUE, -1)
 		if(is_mining_level(z) && !is_mining_level(target.z)) //No effect if you stay on lavaland
 			actual_selected_rune.handle_portal("lava")
-		else if(!is_station_level(z) || istype(get_area(src), /area/space))
+		else if(!is_station_level(z) || isspacearea(get_area(src)))
 			actual_selected_rune.handle_portal("space", rune_turf)
 		user.visible_message(
 			span_warning("There is a sharp crack of inrushing air, and everything above the rune disappears!"),
@@ -607,6 +616,10 @@ structure_check() searches for nearby cultist structures required for the invoca
 		set waitfor = FALSE
 		to_chat(user, span_cult("[mob_to_revive] was revived, but their mind is lost! Seeking a lost soul to replace it."))
 		var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Would you like to play as a revived Cultist?", ROLE_CULTIST, TRUE, poll_time = 20 SECONDS, source = /obj/item/melee/cultblade/dagger)
+		
+		if(QDELETED(mob_to_revive))
+			return
+		
 		if(length(candidates))
 			var/mob/dead/observer/C = pick(candidates)
 			to_chat(mob_to_revive, span_biggerdanger("Your physical form has been taken over by another soul due to your inactivity! Ahelp if you wish to regain your form."))
@@ -859,7 +872,7 @@ structure_check() searches for nearby cultist structures required for the invoca
 
 	var/choice = tgui_alert(user, "You tear open a connection to the spirit realm...", "Invoke", list("Summon a Cult Ghost", "Ascend as a Dark Spirit", "Cancel"))
 	if(choice == "Summon a Cult Ghost")
-		if(!is_station_level(z) || istype(get_area(src), /area/space))
+		if(!is_station_level(z) || isspacearea(get_area(src)))
 			to_chat(user, span_cultitalic("The veil is not weak enough here to manifest spirits, you must be on station!"))
 			fail_invoke()
 			return

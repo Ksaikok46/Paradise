@@ -6,18 +6,13 @@
 /datum/ui_module/poll_list_panel
 	name = "Poll List Panel"
 
-/datum/admins/proc/open_poll_list()
-	set name = "Server Poll Management"
-	set category = STATPANEL_ADMIN_ADMIN
-
-	if(!check_rights(R_SERVER))
-		return
-
-	var/datum/ui_module/poll_list_panel/panel_pollo = new(usr)
-	panel_pollo.ui_interact(usr)
+ADMIN_VERB(poll_panel, R_SERVER, "Server Poll Management", "View and manage polls.", ADMIN_CATEGORY_MAIN)
+	var/datum/ui_module/poll_list_panel/panel_pollo = new(user)
+	panel_pollo.ui_interact(user.mob)
+	BLACKBOX_LOG_ADMIN_VERB("Server Poll Management")
 
 /datum/ui_module/poll_list_panel/ui_state(mob/user)
-	return GLOB.admin_state
+	return ADMIN_STATE(R_ADMIN)
 
 /datum/ui_module/poll_list_panel/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -64,8 +59,7 @@
 					our_poll = poll_check
 					break
 			if(!our_poll)
-				log_runtime(EXCEPTION("Couldn't find poll to edit with id [params["poll_to_edit"]]"))
-				return
+				CRASH("Couldn't find poll to edit with id [params["poll_to_edit"]]")
 			ui_client.open_poll_management(our_poll)
 		if("deletepoll")
 			var/datum/poll_question/our_poll = null
@@ -74,8 +68,7 @@
 					our_poll = poll_check
 					break
 			if(!our_poll)
-				log_runtime(EXCEPTION("Couldn't find poll to delete with id [params["poll_to_delete"]]"))
-				return
+				CRASH("Couldn't find poll to delete with id [params["poll_to_delete"]]")
 			our_poll.delete_poll()
 		if("resultspoll")
 			var/datum/poll_question/our_poll = null
@@ -84,8 +77,7 @@
 					our_poll = poll_check
 					break
 			if(!our_poll)
-				log_runtime(EXCEPTION("Couldn't find poll to result with id [params["poll_to_result"]]"))
-				return
+				CRASH("Couldn't find poll to result with id [params["poll_to_result"]]")
 
 			var/start_index = text2num(params["startat"]) || 0
 			ui_client.holder.poll_results_panel(our_poll, start_index)

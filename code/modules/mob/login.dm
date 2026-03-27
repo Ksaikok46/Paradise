@@ -41,7 +41,7 @@
 	world.update_status()
 
 	client.images = list()				//remove the images such as AIs being unable to see runes
-	client.screen = list()				//remove hud items just in case
+	client.clear_screen()			//remove hud items just in case
 
 	if(!hud_used)
 		create_mob_hud()	 // creating a hud will add it to the client's screen, which can process a disconnect
@@ -107,7 +107,11 @@
 	clear_important_client_contents(client)
 	enable_client_mobs_in_contents(client)
 
+	AddElement(/datum/element/weather_listener, /datum/weather/ash_storm, ZTRAIT_ASHSTORM, GLOB.ash_storm_sounds)
+	AddElement(/datum/element/weather_listener, /datum/weather/snow_storm, ZTRAIT_SNOWSTORM, GLOB.snowstorm_sounds)
+
 	SEND_SIGNAL(src, COMSIG_MOB_CLIENT_LOGIN, client)
+	SEND_SIGNAL(client, COMSIG_CLIENT_MOB_LOGIN, src)
 	SEND_SIGNAL(src, COMSIG_MOB_LOGIN)
 	return TRUE
 

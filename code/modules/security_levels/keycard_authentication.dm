@@ -38,7 +38,7 @@
 			return ATTACK_CHAIN_PROCEED
 		if(!check_access(I))
 			to_chat(user, span_warning("Access denied."))
-			playsound(loc, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
+			playsound(loc, SFX_BUTTON_DENIED, 20)
 			return ATTACK_CHAIN_PROCEED
 		if(active)
 			//This is not the device that made the initial request. It is the device confirming the request.
@@ -109,7 +109,7 @@
 		return
 	if(!allowed(usr))
 		to_chat(usr, span_warning("Access denied."))
-		playsound(src, pick('sound/machines/button.ogg', 'sound/machines/button_alternate.ogg', 'sound/machines/button_meloboom.ogg'), 20)
+		playsound(src, SFX_BUTTON_DENIED, 20)
 		return
 	. = TRUE
 	switch(action)
@@ -189,7 +189,7 @@
 
 			var/fullmin_count = 0
 			for(var/client/C in GLOB.admins)
-				if(check_rights(R_ADMIN, 0, C.mob))
+				if(check_rights(R_ADMIN, FALSE, C.mob))
 					fullmin_count++
 			if(fullmin_count)
 				addtimer(CALLBACK(src, PROC_REF(remind_admins), ert_reason, event_triggered_by), 15 MINUTES)

@@ -21,7 +21,7 @@
 	attack_verb = list("атаковал", "ударил", "огрел")
 	toolbox_radial_menu_compatibility = TRUE
 
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 30)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 30)
 	tool_behaviour = TOOL_CROWBAR
 
 /obj/item/crowbar/get_ru_names()
@@ -199,3 +199,25 @@
 	user.visible_message(span_suicide("[user] помеща[PLUR_ET_YUT(user)] свою голову между лезвиями [declent_ru(GENITIVE)]. Это похоже на попытку самоубийства!"))
 	playsound(loc, 'sound/items/jaws_pry.ogg', 50, TRUE, -1)
 	return BRUTELOSS
+
+/obj/item/crowbar/industrial
+	name = "industrial crowbar"
+	desc = "Инструмент, предназначенный для использования в качестве рычага. \
+			Дополнительные прорезиненные накладки на рукояти облегчают хват."
+	icon_state = "crowbar_industrial"
+	toolspeed = 0.6
+	resistance_flags = FIRE_PROOF | ACID_PROOF
+	greyscale_config = null
+	greyscale_config_inhand_left = null
+	greyscale_config_inhand_right = null
+	greyscale_colors = null
+
+/obj/item/crowbar/industrial/get_ru_names()
+	return list(
+		NOMINATIVE = "продвинутая монтировка",
+		GENITIVE = "продвинутой монтировки",
+		DATIVE = "продвинутой монтировке",
+		ACCUSATIVE = "продвинутую монтировку",
+		INSTRUMENTAL = "продвинутой монтировкой",
+		PREPOSITIONAL = "продвинутой монтировке"
+	)

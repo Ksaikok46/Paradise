@@ -37,6 +37,10 @@
 			to_chat(teacher, span_notice("Apprentice waiting..."))
 			var/image/source = image('icons/obj/cardboard_cutout.dmi', "cutout_wizard")
 			var/list/candidates = SSghost_spawns.poll_candidates("Do you want to play as the wizard apprentice of [teacher.real_name]?", ROLE_WIZARD, TRUE, source = source)
+
+			if(QDELETED(teacher))
+				return
+
 			if(length(candidates))
 				var/mob/C = pick(candidates)
 				new /obj/effect/particle_effect/fluid/smoke(teacher.loc)
@@ -243,7 +247,7 @@
 	name = "Роба межпространства"
 	desc = "Магическая роба прислужника школы пространства, оберегающий владельца от перемещений в агрессивных средах."
 	permeability_coefficient = 0.01
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, RAD = 20, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, FIRE = 100, ACID = 100)
 	strip_delay = 5 SECONDS
 	put_on_delay = 5 SECONDS
 	resistance_flags = FIRE_PROOF | ACID_PROOF
@@ -254,7 +258,7 @@
 	name = "Капюшон Межпространства"
 	desc = "Магический головной убор робы прислужника школы пространства, оберегающий от перемещений в агрессивных средах."
 	gas_transfer_coefficient = 0.01
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, RAD = 20, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 
 /datum/magick_school/sabotage
@@ -276,7 +280,7 @@
 	desc = "Магическая роба-саботёра. Стильная и приталенная!"
 	gas_transfer_coefficient = 0.01
 	permeability_coefficient = 0.01
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, RAD = 20, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, FIRE = 100, ACID = 100)
 	strip_delay = 5 SECONDS
 	put_on_delay = 5 SECONDS
 	resistance_flags = FIRE_PROOF | ACID_PROOF
@@ -287,7 +291,7 @@
 	desc = "Магическая федора-саботёра. Стильная и уважаемая!"
 	gas_transfer_coefficient = 0.01
 	permeability_coefficient = 0.01
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, RAD = 20, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	strip_delay = 5 SECONDS
 	put_on_delay = 5 SECONDS
@@ -324,7 +328,7 @@
 	desc = "Магическая роба последователей школы огня."
 	gas_transfer_coefficient = 0.01
 	permeability_coefficient = 0.01
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, RAD = 20, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, FIRE = 100, ACID = 100)
 	strip_delay = 5 SECONDS
 	put_on_delay = 5 SECONDS
 	resistance_flags = FIRE_PROOF | ACID_PROOF
@@ -386,7 +390,7 @@
 	desc = "Магическая роба последователей школы крови."
 	gas_transfer_coefficient = 0.01
 	permeability_coefficient = 0.01
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, RAD = 20, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 30, BOMB = 20, BIO = 20, FIRE = 100, ACID = 100)
 	strip_delay = 5 SECONDS
 	put_on_delay = 5 SECONDS
 	resistance_flags = FIRE_PROOF | ACID_PROOF
@@ -412,13 +416,10 @@
 /datum/magick_school/vision/kit()
 	owner.mind.AddSpell(new /obj/effect/proc_holder/spell/trigger/blind(null))
 	owner.equip_or_collect(new /obj/item/scrying(owner), ITEM_SLOT_HAND_RIGHT)
-	if(!HAS_TRAIT_FROM(owner, TRAIT_XRAY, SCRYING_ORB_TRAIT))
-		ADD_TRAIT(owner, TRAIT_XRAY, SCRYING_ORB_TRAIT)
-		owner.see_in_dark = 8
-		owner.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-		owner.update_sight()
-		owner.update_misc_effects()
-		to_chat(owner, span_notice("The walls suddenly disappear."))
+	ADD_TRAIT(owner, TRAIT_XRAY_VISION, MAGIC_TRAIT)
+	ADD_TRAIT(owner, TRAIT_NIGHT_VISION, MAGIC_TRAIT)
+	owner.update_sight()
+	to_chat(owner, span_notice("The walls suddenly disappear."))
 
 	owner.equip_or_collect(new /obj/item/clothing/suit/wizrobe/visionmage(owner), ITEM_SLOT_CLOTH_OUTER)
 	owner.equip_or_collect(new /obj/item/clothing/head/wizard/visionmage(owner), ITEM_SLOT_HEAD)

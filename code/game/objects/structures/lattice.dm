@@ -5,7 +5,7 @@
 	icon_state = "lattice-31"
 	base_icon_state = "lattice"
 	anchored = TRUE
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 50)
 	max_integrity = 50
 	layer = LATTICE_LAYER //under pipes
 	plane = FLOOR_PLANE // I'd set to GAME_PLANE, but may fuck with pipes, srubbers and pumps. Also you see better lower floor under catwalk.
@@ -30,7 +30,7 @@
 	. += deconstruction_hints(user)
 
 /obj/structure/lattice/proc/deconstruction_hints(mob/user)
-	return "<span class='notice'>The rods look like they could be <b>cut</b>. There's space for more <i>rods</i> or a <i>tile</i>.</span>"
+	return span_notice("The rods look like they could be <b>cut</b>. There's space for more <i>rods</i> or a <i>tile</i>.")
 
 /obj/structure/lattice/wirecutter_act(mob/living/user, obj/item/I)
 	. = ..()
@@ -117,7 +117,7 @@
 	give_turf_traits = list(TRAIT_CHASM_STOPPED, TRAIT_TURF_IGNORE_SLOWDOWN)
 
 /obj/structure/lattice/catwalk/deconstruction_hints(mob/user)
-	to_chat(user, "<span class='notice'>The supporting rods look like they could be <b>cut</b>.</span>")
+	to_chat(user, span_notice("The supporting rods look like they could be <b>cut</b>."))
 
 /obj/structure/lattice/catwalk/Move(atom/newloc, direct = NONE, glide_size_override = 0, update_dir = TRUE)
 	var/turf/T = loc
@@ -158,7 +158,7 @@
 	desc = "A lightweight support lattice made of heat-resistance alloy."
 	icon = 'icons/obj/smooth_structures/lattice_f.dmi'
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
-	armor = list(MELEE = 70, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 40, BIO = 0, RAD = 0, FIRE = 100, ACID = 70)
+	armor = list(MELEE = 70, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 40, BIO = 0, FIRE = 100, ACID = 70)
 	max_integrity = 100
 
 /obj/structure/lattice/fireproof/wirecutter_act(mob/living/user, obj/item/I)
@@ -173,7 +173,7 @@
 /obj/structure/lattice/catwalk/fireproof
 	name = "strong catwalk"
 	desc = "Усиленный мостик, способный выдерживать высокие температуры и сильные нагрузки."
-	armor = list(MELEE = 70, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 0, RAD = 0, FIRE = 100, ACID = 80)
+	armor = list(MELEE = 70, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 50, BIO = 0, FIRE = 100, ACID = 80)
 	max_integrity = 150
 	icon = 'icons/obj/smooth_structures/strong_catwalk.dmi'
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF

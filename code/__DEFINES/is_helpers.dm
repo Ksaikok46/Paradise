@@ -37,6 +37,8 @@
 
 #define isascendeddevil(A) (istype(A, /mob/living/carbon/true_devil/ascended))
 
+#define iskrampus(A) (istype(A, /mob/living/carbon/true_devil/krampus))
+
 #define islarva(A) (istype(A, /mob/living/carbon/alien/larva))
 
 #define isalienadult(A) (istype(A, /mob/living/carbon/alien/humanoid))
@@ -50,17 +52,21 @@
 #define isfacehugger_mask(A) (istype(A, /obj/item/clothing/mask/facehugger) && !istype(A, /obj/item/clothing/mask/facehugger/toy))
 
 // Simple animals
-// #define issimple_animal(A) (istype(A, /mob/living/simple_animal)) use isanimal(A) instead
+#define is_simple_animal(A) (istype(A, /mob/living/simple_animal))
 
 #define isshade(A) (istype(A, /mob/living/simple_animal/shade))
 
 #define isconstruct(A) (istype(A, /mob/living/simple_animal/hostile/construct))
 
-#define isslime(A) (istype((A), /mob/living/simple_animal/slime))
+#define isslime(A) (istype(A, /mob/living/simple_animal/slime))
 
 #define ispulsedemon(A) (istype(A, /mob/living/simple_animal/demon/pulse_demon))
 
-#define isvampireanimal(A) (istype((A), /mob/living/simple_animal/hostile/vampire))
+#define isvampireanimal(A) (istype(A, /mob/living/simple_animal/hostile/vampire))
+
+#define isbingle(A) (istype(A, /mob/living/simple_animal/hostile/bingle))
+
+#define is_binglelord(A) (istype(A, /mob/living/simple_animal/hostile/bingle/lord))
 
 // Objects
 #define isobj(A) (istype(A, /obj)) //override the byond proc because it returns true on children of /atom/movable that aren't objs
@@ -79,9 +85,13 @@
 
 #define issupplypod(A) (istype(A, /obj/structure/closet/supplypod))
 
+#define iscloset(A) (istype(A, /obj/structure/closet))
+
 #define ismortarcasing(A) (istype(A, /obj/item/mortar_shell))
 
 #define isammocasing(A) (istype(A, /obj/item/ammo_casing))
+
+#define isammobox(A) (istype(A, /obj/item/ammo_box))
 
 #define ismachinery(A) (istype(A, /obj/machinery))
 
@@ -101,6 +111,8 @@
 
 #define isgun(A) (istype(A, /obj/item/gun))
 
+#define isenergygun(A) (istype(A, /obj/item/gun/energy))
+
 #define isspeedloader(A) (istype(A, /obj/item/ammo_box/speedloader))
 
 #define isbaton(A) (istype(A, /obj/item/melee/baton))
@@ -118,8 +130,9 @@
 #define isclothing(A) (istype(A, /obj/item/clothing))
 
 #define is_internal_organ(A) (istype(A, /obj/item/organ/internal))
+#define is_internal_organ_brain(A) (istype(A, /obj/item/organ/internal/brain))
 
-#define	is_organ(A) (istype((A), /obj/item/organ))
+#define	is_organ(A) (istype(A, /obj/item/organ))
 
 #define isbluespacecrystal(A) (istype(A, /obj/item/stack/ore/bluespace_crystal))
 
@@ -158,9 +171,18 @@ GLOBAL_LIST_INIT(pointed_types, typecacheof(list(
 	/obj/item/pen,
 	/obj/item/screwdriver,
 	/obj/item/reagent_containers/syringe,
-	/obj/item/kitchen/utensil/fork)))
+	/obj/item/kitchen/utensil/fork,
+)))
 
 #define is_pointed(W) (is_type_in_typecache(W, GLOB.pointed_types))
+
+/// For objects that should embed, but make no sense being sharp or is_pointed e.g: rods
+GLOBAL_LIST_INIT(can_embed_types, typecacheof(list(
+	/obj/item/stack/rods,
+	/obj/item/pipe,
+)))
+
+#define can_embed(item) (item?.sharp || is_pointed(item) || is_type_in_typecache(item, GLOB.can_embed_types))
 
 GLOBAL_LIST_INIT(glass_sheet_types, typecacheof(list(
 	/obj/item/stack/sheet/glass,
@@ -169,7 +191,8 @@ GLOBAL_LIST_INIT(glass_sheet_types, typecacheof(list(
 	/obj/item/stack/sheet/plasmarglass,
 	/obj/item/stack/sheet/titaniumglass,
 	/obj/item/stack/sheet/plastitaniumglass,
-	/obj/item/stack/sheet/abductorglass)))
+	/obj/item/stack/sheet/abductorglass,
+)))
 
 #define is_glass_sheet(O) (is_type_in_typecache(O, GLOB.glass_sheet_types))
 
@@ -221,6 +244,21 @@ GLOBAL_LIST_INIT(glass_sheet_types, typecacheof(list(
 
 #define isthrowingmatart(A) (istype(A, /datum/martial_art/throwing))
 
+// Modsuits
+#define ismodcontrol(A) istype(A, /obj/item/mod/control)
+
+#define ismodstorage(A) istype(A, /obj/item/storage/backpack/modstorage)
+
+#define ismodhelmet(A) istype(A, /obj/item/clothing/head/mod)
+
+#define ismodgloves(A) istype(A, /obj/item/clothing/gloves/mod)
+
+#define ismodshoes(A) istype(A, /obj/item/clothing/shoes/mod)
+
+#define ismodchestplate(A) istype(A, /obj/item/clothing/suit/mod)
+
+#define ismodcore(A) istype(A, /obj/item/mod/core)
+
 GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 	/turf/space,
 	/turf/simulated/floor/chasm,
@@ -245,32 +283,32 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define isbeachwater(A) (istype(A, /turf/simulated/floor/beach/water))
 #define isbeachwater_i(A) (istype(A, /turf/simulated/floor/indestructible/beach/water))
 
-#define isanimal(A) (istype((A), /mob/living/simple_animal) || istype(A, /mob/living/basic))
-#define iscat(A) (istype((A), /mob/living/simple_animal/pet/cat))
-#define isdog(A) (istype((A), /mob/living/simple_animal/pet/dog))
-#define iscorgi(A) (istype((A), /mob/living/simple_animal/pet/dog/corgi))
-#define ismouse(A) (istype((A), /mob/living/simple_animal/mouse))
-#define isbot(A) (istype((A), /mob/living/simple_animal/bot))
-#define isswarmer(A) (istype((A), /mob/living/simple_animal/hostile/swarmer))
-#define isguardian(A) (istype((A), /mob/living/simple_animal/hostile/guardian))
-#define isnymph(A) (istype((A), /mob/living/simple_animal/diona))
+#define isanimal(A) (istype(A, /mob/living/simple_animal) || istype(A, /mob/living/basic))
+#define iscat(A) (istype(A, /mob/living/simple_animal/pet/cat))
+#define isdog(A) (istype(A, /mob/living/simple_animal/pet/dog))
+#define iscorgi(A) (istype(A, /mob/living/simple_animal/pet/dog/corgi))
+#define ismouse(A) (istype(A, /mob/living/simple_animal/mouse))
+#define isbot(A) (istype(A, /mob/living/simple_animal/bot))
+#define isswarmer(A) (istype(A, /mob/living/simple_animal/hostile/swarmer))
+#define isguardian(A) (istype(A, /mob/living/simple_animal/hostile/guardian))
+#define isnymph(A) (istype(A, /mob/living/simple_animal/diona))
 #define ishostile(A) (istype(A, /mob/living/simple_animal/hostile))
-#define isterrorspider(A) (istype((A), /mob/living/simple_animal/hostile/poison/terror_spider))
-#define isslaughterdemon(A) (istype((A), /mob/living/simple_animal/demon/slaughter))
-#define isdemon(A) (istype((A), /mob/living/simple_animal/demon))
-#define ismorph(A) (istype((A), /mob/living/simple_animal/hostile/morph))
-#define isborer(A) (istype((A), /mob/living/simple_animal/borer))
+#define isterrorspider(A) (istype(A, /mob/living/simple_animal/hostile/poison/terror_spider))
+#define isslaughterdemon(A) (istype(A, /mob/living/simple_animal/demon/slaughter))
+#define isdemon(A) (istype(A, /mob/living/simple_animal/demon))
+#define ismorph(A) (istype(A, /mob/living/simple_animal/hostile/morph))
+#define isborer(A) (istype(A, /mob/living/simple_animal/borer))
 #define isairmob(A) (istype(A, /mob/living/simple_animal/hostile/airmob))
 #define isancientrobot(A) (istype(A, /mob/living/simple_animal/hostile/megafauna/ancient_robot))
 #define isancientrobotleg(A) (istype(A, /mob/living/simple_animal/hostile/ancient_robot_leg))
 #define ismarauder(A) (istype(A, /mob/living/simple_animal/hostile/clockwork/marauder))
 
-#define issilicon(A) (istype((A), /mob/living/silicon))
-#define isAI(A) (istype((A), /mob/living/silicon/ai))
-#define isrobot(A) (istype((A), /mob/living/silicon/robot))
-#define ispAI(A) (istype((A), /mob/living/silicon/pai))
-#define isdrone(A) (istype((A), /mob/living/silicon/robot/drone))
-#define iscogscarab(A) (istype((A), /mob/living/silicon/robot/cogscarab))
+#define issilicon(A) (istype(A, /mob/living/silicon))
+#define isAI(A) (istype(A, /mob/living/silicon/ai))
+#define isrobot(A) (istype(A, /mob/living/silicon/robot))
+#define ispAI(A) (istype(A, /mob/living/silicon/pai))
+#define isdrone(A) (istype(A, /mob/living/silicon/robot/drone))
+#define iscogscarab(A) (istype(A, /mob/living/silicon/robot/cogscarab))
 
 // For the tcomms monitor
 #define ispathhuman(A) (ispath(A, /mob/living/carbon/human))
@@ -281,24 +319,19 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define ispathanimal(A) (ispath(A, /mob/living/simple_animal))
 #define is_circuit_drone(A) (istype(A, /mob/living/simple_animal/circuit_drone))
 
-#define isAIEye(A) (istype((A), /mob/camera/aiEye))
-#define isovermind(A) (istype((A), /mob/camera/blob))
+#define isAIEye(A) (istype(A, /mob/camera/aiEye))
+#define isovermind(A) (istype(A, /mob/camera/blob))
 
-#define isminion(A) (istype((A), /mob/living/simple_animal/hostile/blob_minion))
+#define isminion(A) (istype(A, /mob/living/simple_animal/hostile/blob_minion))
 #define isblobbernaut(M) (istype((M), /mob/living/simple_animal/hostile/blob_minion/blobbernaut))
 
-#define isSpirit(A) (istype((A), /mob/spirit))
-#define ismask(A) (istype((A), /mob/spirit/mask))
+#define isobserver(A) (istype(A, /mob/dead/observer))
 
-#define isobserver(A) (istype((A), /mob/dead/observer))
+#define isnewplayer(A) (istype(A, /mob/new_player))
 
-#define isnewplayer(A) (istype((A), /mob/new_player))
+#define isexternalorgan(A) (istype(A, /obj/item/organ/external))
 
-#define isexternalorgan(A) (istype((A), /obj/item/organ/external))
-
-#define hasorgans(A) (iscarbon(A))
-
-#define is_admin(user) (check_rights(R_ADMIN, 0, (user)) != 0)
+#define is_admin(user) (check_rights(R_ADMIN, FALSE, (user)) != 0)
 
 #define is_developer(user) (check_rights(R_VIEWRUNTIMES, FALSE, user))
 
@@ -310,6 +343,7 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define isshadowlinglesser(A) (is_species(A, /datum/species/shadow/ling/lesser))
 #define isabductor(A) (is_species(A, /datum/species/abductor))
 #define isgolem(A) (is_species(A, /datum/species/golem))
+#define ismonkey(A) (is_species(A, /datum/species/monkey))
 #define isfarwa(A) (is_species(A, /datum/species/monkey/tajaran))
 #define iswolpin(A) (is_species(A, /datum/species/monkey/vulpkanin))
 #define isneara(A) (is_species(A, /datum/species/monkey/skrell))
@@ -336,3 +370,31 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define isdrask(A) (is_species(A, /datum/species/drask))
 #define iswryn(A) (is_species(A, /datum/species/wryn))
 #define ismoth(A) (is_species(A, /datum/species/moth))
+
+#define iswelder(A) (istype(A, /obj/item/weldingtool))
+
+#define iswirecutter(A) (istype(A, /obj/item/wirecutters))
+
+#define ismultitool(A) (istype(A, /obj/item/multitool))
+
+#define iswrench(A) (istype(A, /obj/item/wrench))
+
+#define iscoil(A) (istype(A, /obj/item/stack/cable_coil))
+
+#define ispowertool(A) (istype(A, /obj/item/crowbar/power) || istype(A, /obj/item/mecha_parts/mecha_equipment/medical/rescue_jaw))
+
+#define is_surgery_tool(W) (istype(W, /obj/item) && (W.tool_behaviour in GLOB.surgery_tool_behaviors))
+
+#define isspacearea(A)	(istype(A, /area/space))
+
+#define isrelic(A) (istype(A, /obj/item/relic))
+
+#define is_window(A) (istype(A, /obj/structure/window))
+
+#define isanomaly(A) (istype(A, /obj/effect/anomaly))
+#define iscoreatmos(A) (istype(A, /obj/item/assembly/signaler/core/atmospheric))
+#define iscorebluespace(A) (istype(A, /obj/item/assembly/signaler/core/bluespace))
+#define iscoregrav(A) (istype(A, /obj/item/assembly/signaler/core/gravitational))
+#define iscorevortex(A) (istype(A, /obj/item/assembly/signaler/core/vortex))
+#define iscoreflux(A) (istype(A, /obj/item/assembly/signaler/core/energetic))
+#define iscore(A) (istype(A, /obj/item/assembly/signaler/core))

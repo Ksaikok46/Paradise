@@ -25,6 +25,7 @@
 	dog_fashion = /datum/dog_fashion/head
 	drop_sound = 'sound/items/handling/drop/paper_drop.ogg'
 	pickup_sound =  'sound/items/handling/pickup/paper_pickup.ogg'
+	custom_price = PAYCHECK_MIN * 0.05
 	var/header //Above the main body, displayed at the top
 	var/info		//What's actually written on the paper.
 	var/footer	//The bottom stuff before the stamp but after the body
@@ -85,7 +86,7 @@
 	. = ..()
 	. += span_notice("<b>Alt-Click</b> the [initial(name)] with a pen in hand to rename it.")
 	if(user.is_literate())
-		if(in_range(user, src) || istype(user, /mob/dead/observer))
+		if(in_range(user, src) || isobserver(user))
 			show_content(user)
 		else
 			. += span_notice("You have to go closer if you want to read it.")
@@ -346,7 +347,7 @@
 /obj/item/paper/proc/topic_href_write(mob/user, id, input_element)
 	var/obj/item/item_write = user.get_active_hand() // Check to see if he still got that darn pen, also check if he's using a crayon or pen.
 	add_hiddenprint(user) // No more forging nasty documents as someone else, you jerks
-	if(!is_pen(item_write) && !istype(item_write, /obj/item/toy/crayon))
+	if(!is_pen(item_write) && !iscrayon(item_write))
 		return
 	if(loc != user && !Adjacent(user, recurse = 2) && !loc.Adjacent(user))
 		return // If paper is not in usr, then it must be near them
@@ -392,7 +393,7 @@
 			menu_list.Add(usr.name)
 
 		if(usr.job)
-			menu_list.Add(usr.job)	// job
+			menu_list.Add(get_job_title_ru(usr.job))	// job
 
 		menu_list.Add(sign_text)	//signature
 
@@ -438,7 +439,7 @@
 
 	if(href_list["write"])
 		var/id = href_list["write"]																			/* Becаuse HTML */
-		var/input_element = tgui_input_text(usr, "Enter what you want to write:", "Write", multiline = TRUE, max_length = 3000, encode = FALSE, trim = FALSE)
+		var/input_element = tgui_input_text(usr, "Enter what you want to write:", "Write", multiline = TRUE, max_length = 3000, encode = FALSE)
 
 		topic_href_write(usr, id, input_element)
 
@@ -469,7 +470,7 @@
 		fire_act()
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(is_pen(I) || istype(I, /obj/item/toy/crayon))
+	if(is_pen(I) || iscrayon(I))
 		add_fingerprint(user)
 		if(!user.is_literate())
 			to_chat(user, span_warning("You don't know how to write!"))
@@ -541,7 +542,7 @@
 	bundle.amount++
 	bundle.update_appearance(UPDATE_ICON|UPDATE_DESC)
 
-/obj/item/paper/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
+/obj/item/paper/fire_act(exposed_temperature, exposed_volume)
 	..()
 	if(!(resistance_flags & FIRE_PROOF))
 		info = "<i>Heat-curled corners and sooty words offer little insight. Whatever was once written on this page has been rendered illegible through fire.</i>"
@@ -653,7 +654,7 @@
 
 /obj/item/paper/blueshield
 	name = "paper- 'Blueshield Mission Briefing'"
-	info = "<b>Blueshield Mission Briefing</b><br>You are charged with the defence of any persons of importance within the station. This includes, but is not limited to, The Captain, The Heads of Staff and Central Command staff. You answer directly to the Nanotrasen Representative who will assist you in achieving your mission.<br>When required to achieve your primary responsibility, you should liaise with security and share resources; however, the day to day security operations of the station are outside of your jurisdiction.<br>Monitor the health and safety of your principals, identify any potential risks and threats, then alert the proper departments to resolve the situation. You are authorized to act as bodyguard to any of the station heads that you determine are most in need of protection; however, additional access to their departments shall be granted solely at their discretion.<br>Observe the station alert system and carry your armaments only as required by the situation, or when authorized by the Head of Security or Captain in exceptional cases.<br>Remember, as an agent of Nanotrasen it is your responsibility to conduct yourself appropriately and you will be held to the highest standard. You will be held accountable for your actions. Security is authorized to search, interrogate or detain you as required by their own procedures. Internal affairs will also monitor and observe your conduct, and their mandate applies equally to security and Blueshield operations."
+	info = "<b>Blueshield Mission Briefing</b><br>You are charged with the defence of any persons of importance within the station. This includes, but is not limited to, The Captain, The Heads of Staff and Central Command staff. You answer directly to the Nanotrasen Representative who will assist you in achieving your mission.<br>When required to achieve your primary responsibility, you should liaise with security and share resources; however, the day to day security operations of the station are outside of your jurisdiction.<br>Monitor the health and safety of your principals, identify any potential risks and threats, then alert the proper departments to resolve the situation. You are authorized to act as bodyguard to any of the station heads that you determine are most in need of protection; however, additional access to their departments shall be granted solely at their discretion.<br>Observe the station alert system and carry your armaments only as required by the situation, or when authorized by the Head of Security or Captain in exceptional cases.<br>Remember, as an agent of Nanotrasen it is your responsibility to conduct yourself appropriately and you will be held to the highest standard. You will be held accountable for your actions. Security is authorized to search, interrogate or detain you as required by their own procedures. Lawyers will also monitor and observe your conduct, and their mandate applies equally to security and Blueshield operations."
 
 /obj/item/paper/ntrep
 	name = "paper- 'Nanotrasen Representative Mission Briefing'"
@@ -848,11 +849,13 @@
 		D.Contract(target)
 	else if(myeffect == "Death By Fire")
 		to_chat(target,span_userdanger("You feel hotter than usual. Maybe you should lowe-wait, is that your hand melting?"))
-		var/turf/simulated/T = get_turf(target)
-		new /obj/effect/hotspot(T)
+		var/turf/simulated/target_location = get_turf(target)
+		var/obj/effect/hotspot/hotspot = new /obj/effect/hotspot/fake(target_location)
+		hotspot.temperature = 1000
+		hotspot.recolor()
 		target.adjustFireLoss(150) // hard crit, the burning takes care of the rest.
 	else if(myeffect == "Total Brain Death")
-		to_chat(target,"<span class='userdanger'>You see a message appear in front of you in bright red letters: <b>YHWH-3 ACTIVATED. TERMINATION IN 3 SECONDS</b></span>")
+		to_chat(target,span_userdanger("You see a message appear in front of you in bright red letters: <b>YHWH-3 ACTIVATED. TERMINATION IN 3 SECONDS</b>"))
 		ADD_TRAIT(target, TRAIT_NO_CLONE, EVIL_FAX_TRAIT)
 		target.adjustBrainLoss(125)
 	else if(myeffect == "Honk Tumor")

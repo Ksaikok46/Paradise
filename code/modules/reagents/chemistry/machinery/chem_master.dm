@@ -143,7 +143,7 @@
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(istype(I, /obj/item/reagent_containers/glass) || istype(I, /obj/item/reagent_containers/food/drinks/drinkingglass))
+	if(isglassreagentcontainer(I) || istype(I, /obj/item/reagent_containers/food/drinks/drinkingglass))
 		add_fingerprint(user)
 		if(panel_open)
 			balloon_alert(user, "техпанель открыта!")
@@ -236,7 +236,7 @@
 			var/datum/reagent/R = reagent_list[idx]
 
 			printing = TRUE
-			visible_message(span_notice("[capitalize(declent_ru(NOMINATIVE))] дребезжит, после чего из окна печати выпадает лист бумаги."))
+			visible_message(span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] дребезжит, после чего из окна печати выпадает лист бумаги."))
 			playsound(loc, 'sound/goonstation/machines/printer_dotmatrix.ogg', 50, TRUE)
 
 			var/obj/item/paper/P = new /obj/item/paper(loc)
@@ -374,8 +374,8 @@
 
 /obj/machinery/chem_master/ui_assets(mob/user)
 	return list(
-		get_asset_datum(/datum/asset/spritesheet/chem_master),
-		get_asset_datum(/datum/asset/spritesheet/chem_master/large)
+		get_asset_datum(/datum/asset/spritesheet_batched/chem_master),
+		get_asset_datum(/datum/asset/spritesheet_batched/chem_master/large)
 	)
 
 /obj/machinery/chem_master/ui_data(mob/user)

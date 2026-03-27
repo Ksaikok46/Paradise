@@ -31,7 +31,7 @@
 	item_state = "red_furhat"
 	resistance_flags = INDESTRUCTIBLE
 	clothing_flags = STOPSPRESSUREDMAGE|THICKMATERIAL
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 50, FIRE = 80, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 80, ACID = 70)
 	cold_protection = HEAD
 	min_cold_protection_temperature = SPACE_SUIT_MIN_TEMP_PROTECT
 	heat_protection = HEAD
@@ -56,7 +56,7 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|TAIL|WING
 	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/gun/magic/staff/frost)
 	slowdown = FALSE
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 50, FIRE = 80, ACID = 70)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 80, ACID = 70)
 	flags_inv = NONE
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	sprite_sheets = list(
@@ -91,8 +91,16 @@
 		for(var/turf/simulated/T in range(4, user))
 			if(T.density)
 				continue
-			T.air.temperature = T0C
+
+			var/datum/milla_safe/magic_staff_freese/milla = new()
+			milla.invoke_async(T)
 			new /obj/effect/snow(T)
+
+/datum/milla_safe/magic_staff_freese
+
+/datum/milla_safe/magic_staff_freese/on_run(turf/turf)
+	var/datum/gas_mixture/environment = get_turf_air(turf)
+	environment.set_temperature(T0C)
 
 /obj/item/ammo_casing/magic/frost
 	projectile_type = /obj/projectile/magic/frost
@@ -118,15 +126,28 @@
 	can_melt = FALSE
 
 /obj/item/storage/backpack/santabag/ded_moroz
-	name = "Presents bag"
-	desc = "Bag filled with presents. Artifact of a widely-known old man loved across entire USSP."
-	max_w_class = WEIGHT_CLASS_BULKY
-	max_combined_w_class = 2024
+	name = "presents bag"
+	desc = "Сумка, набитая подарками. Артефакт, принадлежавший широко известному старику, которого любили во всем СССП."
+	max_combined_w_class = 120
+
+/obj/item/storage/backpack/santabag/ded_moroz/get_ru_names()
+	return list(
+		NOMINATIVE = "мешок с подарками",
+		GENITIVE = "мешка с подарками",
+		DATIVE = "мешку с подарками",
+		ACCUSATIVE = "мешок с подарками",
+		INSTRUMENTAL = "мешком с подарками",
+		PREPOSITIONAL = "мешке с подарками"
+	)
+
+/obj/item/storage/backpack/santabag/ded_moroz/suicide_act(mob/living/user)
+	user.visible_message(span_suicide("[user] надева[PLUR_ET_UT(user)] [declent_ru(ACCUSATIVE)] на свою голову и туго затягива[PLUR_ET_UT(user)]! Похоже, у н[GEND_HIS_HER(user)] нет новогоднего настроения..."))
+	return OXYLOSS
 
 /obj/item/storage/backpack/santabag/ded_moroz/populate_contents()
-	for(var/i in 1 to 50)
-		new /obj/item/a_gift(src)
-	update_icon()
+	for(var/i in 1 to 25)
+		new /obj/item/gift(src)
+	update_appearance()
 
 /datum/outfit/ded_moroz
 	name = "Ded Moroz"

@@ -24,7 +24,7 @@
 
 	lastarea = loc
 
-	client.screen = list() // Remove HUD items just in case.
+	client.clear_screen() // Remove HUD items just in case.
 	client.images = list()
 	if(!hud_used)
 		create_mob_hud()	 // creating a hud will add it to the client's screen, which can process a disconnect
@@ -50,7 +50,7 @@
 
 /mob/new_player/proc/whitelist_check()
 	// Admins are immune to overflow rerouting
-	if(check_rights(rights_required = 0, show_msg = 0))
+	if(check_rights(rights_required = R_NONE, show_msg = FALSE))
 		return TRUE
 
 	if(CONFIG_GET(flag/usewhitelist_nojobbanned) && GLOB.jobban_assoclist[src.ckey])

@@ -81,7 +81,7 @@
 		shuttle_port = null
 		return
 
-	var/turf/shuttle_eye_pos = get_turf(locate("landmark*Observer-Start"))
+	var/turf/shuttle_eye_pos = get_turf(locate(/obj/effect/landmark/observer_start))
 
 	if(length(jumpto_ports))
 		for(var/obj/docking_port/stationary/S in SSshuttle.stationary)
@@ -306,7 +306,7 @@
 	return ..()
 
 /mob/camera/aiEye/remote/shuttle_docker/setLoc(turf/destination, force_update = FALSE)
-	if(istype(get_area(destination), /area/space) || istype(get_area(destination), /area/shuttle) ||  istype(get_area(destination), /area/lavaland) || istype(get_area(destination), /area/ruin))
+	if(isspacearea(get_area(destination)) || istype(get_area(destination), /area/shuttle) ||  istype(get_area(destination), /area/lavaland) || istype(get_area(destination), /area/ruin))
 		..()
 		var/obj/machinery/computer/camera_advanced/shuttle_docker/console = origin
 		console.checkLandingSpot()

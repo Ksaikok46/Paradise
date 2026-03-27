@@ -29,6 +29,7 @@
 	active_power_usage = 2500
 
 	light_color = LIGHT_COLOR_CYAN
+	light_power = 0.5
 
 /obj/machinery/sleeper/get_ru_names()
 	return list(
@@ -317,7 +318,7 @@
 	if(exchange_parts(user, I))
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(istype(I, /obj/item/reagent_containers/glass))
+	if(isglassreagentcontainer(I))
 		add_fingerprint(user)
 		if(beaker)
 			balloon_alert(user, "слот для ёмкости занят!")
@@ -448,7 +449,7 @@
 
 /obj/machinery/sleeper/proc/inject_chemical(mob/living/user, chemical, amount)
 	if(!(chemical in possible_chems))
-		to_chat(user, span_notice("[capitalize(declent_ru(NOMINATIVE))] не может ввести такое вещество!"))
+		to_chat(user, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] не может ввести такое вещество!"))
 		return
 	if(!(amount in amounts))
 		return
@@ -462,11 +463,11 @@
 		else
 			to_chat(user, "Организм субъекта отвергает это вещество.")
 	else
-		to_chat(user, "[capitalize(declent_ru(NOMINATIVE))] пуст!")
+		to_chat(user, "[DECLENT_RU_CAP(src, NOMINATIVE)] пуст!")
 
 /obj/machinery/sleeper/verb/eject()
 	set name = "Извлечь пациента"
-	set category = STATPANEL_OBJECT
+	set category = VERB_CATEGORY_OBJECT
 	set src in oview(1)
 
 	if(usr.default_can_use_topic(src) != UI_INTERACTIVE)
@@ -479,7 +480,7 @@
 
 /obj/machinery/sleeper/verb/remove_beaker()
 	set name = "Достать ёмкость"
-	set category = STATPANEL_OBJECT
+	set category = VERB_CATEGORY_OBJECT
 	set src in oview(1)
 
 	if(usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) || !Adjacent(usr))
@@ -502,13 +503,13 @@
 		return
 	if(!ismob(O)) //humans only
 		return
-	if(isanimal(O) || istype(O, /mob/living/silicon)) //animals and robots dont fit
+	if(isanimal(O) || issilicon(O)) //animals and robots dont fit
 		return
 	if(!ishuman(user) && !isrobot(user)) //No ghosts or mice putting people into the sleeper
 		return
 	if(user.loc==null) // just in case someone manages to get a closet into the blue light dimension, as unlikely as that seems
 		return
-	if(!istype(user.loc, /turf) || !istype(O.loc, /turf)) // are you in a container/closet/pod/etc?
+	if(!isturf(user.loc) || !isturf(O.loc)) // are you in a container/closet/pod/etc?
 		return
 	if(panel_open)
 		balloon_alert(user, "техпанель открыта!")
@@ -554,7 +555,7 @@
 
 /obj/machinery/sleeper/verb/move_inside()
 	set name = "Залезть внутрь"
-	set category = STATPANEL_OBJECT
+	set category = VERB_CATEGORY_OBJECT
 	set src in oview(1)
 	if(!ishuman(usr) || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED) || usr.buckled)
 		return

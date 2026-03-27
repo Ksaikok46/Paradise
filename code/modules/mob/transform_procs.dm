@@ -33,7 +33,7 @@
 
 	var/mob/living/silicon/ai/O = new (loc,,,1)//No MMI but safety is in effect.
 	O.invisibility = 0
-	O.aiRestorePowerRoutine = 0
+	O.aiRestorePowerRoutine = POWER_RESTORATION_OFF
 
 	if(mind)
 		mind.transfer_to(O)
@@ -101,11 +101,11 @@
 	if(O.mind && O.mind.assigned_role == JOB_TITLE_CYBORG)
 		var/obj/item/mmi/new_mmi
 		switch(O.mind.role_alt_title)
-			if("Robot")
+			if(JOB_TITLE_CYBORG)
 				new_mmi = new /obj/item/mmi/robotic_brain(O)
 				if(new_mmi.brainmob)
 					new_mmi.brainmob.name = O.name
-			if("Cyborg")
+			if(ALT_JOB_TITLE_RU_CYBORG)
 				new_mmi = new /obj/item/mmi(O)
 			else
 				// This should never happen, but oh well
@@ -261,7 +261,7 @@
 	if(check_station_level && !is_admin(src) && !is_station_level(passed_mob.z))
 		return FALSE
 
-	if(istype(passed_mob, /mob/living/simple_animal/borer) && !jobban_isbanned(src, ROLE_BORER) && !jobban_isbanned(src, ROLE_SYNDICATE))
+	if(isborer(passed_mob) && !jobban_isbanned(src, ROLE_BORER) && !jobban_isbanned(src, ROLE_SYNDICATE))
 		return TRUE
 
 	if(isnymph(passed_mob) && !jobban_isbanned(src, ROLE_NYMPH))

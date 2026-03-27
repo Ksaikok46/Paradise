@@ -4,6 +4,7 @@
 	title = JOB_TITLE_CCOFFICER
 	flag = JOB_FLAG_CENTCOM
 	department_flag = JOB_FLAG_CENTCOM // This gets its job as its own flag because admin jobs dont have flags
+	department = STATION_DEPARTMENT_OTHER
 	total_positions = 5
 	spawn_positions = 5
 	supervisors = "Администраторами"
@@ -18,7 +19,7 @@
 	return get_centcom_access(title)
 
 /datum/outfit/job/ntnavyofficer
-	name = JOB_TITLE_CCOFFICER
+	name = JOB_TITLE_RU_CCOFFICER
 	jobtype = /datum/job/ntnavyofficer
 
 	uniform = /obj/item/clothing/under/rank/centcom/officer
@@ -57,7 +58,7 @@
 	outfit = /datum/outfit/job/ntnavyofficer/field
 
 /datum/outfit/job/ntnavyofficer/field
-	name = JOB_TITLE_CCFIELD
+	name = JOB_TITLE_RU_CCFIELD
 	jobtype = /datum/job/ntnavyofficer/field
 
 	suit = /obj/item/clothing/suit/space/deathsquad/officer/field
@@ -68,6 +69,7 @@
 	title = JOB_TITLE_CCSPECOPS
 	flag = JOB_FLAG_CENTCOM
 	department_flag = JOB_FLAG_CENTCOM // This gets its job as its own flag because admin jobs dont have flags
+	department = STATION_DEPARTMENT_OTHER
 	total_positions = 5
 	spawn_positions = 5
 	supervisors = "Администраторами"
@@ -83,7 +85,7 @@
 	return get_centcom_access(title)
 
 /datum/outfit/job/ntspecops
-	name = JOB_TITLE_CCSPECOPS
+	name = JOB_TITLE_RU_CCSPECOPS
 	jobtype = /datum/job/ntspecops
 	uniform = /obj/item/clothing/under/rank/centcom/captain
 	suit = /obj/item/clothing/suit/space/deathsquad/officer
@@ -122,13 +124,12 @@
 		return
 	H.mind?.offstation_role = TRUE
 
-// Верховное командование для самых больших проблем
 /datum/job/ntspecops/supreme
 	title = JOB_TITLE_CCSUPREME
 	outfit = /datum/outfit/job/ntspecops/supreme
 
 /datum/outfit/job/ntspecops/supreme
-	name = JOB_TITLE_CCSUPREME
+	name = JOB_TITLE_RU_CCSUPREME
 	jobtype = /datum/job/ntspecops/supreme
 
 	suit = /obj/item/clothing/suit/space/deathsquad/officer/supreme
@@ -147,7 +148,7 @@
 	outfit = /datum/outfit/job/ntspecops/solgovspecops
 
 /datum/outfit/job/ntspecops/solgovspecops
-	name = JOB_TITLE_CCSOLGOV
+	name = JOB_TITLE_RU_CCSOLGOV
 	uniform = /obj/item/clothing/under/rank/centcom/captain/solgov
 	suit = /obj/item/clothing/suit/space/deathsquad/officer/solgov
 	head = /obj/item/clothing/head/helmet/space/deathsquad/beret/solgov

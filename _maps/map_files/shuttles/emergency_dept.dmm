@@ -118,17 +118,6 @@
 	icon_state = "dark"
 	},
 /area/shuttle/escape)
-"at" = (
-/obj/item/radio/intercom{
-	dir = 4;
-	name = "Station Intercom (General)";
-	pixel_x = 29;
-	pixel_y = -60
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/shuttle/escape)
 "au" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
@@ -174,6 +163,7 @@
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
 	},
+/obj/item/radio/intercom/directional/south,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -355,8 +345,7 @@
 	},
 /turf/simulated/floor/plasteel{
 	dir = 5;
-	icon_state = "whiteblue";
-	tag = "icon-whiteblue (NORTHEAST)"
+	icon_state = "whiteblue"
 	},
 /area/shuttle/escape)
 "bg" = (
@@ -467,8 +456,7 @@
 /obj/machinery/light,
 /turf/simulated/floor/plasteel{
 	dir = 4;
-	icon_state = "whiteblue";
-	tag = "icon-whiteblue (EAST)"
+	icon_state = "whiteblue"
 	},
 /area/shuttle/escape)
 "by" = (
@@ -741,8 +729,7 @@
 /obj/machinery/iv_drip,
 /turf/simulated/floor/plasteel{
 	dir = 4;
-	icon_state = "whiteblue";
-	tag = "icon-whiteblue (EAST)"
+	icon_state = "whiteblue"
 	},
 /area/shuttle/escape)
 "cA" = (
@@ -802,8 +789,7 @@
 /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis,
 /turf/simulated/floor/plasteel{
 	dir = 4;
-	icon_state = "whiteblue";
-	tag = "icon-whiteblue (EAST)"
+	icon_state = "whiteblue"
 	},
 /area/shuttle/escape)
 "IB" = (
@@ -1162,7 +1148,7 @@ bw
 ac
 aj
 ao
-at
+an
 an
 TX
 cH

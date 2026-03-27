@@ -52,24 +52,26 @@
 /// SS_BACKGROUND has its own priority bracket, this overrides SS_TICKER's priority bump
 #define SS_BACKGROUND (1<<2)
 
-/// Subsystem does not tick check, and should not run unless there is enough time (or its running behind (unless background))
-#define SS_NO_TICK_CHECK (1<<3)
-
 /** Treat wait as a tick count, not DS, run every wait ticks. */
 /// (also forces it to run first in the tick (unless SS_BACKGROUND))
 /// (We don't want to be choked out by other subsystems queuing into us)
 /// (implies all runlevels because of how it works)
 /// This is designed for basically anything that works as a mini-mc (like SStimer)
-#define SS_TICKER (1<<4)
+#define SS_TICKER (1<<3)
 
 /** Keep the subsystem's timing on point by firing early if it fired late last fire because of lag */
 /// ie: if a 20ds subsystem fires say 5 ds late due to lag or what not, its next fire would be in 15ds, not 20ds.
-#define SS_KEEP_TIMING (1<<5)
+#define SS_KEEP_TIMING (1<<4)
 
 /** Calculate its next fire after its fired. */
 /// (IE: if a 5ds wait SS takes 2ds to run, its next fire should be 5ds away, not 3ds like it normally would be)
 /// This flag overrides SS_KEEP_TIMING
-#define SS_POST_FIRE_TIMING (1<<6)
+#define SS_POST_FIRE_TIMING (1<<5)
+
+/** This subsystem should not be queued if it has no work. */
+/// Populate the [hibernate_checks] list with the names of vars to check before a subsystem is queued.
+/// If the length() of each var is 0, it will not be queued.
+#define SS_HIBERNATE (1<<7)
 
 //! SUBSYSTEM STATES
 #define SS_IDLE 0 /// ain't doing shit.

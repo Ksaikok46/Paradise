@@ -13,11 +13,12 @@
 	init_air = FALSE
 	turf_flags = NOJAUNT
 	baseturf = /turf/cordon
+	rad_insulation = RAD_FULL_INSULATION
 
 /turf/cordon/acid_act()
 	return FALSE
 
-/turf/cordon/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay)
+/turf/cordon/fire_act(exposed_temperature, exposed_volume, global_overlay)
 	return
 
 /turf/cordon/singularity_act()

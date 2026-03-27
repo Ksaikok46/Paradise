@@ -91,6 +91,9 @@
 	///a list of objectives that a player with this job could complete for space credit rewards
 	var/list/job_objectives = list()
 
+	///Owned cyborg skin permissions
+	var/list/cyborg_skin_permissions = list()
+
 /datum/mind/New(new_key)
 	key = new_key
 	soulOwner = src
@@ -180,6 +183,10 @@
 	for(var/datum/antagonist/antag in antag_datums)	// Makes sure all antag datums effects are applied in the new body
 		antag.on_body_transfer(old_current, current)
 
+	if(iscarbon(new_character))
+		var/mob/living/carbon/carbon = new_character
+		carbon.last_mind = src
+
 	if(active)
 		new_character.possess_by_player(key)		// now transfer the key to link the client to our new body
 
@@ -239,10 +246,10 @@
 	for(var/datum/objective/objective in get_all_objectives())
 		. += "<b>Objective #[obj_count++]</b>: [objective.explanation_text]"
 		if(admin)
-			. += " <a href='byond://?src=[UID()];obj_edit=\ref[objective]'>Edit</a> " // Edit
-			. += "<a href='byond://?src=[UID()];obj_delete=\ref[objective]'>Delete</a> " // Delete
+			. += " <a href='byond://?src=[UID()];obj_edit=[objective.UID()]'>Edit</a> " // Edit
+			. += "<a href='byond://?src=[UID()];obj_delete=[objective.UID()]'>Delete</a> " // Delete
 
-			. += "<a href='byond://?src=[UID()];obj_completed=\ref[objective]'>" // Mark Completed
+			. += "<a href='byond://?src=[UID()];obj_completed=[objective.UID()]'>" // Mark Completed
 			. += "<font color=[objective.completed ? "green" : "red"]>Toggle Completion</font>"
 			. += "</a>"
 		. += "<br>"
@@ -335,12 +342,12 @@
 
 /datum/mind/proc/memory_edit_clockwork_silicon()
 	. = _memory_edit_header("clockwork")
-	if(istype(current, /mob/living/silicon/robot))
+	if(isrobot(current))
 		if(src in SSticker.mode.clockwork_cult)
 			. += "<a href='byond://?src=[UID()];siliclock=clearrobot'>no</a>|<b><font color='red'>CLOCKER</font></b>"
 		else
 			. += "<b>NO</b>|<a href='byond://?src=[UID()];siliclock=clockrobot'>clocker</a>"
-	else if(istype(current, /mob/living/silicon/ai))
+	else if(isAI(current))
 		if(src in SSticker.mode.clockwork_cult)
 			. += "no|<b><font color='red'>CLOCKER</font></b>"
 		else
@@ -856,7 +863,7 @@
 		var/def_value
 
 		if(href_list["obj_edit"])
-			objective = locate(href_list["obj_edit"])
+			objective = locateUID(href_list["obj_edit"])
 			if(!objective)
 				return
 
@@ -1239,8 +1246,7 @@
 
 				var/datum/mind/targ = new_target
 				if(!istype(targ))
-					log_runtime(EXCEPTION("Invalid target for identity theft objective, cancelling"), src)
-					return
+					CRASH("Invalid target for identity theft objective, cancelling")
 
 				var/datum/objective/escape/escape_with_identity/identity_objective = new
 				identity_objective.owner = src
@@ -1274,7 +1280,7 @@
 		message_admins("[key_name_admin(usr)] has updated [key_name_admin(current)]'s objectives: [new_objective]")
 
 	else if(href_list["obj_delete"])
-		var/datum/objective/objective = locate(href_list["obj_delete"])
+		var/datum/objective/objective = locateUID(href_list["obj_delete"])
 		if(!istype(objective))
 			return
 
@@ -1283,7 +1289,7 @@
 		remove_objective(objective)
 
 	else if(href_list["obj_completed"])
-		var/datum/objective/objective = locate(href_list["obj_completed"])
+		var/datum/objective/objective = locateUID(href_list["obj_completed"])
 		if(!istype(objective))
 			return
 		objective.completed = !objective.completed
@@ -2344,15 +2350,12 @@
 	else if(href_list["silicon"])
 		switch(href_list["silicon"])
 			if("borgpanel")
-				var/mob/living/silicon/robot/R = current
-				var/datum/borgpanel/B = new(usr, R)
-				B.ui_interact(usr)
-				log_and_message_admins("has opened [R]'s Borg Panel.")
+				var/mob/living/silicon/robot/robot = current
+				if(!istype(robot))
+					return
+				SSadmin_verbs.dynamic_invoke_verb(usr, /datum/admin_verb/borg_panel, current)
 			if("lawmanager")
-				var/mob/living/silicon/S = current
-				var/datum/ui_module/law_manager/L = new(S)
-				L.ui_interact(usr)
-				log_and_message_admins("has opened [S]'s law manager.")
+				SSadmin_verbs.dynamic_invoke_verb(usr, /datum/admin_verb/open_law_manager)
 			if("unemag")
 				var/mob/living/silicon/robot/R = current
 				if(!istype(R))
@@ -2902,6 +2905,7 @@
 		instance_or_path = instance_or_path.type
 	for(var/obj/effect/proc_holder/spell/spell as anything in spell_list)
 		if(spell.type == instance_or_path)
+			spell.on_spell_removed(current)
 			LAZYREMOVE(spell_list, spell)
 			qdel(spell)
 
@@ -3029,6 +3033,7 @@
 //HUMAN
 /mob/living/carbon/human/mind_initialize()
 	..()
+	last_mind = mind
 	if(!mind.assigned_role)
 		mind.assigned_role = JOB_TITLE_CIVILIAN	//defualt
 

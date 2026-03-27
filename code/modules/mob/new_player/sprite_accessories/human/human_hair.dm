@@ -190,6 +190,12 @@
 	icon_state = "bigafro"
 	unsuitable_gender = FEMALE
 
+/datum/sprite_accessory/hair/lil_cut
+	name = "Lil Cut"
+	icon_state = "lilcut"
+	species_allowed = list(SPECIES_HUMAN)
+	unsuitable_gender = FEMALE
+
 /datum/sprite_accessory/hair/sergeant
 	name = "Flat Top"
 	icon_state = "sergeant"
@@ -1005,3 +1011,7 @@
 	unsuitable_gender = FEMALE
 	species_allowed = list(SPECIES_HUMAN)
 	glasses_over = 1
+
+/datum/sprite_accessory/hair/braided_twintails
+	name = "Braided twintails"
+	icon_state = "braided_twintails"

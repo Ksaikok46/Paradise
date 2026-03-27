@@ -235,9 +235,14 @@
 		user.thoughts_hud_set(TRUE, say_test(say))
 		addtimer(CALLBACK(hud, TYPE_PROC_REF(/datum/atom_hud/thoughts/, manage_hud), target, THOUGHTS_HUD_DISPERSE), 3 SECONDS)
 		say = strip_html(say)
-		say = pencode_to_html(say, user, format = 0, fields = 0)
+		say = pencode_to_html(say, user, enable_formatting = FALSE, enable_fields = FALSE)
 		log_say("(TPATH to [key_name(target)]) [say]", user)
 		user.create_log(SAY_LOG, "Telepathically said '[say]' using [src]", target)
+
+		if(user.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
+			user.create_chat_message(user, "<i>[say]</i>", list("telepathy"), null)
+		if(target.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
+			target.create_chat_message(user, "<i>[say]</i>", list("telepathy"), null)
 
 		if(target.dna?.GetSEState(GLOB.remotetalkblock))
 			target.show_message(span_abductor("Вы слышите голос [user.real_name]: [say]"))
@@ -248,7 +253,7 @@
 		user.show_message(span_abductor("Вы проецируете свой разум на [(target in user.get_visible_mobs()) ? target.name : "неизвестную сущность"]: [say]"))
 
 		for(var/mob/dead/observer/G in GLOB.player_list)
-			G.show_message(span_italics("Телепатическое сообщение от <b>[user]</b> ([ghost_follow_link(user, ghost=G)]) для <b>[target]</b> ([ghost_follow_link(target, ghost=G)]): [say]"))
+			G.show_message(span_italics("Телепатическое сообщение от ([ghost_follow_link(user, ghost = G)]) <b>[user]</b> для ([ghost_follow_link(target, ghost = G)]) <b>[target]</b>: [say]"))
 
 /obj/effect/proc_holder/spell/mindscan
 	name = "Scan Mind"
@@ -305,9 +310,14 @@
 
 		target.thoughts_hud_set(TRUE, say_test(say))
 		say = strip_html(say)
-		say = pencode_to_html(say, target, format = 0, fields = 0)
+		say = pencode_to_html(say, target, enable_formatting = FALSE, enable_fields = FALSE)
 		user.create_log(SAY_LOG, "Telepathically responded '[say]' using [src]", target)
 		log_say("(TPATH to [key_name(target)]) [say]", user)
+
+		if(target.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
+			target.create_chat_message(target, "<i>[say]</i>", list("telepathy"), null)
+		if(user.client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
+			user.create_chat_message(target, "<i>[say]</i>", list("telepathy"), null)
 
 		if(target.dna?.GetSEState(GLOB.remotetalkblock))
 			target.show_message(span_abductor("Вы проецируете свой разум на [user.name]: [say]"))
@@ -318,7 +328,7 @@
 		user.show_message(span_abductor("Вы слышите голос [target.name]: [say]"))
 
 		for(var/mob/dead/observer/G in GLOB.player_list)
-			G.show_message(span_italics("Телепатический ответ от <b>[target]</b> ([ghost_follow_link(target, ghost=G)]) для <b>[user]</b> ([ghost_follow_link(user, ghost=G)]): [say]"))
+			G.show_message(span_italics("Телепатический ответ от ([ghost_follow_link(target, ghost = G)]) <b>[target]</b> для ([ghost_follow_link(user, ghost = G)]) <b>[user]</b>: [say]"))
 
 /obj/effect/proc_holder/spell/mindscan/Destroy()
 	for(var/mob/living/target in available_targets)

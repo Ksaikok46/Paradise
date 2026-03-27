@@ -58,7 +58,7 @@
 /// Binds the mob to the object and sets up the naming and everything.
 /// Returns FALSE if we don't bind, TRUE if we succeed.
 /datum/component/object_possession/proc/bind_to_new_object(obj/target)
-	if(issingularity(target) && CONFIG_GET(flag/forbid_singulo_possession))
+	if((target.obj_flags & DANGEROUS_POSSESSION) && CONFIG_GET(flag/forbid_singulo_possession))
 		to_chat(parent, "[target] сопротивляется вашему контролю.", confidential = TRUE)
 		return FALSE
 
@@ -72,6 +72,9 @@
 	user.name = target.name
 	user.reset_perspective(target)
 
+	target.AddElement(/datum/element/weather_listener, /datum/weather/ash_storm, ZTRAIT_ASHSTORM, GLOB.ash_storm_sounds)
+	target.AddElement(/datum/element/weather_listener, /datum/weather/snow_storm, ZTRAIT_SNOWSTORM, GLOB.snowstorm_sounds)
+
 	RegisterSignal(target, COMSIG_QDELETING, PROC_REF(end_possession))
 	SEND_SIGNAL(target, COMSIG_OBJ_POSSESSED, parent)
 
@@ -83,6 +86,9 @@
 		return
 
 	var/mob/poltergeist = parent
+	possessed.RemoveElement(/datum/element/weather_listener, /datum/weather/ash_storm, ZTRAIT_ASHSTORM, GLOB.ash_storm_sounds)
+	possessed.RemoveElement(/datum/element/weather_listener, /datum/weather/snow_storm, ZTRAIT_SNOWSTORM, GLOB.snowstorm_sounds)
+
 
 	UnregisterSignal(possessed, COMSIG_QDELETING)
 

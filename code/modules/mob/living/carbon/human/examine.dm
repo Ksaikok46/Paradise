@@ -216,15 +216,17 @@
 	if(wear_id)
 		msg += "[GEND_HE_SHE_CAP(src)] нос[PLUR_IT_YAT(src)] [icon2html(wear_id, user)] <b>[wear_id.declent_ru(ACCUSATIVE)]</b> на креплении ID-карты.\n"
 
-	var/rolled_down = FALSE
-	if(w_uniform && istype(w_uniform, /obj/item/clothing/under))
-		var/obj/item/clothing/under/jumpsuit = w_uniform
-		rolled_down = jumpsuit.rolled_down
-
 	var/list/strength_list = list()
 	SEND_SIGNAL(src, COMSIG_GET_STRENGTH, strength_list)
 	var/datum/strength_level/strength_level = !length(strength_list) ? STRENGTH_LEVEL_DEFAULT : strength_list[1]
-	if((rolled_down || !w_uniform || (w_uniform.item_flags & ABSTRACT)) && (!wear_suit || (wear_suit.item_flags & ABSTRACT)) && strength_level != STRENGTH_LEVEL_DEFAULT)
+
+	// Check if the clothes hide the uniform
+	var/hides_uniform = FALSE
+	if(wear_suit && (wear_suit.flags_inv & HIDEJUMPSUIT))
+		hides_uniform = TRUE
+
+	// Show strength if clothing does not hide the uniform
+	if(!hides_uniform && strength_level != STRENGTH_LEVEL_DEFAULT)
 		msg += span_notice("[GEND_HE_SHE_CAP(src)] выгляд[PLUR_IT_YAT(src)] [strength_level.strength_examine][GEND_YM_OI_YM_YMI(src)].\n")
 
 	//Status effects
@@ -367,18 +369,27 @@
 		msg += span_warning("<b>[GEND_HE_SHE_CAP(src)] впил[GEND_SYA_AS_OS_IS(src)] своими клыками в шею [vampire_datum.draining].\n</b>")
 
 	for(var/obj/item/organ/external/bodypart as anything in bodyparts)
+		if(!bodypart.tourniquet)
+			continue
+		if(bodypart.tourniquet.applied_bodypart != bodypart)
+			continue
+		msg += span_warning("<a href='byond://?src=[UID()];tourniquet_object=[bodypart.tourniquet.UID()];limb=[bodypart.UID()]' class='warning'>[GEND_HIS_HER_CAP(src)] [bodypart.declent_ru(NOMINATIVE)] пережат[GEND_A_O_Y(src)] [icon2html(bodypart.tourniquet, src)] [bodypart.tourniquet.declent_ru(INSTRUMENTAL)]!</a>\n")
+
+	for(var/obj/item/organ/external/bodypart as anything in bodyparts)
 		if(!bodypart.bleeding_amount)
 			if(bodypart.bleedsuppress)
 				msg += span_warning("У н[GEND_HIS_HER(src)] [bodypart.declent_ru(NOMINATIVE)] перевязан[GEND_A_O_Y(src)] чем-то.\n")
 			continue
-		var/high_bleeding = bodypart.bleeding_amount > HIGH_BLEEDING_VALUE
+
 		var/suppressed = bodypart.bleeding_amount <= bodypart.bleedsuppress
 		if(suppressed)
-			msg += span_warning("У н[GEND_HIS_HER(src)] [bodypart.declent_ru(NOMINATIVE)] перевязан[GEND_A_O_Y(src)] чем-то окровавленным.\n")
-		else if(high_bleeding)
-			msg += span_warning(span_bold("У н[GEND_HIS_HER(src)] обильно кровоточ[PLUR_IT_AT(src)] [bodypart.declent_ru(NOMINATIVE)]!\n"))
+			msg += span_warning("[capitalize(GEND_HIS_HER(src))] [bodypart.declent_ru(NOMINATIVE)] перевязан[GEND_A_O_Y(bodypart)] чем-то окровавленным.\n")
+		else if(bodypart.has_arterial_bleeding())
+			msg += span_warning(span_bold("Из [GEND_HIS_HER(src)] [bodypart.declent_ru(GENITIVE)] хлещет кровь!\n"))
+		else if(bodypart.has_heavy_bleeding())
+			msg += span_warning(span_bold("[GEND_HIS_HER_CAP(src)] [bodypart.declent_ru(NOMINATIVE)] обильно кровоточ[PLUR_IT_AT(bodypart)]!\n"))
 		else
-			msg += span_warning(span_bold("У н[GEND_HIS_HER(src)] кровоточ[PLUR_IT_AT(src)] [bodypart.declent_ru(NOMINATIVE)]!\n"))
+			msg += span_warning(span_bold("[GEND_HIS_HER_CAP(src)] [bodypart.declent_ru(NOMINATIVE)] кровоточ[PLUR_IT_AT(bodypart)]!\n"))
 
 	if(reagents.has_reagent("teslium"))
 		msg += span_warning("[GEND_HE_SHE_CAP(src)] излуча[PLUR_ET_YUT(src)] мягкое голубое свечение!\n")
@@ -523,6 +534,11 @@
 			var/obj/item/clothing/head/helmet/space/helmet = H.head
 			if(helmet?.examine_extensions)
 				have_hud_exam |= helmet.examine_extensions
+
+		if(ismodhelmet(H.head))
+			var/obj/item/clothing/head/mod/our_shitcode = H.head
+			if(our_shitcode?.examine_extensions)
+				have_hud_exam |= our_shitcode.examine_extensions
 
 		var/obj/item/organ/internal/cyberimp/eyes/hud/CIH = H.get_int_organ(/obj/item/organ/internal/cyberimp/eyes/hud)
 		if(CIH?.examine_extensions)

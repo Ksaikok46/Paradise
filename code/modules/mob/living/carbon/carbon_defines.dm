@@ -1,10 +1,13 @@
 /mob/living/carbon
+	abstract_type = /mob/living/carbon
 	gender = MALE
 	pressure_resistance = 15
 	mobility_flags = MOBILITY_FLAGS_CARBON_DEFAULT
 	blood_volume = BLOOD_VOLUME_NORMAL
 	rotate_on_lying = TRUE
 	pull_hand = null
+	throw_range = 3
+	looting_icon_mode = LOOT_ICON_FLAT_ICON
 	var/list/stomach_contents
 	var/list/processing_patches
 	var/list/internal_organs	= list()
@@ -25,6 +28,9 @@
 	var/pulse = PULSE_NORM	//current pulse level
 
 	var/wetlevel = 0 //how wet the mob is
+
+	/// Last mind to control this mob, for blood-based cloning
+	var/datum/mind/last_mind = null
 
 	var/co2overloadtime = null
 	var/dreaming = 0 //How many dream images we have left to send

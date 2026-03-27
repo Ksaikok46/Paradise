@@ -24,7 +24,7 @@
 				thing.throw_at(get_edge_target_turf(src, pick(GLOB.alldirs)), rand(1,3), 5)
 
 	for(var/obj/item/organ/external/bodypart as anything in bodyparts)
-		if(istype(bodypart, /obj/item/organ/external/chest))
+		if(ischest(bodypart))
 			continue
 		// Only make the limb drop if it's not too damaged
 		if(prob(100 - bodypart.get_damage()))
@@ -34,7 +34,7 @@
 	for(var/mob/M in src)
 		LAZYREMOVE(stomach_contents, M)
 		M.forceMove(drop_loc)
-		visible_message("<span class='danger'>[M] bursts out of [src]!</span>")
+		visible_message(span_danger("[M] bursts out of [src]!"))
 
 	if(!ismachineperson(src))
 		flick("gibbed-h", animation)
@@ -94,7 +94,7 @@
 	if(SSticker?.mode)
 		SSblackbox.ReportDeath(src)
 
-/mob/living/carbon/human/update_revive(updating, defib_revive)
+/mob/living/carbon/human/update_revive(updating = TRUE, force = FALSE, defib_revive = FALSE)
 	. = ..()
 	if(. && healthdoll)
 		// We're alive again, so re-build the entire healthdoll

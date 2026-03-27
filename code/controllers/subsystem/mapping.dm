@@ -41,6 +41,9 @@ SUBSYSTEM_DEF(mapping)
 	/// Amount of reserved levels we created so far. Mostly we will have only one
 	var/num_of_res_levels = 0
 
+	/// list of lazy templates that have been loaded
+	var/list/loaded_lazy_templates
+
 	/// List of z level (as number) -> plane offset of that z level
 	/// Used to maintain the plane cube
 	var/list/z_level_to_plane_offset = list()
@@ -67,6 +70,9 @@ SUBSYSTEM_DEF(mapping)
 	var/max_plane_offset = 0
 	/// Maps played in previous rounds, stores typepaths
 	var/list/previous_maps
+
+	/// A mapping of environment names to MILLA environment IDs.
+	var/list/environments
 
 // This has to be here because world/New() uses [station_name()], which looks this datum up
 /datum/controller/subsystem/mapping/PreInit()
@@ -122,10 +128,17 @@ SUBSYSTEM_DEF(mapping)
 				maps += map_path
 
 		previous_maps = maps
+		qdel(query)
 
 /datum/controller/subsystem/mapping/Initialize()
 	if(initialized)
 		return
+
+	environments = list()
+	environments[ENVIRONMENT_LAVALAND] = create_environment(oxygen = LAVALAND_OXYGEN, nitrogen = LAVALAND_NITROGEN, temperature = LAVALAND_TEMPERATURE)
+	environments[ENVIRONMENT_TEMPERATE] = create_environment(oxygen = MOLES_O2STANDARD, nitrogen = MOLES_N2STANDARD, temperature = T20C)
+	environments[ENVIRONMENT_COLD] = create_environment(oxygen = MOLES_O2STANDARD, nitrogen = MOLES_N2STANDARD, temperature = 180)
+
 	setupPlanes()
 	find_last_played_maps()
 	var/datum/lavaland_theme/lavaland_theme_type = pick(subtypesof(/datum/lavaland_theme))
@@ -366,12 +379,7 @@ SUBSYSTEM_DEF(mapping)
 		else
 			to_chat(world, span_danger("ERROR: The map datum specified to load is invalid. Falling back to... delta probably?"))
 #else
-
-	#ifndef MULTIZ_FAST_LOAD
-	map_datum = new /datum/map/fast_load
-	#else
 	map_datum = new /datum/map/fast_load_multiz
-	#endif
 #endif
 
 	ASSERT(map_datum.map_path)
@@ -412,7 +420,7 @@ SUBSYSTEM_DEF(mapping)
 /datum/controller/subsystem/mapping/proc/loadLavaland()
 	var/watch = start_watch()
 	log_startup_progress("Loading Lavaland...")
-	var/trait_list = list(ORE_LEVEL, REACHABLE, STATION_CONTACT, HAS_WEATHER, AI_OK, ZTRAIT_BASETURF = /turf/simulated/floor/lava/mapping_lava)
+	var/trait_list = list(ORE_LEVEL, REACHABLE, STATION_CONTACT, ZTRAIT_ASHSTORM, AI_OK, ZTRAIT_BASETURF = /turf/simulated/floor/lava/mapping_lava)
 	var/lavaland_z_level = GLOB.space_manager.add_new_zlevel(MINING, linkage = UNAFFECTED, traits = trait_list)
 	GLOB.maploader.load_map(file(map_datum.lavaland_path), z_offset = lavaland_z_level)
 	log_startup_progress("Loaded Lavaland in [stop_watch(watch)]s")
@@ -573,6 +581,7 @@ SUBSYSTEM_DEF(mapping)
 	z_reservation = null,
 	reservation_type = /datum/turf_reservation,
 	turf_type_override = null,
+	noisy = TRUE,
 )
 	UNTIL((!z_reservation || reservation_ready["[z_reservation]"]) && !clearing_reserved_turfs)
 	var/datum/turf_reservation/reserve = new reservation_type
@@ -584,7 +593,7 @@ SUBSYSTEM_DEF(mapping)
 				return reserve
 		//If we didn't return at this point, theres a good chance we ran out of room on the exisiting reserved z levels, so lets try a new one
 		var/new_reserved_z = add_reservation_zlevel()
-		initialize_reserved_level(new_reserved_z)
+		initialize_reserved_level(new_reserved_z, noisy)
 		if(reserve.reserve(width, height, z_size, new_reserved_z))
 			return reserve
 	else
@@ -596,7 +605,7 @@ SUBSYSTEM_DEF(mapping)
 	QDEL_NULL(reserve)
 
 //This is not for wiping reserved levels, use wipe_reservations() for that.
-/datum/controller/subsystem/mapping/proc/initialize_reserved_level(z)
+/datum/controller/subsystem/mapping/proc/initialize_reserved_level(z, noisy = TRUE)
 	UNTIL(!clearing_reserved_turfs) //regardless, lets add a check just in case.
 	clearing_reserved_turfs = TRUE //This operation will likely clear any existing reservations, so lets make sure nothing tries to make one while we're doing it.
 	if(!check_level_trait(z, RESERVED_LEVEL))
@@ -614,7 +623,7 @@ SUBSYSTEM_DEF(mapping)
 
 	// Gotta create these suckers if we've not done so already
 	if(SSatoms.initialized)
-		SSatoms.InitializeAtoms(Z_TURFS(z))
+		SSatoms.InitializeAtoms(Z_TURFS(z), noisy)
 
 	unused_turfs["[z]"] = reserved_block
 	reservation_ready["[z]"] = TRUE
@@ -809,5 +818,31 @@ SUBSYSTEM_DEF(mapping)
 		z_level = connected.z
 	return z_level_to_stack[z_level]
 
+/datum/controller/subsystem/mapping/proc/lazy_load_template(template_key, force = FALSE)
+	RETURN_TYPE(/datum/turf_reservation)
+
+	UNTIL(initialized)
+	var/static/lazy_loading = FALSE
+	UNTIL(!lazy_loading)
+
+	lazy_loading = TRUE
+	. = _lazy_load_template(template_key, force)
+	lazy_loading = FALSE
+	return .
+
+/datum/controller/subsystem/mapping/proc/_lazy_load_template(template_key, force = FALSE)
+	PRIVATE_PROC(TRUE)
+
+	if(LAZYACCESS(loaded_lazy_templates, template_key)  && !force)
+		var/datum/lazy_template/template = GLOB.lazy_templates[template_key]
+		return template.reservations[1]
+	LAZYSET(loaded_lazy_templates, template_key, TRUE)
+
+	var/datum/lazy_template/target = GLOB.lazy_templates[template_key]
+	if(!target)
+		CRASH("Attempted to lazy load a template key that does not exist: '[template_key]'")
+	return target.lazy_load()
+
 /datum/controller/subsystem/mapping/Recover()
 	flags |= SS_NO_INIT
+	loaded_lazy_templates = SSmapping.loaded_lazy_templates

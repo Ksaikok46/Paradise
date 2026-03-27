@@ -549,7 +549,7 @@
 	mob_name = "Ship Personnel"
 	id = /obj/item/card/id/away/old
 	uniform = /obj/item/clothing/under/color/random
-	shoes = /obj/item/clothing/shoes/black
+	shoes = /obj/item/clothing/shoes/color/black
 
 /obj/effect/mob_spawn/human/corpse/spacebattle/security
 	name = "Dead Officer"
@@ -644,7 +644,7 @@
 	id = /obj/item/card/id/away/old/med
 	uniform = /obj/item/clothing/under/retro/medical
 	suit = /obj/item/clothing/suit/storage/labcoat
-	shoes = /obj/item/clothing/shoes/white
+	shoes = /obj/item/clothing/shoes/color/white
 	id = /obj/item/card/id/medical
 	back = /obj/item/storage/backpack/satchel_med
 
@@ -683,13 +683,13 @@
 	mob_name = "Scientist"
 	id = /obj/item/card/id/away/old/sci
 	uniform = /obj/item/clothing/under/retro/science
-	shoes = /obj/item/clothing/shoes/black
+	shoes = /obj/item/clothing/shoes/color/black
 	suit = /obj/item/clothing/suit/storage/labcoat/science
 
 /obj/item/clothing/suit/space/hardsuit/syndi/damaged
 	name = "damaged blood-red hardsuit"
 	desc = "Damaged advanced hardsuit designed for work in special operations. There are a many patches visible on the suit. Its mode switcher system looks damaged and forced in travel mode. Property of Gorlex Marauders."
-	armor = list(MELEE = 30, BULLET = 40, LASER = 20, ENERGY = 20, BOMB = 30, BIO = 100, RAD = 50, FIRE = 50, ACID = 90)
+	armor = list(MELEE = 30, BULLET = 40, LASER = 20, ENERGY = 20, BOMB = 30, BIO = 100, FIRE = 50, ACID = 90)
 	icon_state = "hardsuit1-syndi"
 	on = TRUE
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/syndi/damaged

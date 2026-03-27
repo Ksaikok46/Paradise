@@ -1,6 +1,6 @@
 /obj/item/storage/belt
-	name = "belt"
-	desc = "Can hold various things."
+	name = "not actually a toolbelt"
+	desc = "Can hold various things. This is the base type of /belt, are you sure you should have this?"
 	gender = MALE
 	icon = 'icons/obj/clothing/belts.dmi'
 	icon_state = "utilitybelt"
@@ -13,6 +13,8 @@
 	pickup_sound = 'sound/items/handling/pickup/toolbelt_pickup.ogg'
 	equip_sound = 'sound/items/handling/equip/toolbelt_equip.ogg'
 	drop_sound = 'sound/items/handling/drop/toolbelt_drop.ogg'
+	custom_price = PAYCHECK_COMMAND // belts are useful => they're expensive
+	abstract_type = /obj/item/storage/belt
 
 	/// Do we have overlays for items held inside the belt?
 	var/use_item_overlays = FALSE
@@ -130,9 +132,10 @@
 	if(!use_item_overlays)
 		return
 	for(var/obj/item/item in contents)
-		if(!item.belt_icon)
+		var/mutable_appearance/icon = item.get_belt_overlay()
+		if(!icon)
 			continue
-		. += mutable_appearance(icon, item.belt_icon, color = item.color)
+		. += icon
 
 /obj/item/storage/belt/proc/can_use()
 	return is_equipped()
@@ -254,6 +257,23 @@
 		INSTRUMENTAL = "медицинским поясом",
 		PREPOSITIONAL = "медицинском поясе",
 	)
+
+/obj/item/storage/belt/medical/filled/populate_contents()
+	new /obj/item/reagent_containers/applicator/brute(src)
+	new /obj/item/reagent_containers/applicator/burn(src)
+	new /obj/item/healthanalyzer/advanced(src)
+	new /obj/item/reagent_containers/hypospray/autoinjector(src)
+	new /obj/item/storage/pill_bottle/patch_pack/filled(src)
+	new /obj/item/storage/pill_bottle/filled(src)
+
+/obj/item/storage/belt/medical/filled/paramed/populate_contents()
+	new /obj/item/reagent_containers/hypospray/autoinjector(src)
+	new /obj/item/reagent_containers/hypospray/autoinjector/salbutamol(src)
+	new /obj/item/reagent_containers/hypospray/autoinjector/charcoal(src)
+	new /obj/item/reagent_containers/hypospray/autoinjector/traneksam(src)
+	new /obj/item/storage/pill_bottle/patch_pack/filled(src)
+	new /obj/item/stack/medical/bruise_pack(src)
+	new /obj/item/stack/medical/ointment(src)
 
 /obj/item/storage/belt/medical/surgery
 	name = "surgical belt"
@@ -455,6 +475,7 @@
 	item_state = "securitywebbing"
 	storage_slots = 6
 	use_item_overlays = FALSE
+	custom_price = PAYCHECK_MAX // 1 extra slot, so lil bit more expensive
 
 /obj/item/storage/belt/security/webbing/srt
 	name = "SRT webbing"
@@ -1244,6 +1265,7 @@
 		/obj/item/reagent_containers/glass/beaker,
 		/obj/item/radio,
 	)
+	custom_price = PAYCHECK_LOWER
 
 /obj/item/storage/belt/chef/artist
 	name = "delicate apron"

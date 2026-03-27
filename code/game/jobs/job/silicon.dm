@@ -2,6 +2,8 @@
 	title = JOB_TITLE_AI
 	flag = JOB_FLAG_AI
 	department_flag = JOBCAT_ENGSEC
+	department = STATION_DEPARTMENT_SILICON
+	head_position = TRUE
 	total_positions = -1 // Not used for AI, see is_position_available below and modules/mob/living/silicon/ai/latejoin.dm
 	spawn_positions = 1
 	selection_color = "#4c82bf"
@@ -24,6 +26,7 @@
 	title = JOB_TITLE_CYBORG
 	flag = JOB_FLAG_CYBORG
 	department_flag = JOBCAT_ENGSEC
+	department = STATION_DEPARTMENT_SILICON
 	total_positions = 2
 	spawn_positions = 2
 	supervisors = "своим набором законов и привязанным ИИ"
@@ -32,8 +35,10 @@
 	minimal_player_age = 21
 	exp_requirements = 300
 	exp_type = EXP_TYPE_CREW
-	alt_titles = list("Robot")
 	insurance_type = INSURANCE_TYPE_NONE
+	alt_titles = list(
+		ALT_JOB_TITLE_RU_CYBORG,
+	)
 
 /datum/job/cyborg/equip(mob/living/carbon/human/H)
 	if(!H)

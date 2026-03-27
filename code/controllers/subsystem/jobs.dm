@@ -7,12 +7,16 @@ SUBSYSTEM_DEF(jobs)
 	cpu_display = SS_CPUDISPLAY_LOW
 	ss_id = "jobs"
 
-	//List of all jobs
+	/// List of all jobs
 	var/list/occupations = list()
-	var/list/name_occupations = list()	//Dict of all jobs, keys are titles
-	var/list/type_occupations = list()	//Dict of all jobs, keys are types
-	var/list/prioritized_jobs = list() // List of jobs set to priority by HoP/Captain
-	var/list/id_change_records = list() // List of all job transfer records
+	/// Dict of all jobs, keys are titles
+	var/list/name_occupations = list()
+	/// Dict of all jobs, keys are types
+	var/list/type_occupations = list()
+	/// List of jobs set to priority by HoP/Captain
+	var/list/prioritized_jobs = list()
+	/// List of all job transfer records
+	var/alist/id_change_records = alist()
 	var/id_change_counter = 1
 	//Players who need jobs
 	var/list/unassigned = list()
@@ -40,13 +44,59 @@ SUBSYSTEM_DEF(jobs)
 		to_chat(world, span_warning("Ошибка выдачи профессий, датумы профессий не найдены."))
 		return
 
+	/// Order of departments, used to sort jobs in "occupations" list
+	var/list/department_order = list(
+		STATION_DEPARTMENT_COMMAND,
+		STATION_DEPARTMENT_ENGINEERING,
+		STATION_DEPARTMENT_SCIENCE,
+		STATION_DEPARTMENT_MEDICAL,
+		STATION_DEPARTMENT_SECURITY,
+		STATION_DEPARTMENT_SUPPLY,
+		STATION_DEPARTMENT_SERVICE,
+		STATION_DEPARTMENT_LEGAL,
+		STATION_DEPARTMENT_CIVILIAN,
+		STATION_DEPARTMENT_SILICON,
+		STATION_DEPARTMENT_OTHER,
+	)
+
+	var/list/department_groups = list()
+	for(var/department in department_order)
+		department_groups[department] = list()
+
 	for(var/J in all_jobs)
 		var/datum/job/job = new J()
-		if(!job)
+
+		if(!job || !job.title) // to avoid adding special cod-only datums without title
 			continue
-		occupations += job
+
 		name_occupations[job.title] = job
 		type_occupations[J] = job
+
+		// Splitting by departments
+		var/department = job.department
+		if(department in department_groups)
+			department_groups[department] += job
+
+	// Order: head_of_department -> department jobs
+	for(var/department in department_groups)
+		var/list/department_jobs = department_groups[department]
+		var/datum/job/head_of_department = null
+
+		for(var/datum/job/job in department_jobs)
+			if(job.head_position)
+				head_of_department = job
+				break
+
+		// Head goes first
+		if(!head_of_department)
+			continue
+
+		department_jobs -= head_of_department
+		department_jobs.Insert(1, head_of_department)
+
+	// Collecting a list in the right order
+	for(var/department in department_order)
+		occupations += department_groups[department]
 
 	LoadJobsFile("config/jobs.txt", FALSE)
 	LoadJobsFile("config/jobs_highpop.txt", TRUE)
@@ -60,7 +110,7 @@ SUBSYSTEM_DEF(jobs)
 			J.total_positions += (J.positions_highpop - positions_lowpop)
 
 /datum/controller/subsystem/jobs/proc/Debug(text)
-	if(GLOB.debug2)
+	if(GLOB.debugging_enabled)
 		job_debug.Add(text)
 
 /datum/controller/subsystem/jobs/proc/GetJob(rank)
@@ -515,14 +565,14 @@ SUBSYSTEM_DEF(jobs)
 	if(!mark_spawn)
 		mark_spawn = locate("start*[rank]") // use old stype
 
-	if(!mark_spawn) // No spawn, then spawn on latejoin mark
-		log_runtime(EXCEPTION("No landmark start for [rank]."))
+	if(!mark_spawn || SSticker.shuttle_start) // No spawn, then spawn on latejoin mark
+		stack_trace("No landmark start for [rank].")
 		if(rank == JOB_TITLE_PRISONER)
 			mark_spawn = pick(GLOB.latejoin_prisoner)
 		else
 			mark_spawn = pick(GLOB.latejoin)
 
-	if(!mark_spawn || SSticker.shuttle_start) // still no spawn, fall back to the arrivals shuttle
+	if(!mark_spawn) // still no spawn, fall back to the arrivals shuttle
 		if(rank == JOB_TITLE_PRISONER)
 			mark_spawn = get_random_area_turf_for_spawn(/area/security/permabrig)
 		else
@@ -704,6 +754,8 @@ SUBSYSTEM_DEF(jobs)
 		SSblackbox.record_feedback("nested tally", "job_preferences", charyoung, list("[job.title]", "charyoung"))
 
 /datum/controller/subsystem/jobs/proc/CreateMoneyAccount(mob/living/human, rank, datum/job/job)
+	if(!job)
+		return
 	var/money_amount = rand(job.min_start_money, job.max_start_money)
 	if(human.client.donator_level > 0)
 		money_amount += human.client.donator_level * START_CREDITS_BY_DONATION_TIER
@@ -723,7 +775,7 @@ SUBSYSTEM_DEF(jobs)
 	human.mind.store_memory(remembered_info)
 
 	// If they're head, give them the account info for their department
-	if(job?.head_position)
+	if(job.head_position)
 		remembered_info = ""
 		var/datum/money_account/department_account = GLOB.department_accounts[job.department]
 
@@ -761,22 +813,20 @@ SUBSYSTEM_DEF(jobs)
 		for(var/datum/job/job in occupations)
 			if(tgtcard.rank && tgtcard.rank == job.title)
 				jobs_to_formats[job.title] = "green" // the job they already have is pre-selected
-			else if(tgtcard.assignment == "Demoted" || tgtcard.assignment == "Terminated")
+			else if(tgtcard.assignment == JOB_TITLE_RU_DEMOTED || tgtcard.assignment == JOB_TITLE_RU_TERMINATED)
 				jobs_to_formats[job.title] = "grey"
-			else if(!job.would_accept_job_transfer_from_player(M))
-				jobs_to_formats[job.title] = "grey" // jobs which are karma-locked and not unlocked for this player are discouraged
 			else if((job.title in GLOB.command_positions) && istype(M) && M.client && job.available_in_playtime(M.client))
 				jobs_to_formats[job.title] = "grey" // command jobs which are playtime-locked and not unlocked for this player are discouraged
 			else if(job.total_positions && !job.current_positions && job.title != JOB_TITLE_CIVILIAN)
 				jobs_to_formats[job.title] = "teal" // jobs with nobody doing them at all are encouraged
 			else if(job.total_positions >= 0 && job.current_positions >= job.total_positions)
 				jobs_to_formats[job.title] = "grey" // jobs that are full (no free positions) are discouraged
-		if(tgtcard.assignment == "Demoted" || tgtcard.assignment == "Terminated")
+		if(tgtcard.assignment == JOB_TITLE_RU_DEMOTED || tgtcard.assignment == JOB_TITLE_RU_TERMINATED)
 			jobs_to_formats["Custom"] = "grey"
 	return jobs_to_formats
 
 /datum/controller/subsystem/jobs/proc/log_job_transfer(transferee, oldvalue, newvalue, whodidit, reason)
-	id_change_records["[id_change_counter]"] = list(
+	id_change_records[id_change_counter] = list(
 		"transferee" = transferee,
 		"oldvalue" = oldvalue,
 		"newvalue" = newvalue,
@@ -854,14 +904,14 @@ SUBSYSTEM_DEF(jobs)
 	. = 0
 	if(!sourceuser)
 		return
-	var/list/new_id_change_records = list()
+	var/alist/new_id_change_records = alist()
 	for(var/thisid in id_change_records)
 		var/thisrecord = id_change_records[thisid]
 		if(!thisrecord["deletedby"])
 			if(delete_all || thisrecord["whodidit"] == sourceuser)
 				thisrecord["deletedby"] = sourceuser
 				.++
-		new_id_change_records["[id_change_counter]"] = thisrecord
+		new_id_change_records[id_change_counter] = thisrecord
 		id_change_counter++
 	id_change_records = new_id_change_records
 

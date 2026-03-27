@@ -28,7 +28,7 @@
 	)
 
 /obj/item/reagent_containers/spray/afterattack(atom/A, mob/user, proximity, params)
-	if(isstorage(A) || istype(A, /obj/structure/table) || istype(A, /obj/structure/rack) || istype(A, /obj/structure/closet) \
+	if(isstorage(A) || istable(A) || istype(A, /obj/structure/rack) || iscloset(A) \
 	|| istype(A, /obj/item/reagent_containers) || istype(A, /obj/structure/sink) || istype(A, /obj/structure/janitorialcart) || istype(A, /obj/machinery/hydroponics))
 		return
 
@@ -105,6 +105,9 @@
 	name = "space cleaner"
 	desc = "Распылитель, заполненный непенящимся средством для очистки поверхностей. Произведено компанией \"BLAM!\"."
 	list_reagents = list("cleaner" = 250)
+	amount_per_transfer_from_this = 10
+	spray_maxrange = 2
+	spray_currentrange = 2
 
 /obj/item/reagent_containers/spray/cleaner/get_ru_names()
 	return list(
@@ -236,9 +239,9 @@
 		if(R.id != "cleaner") //all chems other than space cleaner are filthy.
 			reagents.del_reagent(R.id)
 			if(ismob(loc))
-				to_chat(loc, span_warning("[capitalize(declent_ru(NOMINATIVE))] определяет и удаляет недопустимое вещество."))
+				to_chat(loc, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] определяет и удаляет недопустимое вещество."))
 			else
-				visible_message(span_warning("[capitalize(declent_ru(NOMINATIVE))] определяет и удаляет недопустимое вещество."))
+				visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] определяет и удаляет недопустимое вещество."))
 
 /obj/item/reagent_containers/spray/cleaner/drone
 	volume = 50
@@ -264,7 +267,8 @@
 //pepperspray
 /obj/item/reagent_containers/spray/pepper
 	name = "pepperspray"
-	desc = "Произведено компанией \"UhangInc\", используется для быстрого ослепления и обезвреживания противника."
+	desc = "Небольшая ёмкость с распылителем, заполненная жгучей смесью на основе перца. Используется для несмертельного обезвреживания \
+			противников. Нюхать не рекомендуется."
 	icon = 'icons/obj/items.dmi'
 	icon_state = "pepperspray"
 	item_state = "pepperspray"

@@ -407,7 +407,7 @@
 	)
 
 /datum/surgery_step/robotics/manipulate_robotic_organs/mend/begin_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool, datum/surgery/surgery)
-	if(!hasorgans(target))
+	if(!iscarbon(target))
 		return
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 
@@ -429,7 +429,7 @@
 	return ..()
 
 /datum/surgery_step/robotics/manipulate_robotic_organs/mend/end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool, datum/surgery/surgery)
-	if(!hasorgans(target))
+	if(!iscarbon(target))
 		return
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	for(var/obj/item/organ/internal/organ as anything in affected.internal_organs)
@@ -470,6 +470,10 @@
 
 	if(!organ.is_robotic())
 		user.balloon_alert(user, "орган не кибернетический!")
+		return SURGERY_BEGINSTEP_SKIP
+
+	if(!organ.can_insert(user, target))
+		user.balloon_alert(user, "нет места под орган!")
 		return SURGERY_BEGINSTEP_SKIP
 
 	if(target_zone != organ.parent_organ_zone || target.get_organ_slot(organ.slot))

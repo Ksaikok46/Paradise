@@ -4,7 +4,7 @@
 		for(var/turf/simulated/floor/T in (xmas.get_all_adjacent_turfs() - get_turf(xmas)))
 			var/direction = get_dir(xmas, T)
 			for(var/i=1,i<=rand(1,5),i++)
-				var/obj/item/a_gift/gift = new(T)
+				var/obj/item/gift/gift = new(T)
 				handle_present_location(gift, direction, 16)
 
 	for(var/mob/living/simple_animal/pet/dog/corgi/Ian/Ian in GLOB.mob_list)
@@ -120,4 +120,4 @@
 	name = "festive paper hat"
 	icon_state = "xmashat"
 	desc = "A crappy paper hat that you are REQUIRED to wear."
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)

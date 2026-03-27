@@ -3,6 +3,8 @@
 	bubble_icon = "machine"
 	has_unlimited_silicon_privilege = TRUE
 	weather_immunities = list(TRAIT_WEATHER_IMMUNE)
+	abstract_type = /mob/living/silicon
+	looting_icon_mode = LOOT_ICON_FLAT_ICON
 	var/syndicate = 0
 	var/obj/item/gps/cyborg/gps
 	var/const/MAIN_CHANNEL = "Main Frequency"
@@ -18,7 +20,7 @@
 	var/designation = ""
 	var/obj/item/camera/siliconcam/aiCamera = null //photography
 //Used in say.dm, allows for pAIs to have different say flavor text, as well as silicons, although the latter is not implemented.
-	var/speak_statement = "states"
+	var/speak_statement = "заявляет"
 	var/speak_exclamation = "declares"
 	var/speak_query = "queries"
 	var/pose //Yes, now AIs can pose too.
@@ -26,7 +28,7 @@
 
 	//var/sensor_mode = 0 //Determines the current HUD.
 
-	hud_possible = list(SPECIALROLE_HUD, DIAG_STAT_HUD, DIAG_HUD)
+	hud_possible = list(SPECIALROLE_HUD, DIAG_STAT_HUD, DIAG_HUD, DIAG_AISHELL_STAT_HUD)
 
 	var/med_hud = DATA_HUD_MEDICAL_ADVANCED //Determines the med hud to use
 	var/sec_hud = DATA_HUD_SECURITY_ADVANCED //Determines the sec hud to use
@@ -331,14 +333,14 @@
 /mob/living/silicon/verb/pose()
 	set name = "Задать позу"
 	set desc = "Sets a description which will be shown when someone examines you."
-	set category = STATPANEL_IC
+	set category = VERB_CATEGORY_IC
 
 	pose =  tgui_input_text(usr, "This is [src]. It is...", "Pose", null, max_length = MAX_MESSAGE_LEN)
 
 /mob/living/silicon/verb/set_flavor()
 	set name = "Описание внешности"
 	set desc = "Sets an extended description of your character's features."
-	set category = STATPANEL_IC
+	set category = VERB_CATEGORY_IC
 
 	update_flavor_text()
 
@@ -385,6 +387,10 @@
 			to_chat(src, span_notice("Multisensor overlay enabled."))
 		if("Disable")
 			to_chat(src, "Sensor augmentations disabled.")
+
+// Returns AI that is bounded to us. Like a AI itself or a AI-pilot of shell
+/mob/living/silicon/proc/try_get_ai()
+	return null
 
 /mob/living/silicon/adjustToxLoss(
 	amount = 0,
@@ -433,3 +439,7 @@
 /mob/living/silicon/on_standing_up()
 	return // Silicons are always standing by default.
 
+/mob/living/silicon/throw_impact(atom/hit_atom, throwingdatum, speed = 1)
+	. = ..()
+	var/damage = 10 + 1.5 * speed
+	hit_atom.hit_by_thrown_mob(src, throwingdatum, damage, FALSE, FALSE)

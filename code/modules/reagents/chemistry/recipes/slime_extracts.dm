@@ -330,12 +330,20 @@
 	SSblackbox.record_feedback("tally", "slime_cores_used", 1, type)
 	var/turf/TU = get_turf(holder.my_atom)
 	TU.visible_message(span_danger("The slime extract begins to vibrate adorably !"))
-	spawn(50)
-		if(holder?.my_atom)
-			var/turf/simulated/T = get_turf(holder.my_atom)
-			if(istype(T))
-				T.atmos_spawn_air(LINDA_SPAWN_HEAT | LINDA_SPAWN_TOXINS, 50)
+	addtimer(CALLBACK(src, PROC_REF(reaction_result), holder), 5 SECONDS)
 
+/datum/chemical_reaction/slimefire/proc/reaction_result(datum/reagents/holder)
+	if(!holder?.my_atom)
+		return
+
+	var/turf/simulated/location = get_turf(holder.my_atom)
+	if(!istype(location))
+		return
+
+	var/datum/gas_mixture/air = new()
+	air.set_temperature(1000)
+	air.set_toxins(20)
+	location.blind_release_air(air)
 //Yellow
 
 /datum/chemical_reaction/slimeoverload
@@ -689,10 +697,7 @@
 /datum/chemical_reaction/slimestop/on_reaction(datum/reagents/holder)
 	SSblackbox.record_feedback("tally", "slime_cores_used", 1, type)
 	var/mob/mob = get_mob_by_key(holder.my_atom.fingerprintslast)
-	var/obj/effect/timestop/T = new
-	T.forceMove(get_turf(holder.my_atom))
-	T.immune += mob
-	T.timestop()
+	new /obj/effect/timestop(get_turf(holder.my_atom), 2, 8 SECONDS, list(mob))
 
 /datum/chemical_reaction/slimepotionlaser
 	name = "Slime Laser Resistence Potion"
@@ -755,20 +760,6 @@
 	var/obj/P = new chosen
 	if(P)
 		P.forceMove(get_turf(holder.my_atom))
-
-/datum/chemical_reaction/slimepotionrad
-	name = "Slime Radiation Resistence Potion"
-	id = "m_slime_potion_RadR"
-	result = null
-	required_reagents = list("water" = 1)
-	result_amount = 1
-	required_container = /obj/item/slime_extract/pyrite
-	required_other = 1
-
-/datum/chemical_reaction/slimepotionrad/on_reaction(datum/reagents/holder)
-	SSblackbox.record_feedback("tally", "slime_cores_used", 1, type)
-	var/obj/item/slimepotion/clothing/radiation/R = new
-	R.forceMove(get_turf(holder.my_atom))
 
 //Rainbow :o)
 /datum/chemical_reaction/slimeRNG

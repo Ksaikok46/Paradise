@@ -92,14 +92,18 @@
 #define INIT_ORDER_DBCORE 91
 #define INIT_ORDER_REDIS 90
 #define INIT_ORDER_BLACKBOX 56
-#define INIT_ORDER_CLEANUP 55
+#define INIT_ORDER_ADMIN_VERBS 55
+#define INIT_ORDER_CLEANUP 54
 #define INIT_ORDER_INPUT 50
 #define INIT_ORDER_SOUNDS 45
 #define INIT_ORDER_INSTRUMENTS 44
 #define INIT_ORDER_ACHIEVEMENTS 43
-#define INIT_ORDER_EVENTS 42
-#define INIT_ORDER_HOLIDAY 41
-#define INIT_ORDER_JOBS 40
+#define INIT_ORDER_DONATIONS 42
+#define INIT_ORDER_GREYSCALE 41
+#define INIT_ORDER_GREYSCALE_PREVIEW 40
+#define INIT_ORDER_EVENTS 39
+#define INIT_ORDER_HOLIDAY 38
+#define INIT_ORDER_JOBS 37
 #define INIT_ORDER_AI_MOVEMENT 36 //We need the movement setup
 #define INIT_ORDER_AI_CONTROLLERS 35 //So the controller can get the ref
 #define INIT_ORDER_TICKER 30
@@ -145,6 +149,8 @@
 #define FIRE_PRIORITY_AMBIENCE 10
 #define FIRE_PRIORITY_GARBAGE 15
 #define FIRE_PRIORITY_TERRAFORMING 15
+#define FIRE_PRIORITY_TURFS_VISUALIZATION 15
+#define FIRE_PRIORITY_DONATIONS 15
 #define FIRE_PRIORITY_WET_FLOORS 20
 #define FIRE_PRIORITY_AIR 20
 #define FIRE_PRIORITY_NPC 20
@@ -166,6 +172,7 @@
 #define FIRE_PRIORITY_TGUI 110
 #define FIRE_PRIORITY_NEW_PLAYERS_INFO 199
 #define FIRE_PRIORITY_TICKER 200
+#define FIRE_PRIORITY_SINGULO 350
 #define FIRE_PRIORITY_STATPANEL 390
 #define FIRE_PRIORITY_CHAT 400
 #define FIRE_PRIORITY_RUNECHAT 410 // I hate how high the fire priority on this is -aa
@@ -173,6 +180,7 @@
 #define FIRE_PRIORITY_OVERLAYS 500
 #define FIRE_PRIORITY_EXPLOSIONS 666
 #define FIRE_PRIORITY_TIMER 700
+#define FIRE_PRIORITY_SOUND_LOOPS 800
 #define FIRE_PRIORITY_SPEECH_CONTROLLER 900
 #define FIRE_PRIORITY_DELAYED_VERBS 950
 #define FIRE_PRIORITY_INPUT 1000 // This must always always be the max highest priority. Player input must never be lost.
@@ -183,6 +191,15 @@
 #define RUNLEVEL_GAME (1<<2)
 #define RUNLEVEL_POSTGAME (1<<3)
 #define RUNLEVELS_DEFAULT (RUNLEVEL_SETUP|RUNLEVEL_GAME|RUNLEVEL_POSTGAME)
+
+// Subsystem delta times or tickrates, in seconds. I.e, how many seconds in between each process() call for objects being processed by that subsystem.
+// Only use these defines if you want to access some other objects processing seconds_per_tick, otherwise use the seconds_per_tick that is sent as a parameter to process()
+#define SSMACHINES_DT (SSmachines.wait / 10)
+#define SSMOBS_DT (SSmobs.wait / 10)
+#define SSOBJ_DT (SSobj.wait / 10)
+
+// The change in the world's time from the subsystem's last fire in seconds.
+#define DELTA_WORLD_TIME(ss) ((world.time - ss.last_fire) * 0.1)
 
 /// The timer key used to know how long subsystem initialization takes
 #define SS_INIT_TIMER_KEY "ss_init"

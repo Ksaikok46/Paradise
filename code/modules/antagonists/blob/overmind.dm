@@ -19,7 +19,7 @@ GLOBAL_LIST_EMPTY(overminds)
 	layer = FLY_LAYER
 	plane = ABOVE_GAME_PLANE
 	pass_flags = PASSBLOB
-	verb_say = "states"
+	verb_say = "заявляет"
 
 	hud_type = /datum/hud/blob_overmind
 	var/obj/structure/blob/special/core/blob_core = null // The blob overmind's core
@@ -249,7 +249,7 @@ GLOBAL_LIST_EMPTY(overminds)
 /// Add something to our list of mobs and wait for it to die
 /mob/camera/blob/proc/register_new_minion(mob/living/minion)
 	blob_mobs |= minion
-	if(!istype(minion, /mob/living/simple_animal/hostile/blob_minion/blobbernaut))
+	if(!isblobbernaut(minion))
 		RegisterSignal(minion, COMSIG_LIVING_DEATH, PROC_REF(on_minion_death))
 
 /// When a spore (or zombie) dies then we do this

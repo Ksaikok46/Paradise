@@ -15,13 +15,12 @@
 #define ENERGY "energy"
 #define BOMB "bomb"
 #define BIO "bio"
-#define RAD "rad"
 #define FIRE "fire"
 #define ACID "acid"
 #define MAGIC "magic"
 
 /// All armors
-#define ARMOR_LIST_ALL(...) list(ACID, BIO, BOMB, BULLET, ENERGY, FIRE, LASER, MAGIC, MELEE, RAD)
+#define ARMOR_LIST_ALL(...) list(ACID, BIO, BOMB, BULLET, ENERGY, FIRE, LASER, MAGIC, MELEE)
 
 #define STUN "stun"
 #define WEAKEN "weaken"
@@ -30,13 +29,13 @@
 #define PARALYZE "paralize"
 #define SLEEP "sleep"
 #define IMMOBILIZE "immobilize"
-#define IRRADIATE "irradiate"
 #define STUTTER "stutter"
 #define SLUR "slur"
 #define EYE_BLUR "eye_blur"
 #define DROWSY "drowsy"
 #define JITTER "jitter"
 #define CONFUSED "confused"
+#define EFFECT_UNCONSCIOUS "unconscious"
 
 //I hate adding defines like this but I'd much rather deal with bitflags than lists and string searches
 #define BRUTELOSS (1<<0)
@@ -161,6 +160,14 @@
 #define BODY_ZONE_PRECISE_L_FOOT "l_foot"
 #define BODY_ZONE_PRECISE_R_FOOT "r_foot"
 
+GLOBAL_LIST_INIT(body_zones, list(
+	BODY_ZONE_HEAD, BODY_ZONE_CHEST, BODY_ZONE_PRECISE_GROIN,
+	BODY_ZONE_L_ARM, BODY_ZONE_R_ARM, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG,
+	BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND,
+	BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT,
+	BODY_ZONE_TAIL,
+))
+
 //We will round to this value in damage calculations.
 #define DAMAGE_PRECISION 0.1
 //We will round to this value in bleeding calculations.
@@ -254,6 +261,8 @@
 #define CLICK_CD_LOOK_UP_DOWN (0.5 SECONDS)
 #define CLICK_CD_THROW (0.8 SECONDS)
 
+#define CLICK_CD_BREAKOUT (10 SECONDS)
+
 //the define for visible message range in combat
 #define SAMETILE_MESSAGE_RANGE 1
 #define COMBAT_MESSAGE_RANGE 3
@@ -263,3 +272,8 @@
 #define TRIGGER_GUARD_ALLOW_ALL -1
 #define TRIGGER_GUARD_NONE 0
 #define TRIGGER_GUARD_NORMAL 1
+
+/// The amount of energy needed to increase the burn force by 1 damage during electrocution.
+#define JOULES_PER_DAMAGE (25 KILO JOULES)
+/// Calculates the amount of burn force when applying this much energy to a mob via electrocution from an energy source.
+#define ELECTROCUTE_DAMAGE(energy) (energy >= 1 KILO JOULES ? clamp(20 + round(energy / JOULES_PER_DAMAGE), 20, 195) + rand(-5,5) : 0)

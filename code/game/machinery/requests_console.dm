@@ -17,7 +17,7 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 	icon = 'icons/obj/machines/terminals.dmi'
 	icon_state = "req_comp_off"
 	max_integrity = 300
-	armor = list(MELEE = 70, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 0, BIO = 0, RAD = 0, FIRE = 90, ACID = 90)
+	armor = list(MELEE = 70, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 0, BIO = 0, FIRE = 90, ACID = 90)
 	var/department = UNKNOWN_STATUS_RUS //The list of all departments on the station (Determined from this variable on each unit) Set this to the same thing if you want several consoles in one department
 	var/list/message_log = list() //List of all messages
 	var/departmentType = 0		//Bitflag. Zero is reply-only. Map currently uses raw numbers instead of defines.
@@ -42,7 +42,6 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 	var/ship_tag_index = 0
 	var/print_cooldown = 0	//cooldown on shipping label printer, stores the  in-game time of when the printer will next be ready
 	var/radiochannel = PUB_FREQ
-	var/list/connected_apps = list()
 
 /obj/machinery/requests_console/Initialize(mapload)
 	. = ..()
@@ -62,7 +61,6 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 
 /obj/machinery/requests_console/Destroy()
 	GLOB.allRequestConsoles -= src
-	QDEL_NULL(connected_apps)
 	var/lastDeptRC = TRUE
 	for(var/obj/machinery/requests_console/Console in GLOB.allRequestConsoles)
 		if(Console.department == department)
@@ -75,8 +73,6 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 			GLOB.req_console_supplies -= department
 		if(departmentType & RC_INFO)
 			GLOB.req_console_information -= department
-	for(var/datum/data/pda/app/request_console/app as anything in connected_apps)
-		app.on_rc_destroyed(src)
 	return ..()
 
 /obj/machinery/requests_console/attack_ghost(user as mob)
@@ -256,7 +252,7 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 	if(user.a_intent == INTENT_HARM || inoperable(MAINT))
 		return ..()
 
-	if(istype(I, /obj/item/card/id))
+	if(is_id_card(I))
 		add_fingerprint(user)
 		return login_console(screen, I, src)
 
@@ -336,8 +332,7 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 		write_to_message_log(rendered_message, source == ORE_REDEMPTION)
 
 /obj/machinery/requests_console/proc/write_to_message_log(message, ore_message = FALSE)
-	for(var/datum/data/pda/app/request_console/app as anything in connected_apps)
-		app.on_rc_message_received(src, message, ore_message)
+	SEND_SIGNAL(src, COMSIG_REQUEST_CONSOLE_MESSAGE, message, ore_message)
 	message_log = list(message) + message_log
 
 /obj/machinery/requests_console/proc/print_label(tag_name, tag_index)

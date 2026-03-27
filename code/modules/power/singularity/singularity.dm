@@ -41,6 +41,7 @@
 
 /obj/singularity/Initialize(mapload, starting_energy = 50)
 	. = ..()
+	ADD_TRAIT(src, TRAIT_SUPERMATTER_IMMUNE, INNATE_TRAIT)
 	//CARN: admin-alert for chuckle-fuckery.
 	admin_investigate_setup()
 
@@ -132,6 +133,7 @@
 		//  it might mean we are stuck in a corner somewere. So move around to try to expand.
 		move()
 	if(current_size >= STAGE_TWO)
+		radiation_pulse(src, max_range = 15, threshold = RAD_EXTREME_INSULATION, chance = 50)
 		pulse()
 		if(prob(event_chance))//Chance for it to run a special event TODO:Come up with one or two more that fit
 			event()
@@ -307,7 +309,7 @@
 /obj/singularity/proc/consume(atom/A)
 	var/gain = A.singularity_act(current_size)
 	src.energy += gain
-	if(istype(A, /obj/machinery/power/supermatter_shard) && !consumedSupermatter)
+	if(istype(A, /obj/machinery/atmospherics/supermatter_crystal) && !consumedSupermatter)
 		desc = "[initial(desc)] It glows fiercely with inner fire."
 		name = "supermatter-charged [initial(name)]"
 		consumedSupermatter = 1
@@ -328,7 +330,7 @@
 			qdel(A)
 		else
 			visible_message(span_userdanger("Rat'var strikes down [src]!"))
-			investigate_log("has been destroyed by Ratvar","singulo")
+			investigate_log("has been destroyed by Ratvar", INVESTIGATE_ENGINE)
 			qdel(src)
 
 	return
@@ -415,64 +417,60 @@
 	return 1
 
 /obj/singularity/proc/event()
-	var/numb = pick(1,2,3,4,5,6)
+	var/numb = rand(1, 4)
 	switch(numb)
-		if(1)//EMP
+		if(1) // EMP
 			emp_area()
-		if(2,3)//tox damage all carbon mobs in area
-			toxmob()
-		if(4)//Stun mobs who lack optic scanners
+		if(2) // Stun mobs who lack optic scanners
 			mezzer()
-		if(5,6) //Sets all nearby mobs on fire
+		if(3, 4) // Sets all nearby mobs on fire
 			if(current_size < STAGE_SIX)
-				return 0
+				return FALSE
 			combust_mobs()
 		else
-			return 0
-	return 1
-
-/obj/singularity/proc/toxmob()
-	var/toxrange = 10
-	var/radiation = 15
-	var/radiationmin = 3
-	if(energy>200)
-		radiation += round((energy-150)/10,1)
-		radiationmin = round((radiation/5),1)
-	for(var/mob/living/M in view(toxrange, src.loc))
-		M.apply_effect(rand(radiationmin,radiation), IRRADIATE)
+			return FALSE
+	return TRUE
 
 /obj/singularity/proc/combust_mobs()
-	for(var/mob/living/carbon/C in urange(20, src, 1))
-		C.visible_message(
-			span_warning("[C]'s skin bursts into flame!"), \
+	for(var/mob/living/carbon/burned_mob in urange(20, src, 1))
+		burned_mob.visible_message(
+			span_warning("[burned_mob]'s skin bursts into flame!"),
 			span_userdanger("You feel an inner fire as your skin bursts into flames!")
 		)
-		C.adjust_fire_stacks(5)
-		C.IgniteMob()
+		burned_mob.adjust_fire_stacks(5)
+		burned_mob.IgniteMob()
 	return
 
 /obj/singularity/proc/mezzer()
-	for(var/mob/living/carbon/M in oviewers(8, src))
-		if(isbrain(M)) //Ignore brains
+	for(var/mob/living/carbon/stunned_mob in oviewers(8, src))
+		if(isbrain(stunned_mob) || stunned_mob.stat == DEAD || stunned_mob.is_blind())
 			continue
-		if(!M.stat) // We can't stare on the lord if we are not so alive.
+
+		if(!ishuman(stunned_mob))
+			apply_stun(stunned_mob)
 			continue
-		if((M.sight >= SEE_TURFS) && !(M.sight >= (SEE_TURFS|SEE_OBJS))) // If they can see it without mesons on or can see objects through mesons. Bad on them.
-			to_chat(M, span_notice("You look directly into the [src.name], good thing you had your protective eyewear on!"))
+
+		var/mob/living/carbon/human/stunned_human = stunned_mob
+		if(HAS_TRAIT(stunned_human, TRAIT_MESON_VISION))
+			to_chat(stunned_human, span_notice("Вы смотрите прямо в [declent_ru(ACCUSATIVE)], хорошо, что на вас защитные очки!"))
 			continue
-		M.Stun(6 SECONDS)
-		M.visible_message(span_danger("[M] stares blankly at [src]!"), \
-						span_userdanger("You look directly into [src] and feel weak."))
-	return
+
+		apply_stun(stunned_mob)
+
+/obj/singularity/proc/apply_stun(mob/living/carbon/stunned_mob)
+		stunned_mob.apply_effect(60, STUN)
+		stunned_mob.visible_message(
+			span_danger("[stunned_mob] stares blankly at [src]!"),
+			span_userdanger("You look directly into [src] and feel weak.")
+		)
 
 /obj/singularity/proc/emp_area()
 	empulse(src, 8, 10)
-	return
 
 /obj/singularity/proc/pulse()
-	for(var/obj/machinery/power/rad_collector/R in GLOB.rad_collectors)
-		if(R.z == z && get_dist(R, src) <= 15) // Better than using orange() every process
-			R.receive_pulse(energy)
+	for(var/obj/machinery/power/energy_accumulator/rad_collector/collector as anything in GLOB.rad_collectors)
+		if(collector.z == z && get_dist(collector, src) <= 15) // Better than using orange() every process
+			collector.receive_pulse(energy)
 
 /obj/singularity/proc/update_warp()
 	if(!warp)
@@ -512,7 +510,7 @@
 		qdel(projectile)
 		return
 
-	projectile_angle += angle_to_singulo / (distance_to_singulo ** 2)
+	projectile_angle += angle_to_singulo / POW2(distance_to_singulo)
 	projectile.damage += 10 / distance_to_singulo
 	projectile.set_angle(projectile_angle)
 

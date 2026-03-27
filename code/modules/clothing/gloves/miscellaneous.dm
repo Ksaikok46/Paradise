@@ -84,7 +84,7 @@
 	heat_protection = HANDS
 	max_heat_protection_temperature = GLOVES_MAX_TEMP_PROTECT
 	resistance_flags = NONE
-	armor = list(MELEE = 25, BULLET = 5, LASER = 5, ENERGY = 10, BOMB = 10, BIO = 0, RAD = 0, FIRE = 70, ACID = 70)
+	armor = list(MELEE = 25, BULLET = 5, LASER = 5, ENERGY = 10, BOMB = 10, BIO = 0, FIRE = 70, ACID = 70)
 
 /obj/item/clothing/gloves/combat/riot
 	name = "riot gloves"
@@ -114,7 +114,7 @@
 	min_cold_protection_temperature = GLOVES_MIN_TEMP_PROTECT
 	max_heat_protection_temperature = GLOVES_MAX_TEMP_PROTECT
 	resistance_flags = NONE
-	armor = list(MELEE = 25, BULLET = 30, LASER = 20, ENERGY = 25, BOMB = 35, BIO = 10, RAD = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 25, BULLET = 30, LASER = 20, ENERGY = 25, BOMB = 35, BIO = 10, FIRE = 0, ACID = 0)
 
 /obj/item/clothing/gloves/bracer/get_ru_names()
 	return list(
@@ -137,7 +137,7 @@
 	heat_protection = HANDS
 	max_heat_protection_temperature = GLOVES_MAX_TEMP_PROTECT
 	resistance_flags = NONE
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 70, ACID = 30)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 70, ACID = 30)
 
 /obj/item/clothing/gloves/cursedclown
 	name = "cursed white gloves"
@@ -262,7 +262,7 @@
 /obj/item/clothing/gloves/fingerless/rapid/proc/dirslash_enabling()
 	set name = "Атака по направлению"
 	set desc = "If direction slash is enabled, you can attack mobs, by clicking behind their backs"
-	set category = STATPANEL_OBJECT
+	set category = VERB_CATEGORY_OBJECT
 	var/mob/living/L = usr
 	L.dirslash_enabled = !L.dirslash_enabled
 	to_chat(src, span_notice("Directrion slash is [L.dirslash_enabled? "enabled" : "disabled"] now."))
@@ -366,7 +366,7 @@
 	var/knuckle_damage = 5 //additional fists damage
 	var/knock_damage_low = 5 // stamina damage
 	var/knock_damage_high = 10 // min and max
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 0)
 	sprite_sheets = list(
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/gloves.dmi',
 		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/gloves.dmi')
@@ -442,7 +442,7 @@
 	name = "SWAT gloves"
 	icon_state = "swat_gloves"
 	item_state = "nt_swat_gl"
-	armor = list(MELEE = 15, BULLET = 15, LASER = 15, ENERGY = 15, BOMB = 15, BIO = 0, RAD = 0, FIRE = 75, ACID = 75)
+	armor = list(MELEE = 15, BULLET = 15, LASER = 15, ENERGY = 15, BOMB = 15, BIO = 0, FIRE = 75, ACID = 75)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/gloves.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/gloves.dmi',
@@ -465,7 +465,7 @@
 	desc = "Высокотехнологичные перчатки, изготовленные из светоотражающего материала, предназначены для отражения энергетических лучей. Носить их — настоящее испытание для рук!"
 	icon_state = "reflector"
 	item_state = "reflector"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 50, ENERGY = 50, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 100)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 50, ENERGY = 50, BOMB = 0, BIO = 0, FIRE = 50, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	sprite_sheets = list(
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/gloves.dmi',
@@ -500,11 +500,11 @@
 	name = "reflector hat"
 	desc = "Высокотехнологичная шляпа, изготовленная из светоотражающего материала, предназначена для отражения энергетических лучей. В неё встроен защитный визор, который обладает повышенной устойчивостью к кислотам."
 	icon_state = "reflector"
-	item_state = "reflector"
+	item_state = "reflectorhat"
 	flags_inv = HIDEHEADSETS
 	flags_cover = HEADCOVERSEYES|HEADCOVERSMOUTH
 	dog_fashion = null
-	armor = list(MELEE = 10, BULLET = 10, LASER = 60, ENERGY = 60, BOMB = 0, BIO = 0, RAD = 0, FIRE = 90, ACID = 100)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 60, ENERGY = 60, BOMB = 0, BIO = 0, FIRE = 90, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/helmet.dmi',
@@ -545,8 +545,8 @@
 	name = "reflector boots"
 	desc = "Высокотехнологичные ботинки, изготовленные из светоотражающего материала, предназначены для отражения энергетических лучей. Довольно лёгкая, но не очень удобная обувь."
 	icon_state = "reflector"
-	item_state = "reflector"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 50, ENERGY = 50, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 100)
+	item_state = "reflectorboots"
+	armor = list(MELEE = 0, BULLET = 0, LASER = 50, ENERGY = 50, BOMB = 0, BIO = 0, FIRE = 50, ACID = 100)
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	sprite_sheets = list(
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/shoes.dmi',

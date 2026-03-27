@@ -1,3 +1,9 @@
+/**
+ * The base type for nearly all physical objects in SS13
+
+ * Lots and lots of functionality lives here, although in general we are striving to move
+ * as much as possible to the components/elements system
+ */
 /atom
 	layer = TURF_LAYER
 	plane = GAME_PLANE
@@ -5,6 +11,8 @@
 	var/level = 2
 	var/flags = NONE
 	var/flags_2 = NONE
+	/// Flags that make this object harder to destroy, e.g. [ACID_PROOF], [FIRE_PROOF], [INDESTRUCTIBLE].
+	var/resistance_flags = NONE
 	var/flags_ricochet = NONE
 	var/list/fingerprints
 	var/list/fingerprints_time
@@ -20,6 +28,9 @@
 	var/bubble_icon = "default" ///what icon the mob uses for speechbubbles
 	var/bubble_emote_icon = "emote" ///what icon the mob uses for emotebubbles
 	var/dont_save = FALSE // For atoms that are temporary by necessity - like lighting overlays
+	/// The icon state that will be switched to during initialization.
+	/// Mostly intended for things that have a special map icon.
+	var/post_init_icon_state
 
 	/// pass_flags that we are. If any of this matches a pass_flag on a moving thing, by default, we let them through.
 	var/pass_flags_self = NONE
@@ -74,6 +85,13 @@
 
 	var/list/atom_colours	 //used to store the different colors on an atom
 						//its inherent color, the colored paint applied on it, special color effect etc...
+	/// Currently used color filter - cached because its applied to all of our overlays because BYOND is horrific
+	var/list/cached_color_filter
+
+	///The config type to use for greyscaled sprites. Both this and greyscale_colors must be assigned to work.
+	var/greyscale_config
+	///A string of hex format colors to be used by greyscale sprites, ex: "#0054aa#badcff"
+	var/greyscale_colors
 
 	///Light systems, both shouldn't be active at the same time.
 	var/light_system = STATIC_LIGHT
@@ -98,17 +116,27 @@
 	var/chat_color
 	/// A luminescence-shifted value of the last color calculated for chatmessage overlays
 	var/chat_color_darkened
+
+
 	/// Список склонений русского названия атома в разных грамматических падежах.
 	/// Формат: list(CASE_ID = "name_in_case", ...)
 	var/list/ru_names
+
 	// Can it be drained of energy by ninja?
 	var/drain_act_protected = FALSE
-	///Used for changing icon states for different base sprites.
-	var/base_icon_state
-	///Default pixel x shifting for the atom's icon.
+
+	// Use SET_BASE_PIXEL(x, y) to set these in typepath definitions, it'll handle pixel_x and y for you
+	/// Default pixel x shifting for the atom's icon.
 	var/base_pixel_x = 0
-	///Default pixel y shifting for the atom's icon.
+	/// Default pixel y shifting for the atom's icon.
 	var/base_pixel_y = 0
+	// Use SET_BASE_VISUAL_PIXEL(x, y) to set these in typepath definitions, it'll handle pixel_w and z for you
+	/// Default pixel w shifting for the atom's icon.
+	var/base_pixel_w = 0
+	/// Default pixel z shifting for the atom's icon.
+	var/base_pixel_z = 0
+	/// Used for changing icon states for different base sprites.
+	var/base_icon_state
 
 	var/tts_seed = "Arthas"
 	var/tts_atom_say_effect = SOUND_EFFECT_RADIO
@@ -161,77 +189,13 @@
 	/// Proximity monitor associated with this atom, needed for proximity checks.
 	var/datum/proximity_monitor/proximity_monitor
 
-/atom/New(loc, ...)
-	SHOULD_CALL_PARENT(TRUE)
-	if(GLOB.use_preloader && (src.type == GLOB._preloader.target_path))//in case the instanciated atom is creating other atoms in New()
-		GLOB._preloader.load(src)
-	. = ..()
-	attempt_init(arglist(args))
-	if(SSdemo?.initialized)
-		SSdemo.mark_new(src)
+	/// Do we care about temperature at all? Saves us a ton of proc calls during big fires.
+	var/cares_about_temperature = FALSE
 
-// This is distinct from /tg/ because of our space management system
-// This is overriden in /atom/movable and the parent isn't called if the SMS wants to deal with it's init
-/atom/proc/attempt_init(...)
-	var/do_initialize = SSatoms.initialized
-	if(do_initialize != INITIALIZATION_INSSATOMS)
-		args[1] = do_initialize == INITIALIZATION_INNEW_MAPLOAD
-		if(SSatoms.InitAtom(src, args))
-			// we were deleted
-			return
+	/// Radiation insulation types
+	var/rad_insulation = RAD_NO_INSULATION
 
-//Called after New if the map is being loaded. mapload = TRUE
-//Called from base of New if the map is not being loaded. mapload = FALSE
-//This base must be called or derivatives must set initialized to TRUE
-//must not sleep
-//Other parameters are passed from New (excluding loc), this does not happen if mapload is TRUE
-//Must return an Initialize hint. Defined in __DEFINES/subsystems.dm
-
-//Note: the following functions don't call the base for optimization and must copypasta:
-// /turf/Initialize
-// /turf/simulated/space/Initialize
-
-/atom/proc/Initialize(mapload, ...)
-	SHOULD_CALL_PARENT(TRUE)
-	var/list/names = ru_names
-
-	if(names && !GLOB.cached_ru_names[type])
-		GLOB.cached_ru_names[type] = names
-
-	ru_names = null
-
-	if(flags & INITIALIZED)
-		stack_trace("Warning: [src]([type]) initialized multiple times!")
-	flags |= INITIALIZED
-
-	SET_PLANE_IMPLICIT(src, plane)
-
-	if(color)
-		add_atom_colour(color, FIXED_COLOUR_PRIORITY)
-
-	if(light_system == STATIC_LIGHT && light_power && light_range)
-		update_light()
-
-	if(loc)
-		loc.InitializedOn(src) // Used for poolcontroller / pool to improve performance greatly. However it also open up path to other usage of observer pattern on turfs.
-
-	SETUP_SMOOTHING()
-
-	ComponentInitialize()
-	InitializeAIController()
-
-	return INITIALIZE_HINT_NORMAL
-
-//called if Initialize returns INITIALIZE_HINT_LATELOAD
-/atom/proc/LateInitialize()
-	return
-
-// Put your AddComponent() calls here
-/atom/proc/ComponentInitialize()
-	return
-
-/atom/proc/InitializedOn(atom/A) // Proc for when something is initialized on a atom - Optional to call. Useful for observer pattern etc.
-	return
+	var/looting_icon_mode
 
 /atom/proc/onCentcom()
 	. = FALSE
@@ -306,8 +270,9 @@
 		newdir = dir
 		return
 	SEND_SIGNAL(src, COMSIG_ATOM_DIR_CHANGE, dir, newdir)
+	var/oldDir = dir
 	dir = newdir
-	SEND_SIGNAL(src, COMSIG_ATOM_POST_DIR_CHANGE, dir, newdir)
+	SEND_SIGNAL(src, COMSIG_ATOM_POST_DIR_CHANGE, oldDir, newdir)
 
 /atom/proc/set_angle(degrees)
 	var/matrix/M = matrix()
@@ -367,19 +332,6 @@
 	SHOULD_CALL_PARENT(TRUE)
 	. |= SEND_SIGNAL(src, COMSIG_ATOM_INTERCEPT_Z_FALL, falling_movables, levels)
 
-/atom/proc/assume_air(datum/gas_mixture/giver)
-	qdel(giver)
-	return null
-
-/atom/proc/remove_air(amount)
-	return null
-
-/atom/proc/return_air()
-	if(loc)
-		return loc.return_air()
-	else
-		return null
-
 ///Return the air if we can analyze it
 /atom/proc/return_analyzable_air()
 	return null
@@ -419,6 +371,7 @@
 /atom/proc/is_drainable()
 	return reagents && (container_type & DRAINABLE)
 
+///Is this atom within 1 tile of another atom
 /atom/proc/HasProximity(atom/movable/proximity_check_mob as mob|obj)
 	return
 
@@ -427,6 +380,7 @@
 
 //amount of water acting : temperature of water in kelvin : object that called it (for shennagins)
 /atom/proc/water_act(volume, temperature, source, method = REAGENT_TOUCH)
+	SEND_SIGNAL(src, COMSIG_ATOM_EXPOSE_REAGENTS, volume, temperature, source, method)
 	return TRUE
 
 /atom/proc/bullet_act(obj/projectile/P, def_zone)
@@ -563,7 +517,7 @@
 		. |= UPDATE_ICON_STATE
 
 	if(updates & UPDATE_OVERLAYS)
-		var/list/new_overlays = update_overlays()
+		var/list/new_overlays = update_overlays(updates)
 		SEND_SIGNAL(src, COMSIG_ATOM_UPDATE_OVERLAYS, new_overlays)
 
 		// Ok, so its rather this or required inheritance in every [update_overlays()]
@@ -580,6 +534,8 @@
 				continue
 			if(istext(maybe_not_an_atom) || isicon(maybe_not_an_atom))
 				continue
+			if(maybe_not_an_atom.layer <= 0 && (maybe_not_an_atom.pixel_x || maybe_not_an_atom.pixel_y))
+				stack_trace("Float layer added to [src] ([type]) with pixel_x and pixel_y set on an overlay [maybe_not_an_atom.icon]/[maybe_not_an_atom.icon_state]")
 			new_overlays[i] = maybe_not_an_atom.appearance
 		if(nulls)
 			for(var/i in 1 to nulls)
@@ -610,6 +566,8 @@
 
 			switch(length(new_overlays))
 				if(0)
+					if(full_control)
+						POST_OVERLAY_CHANGE(src)
 					managed_overlays = null
 				if(1)
 					add_overlay(new_overlays)
@@ -634,6 +592,32 @@
 	PROTECTED_PROC(TRUE)
 	RETURN_TYPE(/list)
 	. = list()
+
+/// Checks if the colors given are different and if so causes a greyscale icon update
+/atom/proc/set_greyscale_colors(list/colors, update = TRUE)
+	SHOULD_CALL_PARENT(TRUE)
+	if(istype(colors))
+		colors = colors.Join("")
+	if(greyscale_colors == colors)
+		return
+	greyscale_colors = colors
+	if(!greyscale_config)
+		return
+	if(update && greyscale_config && greyscale_colors)
+		update_greyscale()
+
+/// Checks if the greyscale config given is different and if so causes a greyscale icon update
+/atom/proc/set_greyscale_config(new_config, update=TRUE)
+	if(greyscale_config == new_config)
+		return
+	greyscale_config = new_config
+	if(update && greyscale_config && greyscale_colors)
+		update_greyscale()
+
+/// Checks if this atom uses the GAS system and if so updates the icon
+/atom/proc/update_greyscale()
+	icon = SSgreyscale.get_colored_icon_by_type(greyscale_config, greyscale_colors)
+	looting_icon_mode = LOOT_ICON_ICON_TO_HTML
 
 /// Updates atom's emissive block if present.
 /atom/proc/get_emissive_block()
@@ -705,7 +689,7 @@
 /atom/proc/blob_vore_act(obj/structure/blob/special/core/voring_core)
 	return TRUE
 
-/atom/proc/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay = TRUE)
+/atom/proc/fire_act(exposed_temperature, exposed_volume)
 	SEND_SIGNAL(src, COMSIG_ATOM_FIRE_ACT, exposed_temperature, exposed_volume)
 	if(reagents)
 		reagents.temperature_reagents(exposed_temperature)
@@ -824,8 +808,8 @@
 /atom/proc/grab_attack(mob/living/grabber, atom/movable/grabbed_thing)
 	return TRUE
 
-/// This proc applies special effects of a carbon mob hitting something, be it a wall, structure, or window. You can set mob_hurt to false to avoid double dipping through subtypes if returning ..()
-/atom/proc/hit_by_thrown_carbon(mob/living/carbon/human/C, datum/thrownthing/throwingdatum, damage, mob_hurt = FALSE, self_hurt = FALSE)
+/// This proc applies special effects of a mob hitting something, be it a wall, structure, or window. You can set mob_hurt to false to avoid double dipping through subtypes if returning ..()
+/atom/proc/hit_by_thrown_mob(mob/living/throwned_mob, datum/thrownthing/throwingdatum, damage, mob_hurt = FALSE, self_hurt = FALSE)
 	return
 
 /atom/proc/hitby_react(atom/movable/AM)
@@ -1287,7 +1271,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 
 	var/list/speech_bubble_hearers = list()
 	for(var/mob/M in get_hearers_in_view(7, src))
-		M.show_message(span_gamesay(span_name("[capitalize(declent_ru(NOMINATIVE))]") + " [pick(atom_say_verb)], \"[message]\""), 2, null, 1)
+		M.show_message(span_gamesay(span_name("[DECLENT_RU_CAP(src, NOMINATIVE)]") + " [pick(atom_say_verb)], \"[message]\""), 2, null, 1)
 		if(M.client)
 			speech_bubble_hearers += M.client
 
@@ -1313,7 +1297,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	var/tts_test_str = "Так звучит мой голос."
 
 	var/tts_seeds
-	if(user && (check_rights(R_ADMIN, 0, user) || override))
+	if(user && (check_rights(R_ADMIN, FALSE, user) || override))
 		tts_seeds = SStts.tts_seeds_names
 	else
 		tts_seeds = SStts.get_available_seeds(src)
@@ -1406,7 +1390,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 		datum_flags |= DF_VAR_EDITED
 		return .
 
-	if(!GLOB.debug2)
+	if(!GLOB.debugging_enabled)
 		flags |= ADMIN_SPAWNED
 
 	. = ..()
@@ -1427,15 +1411,18 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	.["Transform editor"] = "byond://?_src_=vars;matrix_tester=[UID()]"
 	.["Trigger explosion"] = "byond://?_src_=vars;explode=[UID()]"
 	.["Trigger EM pulse"] = "byond://?_src_=vars;emp=[UID()]"
+	.["Modify greyscale colors"] = "byond://?_src_=vars;modify_greyscale=[UID()]"
 
+/// Are you allowed to drop stuff inside this atom
 /atom/proc/AllowDrop()
 	return FALSE
 
+/// Where atoms should drop if taken from this atom
 /atom/proc/drop_location()
-	var/atom/L = loc
-	if(!L)
+	var/atom/location = loc
+	if(!location)
 		return null
-	return L.AllowDrop() ? L : get_turf(L)
+	return location.AllowDrop() ? location : location.drop_location()
 
 /**
  * An atom has entered this atom's contents
@@ -1467,53 +1454,6 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
  */
 /atom/Exited(atom/movable/departed, atom/newLoc)
 	SEND_SIGNAL(src, COMSIG_ATOM_EXITED, departed, newLoc)
-
-/*
-	Adds an instance of colour_type to the atom's atom_colours list
-*/
-/atom/proc/add_atom_colour(coloration, colour_priority)
-	if(!atom_colours || !length(atom_colours))
-		atom_colours = list()
-		atom_colours.len = COLOUR_PRIORITY_AMOUNT //four priority levels currently.
-	if(!coloration)
-		return
-	if(colour_priority > length(atom_colours))
-		return
-	atom_colours[colour_priority] = coloration
-	update_atom_colour()
-
-/*
-	Removes an instance of colour_type from the atom's atom_colours list
-*/
-/atom/proc/remove_atom_colour(colour_priority, coloration)
-	if(!atom_colours)
-		atom_colours = list()
-		atom_colours.len = COLOUR_PRIORITY_AMOUNT //four priority levels currently.
-	if(colour_priority > length(atom_colours))
-		return
-	if(coloration && atom_colours[colour_priority] != coloration)
-		return //if we don't have the expected color (for a specific priority) to remove, do nothing
-	atom_colours[colour_priority] = null
-	update_atom_colour()
-
-/*
-	Resets the atom's color to null, and then sets it to the highest priority
-	colour available
-*/
-/atom/proc/update_atom_colour()
-	if(!atom_colours)
-		atom_colours = list()
-		atom_colours.len = COLOUR_PRIORITY_AMOUNT //four priority levels currently.
-	color = null
-	for(var/C in atom_colours)
-		if(islist(C))
-			var/list/L = C
-			if(length(L))
-				color = L
-				return
-		else if(C)
-			color = C
-			return
 
 /** Call this when you want to present a renaming prompt to the user.
 
@@ -1698,10 +1638,23 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	if(gravity_turf.force_no_gravity)
 		return FALSE
 
+	var/list/forced_gravity = list()
+
+	SEND_SIGNAL(src, COMSIG_ATOM_HAS_GRAVITY, gravity_turf, forced_gravity)
+	SEND_SIGNAL(gravity_turf, COMSIG_TURF_HAS_GRAVITY, src, forced_gravity)
+
+	if(length(forced_gravity))
+		var/positive_grav = max(forced_gravity)
+		var/negative_grav = min(min(forced_gravity), 0) //negative grav needs to be below or equal to 0
+
+		//our gravity is sum of the most massive positive and negative numbers returned by the signal
+		//so that adding two forced_gravity elements with an effect size of 1 each doesnt add to 2 gravity
+		//but negative force gravity effects can cancel out positive ones
+
+		return (positive_grav + negative_grav)
+
 	var/result_gravity = 0
 	var/list/gravity_deltas = list()
-	SEND_SIGNAL(src, COMSIG_ATOM_HAS_GRAVITY, gravity_turf, gravity_deltas)
-	SEND_SIGNAL(gravity_turf, COMSIG_TURF_HAS_GRAVITY, src, gravity_deltas)
 
 	var/area/turf_area = gravity_turf.loc
 
@@ -1724,6 +1677,8 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	var/atom/ext_loc = src
 	while(!isturf(ext_loc.loc))
 		ext_loc = ext_loc.loc
+		if(!ext_loc)
+			return
 
 	return ext_loc
 
@@ -1821,44 +1776,13 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	CRASH("Unimplemented get_explosion_block()")
 
 /**
-* Instantiates the AI controller of this atom. Override this if you want to assign variables first.
-*
-* This will work fine without manually passing arguments.
-+*/
+ * Instantiates the AI controller of this atom. Override this if you want to assign variables first.
+ *
+ * This will work fine without manually passing arguments.
+ */
 /atom/proc/InitializeAIController()
 	if(ai_controller)
 		ai_controller = new ai_controller(src)
-
-/// Update the screentip to reflect what we're hovering over
-/atom/MouseEntered(location, control, params)
-	SSmouse_entered.hovers[usr.client] = src
-
-/// Fired whenever this atom is the most recent to be hovered over in the tick.
-/// Preferred over MouseEntered if you do not need information such as the position of the mouse.
-/// Especially because this is deferred over a tick, do not trust that `client` is not null.
-/atom/proc/on_mouse_enter(client/client)
-	SHOULD_NOT_SLEEP(TRUE)
-
-	var/mob/user = client?.mob
-	if(isnull(user))
-		return
-
-	// Face directions on harm intent
-	if(user.face_mouse && !user.incapacitated())
-		user.face_atom(src)
-
-	// Screentips
-	var/datum/hud/active_hud = user.hud_used // Don't nullcheck this stuff, if it breaks we wanna know it breaks
-	if(!active_hud)
-		return
-
-	var/screentip_mode = user.client.prefs.screentip_mode
-	if(screentip_mode == 0 || (flags & NO_SCREENTIPS))
-		active_hud.screentip_text.maptext = ""
-		return
-
-	// We inline a MAPTEXT() here, because there's no good way to statically add to a string like this
-	active_hud.screentip_text.maptext = "<span class='maptext' style='font-family: sans-serif; text-align: center; font-size: [screentip_mode]px; color: [user.client.prefs.screentip_color]'>[src.declent_ru(NOMINATIVE)]</span>"
 
 /atom/proc/add_gravity(id, gravity_delta)
 	if(id in gravity_sources)
@@ -1919,3 +1843,24 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	return input
 
 #undef ENCODE_HTML_EMPHASIS
+
+/**
+ * Wash this atom
+ *
+ * This will clean it off any temporary stuff like blood. Override this in your item to add custom cleaning behavior.
+ * Returns true if any washing was necessary and thus performed
+ * Arguments:
+ * * clean_types: any of the CLEAN_ constants
+ * Returns: A bitflag if it successfully cleaned something: e.g. COMPONENT_CLEANED, or NONE if not. COMPONENT_CLEANED_GAIN_XP being flipped on signals whether the cleaning should yield cleaning xp.
+ */
+/atom/proc/wash_tg(clean_types)
+	SHOULD_CALL_PARENT(TRUE)
+	. = SEND_SIGNAL(src, COMSIG_COMPONENT_CLEAN_ACT, clean_types)
+	if(.)
+		return
+
+	// Basically "if has washable coloration"
+	if(length(atom_colours) >= WASHABLE_COLOUR_PRIORITY && atom_colours[WASHABLE_COLOUR_PRIORITY])
+		remove_atom_colour(WASHABLE_COLOUR_PRIORITY)
+		return COMPONENT_CLEANED|COMPONENT_CLEANED_GAIN_XP
+	return NONE

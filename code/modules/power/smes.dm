@@ -373,13 +373,13 @@
 		"inputAttempt" = input_attempt,
 		"inputting" = inputting,
 		"inputLevel" = input_level,
-		"inputLevel_text" = DisplayPower(input_level),
+		"inputLevel_text" = display_power(input_level),
 		"inputLevelMax" = input_level_max,
 		"inputAvailable" = input_available,
 		"outputAttempt" = output_attempt,
 		"outputting" = outputting,
 		"outputLevel" = output_level,
-		"outputLevel_text" = DisplayPower(output_level),
+		"outputLevel_text" = display_power(output_level),
 		"outputLevelMax" = output_level_max,
 		"outputUsed" = round(output_used),
 	)
@@ -481,8 +481,12 @@
 	log_smes()
 	..()
 
+/obj/machinery/power/smes/full
+	charge = 50 * STANDARD_BATTERY_CHARGE
+
 /obj/machinery/power/smes/engineering
-	charge = 2e6 // Engineering starts with some charge for singulo
+	charge = 50 * STANDARD_BATTERY_CHARGE // Engineering starts with some charge for singulo //sorry little one, singulo as engine is gone
+	output_level = 90 KILO WATTS
 
 /obj/machinery/power/smes/magical
 	name = "magical power storage unit"

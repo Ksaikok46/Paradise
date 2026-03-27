@@ -2,7 +2,7 @@
 	. = ..()
 	var/msg = "<span class='notice'>"
 	if(src.stat == DEAD)
-		msg += "<span class='deadsay'>It appears to be powered-down.</span>\n"
+		msg += "[span_deadsay("It appears to be powered-down.")]\n"
 	else
 		msg += "<span class='warning'>"
 		if(src.getBruteLoss())
@@ -17,7 +17,7 @@
 				msg += "<b>Its casing is melted and heat-warped!</b>\n"
 		if(src.stat == UNCONSCIOUS)
 			msg += "It is non-responsive and displaying the text: \"RUNTIME: Sensory Overload, stack 26/3\".\n"
-		if(!shunted && !client)
+		if(!shunted && !client && !deployed_shell)
 			msg += "[src]Core.exe has stopped responding! NTOS is searching for a solution to the problem...\n"
 		msg += "</span>"
 	msg += "</span>"
@@ -29,5 +29,5 @@
 	return
 
 /mob/dead/observer/showLaws(mob/living/silicon/S)
-	if(antagHUD || check_rights(R_ADMIN, 0, src))
+	if(antagHUD || check_rights(R_ADMIN, FALSE, src))
 		S.laws.show_laws(src)

@@ -10,7 +10,7 @@
 	icon_name = "torso"
 	max_damage = 100
 	min_broken_damage = 35
-	max_bleeding_amount = 10
+	max_bleeding_amount = 5
 	w_class = WEIGHT_CLASS_HUGE
 	limb_body_flag = UPPER_TORSO
 	vital = TRUE
@@ -31,6 +31,8 @@
 	)
 
 /obj/item/organ/external/chest/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 	if(!is_robotic() || emp_proof || !tough) // Augmented chest suffocates the user on EMP.
 		return
@@ -48,7 +50,7 @@
 	icon_name = "groin"
 	max_damage = 100
 	min_broken_damage = 35
-	max_bleeding_amount = 10
+	max_bleeding_amount = 5
 	w_class = WEIGHT_CLASS_BULKY // if you know what I mean ;)
 	limb_body_flag = LOWER_TORSO
 	vital = TRUE
@@ -72,7 +74,7 @@
 	icon_name = "l_arm"
 	limb_zone = BODY_ZONE_L_ARM
 	max_damage = 50
-	max_bleeding_amount = 5
+	max_bleeding_amount = 2.5
 	bleeding_mod = 0.8
 	limb_body_flag = ARM_LEFT
 	amputation_point = "левое плечо"
@@ -90,6 +92,8 @@
 	)
 
 /obj/item/organ/external/arm/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented arms and hands drop whatever they are holding on EMP.
 		return
@@ -125,7 +129,7 @@
 	icon_name = "l_leg"
 	limb_zone = BODY_ZONE_L_LEG
 	max_damage = 50
-	max_bleeding_amount = 5
+	max_bleeding_amount = 2.5
 	bleeding_mod = 0.8
 	limb_body_flag = LEG_LEFT
 	icon_position = LEFT
@@ -176,6 +180,8 @@
 	owner.update_fractures_slowdown()
 
 /obj/item/organ/external/leg/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented legs and feet make the user drop to the floor on EMP.
 		return
@@ -218,7 +224,9 @@
 	icon_name = "l_foot"
 	limb_zone = BODY_ZONE_PRECISE_L_FOOT
 	max_damage = 30
-	max_bleeding_amount = 2.5
+	max_bleeding_amount = 1.5
+	cannot_internal_bleed = TRUE
+	cannot_arterial_bleed = TRUE
 	min_broken_damage = 15
 	bleeding_mod = 0.65
 	w_class = WEIGHT_CLASS_SMALL
@@ -310,6 +318,8 @@
 		owner.set_usable_legs(owner.usable_legs + 1)
 
 /obj/item/organ/external/foot/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented legs and feet make the user drop to the floor on EMP.
 		return
@@ -353,7 +363,9 @@
 	limb_zone = BODY_ZONE_PRECISE_L_HAND
 	max_damage = 30
 	min_broken_damage = 15
-	max_bleeding_amount = 2.5
+	max_bleeding_amount = 1.5
+	cannot_internal_bleed = TRUE
+	cannot_arterial_bleed = TRUE
 	bleeding_mod = 0.65
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = HAND_LEFT
@@ -419,6 +431,8 @@
 		owner.set_usable_hands(owner.usable_hands + 1, hand_index = limb_zone)
 
 /obj/item/organ/external/hand/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 	if(!owner || !is_robotic() || emp_proof || !tough) // Augmented arms and hands drop whatever they are holding on EMP.
 		return
@@ -455,7 +469,7 @@
 	icon_name = "head"
 	max_damage = 75
 	min_broken_damage = 35
-	max_bleeding_amount = 7.5
+	max_bleeding_amount = 3.75
 	bleeding_mod = 1.1
 	limb_body_flag = HEAD
 	gendered_icon = TRUE
@@ -534,7 +548,7 @@
 
 /obj/item/organ/external/head/examine(mob/user)
 	. = ..()
-	if(in_range(user, src) || istype(user, /mob/dead/observer))
+	if(in_range(user, src) || isobserver(user))
 		if(!length(contents))
 			. += span_notice("Выглядит пустой.")
 		else
@@ -561,6 +575,8 @@
 	new_dna?.write_head_attributes(src)
 
 /obj/item/organ/external/head/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 	if(!is_robotic() || emp_proof || !tough || !owner) // Augmented head confuses the user on EMP.
 		return
@@ -579,8 +595,9 @@
 	icon_name = "tail"
 	max_damage = 30
 	min_broken_damage = 15
-	max_bleeding_amount = 2.5
+	max_bleeding_amount = 1.25
 	bleeding_mod = 0.65
+	cannot_arterial_bleed = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = TAIL
 	parent_organ_zone = BODY_ZONE_PRECISE_GROIN
@@ -700,6 +717,7 @@
 	limb_zone = BODY_ZONE_WING
 	max_damage = 30
 	min_broken_damage = 15
+	cannot_arterial_bleed = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = WING
 	amputation_point = "спину"

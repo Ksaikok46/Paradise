@@ -4,7 +4,7 @@
 	icon_state = "igniter1"
 	plane = FLOOR_PLANE
 	max_integrity = 300
-	armor = list(melee = 50, bullet = 30, laser = 70, energy = 50, bomb = 20, bio = 0, rad = 0, fire = 100, acid = 70)
+	armor = list(melee = 50, bullet = 30, laser = 70, energy = 50, bomb = 20, bio = 0, fire = 100, acid = 70)
 	resistance_flags = FIRE_PROOF
 	anchored = TRUE
 	idle_power_usage = 2
@@ -54,7 +54,7 @@
 	if(on && !(stat & NOPOWER))
 		var/turf/location = get_turf(src)
 		if(isturf(location))
-			location.hotspot_expose(1000, 500, 1)
+			location.hotspot_expose(1000, 1)
 	return TRUE
 
 /obj/machinery/igniter/power_change(forced = FALSE)
@@ -124,7 +124,7 @@
 
 	var/turf/location = get_turf(src)
 	if(isturf(location))
-		location.hotspot_expose(1000, 500, 1)
+		location.hotspot_expose(1000, 500)
 
 	return TRUE
 

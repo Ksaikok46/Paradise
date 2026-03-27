@@ -63,6 +63,7 @@
 	M.AdjustParalysis(-2 SECONDS)
 	M.AdjustStunned(-2 SECONDS)
 	M.AdjustWeakened(-2 SECONDS)
+	M.AdjustKnockdown(-2 SECONDS)
 	M.SetSleeping(0)
 	update_flags |= M.adjustStaminaLoss(-8, FALSE)
 	if(prob(50))
@@ -112,7 +113,7 @@
 	return ..()
 
 /datum/reagent/medicine/mitocholide/reaction_obj(obj/O, volume)
-	if(istype(O, /obj/item/organ))
+	if(is_organ(O))
 		var/obj/item/organ/Org = O
 		if(!Org.is_robotic())
 			Org.rejuvenate()
@@ -145,14 +146,23 @@
 			C.setBlood(min(C.blood_volume + round(volume, 0.1), BLOOD_VOLUME_NORMAL))
 			C.reagents.del_reagent(id)
 
+	if(iscarbon(M))
+		data["method"] = method
+		if(method == REAGENT_INGEST && M.bodytemperature < TCRYO)
+			to_chat(M, span_warning("Всё внутри вас замерзает!"))
+	..()
+
 /datum/reagent/medicine/cryoxadone/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
-	if(iscarbon(M) && M.bodytemperature < TCRYO)
-		update_flags |= M.adjustCloneLoss(-1, FALSE)
-		update_flags |= M.adjustOxyLoss(-2, FALSE)
-		update_flags |= M.adjustToxLoss(-0.5, FALSE)
-		update_flags |= M.adjustBruteLoss(-2, FALSE, affect_robotic = FALSE)
-		update_flags |= M.adjustFireLoss(-4, FALSE, affect_robotic = FALSE)
+	if(M.bodytemperature < TCRYO && data["method"] == REAGENT_TOUCH)
+		update_flags |= M.adjustCloneLoss(-4, FALSE)
+		update_flags |= M.adjustOxyLoss(-10, FALSE)
+		update_flags |= M.adjustToxLoss(-03, FALSE)
+		update_flags |= M.adjustBruteLoss(-12, FALSE, affect_robotic = FALSE)
+		update_flags |= M.adjustFireLoss(-12, FALSE, affect_robotic = FALSE)
+		M.Stun(4 SECONDS)
+		if(M.stat == CONSCIOUS && prob(25))
+			to_chat(M, span_warning("Ваши мышцы свело судуругой, вы не можете пошевелиться!"))
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
 			var/obj/item/organ/external/head/head = H.get_organ(BODY_ZONE_HEAD)
@@ -564,37 +574,29 @@
 	reagent_state = LIQUID
 	color = "#B4DCBE"
 	taste_description = "очищения"
+	metabolization_rate = 2 * REAGENTS_METABOLISM
+	metabolized_traits = list(TRAIT_HALT_RADIATION_EFFECTS)
 
-/datum/reagent/medicine/potass_iodide/on_mob_life(mob/living/M)
-	if(prob(80))
-		M.radiation = max(0, M.radiation-1)
-	return ..()
+/datum/reagent/medicine/potass_iodide/on_mob_life(mob/living/affected_mob)
+	var/update_flags = STATUS_UPDATE_NONE
+	if(HAS_TRAIT(affected_mob, TRAIT_IRRADIATED))
+		update_flags |= affected_mob.adjustToxLoss(-1 * REM, updating_health = FALSE)
+	return ..() | update_flags
 
 /datum/reagent/medicine/pen_acid
 	name = "Пентетовая кислота"
 	id = "pen_acid"
-	description = "Диэтилентриаминпентаацетат (сокращённо \"пентетовая кислота\" или \"ДТПА\") - агрессивный хелатирующий агент. Может вызвать повреждение тканей. Используйте с осторожностью."
+	description = "Диэтилентриаминпентаацетат (сокращённо \"ДТПА\") — уменьшает огромное количество токсинов, одновременно выводя из организма другие химические вещества."
 	reagent_state = LIQUID
 	color = "#C8A5DC"
 	harmless = FALSE
 	taste_description = "очищения"
+	metabolization_rate = 0.5 * REAGENTS_METABOLISM
+	metabolized_traits = list(TRAIT_HALT_RADIATION_EFFECTS)
 
-/datum/reagent/medicine/pen_acid/on_mob_life(mob/living/M)
+/datum/reagent/medicine/pen_acid/on_mob_life(mob/living/affected_mob)
 	var/update_flags = STATUS_UPDATE_NONE
-	for(var/datum/reagent/R in M.reagents.reagent_list)
-		if(R != src)
-			M.reagents.remove_reagent(R.id,4)
-	M.radiation = max(0, M.radiation-7)
-	if(prob(75))
-		update_flags |= M.adjustToxLoss(-2, FALSE)
-	if(prob(33))
-		if(ishuman(M))
-			var/mob/living/carbon/human/human = M
-			human.take_overall_damage(0.5, 0.5, updating_health = FALSE, affect_robotic = FALSE)
-		else
-			update_flags |= M.adjustBruteLoss(0.5, FALSE)
-			update_flags |= M.adjustFireLoss(0.5, FALSE)
-
+	update_flags |= affected_mob.adjustToxLoss(-2 * REM, updating_health = FALSE)
 	return ..() | update_flags
 
 /datum/reagent/medicine/sal_acid
@@ -693,6 +695,7 @@
 	M.AdjustParalysis(-2 SECONDS)
 	M.AdjustStunned(-2 SECONDS)
 	M.AdjustWeakened(-2 SECONDS)
+	M.AdjustKnockdown(-2 SECONDS)
 	update_flags |= M.adjustStaminaLoss(-1.5, FALSE)
 	M.AdjustLoseBreath(-2 SECONDS, bound_lower = 10 SECONDS)
 	if(M.getOxyLoss() > 75)
@@ -824,6 +827,7 @@
 	overdose_threshold = 25
 	harmless = FALSE
 	taste_description = "передышки"
+	metabolized_traits = list(TRAIT_PREVENT_IMPLANT_AUTO_EXPLOSION)
 
 /datum/reagent/medicine/atropine/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
@@ -962,7 +966,7 @@
 				// 0% chance of necrosis within 1 minute of death
 				// 40% chance of necrosis after 20 minutes of death
 				necrotize_body(mob, necrosis_prob)
-			mob.update_revive(TRUE, TRUE)
+			mob.update_revive(updating = TRUE, force = FALSE, defib_revive = TRUE)
 			mob.grab_ghost()
 			add_attack_logs(mob, mob, "Revived with strange reagent") //Yes, the logs say you revived yourself.
 	..()
@@ -1052,7 +1056,7 @@
 	color = "#C8A5DC"
 	harmless = FALSE
 	can_synth = FALSE
-	taste_description = span_userdanger("нереальной бодрости")
+	taste_description = span_userdanger_alt("нереальной бодрости")
 	var/absorption_applied = FALSE
 
 /datum/reagent/medicine/stimulants/on_mob_life(mob/living/M)
@@ -1107,14 +1111,15 @@
 	user.AdjustParalysis(-6 SECONDS)
 	user.AdjustStunned(-6 SECONDS)
 	user.AdjustWeakened(-6 SECONDS)
+	user.AdjustKnockdown(-6 SECONDS)
 	update_flags |= user.adjustStaminaLoss(-7.5, FALSE)
-	if(!(user.dna && (user.dna.species.reagent_tag & PROCESS_ORG)))
+	if(!(user.dna && (user.dna.species.reagent_tag & ORGANIC)))
 		user.remove_movespeed_modifier(/datum/movespeed_modifier/reagent/stimulative_agent)
 	return ..() | update_flags
 
 /datum/reagent/medicine/stimulative_agent/on_mob_add(mob/living/user)
 	. = ..()
-	if(user.dna && (user.dna.species.reagent_tag & PROCESS_ORG))
+	if(user.dna && (user.dna.species.reagent_tag & ORGANIC))
 		user.add_movespeed_modifier(/datum/movespeed_modifier/reagent/stimulative_agent)
 
 /datum/reagent/medicine/stimulative_agent/on_mob_delete(mob/living/user)
@@ -1331,6 +1336,7 @@
 		M.AdjustParalysis(-2 SECONDS)
 		M.AdjustStunned(-2 SECONDS)
 		M.AdjustWeakened(-2 SECONDS)
+		M.AdjustKnockdown(-2 SECONDS)
 		M.AdjustConfused(-10 SECONDS)
 	for(var/datum/reagent/R in M.reagents.reagent_list)
 		if(R != src)
@@ -1759,3 +1765,71 @@
 		M.reagents.add_reagent("epinephrine", 0.2)
 		M.reagents.add_reagent("heparin", 0,4)
 	return ..()
+
+/datum/reagent/medicine/sanguinius
+	name = "Сангвиний"
+	id = "sanguinius"
+	description = "Кроваво-красная густая жидкость, предназначенная для использования в случаях острой кровопотери. \
+					Временно повышает способности организма к кроветворению."
+	color = "#770101"
+	taste_description = "металла"
+	harmless = FALSE
+	overdose_threshold = 15
+
+/datum/reagent/medicine/sanguinius/on_mob_life(mob/living/user)
+	. = list(0, STATUS_UPDATE_NONE)
+
+	if(!ishuman(user))
+		return ..()
+
+	if(HAS_TRAIT(user, TRAIT_NO_BLOOD) || HAS_TRAIT(user, TRAIT_NO_BLOOD_RESTORE))
+		return ..()
+
+	if(user.blood_volume < BLOOD_VOLUME_NORMAL)
+		switch(current_cycle)
+
+			if(1)
+				user.AdjustBlood(1)
+
+			if(2 to 25)
+				user.AdjustBlood(3)
+
+			else
+				user.AdjustBlood(5)
+
+	return ..()
+
+/datum/reagent/medicine/sanguinius/overdose_process(mob/living/M, severity)
+	. = list(0, STATUS_UPDATE_NONE)
+
+	var/mob/living/carbon/human/user = M
+
+	if(volume < 20)
+		if(prob(10))
+			to_chat(user, span_warning("Вы кашляете запекшейся кровью!"))
+			user.vomit(0, VOMIT_BLOOD, 0)
+			user.AdjustBlood(-15)
+			return .
+
+		if(!prob(10))
+			return .
+
+		var/overdose_message = pick("На мгновение ваше зрение окрашивается в красный цвет.", "Вы слышите, как бьётся ваше сердце.")
+		to_chat(user, span_warning("[overdose_message]"))
+		return .
+
+	if(prob(10))
+		to_chat(user, span_danger("Вы захлёбываетесь собственной кровью!"))
+		user.AdjustLoseBreath(2 SECONDS)
+		user.vomit(0, VOMIT_BLOOD, 0)
+		user.AdjustBlood(-30)
+		return .
+
+	if(!prob(10))
+		return .
+
+	var/overdose_message = pick("Ваши глаза застилает кровавая пелена!", "Стук вашего сердца гремит в ушах!", "Ваши вены вздуваются под кожей!")
+	to_chat(user, span_danger("[overdose_message]"))
+	user.adjustBruteLoss(6)
+	user.set_bloody_screen(6 SECONDS)
+

@@ -33,7 +33,7 @@
 	var/list/status_tab_data = ..()
 	. = status_tab_data
 
-	if(!(SSticker && SSticker.current_state == GAME_STATE_PREGAME && check_rights(R_ADMIN, 0, src)))
+	if(!(SSticker && SSticker.current_state == GAME_STATE_PREGAME && check_rights(R_ADMIN, FALSE, src)))
 		return .
 	status_tab_data[++status_tab_data.len] = list("Список игроков:", "")
 	for(var/mob/new_player/player in GLOB.player_list)
@@ -128,11 +128,11 @@
 		handle_player_polling()
 
 	if(href_list["viewpoll"])
-		var/datum/poll_question/poll = locate(href_list["viewpoll"]) in GLOB.active_polls
+		var/datum/poll_question/poll = locateUID(href_list["viewpoll"])
 		poll_player(poll)
 
 	if(href_list["votepollref"])
-		var/datum/poll_question/poll = locate(href_list["votepollref"]) in GLOB.active_polls
+		var/datum/poll_question/poll = locateUID(href_list["votepollref"])
 		vote_on_poll_handler(poll, href_list)
 
 	if(href_list["refresh"])
@@ -166,7 +166,7 @@
 
 			observer.started_as_observer = 1
 			close_spawn_windows()
-			var/obj/O = locate("landmark*Observer-Start")
+			var/obj/O = locate(/obj/effect/landmark/observer_start)
 			to_chat(src, span_notice("Телепортация."))
 			observer.abstract_move(get_turf(O))
 			client.prefs.update_preview_icon(1)
@@ -257,11 +257,11 @@
 			client.prefs.process_link(src, href_list)
 
 	if(href_list["change_picture"])
-		client.admin_change_title_screen()
+		SSadmin_verbs.dynamic_invoke_verb(client, /datum/admin_verb/admin_change_title_screen)
 		return
 
 	if(href_list["leave_notice"])
-		client.change_title_screen_notice()
+		SSadmin_verbs.dynamic_invoke_verb(client, /datum/admin_verb/change_title_screen_notice)
 		return
 
 	if(href_list["switch_server"])
@@ -283,11 +283,16 @@
 
 /mob/new_player/proc/IsJobAvailable(rank)
 	var/datum/job/job = SSjobs.GetJob(rank)
-	if(!job)	return 0
-	if(!job.is_position_available()) return 0
-	if(jobban_isbanned(src,rank))	return 0
-	if(!job.player_old_enough(client))	return 0
-	if(job.admin_only && !(check_rights(R_ADMIN, 0))) return 0
+	if(!job)
+		return 0
+	if(!job.is_position_available())
+		return 0
+	if(jobban_isbanned(src,rank))
+		return 0
+	if(!job.player_old_enough(client))
+		return 0
+	if(job.admin_only && !(check_rights(R_ADMIN, FALSE)))
+		return 0
 	if(job.available_in_playtime(client))
 		return 0
 	if(!job.can_novice_play(client))
@@ -423,7 +428,7 @@
 
 		// IsJobAvailable for AI checks that there is an empty core available in this list
 		ai_character.moveToEmptyCore()
-		AnnounceCyborg(ai_character, rank, "has been downloaded to the empty core in \the [get_area(ai_character)]")
+		AnnounceCyborg(ai_character, rank, "был загружен в пустое ядро в [get_area(ai_character)]")
 
 		SSticker.mode.latespawn(ai_character)
 		SSticker?.score?.save_silicon_laws(ai_character, additional_info = "latespawn", log_all_laws = TRUE)
@@ -498,6 +503,8 @@
 
 	qdel(src)
 
+#define ARRIVALS_ANNOUNCEMENT_COMPUTER "Уведомитель о прибытии"
+
 /mob/new_player/proc/AnnounceArrival(mob/living/carbon/human/character, rank, join_message)
 	if(SSticker.current_state == GAME_STATE_PLAYING)
 		var/ailist[] = list()
@@ -515,7 +522,7 @@
 			if(character.mind)
 				if((character.mind.assigned_role != JOB_TITLE_CYBORG) && (character.mind.assigned_role != character.mind.special_role))
 					var/arrivalmessage = create_announce_message(character, rank, join_message, GLOB.global_announcer_base_text)
-					radio_announce(arrivalmessage, "Arrivals Announcement Computer", PUB_FREQ, follow_target_override = character)
+					radio_announce(arrivalmessage, ARRIVALS_ANNOUNCEMENT_COMPUTER, PUB_FREQ, follow_target_override = character)
 
 /mob/new_player/proc/create_announce_message(mob/living/carbon/human/arrived, rank, join_message, message)
 	if(arrived.mind.role_alt_title)
@@ -544,13 +551,15 @@
 			var/mob/living/silicon/ai/announcer = pick(ailist)
 			if(character.mind)
 				if(character.mind.assigned_role != character.mind.special_role)
-					var/arrivalmessage = "A new[rank ? " [rank]" : " visitor" ] [join_message ? join_message : "прибыл на станцию"]."
+					var/arrivalmessage = "Новый [rank ? "[rank]" : "турист" ] [join_message ? join_message : "прибыл на станцию"]."
 					announcer.say(";[arrivalmessage]", ignore_languages = TRUE)
 		else
 			if(character.mind)
 				if(character.mind.assigned_role != character.mind.special_role)
 					// can't use their name here, since cyborg namepicking is done post-spawn, so we'll just say "A new Cyborg has arrived"/"A new Android has arrived"/etc.
-					radio_announce("A new[rank ? " [rank]" : " visitor" ] [join_message ? join_message : "прибыл на станцию"].", "Arrivals Announcement Computer", PUB_FREQ, follow_target_override = character)
+					radio_announce("Новый [rank ? " [rank]" : " турист" ] [join_message ? join_message : "прибыл на станцию"].", ARRIVALS_ANNOUNCEMENT_COMPUTER, PUB_FREQ, follow_target_override = character)
+
+#undef ARRIVALS_ANNOUNCEMENT_COMPUTER
 
 /mob/new_player/proc/LateChoices()
 	var/mills = ROUND_TIME // 1/10 of a second, not real milliseconds but whatever
@@ -563,34 +572,34 @@
 	dat += "<b>Уровень угрозы на станции: [SSsecurity_level.get_colored_current_security_level_name()]</b><br>"
 
 	if(EMERGENCY_ESCAPED_OR_ENDGAMED)
-		dat += "<span style='color: red;'><b>Станция была эвакуирована.</b></span><br>"
+		dat += "<span style='color: red;'><b>Экипаж объекта был эвакуирован.</b></span><br>"
 	else if((SSshuttle.emergency?.mode == SHUTTLE_CALL) || EMERGENCY_AT_LEAST_DOCKED)
-		dat += "<span style='color: red;'>В настоящее время станция проходит процедуру эвакуации.</span><br>"
+		dat += "<span style='color: red;'>В настоящее время экипаж объекта проходит процедуру эвакуации.</span><br>"
 
 	if(length(SSjobs.prioritized_jobs))
-		dat += "<span style='color: lime;'>Станция отметила эти позиции как приоритетные: "
+		dat += "<span style='color: lime;'>Объект отметил эти позиции как приоритетные: "
 		var/amt = length(SSjobs.prioritized_jobs)
 		var/amt_count
 		for(var/datum/job/a in SSjobs.prioritized_jobs)
 			amt_count++
 			if(amt_count != amt)
-				dat += " [a.title], "
+				dat += " [get_job_title_ru(a.title)], "
 			else
-				dat += " [a.title]. </span><br>"
+				dat += " [get_job_title_ru(a.title)]. </span><br>"
 
 	var/num_jobs_available = 0
 	var/list/activePlayers = list()
 	var/list/categorizedJobs = list(
-		"Command" = list(jobs = list(), titles = GLOB.command_positions, color = "#aac1ee"),
-		"Engineering" = list(jobs = list(), titles = GLOB.engineering_positions, color = "#ffd699"),
-		"Security" = list(jobs = list(), titles = GLOB.security_positions, color = "#ff9999"),
-		"Miscellaneous" = list(jobs = list(), titles = list(), color = "#ffffff", colBreak = 1),
-		"Synthetic" = list(jobs = list(), titles = GLOB.nonhuman_positions, color = "#ccffcc"),
-		"Support / Service" = list(jobs = list(), titles = GLOB.service_positions, color = "#cccccc"),
-		"Medical" = list(jobs = list(), titles = GLOB.medical_positions, color = "#99ffe6", colBreak = 1),
-		"Science" = list(jobs = list(), titles = GLOB.science_positions, color = "#e6b3e6"),
-		"Supply" = list(jobs = list(), titles = GLOB.supply_positions, color = "#ead4ae"),
-		)
+		STATION_DEPARTMENT_RU_COMMAND = list(jobs = list(), titles = GLOB.command_positions, color = "#aac1ee"),
+		STATION_DEPARTMENT_RU_ENGINEERING = list(jobs = list(), titles = GLOB.engineering_positions, color = "#ffd699"),
+		STATION_DEPARTMENT_RU_SECURITY = list(jobs = list(), titles = GLOB.security_positions, color = "#ff9999"),
+		STATION_DEPARTMENT_RU_OTHER = list(jobs = list(), titles = list(), color = "#ffffff", colBreak = 1),
+		STATION_DEPARTMENT_RU_SILICON = list(jobs = list(), titles = GLOB.nonhuman_positions, color = "#ccffcc"),
+		STATION_DEPARTMENT_RU_SERVICE = list(jobs = list(), titles = GLOB.service_positions, color = "#cccccc"),
+		STATION_DEPARTMENT_RU_MEDICAL = list(jobs = list(), titles = GLOB.medical_positions, color = "#99ffe6", colBreak = 1),
+		STATION_DEPARTMENT_RU_SCIENCE = list(jobs = list(), titles = GLOB.science_positions, color = "#e6b3e6"),
+		STATION_DEPARTMENT_RU_SUPPLY = list(jobs = list(), titles = GLOB.supply_positions, color = "#ead4ae"),
+	)
 	for(var/datum/job/job in SSjobs.occupations)
 		if(job && IsJobAvailable(job.title) && !job.barred_by_disability(client))
 			num_jobs_available++
@@ -603,7 +612,7 @@
 				var/list/jobs = categorizedJobs[jobcat]["jobs"]
 				if(job.title in categorizedJobs[jobcat]["titles"])
 					categorized = 1
-					if(jobcat == "Command") // Put captain at top of command jobs
+					if(jobcat == STATION_DEPARTMENT_RU_COMMAND) // Put captain at top of command jobs
 						if(job.title == JOB_TITLE_CAPTAIN)
 							jobs.Insert(1, job)
 						else
@@ -614,7 +623,7 @@
 						else
 							jobs += job
 			if(!categorized)
-				categorizedJobs["Miscellaneous"]["jobs"] += job
+				categorizedJobs[STATION_DEPARTMENT_RU_OTHER]["jobs"] += job
 
 	if(num_jobs_available)
 		dat += "Выберите из следующих открытых позиций:<br><br>"
@@ -627,20 +636,20 @@
 			var/color = categorizedJobs[jobcat]["color"]
 			dat += "<fieldset style='border: 2px solid [color]; display: inline'>"
 			dat += "<legend align='center' style='color: [color]'>[jobcat]</legend>"
-			if(jobcat == "Miscellaneous")
-				dat += "<a href='byond://?src=[UID()];SelectedJob=RandomJob'>Random (free jobs)</a><br>"
+			if(jobcat == STATION_DEPARTMENT_RU_OTHER)
+				dat += "<a href='byond://?src=[UID()];SelectedJob=RandomJob'>Случайно (из доступных)</a><br>"
 			for(var/datum/job/job in categorizedJobs[jobcat]["jobs"])
 				if(job in SSjobs.prioritized_jobs)
-					dat += "<a href='byond://?src=[UID()];SelectedJob=[job.title]'><span style='color: lime;'><b>[job.title] ([job.current_positions]) (Active: [activePlayers[job]])</b></span></a><br>"
+					dat += "<a href='byond://?src=[UID()];SelectedJob=[job.title]'><span style='color: lime;'><b>[get_job_title_ru(job.title)] ([job.current_positions]) (Активно: [activePlayers[job]])</b></span></a><br>"
 				else
-					dat += "<a href='byond://?src=[UID()];SelectedJob=[job.title]'>[job.title] ([job.current_positions]) (Active: [activePlayers[job]])</a><br>"
+					dat += "<a href='byond://?src=[UID()];SelectedJob=[job.title]'>[get_job_title_ru(job.title)] ([job.current_positions]) (Активно: [activePlayers[job]])</a><br>"
 			dat += "</fieldset><br>"
 
 		dat += "</td></tr></table></center>"
 	else
-		dat += "<br><br><center>Unfortunately, there are no job slots free currently.<br>Wait a few minutes, then try again.<br>Or, try observing the round.</center>"
+		dat += "<br><br><center>Открытые позиции отсутствуют.<br>Попробуйте снова через несколько минут.<br>Или зайдите за наблюдателя.</center>"
 	// Added the new browser window method
-	var/datum/browser/popup = new(src, "latechoices", "Choose Profession", 900, 600)
+	var/datum/browser/popup = new(src, "latechoices", "Выбор должности", 1250, 600)
 	popup.add_stylesheet("playeroptions", 'html/browser/playeroptions.css')
 	popup.add_script("delay_interactivity", 'html/browser/delay_interactivity.js')
 	popup.set_content(dat)
@@ -699,15 +708,19 @@
 		chosen_species = GLOB.all_species[client.prefs.species]
 	if(!chosen_species)
 		// Have to recheck admin due to no usr at roundstart. Latejoins are fine though.
-		log_runtime(EXCEPTION("[src] had species [client.prefs.species], though they weren't supposed to. Setting to Human."), src)
+		stack_trace("[src] had species [client.prefs.species], though they weren't supposed to. Setting to Human.")
 		client.prefs.species = SPECIES_HUMAN
 
 	var/datum/language/chosen_language
 	if(client.prefs.language)
 		chosen_language = GLOB.all_languages[client.prefs.language]
 	if((!chosen_language && client.prefs.language != LANGUAGE_NONE) || (chosen_language && chosen_language.flags & RESTRICTED))
-		log_runtime(EXCEPTION("[src] had language [client.prefs.language], though they weren't supposed to. Setting to None."), src)
+		stack_trace("[src] had language [client.prefs.language], though they weren't supposed to. Setting to None.")
 		client.prefs.language = LANGUAGE_NONE
+		INVOKE_ASYNC(src, PROC_REF(save_character))
+
+/mob/new_player/proc/save_character()
+	client?.prefs?.save_character(client)
 
 /mob/new_player/proc/ViewManifest()
 	GLOB.generic_crew_manifest.ui_interact(usr)
@@ -722,7 +735,7 @@
 	close_window(src, "mob_occupation") //closes job selection
 
 /mob/new_player/proc/has_admin_rights()
-	return check_rights(R_ADMIN, 0, src)
+	return check_rights(R_ADMIN, FALSE, src)
 
 /mob/new_player/get_gender()
 	if(!client || !client.prefs) ..()

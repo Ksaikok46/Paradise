@@ -9,9 +9,10 @@
 	pressure_resistance = 5*ONE_ATMOSPHERE
 	layer = BELOW_OBJ_LAYER
 	level = 3
-	armor = list(MELEE = 50, BULLET = 70, LASER = 70, ENERGY = 100, BOMB = 10, BIO = 100, RAD = 100, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 50, BULLET = 70, LASER = 70, ENERGY = 100, BOMB = 10, BIO = 100, FIRE = 0, ACID = 0)
 	max_integrity = 50
 	integrity_failure = 20
+	cares_about_temperature = TRUE
 	var/rods_type = /obj/item/stack/rods
 	var/rods_amount = 2
 	var/rods_broken = 1
@@ -35,9 +36,9 @@
 /obj/structure/grille/examine(mob/user)
 	. = ..()
 	if(anchored)
-		. += "<span class='notice'>It's secured in place with <b>screws</b>. The rods look like they could be <b>cut</b> through.</span>"
+		. += span_notice("It's secured in place with <b>screws</b>. The rods look like they could be <b>cut</b> through.")
 	if(!anchored)
-		. += "<span class='notice'>The anchoring screws are <i>unscrewed</i>. The rods look like they could be <b>cut</b> through.</span>"
+		. += span_notice("The anchoring screws are <i>unscrewed</i>. The rods look like they could be <b>cut</b> through.")
 
 /obj/structure/grille/ratvar_act()
 	if(broken)
@@ -245,6 +246,7 @@
 		W.setDir(dir_to_set)
 		W.ini_dir = dir_to_set
 		W.set_anchored(FALSE)
+		recalculate_atmos_connectivity()
 		W.state = WINDOW_OUT_OF_FRAME
 		to_chat(user, span_notice("You place the [W] on [src]."))
 		W.update_nearby_icons()
@@ -295,11 +297,13 @@
 			return FALSE
 	return FALSE
 
-/obj/structure/grille/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+/obj/structure/grille/temperature_expose(exposed_temperature, exposed_volume)
 	..()
-	if(!broken)
-		if(exposed_temperature > T0C + 1500)
-			take_damage(1, BURN, 0, 0)
+	if(broken)
+		return
+
+	if(exposed_temperature > T0C + 1500)
+		take_damage(1, BURN, 0, 0)
 
 /obj/structure/grille/hitby(atom/movable/atom_movable, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
 	if(isobj(atom_movable))
@@ -312,7 +316,7 @@
 				var/obj/structure/cable/cable = turf.get_cable_node()
 				if(cable)
 					playsound(src, 'sound/magic/lightningshock.ogg', 100, TRUE, extrarange = 5)
-					tesla_zap(source = src, zap_range = 3, power = cable.newavail() * 0.01, cutoff = 1e3, zap_flags = ZAP_MOB_DAMAGE | ZAP_OBJ_DAMAGE | ZAP_MOB_STUN | ZAP_ALLOW_DUPLICATES) //Zap for 1/100 of the amount of power. At a million watts in the grid, it will be as powerful as a tesla revolver shot.
+					tesla_zap(source = src, zap_range = 3, power = cable.newavail() * 0.01, cutoff = 1e3, zap_flags = ZAP_MOB_DAMAGE | ZAP_OBJ_DAMAGE | ZAP_MOB_STUN | ZAP_LOW_POWER_GEN | ZAP_ALLOW_DUPLICATES) //Zap for 1/100 of the amount of power. At a million watts in the grid, it will be as powerful as a tesla revolver shot.
 					cable.add_delayedload(cable.newavail() * 0.0375) // you can gain up to 3.5 via the 4x upgrades power is halved by the pole so thats 2x then 1X then .5X for 3.5x the 3 bounces shock.
 	return ..()
 

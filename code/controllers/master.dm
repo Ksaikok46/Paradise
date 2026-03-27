@@ -141,7 +141,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 /datum/controller/master/Shutdown()
 	processing = FALSE
 	sortTim(subsystems, cmp = /proc/cmp_subsystem_init)
-	reverseRange(subsystems)
+	reverse_range(subsystems)
 	for(var/datum/controller/subsystem/ss in subsystems)
 		log_world("Shutting down [ss.name] subsystem...")
 		if(ss.fire_sleep_count > 0)
@@ -149,18 +149,11 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 		ss.Shutdown()
 	log_world("Shutdown complete")
 
-/client/proc/cmd_controller_view_ui()
-	set name = "Controller Overview"
-	set category = "Debug"
-	set desc = "View the current states of the Subsystem Controllers."
-
-	if(!check_rights(R_SERVER|R_DEBUG))
-		return
-
-	Master.ui_interact(usr)
+ADMIN_VERB(cmd_controller_view_ui, R_SERVER|R_DEBUG|R_VIEWRUNTIMES, "Controller Overview", "View the current states of the Subsystem Controllers.", ADMIN_CATEGORY_DEBUG)
+	Master.ui_interact(user.mob)
 
 /datum/controller/master/ui_status(mob/user, datum/ui_state/state)
-	if(!user.client?.holder && !check_rights(R_SERVER|R_DEBUG))
+	if(!user.client?.holder && !check_rights(R_SERVER|R_DEBUG|R_VIEWRUNTIMES))
 		return UI_CLOSE
 	return UI_INTERACTIVE
 
@@ -385,6 +378,8 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 			// Loop.
 			Master.StartProcessing(0)
 
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_SUBSYSTEMS_INIT_ENDED)
+
 	var/time = (REALTIMEOFDAY - start_timeofday) / 10
 
 	log_startup_progress("Initializations complete within [time] second[time == 1 ? "" : "s"]!")
@@ -488,7 +483,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	last_init_info = "([subsystem.name]): [message]"
 
 	if(result != SS_INIT_NO_MESSAGE)
-		to_chat(world, span_danger("<small>\[[subsystem.name]]</small> [chat_message]"))
+		to_chat(world, span_danger("<small>\[[subsystem.name]\]</small> [chat_message]"))
 
 	log_world("\[[subsystem.name]] [message]")
 
@@ -732,6 +727,17 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 			SS.postponed_fires--
 			SS.update_nextfire()
 			continue
+		if(SS_flags & SS_HIBERNATE)
+			var/list/check_vars = SS.hibernate_checks
+			var/enter_queue
+			for(var/i in 1 to length(check_vars))
+				if(LAZYLEN(SS.vars[check_vars[i]]))
+					enter_queue = TRUE
+					break
+			if(!enter_queue)
+				SS.hibernating = TRUE
+				SS.update_nextfire()
+				continue
 		SS.enqueue()
 	. = 1
 

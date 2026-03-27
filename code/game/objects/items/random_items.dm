@@ -215,11 +215,11 @@
 //       If you didn't run, pray.
 // -------------------------------------
 
-/obj/structure/largecrate/evil
+/obj/structure/closet/crate/large/evil
 	name = "Mysterious Crate"
 	desc = "What could it be?"
 
-/obj/structure/largecrate/evil/crowbar_act(mob/living/user, obj/item/I)
+/obj/structure/closet/crate/large/evil/crowbar_act(mob/living/user, obj/item/I)
 	var/cached_name = name
 	var/atom/cached_loc = loc
 	. = ..()
@@ -241,11 +241,21 @@
 	while(prob(15))
 		new menace(get_step_rand(cached_loc))
 
-/obj/structure/largecrate/schrodinger
+#define TANGERINES_COUNT 10
+
+/obj/structure/closet/crate/large/tangerines/crowbar_act(mob/living/user, obj/item/I)
+	var/turf/cached_loc = get_turf(loc)
+	. = ..()
+	for(var/i in 1 to TANGERINES_COUNT)
+		new /obj/item/reagent_containers/food/snacks/grown/citrus/tangerine(cached_loc)
+
+#undef TANGERINES_COUNT
+
+/obj/structure/closet/crate/large/schrodinger
 	name = "Schrodinger's Crate"
 	desc = "What happens if you open it?"
 
-/obj/structure/largecrate/schrodinger/crowbar_act(mob/living/user, obj/item/I)
+/obj/structure/closet/crate/large/schrodinger/crowbar_act(mob/living/user, obj/item/I)
 	var/atom/cached_loc = loc
 	. = ..()
 	sleep(0.2 SECONDS)

@@ -50,6 +50,7 @@
 #define ui_inv3 "CENTER  :16,SOUTH:5"			//borgs
 #define ui_borg_module "CENTER+1:16,SOUTH:5"
 #define ui_borg_store "CENTER+2:16,SOUTH:5"		//borgs
+#define ui_borg_lawmanager "EAST-4:24,SOUTH:5"  //borgs
 
 #define ui_monkey_mask "CENTER-3:14,SOUTH:5"	//monkey
 #define ui_monkey_back "CENTER-2:15,SOUTH:5"	//monkey
@@ -163,6 +164,8 @@
 
 #define ui_ai_up "TOP:-6,RIGHT-1"
 #define ui_ai_down "TOP:-6,RIGHT"
+
+#define ui_ai_connect_to_shell "BOTTOM:6,LEFT+3"
 
 // Bots
 #define ui_bot_radio "EAST-1:28,SOUTH:7"

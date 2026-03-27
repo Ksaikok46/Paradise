@@ -69,8 +69,7 @@
 "aA" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 4;
-	icon_state = "heater3x3_side_inv";
-	tag = "icon-heater (NORTH)"
+	icon_state = "heater3x3_side_inv"
 	},
 /obj/structure/window/plasmareinforced{
 	color = "#22aab7";
@@ -494,15 +493,6 @@
 	icon_state = "titanium_blue"
 	},
 /area/shuttle/administration)
-"dK" = (
-/obj/machinery/atmospherics/unary/cold_sink/freezer{
-	dir = 4
-	},
-/turf/simulated/floor/shuttle{
-	icon = 'icons/turf/floors.dmi';
-	icon_state = "titanium_blue"
-	},
-/area/shuttle/administration)
 "ec" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/dropper,
@@ -570,13 +560,6 @@
 	icon_state = "titanium_blue"
 	},
 /area/shuttle/administration)
-"jm" = (
-/obj/structure/closet/walllocker/emerglocker/west,
-/turf/simulated/floor/shuttle{
-	icon = 'icons/turf/floors.dmi';
-	icon_state = "dark"
-	},
-/area/shuttle/administration)
 "kd" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 1
@@ -625,8 +608,7 @@
 "oL" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 4;
-	icon_state = "heater3x3_side";
-	tag = "icon-heater (NORTH)"
+	icon_state = "heater3x3_side"
 	},
 /obj/structure/window/plasmareinforced{
 	color = "#22aab7";
@@ -778,6 +760,15 @@
 	icon_state = "titanium_blue"
 	},
 /area/shuttle/administration)
+"Ay" = (
+/obj/machinery/atmospherics/unary/thermomachine/freezer{
+	dir = 4
+	},
+/turf/simulated/floor/shuttle{
+	icon = 'icons/turf/floors.dmi';
+	icon_state = "titanium_blue"
+	},
+/area/shuttle/administration)
 "AE" = (
 /obj/machinery/door/airlock/shuttle/glass{
 	name = "Operating Room";
@@ -790,6 +781,13 @@
 /area/shuttle/administration)
 "BQ" = (
 /obj/machinery/light/small,
+/turf/simulated/floor/shuttle{
+	icon = 'icons/turf/floors.dmi';
+	icon_state = "dark"
+	},
+/area/shuttle/administration)
+"BY" = (
+/obj/structure/closet/walllocker/emerglocker/directional/west,
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "dark"
@@ -864,8 +862,7 @@
 "IP" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 4;
-	icon_state = "heater3x3";
-	tag = "icon-heater (NORTH)"
+	icon_state = "heater3x3"
 	},
 /obj/structure/window/plasmareinforced{
 	color = "#22aab7";
@@ -1049,7 +1046,7 @@ aq
 aX
 aS
 aS
-dK
+Ay
 ct
 cj
 bp
@@ -1172,7 +1169,7 @@ av
 av
 bc
 bl
-jm
+BY
 ck
 gX
 OK

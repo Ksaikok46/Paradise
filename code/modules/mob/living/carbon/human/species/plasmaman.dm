@@ -17,7 +17,7 @@
 	)
 	forced_heartattack = TRUE // Plasmamen have no blood, but they should still get heart-attacks
 	skinned_type = /obj/item/stack/sheet/mineral/plasma // We're low on plasma, R&D! *eyes plasmaman co-worker intently*
-	reagent_tag = PROCESS_ORG
+	reagent_tag = ORGANIC
 
 	cold_level_1 = 240
 	cold_level_2 = 180
@@ -112,7 +112,7 @@
 		if(JOB_TITLE_BARTENDER)
 			O = new /datum/outfit/plasmaman/bar
 
-		if(JOB_TITLE_LAWYER, JOB_TITLE_JUDGE)
+		if(JOB_TITLE_LAWYER, JOB_TITLE_MAGISTRATE)
 			O = new /datum/outfit/plasmaman/nt
 
 		if(JOB_TITLE_REPRESENTATIVE)
@@ -127,7 +127,7 @@
 		if(JOB_TITLE_CCSPECOPS, JOB_TITLE_CCOFFICER, JOB_TITLE_CCFIELD)
 			O = new /datum/outfit/plasmaman/specops_officer
 
-		if(JOB_TITLE_SYNDICATE)
+		if(JOB_TITLE_SYNDICATE_OFFICER)
 			O = new /datum/outfit/plasmaman/syndicate_officer
 
 		if(JOB_TITLE_PILOT)
@@ -154,7 +154,7 @@
 		if(JOB_TITLE_MINING_MEDIC)
 			O = new /datum/outfit/plasmaman/mining_medic
 
-		if(JOB_TITLE_DOCTOR, JOB_TITLE_INTERN)
+		if(JOB_TITLE_DOCTOR, JOB_TITLE_MEDICAL_INTERN)
 			O = new /datum/outfit/plasmaman/medical
 
 		if(JOB_TITLE_BRIGDOC)
@@ -181,7 +181,7 @@
 		if(JOB_TITLE_VIROLOGIST)
 			O = new /datum/outfit/plasmaman/viro
 
-		if(JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENTIST_STUDENT)
+		if(JOB_TITLE_SCIENTIST, JOB_TITLE_SCIENCE_STUDENT)
 			O = new /datum/outfit/plasmaman/science
 
 		if("Xenobiologist")
@@ -193,10 +193,10 @@
 		if(JOB_TITLE_ENGINEER, JOB_TITLE_ENGINEER_TRAINEE)
 			O = new /datum/outfit/plasmaman/engineering
 
-		if(JOB_TITLE_MECHANIC)
+		if(JOB_TITLE_SPACEPOD_TECHNICIAN)
 			O = new /datum/outfit/plasmaman/engineering/mecha
 
-		if(JOB_TITLE_CHIEF)
+		if(JOB_TITLE_CHIEF_ENGINEER)
 			O = new /datum/outfit/plasmaman/ce
 
 		if(JOB_TITLE_ATMOSTECH)
@@ -223,17 +223,23 @@
 	return FALSE
 
 /datum/species/plasmaman/handle_life(mob/living/carbon/human/H)
-	var/datum/gas_mixture/environment = H.loc.return_air()
 	var/atmos_sealed = FALSE
 	if(isclothing(H.wear_suit) && isclothing(H.head))
 		var/obj/item/clothing/suit = H.wear_suit
 		var/obj/item/clothing/helmet = H.head
 		if(suit.clothing_flags & helmet.clothing_flags & STOPSPRESSUREDMAGE)
 			atmos_sealed = TRUE
-	if(!atmos_sealed && (!istype(H.w_uniform, /obj/item/clothing/under/plasmaman) || !istype(H.head, /obj/item/clothing/head/helmet/space/plasmaman)))
+	if(!atmos_sealed && (!istype(H.w_uniform, /obj/item/clothing/under/plasmaman) || !istype(H.head, /obj/item/clothing/head/helmet/space/plasmaman) && !HAS_TRAIT(H, TRAIT_NOSELFIGNITION_HEAD_ONLY)))
+		var/datum/gas_mixture/environment = null
+		if(isobj(H.loc))
+			var/obj/O = H.loc
+			environment = O.return_obj_air()
+		if(isnull(environment))
+			var/turf/T = get_turf(H)
+			environment = T.get_readonly_air()
 		if(environment)
 			if(environment.total_moles())
-				if(environment.oxygen && environment.oxygen >= OXYCONCEN_PLASMEN_IGNITION) //Same threshhold that extinguishes fire
+				if(environment.oxygen() && environment.oxygen() >= OXYCONCEN_PLASMEN_IGNITION) //Same threshhold that extinguishes fire
 					H.adjust_fire_stacks(0.5)
 					if(!H.on_fire && H.fire_stacks > 0)
 						H.visible_message(span_danger("Тело [H] вступает в реакцию с атмосферой и загорается!"),span_userdanger("Ваше тело вступает в реакцию с атмосферой и загорается!"))
@@ -271,3 +277,6 @@
 			H.reagents.remove_reagent(R.id, REAGENTS_METABOLISM)
 			return FALSE
 	return ..()
+
+/datum/species/plasmaman/compressor_grind(location)
+	explosion(location, 0, 1, 2, flame_range = 4)

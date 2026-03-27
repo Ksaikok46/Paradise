@@ -78,7 +78,7 @@
 		to_chat(user, span_warning("You can't get [next_item] now!"))
 		return
 
-	if(istype(user.get_active_hand(), /obj) && istype(user.get_inactive_hand(), /obj))
+	if(isobj(user.get_active_hand()) && isobj(user.get_inactive_hand()))
 		to_chat(user, span_warning("You need an empty hand to draw the [next_item]!"))
 	else
 		user.put_in_hands(next_item)
@@ -139,7 +139,7 @@
 //For the holster hotkey
 /obj/item/clothing/accessory/holster/verb/holster_verb()
 	set name = "Кобура"
-	set category = STATPANEL_OBJECT
+	set category = VERB_CATEGORY_OBJECT
 	set src in usr
 
 	if(!isliving(usr) || usr.incapacitated() || HAS_TRAIT(usr, TRAIT_HANDS_BLOCKED))

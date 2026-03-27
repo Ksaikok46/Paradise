@@ -2,7 +2,7 @@ GLOBAL_LIST_EMPTY(empty_playable_ai_cores)
 
 /mob/living/silicon/ai/verb/wipe_core()
 	set name = "Выгрузить ядро ИИ"
-	set category = STATPANEL_OOC
+	set category = VERB_CATEGORY_OOC
 	set desc = "Wipe your core. This is functionally equivalent to cryo or robotic storage, freeing up your job slot."
 
 	// Guard against misclicks, this isn't the sort of thing we want happening accidentally
@@ -64,8 +64,7 @@ GLOBAL_LIST_EMPTY(empty_playable_ai_cores)
 // Before calling this, make sure an empty core exists, or this will no-op
 /mob/living/silicon/ai/proc/moveToEmptyCore()
 	if(!length(GLOB.empty_playable_ai_cores))
-		log_runtime(EXCEPTION("moveToEmptyCore called without any available cores"), src)
-		return
+		CRASH("moveToEmptyCore called without any available cores")
 
 	// IsJobAvailable for AI checks that there is an empty core available in this list
 	var/obj/structure/AIcore/deactivated/C = GLOB.empty_playable_ai_cores[1]

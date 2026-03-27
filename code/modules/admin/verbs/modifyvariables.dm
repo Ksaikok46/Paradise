@@ -95,12 +95,12 @@ GLOBAL_LIST_INIT(VVpixelmovement, list("step_x", "step_y", "step_size", "bound_h
 
 	switch(.["class"])
 		if(VV_TEXT)
-			.["value"] = tgui_input_text(src, "Введите текст:", "Текст", current_value, max_length = MAX_BOOK_MESSAGE_LEN, encode = FALSE, trim = FALSE) //TGUI can not comprehend 1eN, don't use scientific notation
+			.["value"] = tgui_input_text(src, "Введите текст:", "Текст", current_value, max_length = MAX_BOOK_MESSAGE_LEN, encode = FALSE) //TGUI can not comprehend 1eN, don't use scientific notation
 			if(.["value"] == null)
 				.["class"] = null
 				return
 		if(VV_MESSAGE)
-			.["value"] = tgui_input_text(src, "Введите текст:", "Текст", current_value, max_length = MAX_BOOK_MESSAGE_LEN, multiline = TRUE, encode = FALSE, trim = FALSE)
+			.["value"] = tgui_input_text(src, "Введите текст:", "Текст", current_value, max_length = MAX_BOOK_MESSAGE_LEN, multiline = TRUE, encode = FALSE)
 			if(.["value"] == null)
 				.["class"] = null
 				return
@@ -380,7 +380,7 @@ GLOBAL_LIST_INIT(VVpixelmovement, list("step_x", "step_y", "step_size", "bound_h
 /client/proc/mod_list(list/L, atom/O, original_name, objectvar, index, autodetect_class = FALSE)
 	if(!check_rights(R_VAREDIT))
 		return
-	if(!istype(L, /list))
+	if(!islist(L))
 		to_chat(src, "Not a List.")
 		return
 
@@ -420,7 +420,7 @@ GLOBAL_LIST_INIT(VVpixelmovement, list("step_x", "step_y", "step_size", "bound_h
 			return
 
 		if(variable == "(CLEAR DUPES)")
-			L = uniqueList(L)
+			L = unique_list(L)
 			if(!O.vv_edit_var(objectvar, L))
 				to_chat(src, "Your edit was rejected by the object.")
 				return

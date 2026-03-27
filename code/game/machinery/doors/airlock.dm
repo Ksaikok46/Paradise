@@ -58,6 +58,8 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	hud_possible = list(DIAG_AIRLOCK_HUD)
 	smoothing_groups = SMOOTH_GROUP_AIRLOCK
 	interaction_flags_click = ALLOW_SILICON_REACH
+	cares_about_temperature = TRUE
+	rad_insulation = RAD_MEDIUM_INSULATION
 
 	var/security_level = 0 //How much are wires secured
 	var/aiControlDisabled = AICONTROLDISABLED_OFF
@@ -107,6 +109,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	var/shockedby = list()
 	///the command the door is currently attempting to complete
 	var/cur_command = null
+	var/heat_resistance = 1500
 
 /obj/machinery/door/airlock/welded
 	welded = TRUE
@@ -763,20 +766,20 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		. = list()
 		set_light(l_range = 1, l_power = 1, l_color = "#00FF00", l_on = TRUE)
 		if(unres_sides & NORTH)
-			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_n") //layer=src.layer+1
-			I.pixel_y = 32
+			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_n") //layer=src.layer+1
+			I.pixel_z = 32
 			. += I
 		if(unres_sides & SOUTH)
-			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_s") //layer=src.layer+1
-			I.pixel_y = -32
+			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_s") //layer=src.layer+1
+			I.pixel_z = -32
 			. += I
 		if(unres_sides & EAST)
-			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_e") //layer=src.layer+1
-			I.pixel_x = 32
+			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_e") //layer=src.layer+1
+			I.pixel_w = 32
 			. += I
 		if(unres_sides & WEST)
-			var/image/I = image(icon='icons/obj/doors/airlocks/station/overlays.dmi', icon_state="unres_w") //layer=src.layer+1
-			I.pixel_x = -32
+			var/image/I = image(icon = 'icons/obj/doors/airlocks/station/overlays.dmi', icon_state = "unres_w") //layer=src.layer+1
+			I.pixel_w = -32
 			. += I
 
 /obj/machinery/door/airlock/CanAllowThrough(atom/movable/mover, border_dir)
@@ -1301,7 +1304,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 			to_chat(user, span_warning("Despite your attempts, [src] refuses to open."))
 		return
 
-	if(istype(I, /obj/item/mecha_parts/mecha_equipment/medical/rescue_jaw))
+	if(ispowertool(I))
 		playsound(src, 'sound/machines/airlock_force_open.ogg', 100, TRUE) //scary
 		if(do_after(user, 4 SECONDS, src, max_interact_count = 1, category = DA_CAT_TOOL) && !open(TRUE) && density) // faster because of ITS A MECH
 			to_chat(user, span_warning("Despite your attempts, [src] refuses to open."))
@@ -1342,13 +1345,13 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 
 	SEND_SIGNAL(src, COMSIG_AIRLOCK_OPEN, forced)
 	operating = DOOR_OPENING
+	recalculate_atmos_connectivity()
 	update_icon(AIRLOCK_OPENING, TRUE)
 	sleep(1)
 	set_opacity(FALSE)
 	update_freelook_sight()
 	sleep(4)
 	set_density(FALSE)
-	air_update_turf(TRUE)
 	sleep(1)
 	layer = OPEN_DOOR_LAYER
 	update_icon(AIRLOCK_OPEN, TRUE)
@@ -1390,7 +1393,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	if(!override)
 		sleep(1)
 	set_density(TRUE)
-	air_update_turf(TRUE)
+
 	if(!override)
 		sleep(4)
 	if(!safe)
@@ -1401,6 +1404,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 	sleep(1)
 	update_icon(AIRLOCK_CLOSED, TRUE)
 	operating = NONE
+	recalculate_atmos_connectivity()
 	if(safe)
 		CheckForMobs()
 	return TRUE
@@ -1705,6 +1709,15 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		aiControlDisabled = AICONTROLDISABLED_OFF
 	else if(aiControlDisabled == AICONTROLDISABLED_BYPASS)
 		aiControlDisabled = AICONTROLDISABLED_PERMA
+
+/obj/machinery/door/airlock/temperature_expose(exposed_temperature, exposed_volume)
+	..()
+
+	if(heat_proof)
+		return
+
+	if(exposed_temperature > (T0C + heat_resistance))
+		take_damage(round(exposed_volume / 100), BURN, 0, 0)
 
 #undef AIRLOCK_CLOSED
 #undef AIRLOCK_CLOSING

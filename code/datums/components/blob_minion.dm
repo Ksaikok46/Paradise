@@ -46,7 +46,7 @@
 	var/mob/living/living_parent = parent
 	living_parent.pass_flags |= PASSBLOB
 	living_parent.faction |= ROLE_BLOB
-	ADD_TRAIT(parent, TRAIT_BLOB_ALLY, UID())
+	ADD_TRAIT(parent, TRAIT_BLOB_ALLY, UNIQUE_TRAIT_SOURCE(src))
 	living_parent.stop_pulling()
 	RegisterSignal(parent, COMSIG_MOB_MIND_INITIALIZED, PROC_REF(on_mind_init))
 	RegisterSignal(parent, COMSIG_ATOM_UPDATE_ICON, PROC_REF(on_update_appearance))
@@ -66,7 +66,7 @@
 	var/mob/living/living_parent = parent
 	living_parent.pass_flags &= ~PASSBLOB
 	living_parent.faction -= ROLE_BLOB
-	REMOVE_TRAIT(parent, TRAIT_BLOB_ALLY, UID())
+	REMOVE_TRAIT(parent, TRAIT_BLOB_ALLY, UNIQUE_TRAIT_SOURCE(src))
 	UnregisterSignal(parent, list(
 		COMSIG_ATOM_BLOB_ACT,
 		COMSIG_ATOM_FIRE_ACT,
@@ -144,7 +144,7 @@
 	SIGNAL_HANDLER
 	var/spanned_message = minion.say_quote(message)
 	var/rendered = span_blob("<b>\[Blob Telepathy\] [minion.real_name]</b> [spanned_message], [message]")
-	relay_to_list_and_observers(rendered, GLOB.blob_telepathy_mobs, minion)
+	relay_to_list_and_observers(rendered, GLOB.blob_telepathy_mobs, minion, MESSAGE_TYPE_RADIO)
 	return COMPONENT_CANNOT_SPEAK
 
 /// Called when a blob minion is transformed into something else, hopefully a spore into a zombie

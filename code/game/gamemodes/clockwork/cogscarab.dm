@@ -79,14 +79,19 @@
 	hide.Grant(src)
 
 	if(!isclocker(src))
-		SSticker.mode.add_clocker(mind)
+		INVOKE_ASYNC(src, PROC_REF(async_add_clocker))
 
 	update_icons()
+
+/mob/living/silicon/robot/cogscarab/proc/async_add_clocker()
+	if(QDELETED(src) || !mind)
+		return
+	SSticker.mode.add_clocker(mind)
 
 /mob/living/silicon/robot/drone/Destroy()
 	for(var/datum/action/innate/hide/drone/cogscarab/hide in actions)
 		hide.Remove(src)
-	. = ..()
+	return ..()
 
 /mob/living/silicon/robot/cogscarab/add_strippable_element()
 	return
@@ -279,7 +284,7 @@
 /mob/living/silicon/robot/cogscarab/verb/light()
 	set name = "Освещение"
 	set desc = "Activate a low power omnidirectional LED. Toggled on or off."
-	set category = STATPANEL_COGSCARAB
+	set category = VERB_CATEGORY_COGSCARAB
 
 	if(lamp_intensity)
 		lamp_intensity = lamp_max // setting this to lamp_max will make control_headlamp shutoff the lamp

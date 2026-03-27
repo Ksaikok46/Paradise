@@ -22,7 +22,7 @@
 	throw_speed = 3
 	throw_range = 5
 	materials = list(MAT_METAL = 75000, MAT_GLASS = 37500)
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 50)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 50)
 	resistance_flags = FIRE_PROOF
 	origin_tech = "engineering=4;materials=2"
 	toolbox_radial_menu_compatibility = TRUE
@@ -96,8 +96,7 @@
 
 /obj/item/rpd/proc/create_atmos_pipe(mob/user, turf/T) //Make an atmos pipe, meter, or gas sensor
 	if(!can_dispense_pipe(whatpipe, RPD_ATMOS_MODE))
-		log_runtime(EXCEPTION("Failed to spawn [get_pipe_name(whatpipe, PIPETYPE_ATMOS)] - possible tampering detected")) //Damn dirty apes -- I mean hackers
-		return
+		CRASH("Failed to spawn [get_pipe_name(whatpipe, PIPETYPE_ATMOS)] - possible tampering detected")
 	var/obj/item/pipe/P
 	if(whatpipe == PIPE_GAS_SENSOR)
 		P = new /obj/item/pipe_gsensor(T)
@@ -114,20 +113,26 @@
 		else if(!iconrotation) //If user selected a rotation
 			P.dir = user.dir
 	to_chat(user, span_notice("[src] rapidly dispenses [P]!"))
-	activate_rpd(TRUE)
+	var/obj/item/inactive_hand_item = user.get_inactive_hand()
 	if(auto_wrench)
 		P.wrench_act(user, integrated_wrench)
+	else if(iswrench(inactive_hand_item) && (user.CanReach(P, inactive_hand_item)))
+		P.wrench_act(user, inactive_hand_item)
+	activate_rpd(TRUE)
 
 /obj/item/rpd/proc/create_disposals_pipe(mob/user, turf/T) //Make a disposals pipe / construct
 	if(!can_dispense_pipe(whatdpipe, RPD_DISPOSALS_MODE))
-		log_runtime(EXCEPTION("Failed to spawn [get_pipe_name(whatdpipe, PIPETYPE_DISPOSAL)] - possible tampering detected"))
-		return
+		CRASH("Failed to spawn [get_pipe_name(whatdpipe, PIPETYPE_DISPOSAL)] - possible tampering detected")
 	var/rotate_dir = iconrotation ? iconrotation : user.dir
 	var/obj/structure/disposalconstruct/construct = new(T, whatdpipe, rotate_dir)
 	to_chat(user, span_notice("[src] rapidly dispenses the [construct.pipename]!"))
-	activate_rpd(TRUE)
+	var/obj/item/inactive_hand_item = user.get_inactive_hand()
 	if(auto_wrench)
 		construct.wrench_act(user, integrated_wrench)
+	else if(iswrench(inactive_hand_item) && (user.CanReach(construct, inactive_hand_item)))
+		construct.wrench_act(user, inactive_hand_item)
+	activate_rpd(TRUE)
+
 
 /obj/item/rpd/proc/rotate_all_pipes(mob/user, turf/T) //Rotate all pipes on a turf
 	for(var/obj/item/pipe/P in T)
@@ -181,11 +186,6 @@
 	if(!ui)
 		ui = new(user, src, "RPD", name)
 		ui.open()
-
-/obj/item/rpd/ui_assets(mob/user)
-	return list(
-		get_asset_datum(/datum/asset/spritesheet/rpd)
-	)
 
 /obj/item/rpd/click_alt(mob/living/user)
 	radial_menu(user)

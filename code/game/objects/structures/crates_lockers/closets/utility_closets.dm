@@ -51,9 +51,7 @@
 	new /obj/item/tank/internals/oxygen(src)
 	new /obj/item/clothing/mask/gas(src)
 
-/*
- * Fire Closet
- */
+// MARK: Fire Closet
 /obj/structure/closet/firecloset
 	name = "fire-safety closet"
 	desc = "It's a storage unit for fire-fighting supplies."
@@ -65,6 +63,7 @@
 	new /obj/item/clothing/mask/gas(src)
 	new /obj/item/tank/internals/oxygen/red(src)
 	new /obj/item/clothing/head/hardhat/red(src)
+	new /obj/item/crowbar/red(src)
 
 /obj/structure/closet/firecloset/full/populate_contents()
 	new /obj/item/extinguisher(src)
@@ -73,6 +72,8 @@
 	new /obj/item/flashlight(src)
 	new /obj/item/tank/internals/oxygen/red(src)
 	new /obj/item/clothing/head/hardhat/red(src)
+	new /obj/item/crowbar/red(src)
+
 
 /*
  * Tool Closet
@@ -138,7 +139,7 @@
 /obj/structure/closet/bombcloset/populate_contents()
 	new /obj/item/clothing/suit/bomb_suit( src )
 	new /obj/item/clothing/under/color/black( src )
-	new /obj/item/clothing/shoes/black( src )
+	new /obj/item/clothing/shoes/color/black( src )
 	new /obj/item/clothing/head/bomb_hood( src )
 
 /obj/structure/closet/bombclosetsecurity
@@ -149,7 +150,7 @@
 /obj/structure/closet/bombclosetsecurity/populate_contents()
 	new /obj/item/clothing/suit/bomb_suit/security( src )
 	new /obj/item/clothing/under/rank/security( src )
-	new /obj/item/clothing/shoes/brown( src )
+	new /obj/item/clothing/shoes/color/brown( src )
 	new /obj/item/clothing/head/bomb_hood/security( src )
 
 /*

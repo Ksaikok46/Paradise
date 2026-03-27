@@ -61,7 +61,8 @@ GLOBAL_LIST_EMPTY(gear_datums)
 	var/datum/gear_data/gear_data = new(path, location)
 	for(var/datum/gear_tweak/tweak in gear_tweaks)
 		tweak.tweak_gear_data(metadata["[tweak]"], gear_data)
-	var/item = new gear_data.path(gear_data.location)
+	var/gear_path = gear_data.path || path
+	var/item = new gear_path(gear_data.location)
 	for(var/datum/gear_tweak/tweak in gear_tweaks)
 		tweak.tweak_item(item, metadata["[tweak]"])
 	return item
@@ -70,7 +71,7 @@ GLOBAL_LIST_EMPTY(gear_datums)
 	if(!job_name || !LAZYLEN(allowed_roles))
 		return TRUE
 
-	if(job_name in allowed_roles)
+	if(job_title_ru_to_en(job_name) in allowed_roles)
 		return TRUE
 
 	if(cl && !silent)
@@ -80,3 +81,6 @@ GLOBAL_LIST_EMPTY(gear_datums)
 
 /datum/gear/proc/get_header_tips()
 	return
+
+/datum/gear/proc/get_spawn_path(job_name, metadata)
+	return path

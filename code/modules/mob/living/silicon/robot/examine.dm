@@ -36,24 +36,24 @@
 	msg += "</span>"
 
 	if(opened)
-		msg += "<span class='warning'>Its cover is open and the power cell is [cell ? "installed" : "missing"].</span>\n"
+		msg += "[span_warning("Its cover is open and the power cell is [cell ? "installed" : "missing"].")]\n"
 	else
 		msg += "Its cover is closed[locked ? "" : ", and looks unlocked"].\n"
 
 	if(cell && cell.charge <= 0)
-		msg += "<span class='warning'>Its battery indicator is blinking red!</span>\n"
+		msg += "[span_warning("Its battery indicator is blinking red!")]\n"
 
 	switch(stat)
 		if(CONSCIOUS)
 			if(!client)
 				msg += "It appears to be in stand-by mode.\n" //afk
 		if(UNCONSCIOUS)
-			msg += "<span class='warning'>It doesn't seem to be responding.</span>\n"
+			msg += "[span_warning("It doesn't seem to be responding.")]\n"
 		if(DEAD)
 			if(!suiciding)
-				msg += "<span class='deadsay'>It looks like its system is corrupted and requires a reset.</span>\n"
+				msg += "[span_deadsay("It looks like its system is corrupted and requires a reset.")]\n"
 			else
-				msg += "<span class='warning'>It looks like its system is corrupted beyond repair. There is no hope of recovery.</span>\n"
+				msg += "[span_warning("It looks like its system is corrupted beyond repair. There is no hope of recovery.")]\n"
 	if(inventory_head)
 		msg += "\nНосит [icon2html(inventory_head, user)] [inventory_head.name].\n"
 	msg += "</span>"
@@ -65,6 +65,13 @@
 		if(findtext(pose,".",length(pose)) == 0 && findtext(pose,"!",length(pose)) == 0 && findtext(pose,"?",length(pose)) == 0)
 			pose = addtext(pose,".") //Makes sure all emotes end with a period.
 		msg += "\nIt is [pose]"
+
+	if(isobserver(user))
+		msg += "The laws it serves:\n"
+		laws.sort_laws()
+		for(var/datum/ai_law/law in laws.sorted_laws)
+			msg += "[law.get_index()]. [law.law]\n"
+		msg += "[shell? "Occupier: [mainframe? "[mainframe.name]" : "NONE"]" : "AI master: [connected_ai? "[connected_ai.name]" : "NONE"]"]\n"
 
 	. += msg
 	user.showLaws(src)

@@ -1,10 +1,11 @@
 /datum/job/syndicateofficer
-	title = JOB_TITLE_SYNDICATE
+	title = JOB_TITLE_SYNDICATE_OFFICER
 	flag = JOB_FLAG_SYNDICATE
 	department_flag = JOB_FLAG_SYNDICATE // This gets its job as its own flag because admin jobs dont have flags
+	department = STATION_DEPARTMENT_OTHER
 	total_positions = 5
 	spawn_positions = 5
-	supervisors = "администраторами"
+	supervisors = "Администраторами"
 	selection_color = "#4c1e1e"
 	access = list()
 	minimal_access = list()
@@ -17,7 +18,7 @@
 	return get_syndicate_access(title)
 
 /datum/outfit/job/syndicateofficer
-	name = "Syndicate Officer"
+	name = JOB_TITLE_RU_SYNDICATE_OFFICER
 	jobtype = /datum/job/syndicateofficer
 
 	uniform = /obj/item/clothing/under/syndicate

@@ -22,7 +22,6 @@
 	var/l_set = FALSE
 	var/l_setshort = FALSE
 	var/l_hacking = FALSE
-	var/emagged = FALSE
 	var/open = FALSE
 
 /obj/item/storage/secure/examine(mob/user)
@@ -211,7 +210,7 @@
 	icon_state = "secure"
 	item_state = "sec-case"
 	flags = CONDUCT
-	hitsound = "swing_hit"
+	hitsound = SFX_SWING_HIT
 	use_sound = 'sound/effects/briefcase.ogg'
 	force = 8
 	throw_range = 4
@@ -267,3 +266,9 @@
 
 /obj/item/storage/secure/safe/attack_hand(mob/user)
 	return attack_self(user)
+
+/obj/item/storage/secure/safe/CMO/populate_contents()
+	new /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis(src)
+	new /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis(src)
+	new /obj/item/reagent_containers/glass/bottle/reagent/synaptizine(src)
+	new /obj/item/reagent_containers/glass/bottle/reagent/omnizine(src)

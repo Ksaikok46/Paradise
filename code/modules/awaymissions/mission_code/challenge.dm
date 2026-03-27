@@ -21,12 +21,14 @@
 	base_lighting_alpha = 255
 
 /obj/machinery/power/emitter/energycannon
-	name = "Energy Cannon"
+	name = "energy cannon"
+	desc = "A heavy duty industrial laser."
 	anchored = TRUE
+	resistance_flags = INDESTRUCTIBLE | FIRE_PROOF | ACID_PROOF
 
 	idle_power_usage = 0
 	active_power_usage = 0
 
-	active = 1
-	locked = 1
-	state = 2
+	active = TRUE
+	locked = TRUE
+	welded = TRUE

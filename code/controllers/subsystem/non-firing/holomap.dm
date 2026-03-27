@@ -1,11 +1,11 @@
 /// Turfs that will be colored as HOLOMAP_ROCK
-#define IS_ROCK(tile) (istype(tile, /turf/simulated/mineral) && tile.density)
+#define IS_ROCK(tile) (ismineralturf(tile) && tile.density)
 /// Turfs that will be colored as HOLOMAP_OBSTACLE
-#define IS_OBSTACLE(tile) (istype(tile, /turf/simulated/wall) ||  (locate(/obj/structure/window) in tile))
+#define IS_OBSTACLE(tile) (iswallturf(tile) ||  (locate(/obj/structure/window) in tile))
 /// Turfs that will be colored as HOLOMAP_SOFT_OBSTACLE
 #define IS_SOFT_OBSTACLE(tile) ((locate(/obj/structure/grille) in tile) || (locate(/obj/structure/lattice) in tile))
 /// Turfs that will be colored as HOLOMAP_PATH
-#define IS_PATH(tile) istype(tile, /turf/simulated/floor)
+#define IS_PATH(tile) isfloorturf(tile)
 /// Turfs that contain a Z transition, like ladders and stairs. They show with special animations on the map.
 #define HAS_Z_TRANSITION(tile) ((locate(/obj/structure/ladder) in tile) || (locate(/obj/structure/stairs) in tile))
 
@@ -20,6 +20,7 @@ SUBSYSTEM_DEF(holomaps)
 	var/static/list/holomaps = list()
 	var/static/list/extra_holomaps = list()
 	var/static/list/station_holomaps = list()
+	var/static/list/station_mini_holomaps = list()
 	var/static/list/holomap_z_transitions = list()
 	var/static/list/list/holomap_position_to_name = list()
 
@@ -112,8 +113,8 @@ SUBSYSTEM_DEF(holomaps)
 					z_transition_positions["Ступени вверх"] = list("icon" = image('icons/misc/8x8.dmi', "stairs"), "markers" = list())
 
 				image_to_use = image('icons/misc/8x8.dmi', "stairs")
-				image_to_use.pixel_x = offset_x - 1 // -1 to offset icon properly
-				image_to_use.pixel_y = offset_y - 1
+				image_to_use.pixel_w = offset_x - 1 // -1 to offset icon properly
+				image_to_use.pixel_z = offset_y - 1
 
 				z_transition_positions["Ступени вверх"]["markers"] += image_to_use
 
@@ -127,8 +128,8 @@ SUBSYSTEM_DEF(holomaps)
 					SSholomaps.holomap_z_transitions["[checking.z]"] = transitions
 
 				image_to_use = image('icons/misc/8x8.dmi', "stairs_down")
-				image_to_use.pixel_x = checking.x + HOLOMAP_CENTER_X - 1
-				image_to_use.pixel_y = checking.y + HOLOMAP_CENTER_Y - 1
+				image_to_use.pixel_w = checking.x + HOLOMAP_CENTER_X - 1
+				image_to_use.pixel_z = checking.y + HOLOMAP_CENTER_Y - 1
 
 				if(!transitions["Ступени вниз"])
 					transitions["Ступени вниз"] = list("icon" = image('icons/misc/8x8.dmi', "stairs_down"), "markers" = list())
@@ -140,8 +141,8 @@ SUBSYSTEM_DEF(holomaps)
 				z_transition_positions["Лестница"] = list("icon" = image('icons/misc/8x8.dmi', "ladder"), "markers" = list())
 
 			image_to_use = image('icons/misc/8x8.dmi', "ladder")
-			image_to_use.pixel_x = offset_x - 1
-			image_to_use.pixel_y = offset_y - 1
+			image_to_use.pixel_w = offset_x - 1
+			image_to_use.pixel_z = offset_y - 1
 
 			z_transition_positions["Лестница"]["markers"] += image_to_use
 

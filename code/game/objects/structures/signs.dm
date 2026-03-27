@@ -6,7 +6,7 @@
 	blocks_emissive = EMISSIVE_BLOCK_GENERIC
 	var/does_emissive = FALSE
 	var/random_number = FALSE
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 
 /obj/structure/sign/Initialize(mapload)
 	. = ..()
@@ -402,3 +402,14 @@
 	name = "портрет Кейва Джонсона"
 	desc = "Когда вселенная швыряет в вас камни из плазмы — вы не \"изучаете их свойства\"! Вы берете эти камни, перемалываете в токсичную пыль и запускаете ей в лицо всем скептикам! Руководство ноет о \"технике безопасности\"? ПЛЕВАТЬ НА НИХ! Найдите ассистентов, которые не побоятся взорвать эту смесь в своих руках, во благо науки!"
 	icon_state = "cave"
+
+
+/obj/structure/sign/magboots
+	name = "МАГНИТНЫЕ БОТИНКИ"
+	desc = "Предупреждающий знак с надписью \"МАГНИТНЫЕ БОТИНКИ\""
+	icon_state = "magboots"
+
+/obj/structure/sign/turbine
+	name = "ТУРБИНА"
+	desc = "Предупреждающий знак с надписью \"ТУРБИНА\""
+	icon_state = "turbine"

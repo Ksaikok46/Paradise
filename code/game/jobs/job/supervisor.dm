@@ -7,6 +7,7 @@
 	req_admin_notify = 1
 	exp_requirements = 3000
 	disabilities_allowed = 0
+	head_position = TRUE
 	insurance_type = INSURANCE_TYPE_DELUXE
 	paycheck = PAYCHECK_COMMAND
 
@@ -14,6 +15,7 @@
 	title = JOB_TITLE_CAPTAIN
 	flag = JOB_FLAG_CAPTAIN
 	department_flag = JOBCAT_ENGSEC
+	department = STATION_DEPARTMENT_COMMAND
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "должностными лицами \"Нанотрейзен\""
@@ -30,6 +32,7 @@
 	exp_requirements = 3000
 	exp_type = EXP_TYPE_COMMAND
 	disabilities_allowed = 0
+	head_position = TRUE
 	outfit = /datum/outfit/job/captain
 	insurance_type = INSURANCE_TYPE_DELUXE
 	paycheck = PAYCHECK_MAX
@@ -46,11 +49,11 @@
 	)
 
 /datum/outfit/job/captain
-	name = JOB_TITLE_CAPTAIN
+	name = JOB_TITLE_RU_CAPTAIN
 	jobtype = /datum/job/captain
 	uniform = /obj/item/clothing/under/rank/captain
 	suit = /obj/item/clothing/suit/armor/vest/capcarapace
-	shoes = /obj/item/clothing/shoes/brown
+	shoes = /obj/item/clothing/shoes/color/brown
 	head = /obj/item/clothing/head/caphat
 	l_ear = /obj/item/radio/headset/heads/captain/alt
 	glasses = /obj/item/clothing/glasses/hud/blueshield/cap
@@ -65,6 +68,7 @@
 	backpack = /obj/item/storage/backpack/captain
 	satchel = /obj/item/storage/backpack/satchel_cap
 	dufflebag = /obj/item/storage/backpack/duffel/captain
+	implant_variant = /obj/item/organ/internal/cyberimp/eyes/hud/security
 
 /datum/outfit/job/captain/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	. = ..()
@@ -76,10 +80,12 @@
 	title = JOB_TITLE_REPRESENTATIVE
 	flag = JOB_FLAG_REPRESENTATIVE
 	department_flag = JOBCAT_KARMA
+	department = STATION_DEPARTMENT_COMMAND
 	selection_color = "#d1deff"
 	is_command = 1
 	transfer_allowed = FALSE
 	blocked_race_for_job = list(SPECIES_VOX)
+	head_position = FALSE
 	exp_requirements = 1200
 	exp_type = EXP_TYPE_COMMAND
 	access = list(
@@ -98,12 +104,16 @@
 		ACCESS_THEATRE, ACCESS_CHAPEL_OFFICE, ACCESS_LIBRARY, ACCESS_RESEARCH, ACCESS_MINING, ACCESS_HEADS_VAULT, ACCESS_MINING_STATION,
 		ACCESS_CLOWN, ACCESS_MIME, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_WEAPONS, ACCESS_NTREP
 	)
-	alt_titles = list("NT Consultant", "Central Command Consultant")
+	alt_titles = list(
+		ALT_JOB_TITLE_RU_NT_AUDITOR,
+		ALT_JOB_TITLE_RU_NT_INSPECTOR,
+		ALT_JOB_TITLE_RU_NT_CONSULTANT,
+	)
 	outfit = /datum/outfit/job/nanotrasenrep
 	paycheck = PAYCHECK_MAX
 
 /datum/outfit/job/nanotrasenrep
-	name = JOB_TITLE_REPRESENTATIVE
+	name = JOB_TITLE_RU_REPRESENTATIVE
 	jobtype = /datum/job/head_of_staff/nanotrasenrep
 	uniform = /obj/item/clothing/under/rank/ntrep
 	suit = /obj/item/clothing/suit/storage/ntrep
@@ -122,6 +132,7 @@
 	title = JOB_TITLE_BLUESHIELD
 	flag = JOB_FLAG_BLUESHIELD
 	department_flag = JOBCAT_KARMA
+	department = STATION_DEPARTMENT_COMMAND
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "Представителем \"Нанотрейзен\""
@@ -153,7 +164,7 @@
 	paycheck = PAYCHECK_COMMAND
 
 /datum/outfit/job/blueshield
-	name = JOB_TITLE_BLUESHIELD
+	name = JOB_TITLE_RU_BLUESHIELD
 	jobtype = /datum/job/blueshield
 	uniform = /obj/item/clothing/under/rank/blueshield
 	suit = /obj/item/clothing/suit/armor/vest/blueshield
@@ -175,12 +186,13 @@
 	dufflebag = /obj/item/storage/backpack/duffel/blueshield
 
 /datum/job/head_of_staff/judge
-	title = JOB_TITLE_JUDGE
+	title = JOB_TITLE_MAGISTRATE
 	flag = JOB_FLAG_JUDGE
 	department_flag = JOBCAT_KARMA
+	department = STATION_DEPARTMENT_LEGAL
 	supervisors = "верховным судом \"Нанотрейзен\""
 	department_head = list(JOB_TITLE_CAPTAIN)
-	selection_color = "#edccd7"
+	selection_color = "#db6d92"
 	is_legal = 1
 	transfer_allowed = FALSE
 	minimal_player_age = 30
@@ -200,12 +212,14 @@
 		ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_LAWYER, ACCESS_MAGISTRATE, ACCESS_HEADS
 	)
 	law_level = LAW_LEVEL_MAGISTRATE
-	alt_titles = list("Judge")
+	alt_titles = list(
+		ALT_JOB_TITLE_RU_JUDGE,
+	)
 	outfit = /datum/outfit/job/judge
 	paycheck = PAYCHECK_MAX
 
 /datum/outfit/job/judge
-	name = JOB_TITLE_JUDGE
+	name = JOB_TITLE_RU_MAGISTRATE
 	jobtype = /datum/job/head_of_staff/judge
 	uniform = /obj/item/clothing/under/suit_jacket/really_black
 	suit = /obj/item/clothing/suit/judgerobe
@@ -230,6 +244,7 @@
 	title = JOB_TITLE_LAWYER
 	flag = JOB_FLAG_LAWYER
 	department_flag = JOBCAT_SUPPORT
+	department = STATION_DEPARTMENT_LEGAL
 	total_positions = 2
 	spawn_positions = 2
 	is_legal = 1
@@ -238,7 +253,9 @@
 	selection_color = "#edccd7"
 	access = list(ACCESS_LAWYER, ACCESS_COURT, ACCESS_SEC_DOORS, ACCESS_MAINT_TUNNELS, ACCESS_RESEARCH, ACCESS_MEDICAL, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING)
 	minimal_access = list(ACCESS_LAWYER, ACCESS_COURT, ACCESS_SEC_DOORS, ACCESS_MAINT_TUNNELS, ACCESS_RESEARCH, ACCESS_MEDICAL, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING)
-	alt_titles = list("Human Resources Agent", "Lawyer", "Attorney")
+	alt_titles = list(
+		ALT_JOB_TITLE_RU_LAWYER,
+	)
 	minimal_player_age = 30
 	blocked_race_for_job = list(SPECIES_VOX)
 	exp_requirements = 3000
@@ -248,14 +265,14 @@
 	paycheck = PAYCHECK_COMMAND
 
 /datum/outfit/job/lawyer
-	name = JOB_TITLE_LAWYER
+	name = JOB_TITLE_RU_LAWYER
 	jobtype = /datum/job/lawyer
-	uniform = /obj/item/clothing/under/rank/internalaffairs
+	uniform = /obj/item/clothing/under/rank/lawyer
 	suit = /obj/item/clothing/suit/storage/internalaffairs
-	shoes = /obj/item/clothing/shoes/brown
+	shoes = /obj/item/clothing/shoes/color/brown
 	l_ear = /obj/item/radio/headset/headset_iaa/alt
 	glasses = /obj/item/clothing/glasses/hud/security/sunglasses/read_only
-	id = /obj/item/card/id/iaa
+	id = /obj/item/card/id/lawyer
 	l_pocket = /obj/item/laser_pointer
 	r_pocket = /obj/item/clothing/accessory/head_strip/lawyers_badge
 	l_hand = /obj/item/storage/briefcase
@@ -263,7 +280,6 @@
 	backpack_contents = list(
 		/obj/item/flash = 1,
 	)
-	implants = list(/obj/item/implant/mindshield)
 	satchel = /obj/item/storage/backpack/satchel_sec
 	dufflebag = /obj/item/storage/backpack/duffel/security
 	box = /obj/item/storage/box/survival/survival_laws

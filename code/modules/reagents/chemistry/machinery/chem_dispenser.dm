@@ -270,7 +270,7 @@
 		SStgui.update_uis(src)
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
-	if(istype(I, /obj/item/reagent_containers/glass) || istype(I, /obj/item/reagent_containers/food/drinks))
+	if(isglassreagentcontainer(I) || istype(I, /obj/item/reagent_containers/food/drinks))
 		add_fingerprint(user)
 		if(panel_open)
 			balloon_alert(user, "техпанель открыта!")
@@ -596,7 +596,7 @@
 /obj/item/handheld_chem_dispenser/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "HandheldChemDispenser", capitalize(declent_ru(NOMINATIVE)))
+		ui = new(user, src, "HandheldChemDispenser", DECLENT_RU_CAP(src, NOMINATIVE))
 		ui.open()
 
 /obj/item/handheld_chem_dispenser/ui_data(mob/user)

@@ -51,9 +51,8 @@
 	link_password = GenerateKey()
 	var/turf/our_turf = get_turf(loc)
 	if(!isturf(our_turf))
-		log_runtime(EXCEPTION("Tcomms core is in non-turf loc!"))
 		message_admins("Tcomms core is in non-turf loc. Inform maintainrs about it.")
-		return
+		CRASH("Tcomms core is in non-turf loc!")
 	reachable_zlevels |= our_turf.z
 	var/turf/above = GET_TURF_ABOVE(our_turf)
 	while(above)
@@ -150,9 +149,8 @@
 	reachable_zlevels = list()
 	var/turf/our_turf = get_turf(loc)
 	if(!isturf(our_turf))
-		log_runtime(EXCEPTION("Tcomms core is in non-turf loc!"))
 		message_admins("Tcomms core is in non-turf loc. Inform maintainrs about it.")
-		return
+		CRASH("Tcomms core is in non-turf loc!")
 	// Add itself as a reachable Z-level
 	reachable_zlevels |= loc.z
 	// add adjacent zlevels above and below
@@ -217,7 +215,7 @@
 
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "TcommsCore", capitalize(declent_ru(NOMINATIVE)))
+		ui = new(user, src, "TcommsCore", DECLENT_RU_CAP(src, NOMINATIVE))
 		ui.open()
 
 /obj/machinery/tcomms/core/ui_data(mob/user)
@@ -252,7 +250,7 @@
 		if(R.active && !(R.stat & NOPOWER))
 			status = TRUE
 
-		relays += list(list("addr" = "\ref[R]", "net_id" = R.network_id, "sector" = R.loc.z, "status" = status))
+		relays += list(list("addr" = R.UID(), "net_id" = R.network_id, "sector" = R.loc.z, "status" = status))
 
 	data["relay_entries"] = relays
 	// End the shit
@@ -338,9 +336,9 @@
 			network_id = new_id
 
 		if("unlink")
-			var/obj/machinery/tcomms/relay/R = locate(params["addr"])
+			var/obj/machinery/tcomms/relay/R = locateUID(params["addr"])
 			if(istype(R, /obj/machinery/tcomms/relay))
-				var/confirm = tgui_alert(usr, "Вы хотите отвязать это реле?\nID: [R.network_id]\nADDR: \ref[R].", "Отвязка реле", list("Да", "Нет"))
+				var/confirm = tgui_alert(usr, "Вы хотите отвязать это реле?\nID: [R.network_id]\nADDR: [R.UID()].", "Отвязка реле", list("Да", "Нет"))
 				if(confirm == "Да")
 					log_action(usr, "has unlinked tcomms relay with ID [R.network_id] from tcomms core with ID [network_id]", TRUE)
 					R.Reset()

@@ -8,14 +8,24 @@ do { \
 /obj/item/clothing/under/chameleon
 	name = "black jumpsuit"
 	desc = "It's a plain jumpsuit. It has a small dial on the wrist."
-	icon_state = "black"
-	item_state = "bl_suit"
+	icon_state = "jumpsuit"
+	item_state = "jumpsuit"
 	item_color = "black"
 	random_sensor = FALSE
 	resistance_flags = NONE
 	can_adjust = FALSE
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	actions_types = list(/datum/action/item_action/chameleon/change/jumpsuit)
+
+/obj/item/clothing/under/chameleon/Initialize(mapload)
+	. = ..()
+	var/obj/item/clothing/under/color/black/temp_item = new(null)
+	icon = temp_item.icon
+	onmob_sheets = temp_item.onmob_sheets
+	sprite_sheets = temp_item.sprite_sheets
+	lefthand_file = temp_item.lefthand_file
+	righthand_file = temp_item.righthand_file
+	qdel(temp_item)
 
 /obj/item/clothing/under/chameleon/broken
 
@@ -27,7 +37,7 @@ do { \
 	desc = "A special containment suit that allows plasma-based lifeforms to exist safely in an oxygenated environment, and automatically extinguishes them in a crisis. Despite being airtight, it's not spaceworthy."
 	resistance_flags = NONE
 	random_sensor = FALSE
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 0, FIRE = 95, ACID = 95)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 95, ACID = 95)
 	actions_types = list(/datum/action/item_action/chameleon/change/jumpsuit)
 
 /obj/item/clothing/under/plasmaman/chameleon/broken
@@ -44,7 +54,7 @@ do { \
 	item_state = "armor"
 	blood_overlay_type = "armor"
 	resistance_flags = NONE
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	actions_types = list(/datum/action/item_action/chameleon/change/suit)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/suit.dmi',
@@ -67,7 +77,7 @@ do { \
 	desc = "Used by engineering and mining staff to see basic structural and terrain layouts through walls, regardless of lighting condition."
 	icon_state = "meson"
 	item_state = "meson"
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	actions_types = list(/datum/action/item_action/chameleon/change/glasses)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
@@ -114,7 +124,7 @@ do { \
 	icon_state = "yellow"
 	item_state = "ygloves"
 	resistance_flags = NONE
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	actions_types = list(/datum/action/item_action/chameleon/change/gloves)
 
 /obj/item/clothing/gloves/chameleon/broken
@@ -130,7 +140,7 @@ do { \
 	icon_state = "greysoft"
 	item_color = "grey"
 	resistance_flags = NONE
-	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	actions_types = list(/datum/action/item_action/chameleon/change/hat)
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/head.dmi',
@@ -150,7 +160,7 @@ do { \
 /obj/item/clothing/head/helmet/space/plasmaman/chameleon
 	gas_transfer_coefficient = 0.01
 	resistance_flags = FIRE_PROOF|ACID_PROOF
-	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 20, BIO = 100, RAD = 0, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 30, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 20, BIO = 100, FIRE = 100, ACID = 100)
 	actions_types = list(/datum/action/item_action/chameleon/change/hat)
 
 /obj/item/clothing/head/helmet/space/plasmaman/chameleon/broken
@@ -166,7 +176,7 @@ do { \
 	icon_state = "gas_alt"
 	item_state = "gas_alt"
 	resistance_flags = NONE
-	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 5, BULLET = 5, LASER = 5, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	clothing_flags = AIRTIGHT|BLOCK_GAS_SMOKE_EFFECT
 	flags_inv = HIDEHEADSETS|HIDEGLASSES|HIDENAME
 	gas_transfer_coefficient = 0.01
@@ -198,7 +208,7 @@ do { \
 
 /obj/item/clothing/mask/chameleon/Destroy()
 	QDEL_NULL(voice_changer)
-	return ..()
+	. = ..()
 
 /obj/item/clothing/mask/chameleon/broken
 
@@ -210,12 +220,22 @@ do { \
 /obj/item/clothing/shoes/chameleon
 	name = "black shoes"
 	desc = "A pair of black shoes."
-	icon_state = "black"
+	icon = 'icons/map_icons/clothing/shoes.dmi'
+	icon_state = "/obj/item/clothing/shoes/color"
+	post_init_icon_state = "sneakers"
 	item_color = "black"
 	permeability_coefficient = 0.05
 	resistance_flags = NONE
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 50, ACID = 50)
 	actions_types = list(/datum/action/item_action/chameleon/change/shoes)
+
+/obj/item/clothing/shoes/chameleon/Initialize(mapload)
+	. = ..()
+	var/obj/item/clothing/shoes/color/black/temp_item = new(null)
+	icon = temp_item.icon
+	onmob_sheets = temp_item.onmob_sheets
+	sprite_sheets = temp_item.sprite_sheets
+	qdel(temp_item)
 
 /obj/item/clothing/shoes/chameleon/broken
 

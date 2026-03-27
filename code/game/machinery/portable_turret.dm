@@ -19,7 +19,7 @@
 	idle_power_usage = 50		//when inactive, this turret takes up constant 50 Equipment power
 	active_power_usage = 300	//when active, this turret takes up constant 300 Equipment power
 	can_astar_pass = CANASTARPASS_ALWAYS_PROC
-	armor = list(melee = 50, bullet = 30, laser = 30, energy = 30, bomb = 30, bio = 0, rad = 0, fire = 90, acid = 90)
+	armor = list(melee = 50, bullet = 30, laser = 30, energy = 30, bomb = 30, bio = 0, fire = 90, acid = 90)
 
 	req_access = list(ACCESS_SECURITY, ACCESS_HEADS)
 
@@ -82,6 +82,11 @@
 
 	/// List of some inserted gun data. Used to setup new gun.
 	var/list/old_gun_data = list()
+
+	/// What lethal mode projectile with the turret start with?
+	var/initial_eprojectile = null
+	/// What non-lethal mode projectile with the turret start with?
+	var/initial_projectile = null
 
 /obj/machinery/porta_turret/Initialize(mapload)
 	. = ..()
@@ -161,8 +166,14 @@
 			egun = 1
 
 		if(/obj/item/gun/energy/pulse/turret)
-			eprojectile = /obj/projectile/beam/pulse
+			eprojectile = /obj/projectile/beam/pulse/hitscan
 			eshot_sound = 'sound/weapons/pulse.ogg'
+
+	if(initial_eprojectile)
+		eprojectile = initial_eprojectile
+
+	if(initial_projectile)
+		projectile = initial_projectile
 
 /obj/machinery/porta_turret/CanAStarPass(to_dir, datum/can_pass_info/pass_info)
 	return (stat & BROKEN) || !pass_info.is_living
@@ -437,8 +448,11 @@ GLOBAL_LIST_EMPTY(turret_icons)
 		if(force < 5)
 			return
 
+	if(health <= 0) //already died
+		return
+
 	health -= force
-	if(force > 5 && prob(45) && spark_system)
+	if(force > 5 && prob(45) && spark_system && !spark_system.total_effects)
 		spark_system.start()
 	if(health <= 0)
 		die()	//the death process :(
@@ -490,6 +504,8 @@ GLOBAL_LIST_EMPTY(turret_icons)
 			take_damage(initial(health) * 8 / 3)
 
 /obj/machinery/porta_turret/proc/die()	//called when the turret dies, ie, health <= 0
+	if(stat & BROKEN)
+		return
 	health = 0
 	stat |= BROKEN	//enables the BROKEN bit
 	if(spark_system)
@@ -551,7 +567,7 @@ GLOBAL_LIST_EMPTY(turret_icons)
 		var/obj/spacepod/SP = target
 		return assess_and_assign(SP.pilot)
 
-	if(istype(target, /obj/vehicle))
+	if(isvehicle(target))
 		var/obj/vehicle/T = target
 		if(T.has_buckled_mobs())
 			for(var/m in T.buckled_mobs)
@@ -889,7 +905,7 @@ GLOBAL_LIST_EMPTY(turret_icons)
 				return ATTACK_CHAIN_PROCEED_SUCCESS
 
 		if(TURRET_BUILD_ARMOR_SECURED)
-			if(istype(I, /obj/item/gun/energy)) //the gun installation part
+			if(isenergygun(I)) //the gun installation part
 				var/obj/item/gun/energy/new_gun = I
 				if(isrobot(user) || !new_gun.turret_check())
 					return ATTACK_CHAIN_PROCEED

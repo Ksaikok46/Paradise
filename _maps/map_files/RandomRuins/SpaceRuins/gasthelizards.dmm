@@ -377,20 +377,14 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/machinery/light_switch{
-	pixel_x = -32;
-	pixel_y = -24
-	},
+/obj/machinery/light_switch/directional/south,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/ruin/space/gasthelizards/engineering)
 "pe" = (
 /obj/effect/decal/cleanable/blood/old,
-/obj/machinery/light_switch{
-	pixel_x = -23;
-	pixel_y = 25
-	},
+/obj/machinery/light_switch/directional/north,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -449,8 +443,7 @@
 	icon_state = "4-8"
 	},
 /obj/structure/cable{
-	icon_state = "1-4";
-	tag = "90Curve"
+	icon_state = "1-4"
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -771,10 +764,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/machinery/light_switch{
-	pixel_x = 22;
-	pixel_y = 25
-	},
+/obj/machinery/light_switch/directional/north,
 /obj/machinery/door_control{
 	id = "gtl_vitrine";
 	name = "Vitrine Shutters";
@@ -807,8 +797,7 @@
 	icon_state = "4-8"
 	},
 /obj/structure/cable{
-	icon_state = "1-4";
-	tag = "90Curve"
+	icon_state = "1-4"
 	},
 /turf/simulated/floor/plating,
 /area/ruin/space/gasthelizards/viewzone)
@@ -842,7 +831,7 @@
 /area/ruin/space/gasthelizards/viewzone)
 "HH" = (
 /obj/structure/chair/office/dark,
-/obj/item/toy/plushie/lizardplushie,
+/obj/item/toy/plushie/lizard_plushie/green,
 /obj/machinery/door_control{
 	id = "gtl_shutters_inner";
 	name = "Fire Breach Inner Shutters Control";
@@ -1108,8 +1097,7 @@
 	specialfunctions = 4
 	},
 /obj/structure/cable{
-	icon_state = "1-4";
-	tag = "90Curve"
+	icon_state = "1-4"
 	},
 /turf/simulated/floor/plating,
 /area/ruin/space/gasthelizards/viewzone)
@@ -1325,8 +1313,7 @@
 	},
 /obj/machinery/atmospherics/meter,
 /obj/structure/cable{
-	icon_state = "1-4";
-	tag = "90Curve"
+	icon_state = "1-4"
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"

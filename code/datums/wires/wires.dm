@@ -257,7 +257,7 @@
 	if(user.can_admin_interact())
 		return TRUE
 
-	if(istype(user.get_active_hand(), /obj/item/multitool))
+	if(ismultitool(user.get_active_hand()))
 		var/obj/item/multitool/M = user.get_active_hand()
 		if(M.shows_wire_information)
 			return TRUE
@@ -507,3 +507,16 @@
 /datum/wires/proc/is_attached(color)
 	if(assemblies[color])
 		return TRUE
+
+/// Use this proc if you want wires to be pulsed on EMP
+/datum/wires/proc/emp_pulse()
+	var/list/possible_wires = shuffle(wires)
+	var/remaining_pulses = 3
+
+	for(var/wire in possible_wires)
+		if(!prob(33))
+			continue
+		pulse(wire)
+		remaining_pulses--
+		if(!remaining_pulses)
+			break

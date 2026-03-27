@@ -214,8 +214,8 @@
 		C.Scale(19,19)
 		var/mutable_appearance/puzzle_small = new(C)
 		puzzle_small.layer = layer + 0.1
-		puzzle_small.pixel_x = 7
-		puzzle_small.pixel_y = 7
+		puzzle_small.pixel_w = 7
+		puzzle_small.pixel_z = 7
 		add_overlay(puzzle_small)
 
 /obj/structure/puzzle_element/Destroy()
@@ -289,7 +289,7 @@
 
 //Some armor so it's harder to kill someone by mistake.
 /obj/structure/puzzle_element/prison
-	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 50, RAD = 50, FIRE = 50, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 50, FIRE = 50, ACID = 50)
 
 /obj/structure/puzzle_element/prison/relaymove(mob/user)
 	return

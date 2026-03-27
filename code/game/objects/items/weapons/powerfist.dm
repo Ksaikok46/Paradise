@@ -7,7 +7,7 @@
 	attack_verb = list("огрел", "ударил", "с силой ударил")
 	force = 12
 	throwforce = 10
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 40)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 40)
 	resistance_flags = FIRE_PROOF
 	origin_tech = "combat=5;powerstorage=3;syndicate=1"
 	var/click_delay = 1.5
@@ -115,7 +115,7 @@
 	if(!tank)
 		to_chat(user, span_warning("[src] can't operate without a source of gas!"))
 		return
-	if(tank && !tank.air_contents.remove(gasperfist * fisto_setting))
+	if(tank && !tank.air_contents.boolean_remove(((gasperfist * fisto_setting) * tank.air_contents.return_volume()) / (R_IDEAL_GAS_EQUATION * tank.air_contents.temperature())))
 		to_chat(user, span_warning("[src]'s piston-ram lets out a weak hiss, it needs more gas!"))
 		playsound(loc, 'sound/effects/refill.ogg', 50, TRUE)
 		return

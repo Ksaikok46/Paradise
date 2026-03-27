@@ -10,7 +10,7 @@
 	explosion_vertical_block = 2
 	point_return = BLOB_REFUND_STRONG_COST
 	atmosblock = TRUE
-	armor = list(MELEE = 0, BULLET = 0, LASER = 25, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 90, ACID = 90)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 25, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 90, ACID = 90)
 
 /obj/structure/blob/shield/scannerreport()
 	if(atmosblock)
@@ -32,7 +32,7 @@
 	. = ..()
 	if(. && obj_integrity > 0)
 		atmosblock = compromised_integrity
-		air_update_turf(TRUE, atmosblock)
+		recalculate_atmos_connectivity()
 
 /obj/structure/blob/shield/update_icon_state()
 	icon_state = "[initial(icon_state)][(compromised_integrity) ? "_damaged" : null]"
@@ -47,7 +47,7 @@
 		atmosblock = FALSE
 	else
 		atmosblock = TRUE
-	air_update_turf(1)
+	recalculate_atmos_connectivity()
 
 /obj/structure/blob/shield/reflective
 	name = "reflective blob"

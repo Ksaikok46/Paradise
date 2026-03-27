@@ -9,11 +9,15 @@
 	ammo_x_offset = 1
 	shaded_charge = TRUE
 	accuracy = GUN_ACCURACY_RIFLE_LASER
-	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER
+	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER | GUN_MODULE_CLASS_ENERGY_WEAPON
 	attachable_offset = list(
 		ATTACHMENT_SLOT_RAIL = list("x" = 4, "y" = 8),
 		ATTACHMENT_SLOT_UNDER = list("x" = 9, "y" = -5),
 	)
+
+/obj/item/gun/energy/laser/sibyl/Initialize(mapload)
+	. = ..()
+	install_sibyl()
 
 /obj/item/gun/energy/laser/practice
 	name = "practice laser gun"
@@ -126,19 +130,24 @@
 
 /obj/projectile/beam/laser/accelerator
 	name = "accelerator laser"
-	icon_state = "heavylaser"
+	icon_state = "scatterlaser"
 	range = 255
 	damage = 8
-	armour_penetration = -50
+	armour_penetration = -35
 	speed = 1
 	tile_dropoff_penetration = -5
-	tile_dropoff_forcedodge = -0.2
+	var/size_per_tile = 0.1
+	var/max_scale = 4
 
 /obj/projectile/beam/laser/accelerator/Range()
 	..()
-	damage = min(damage + 4, 80)
-	armour_penetration = min(armour_penetration, 50)
-	forcedodge = min(forcedodge, 20)
+	// Damage
+	damage = min(damage + 4, 75)
+	armour_penetration = min(armour_penetration, 25)
+
+	// Transform
+	transform = matrix()
+	transform *= min(1 + (maximum_range - range) * size_per_tile, max_scale)
 
 /obj/item/gun/energy/lasercannon/cyborg
 	attachable_allowed = GUN_MODULE_CLASS_NONE
@@ -172,7 +181,7 @@
 	origin_tech = "combat=4;magnets=4;powerstorage=3"
 	shaded_charge = TRUE
 	accuracy = GUN_ACCURACY_RIFLE_LASER
-	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER
+	attachable_allowed = GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_RIFLE_UNDER | GUN_MODULE_CLASS_ENERGY_WEAPON
 	attachable_offset = list(
 		ATTACHMENT_SLOT_RAIL = list("x" = 7, "y" = 7),
 		ATTACHMENT_SLOT_UNDER = list("x" = 10, "y" = -7),
@@ -185,6 +194,11 @@
 	ammo_type = list(/obj/item/ammo_casing/energy/immolator/strong, /obj/item/ammo_casing/energy/immolator/scatter)
 	origin_tech = "combat=5;magnets=5;powerstorage=4"
 	accuracy = GUN_ACCURACY_RIFLE_LASER
+	attachable_allowed = GUN_MODULE_CLASS_ENERGY_WEAPON
+
+/obj/item/gun/energy/immolator/multi/sibyl/Initialize(mapload)
+	. = ..()
+	install_sibyl()
 
 /obj/item/gun/energy/immolator/multi/update_overlays()
 	. = ..()
@@ -218,4 +232,3 @@
 /obj/item/gun/energy/laser/tag/red
 	icon_state = "redtag"
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/redtag)
-

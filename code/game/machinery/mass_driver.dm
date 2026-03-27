@@ -151,7 +151,7 @@
 
 	switch(build)
 		if(MASS_DRIVER_BUILD_WELDED)
-			if(istype(I, /obj/item/stack/cable_coil))
+			if(iscoil(I))
 				add_fingerprint(user)
 				var/obj/item/stack/cable_coil/coil = I
 				if(coil.get_amount() < 2)
@@ -212,7 +212,7 @@
 			build = MASS_DRIVER_BUILD_ANCHORED
 
 /obj/machinery/mass_driver_frame/verb/rotate()
-	set category = STATPANEL_OBJECT
+	set category = VERB_CATEGORY_OBJECT
 	set name = "Повернуть каркас"
 	set src in view(1)
 

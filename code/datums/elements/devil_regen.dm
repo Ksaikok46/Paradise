@@ -142,6 +142,7 @@
 		TRUE,
 		TRUE
 	)
+	human.cure_radiation()
 
 	apply_status_effects(human, regen_amount)
 	apply_cure(human, devil)
@@ -175,6 +176,8 @@
 		mob.dna.struc_enzymes = mob.dna.struc_enzymes_original
 		for(var/obj/item/organ/external/organ as anything in mob.bodyparts)
 			organ.stop_internal_bleeding()
+			organ.stop_arterial_bleeding()
+			organ.stop_bleeding()
 			organ.mend_fracture()
 			organ.open = ORGAN_CLOSED
 			organ.germ_level = 0
@@ -187,7 +190,6 @@
 	human.CureAllDiseases(FALSE)
 	human.surgeries.Cut()
 	human.set_bodytemperature(human.dna ? human.dna.species.body_temperature : BODYTEMP_NORMAL)
-	human.radiation = 0
 	human.CureBlind()
 	human.CureNearsighted()
 	human.CureMute()

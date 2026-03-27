@@ -12,25 +12,24 @@
 	icon = 'icons/turf/walls/wall.dmi'
 	icon_state = "wall-0"
 	base_icon_state = "wall"
-
+	rad_insulation = RAD_MEDIUM_INSULATION
+	density = TRUE
+	obj_flags = BLOCK_Z_IN_DOWN | BLOCK_Z_IN_UP// just in case in up. But falsewall should be on the floor.
+	opacity = TRUE
+	max_integrity = 100
+	canSmoothWith = SMOOTH_GROUP_WALLS
+	smoothing_groups = SMOOTH_GROUP_WALLS
+	smooth = SMOOTH_BITMASK
+	cares_about_temperature = TRUE
 	var/mineral = /obj/item/stack/sheet/metal
 	var/mineral_amount = 2
 	var/walltype = /turf/simulated/wall
 	var/girder_type = /obj/structure/girder/displaced
 	var/opening = FALSE
 
-	density = TRUE
-	obj_flags = BLOCK_Z_IN_DOWN | BLOCK_Z_IN_UP// just in case in up. But falsewall should be on the floor.
-	opacity = TRUE
-	max_integrity = 100
-
-	canSmoothWith = SMOOTH_GROUP_WALLS
-	smoothing_groups = SMOOTH_GROUP_WALLS
-	smooth = SMOOTH_BITMASK
-
 /obj/structure/falsewall/Initialize(mapload)
 	. = ..()
-	air_update_turf(1)
+	recalculate_atmos_connectivity()
 
 /obj/structure/falsewall/examine_status(mob/user)
 	var/healthpercent = (obj_integrity/max_integrity) * 100
@@ -51,10 +50,10 @@
 
 /obj/structure/falsewall/Destroy()
 	set_density(FALSE)
-	air_update_turf(1)
+	recalculate_atmos_connectivity()
 	return ..()
 
-/obj/structure/falsewall/CanAtmosPass(turf/T, vertical)
+/obj/structure/falsewall/CanAtmosPass(direction)
 	return !density
 
 /obj/structure/falsewall/attack_ghost(mob/user)
@@ -87,7 +86,7 @@
 		obj_flags |= BLOCK_Z_IN_DOWN
 		sleep(0.4 SECONDS)
 		set_opacity(TRUE)
-	air_update_turf(TRUE)
+	recalculate_atmos_connectivity()
 	opening = FALSE
 	update_icon(UPDATE_ICON_STATE)
 
@@ -140,7 +139,7 @@
 		return .
 	var/turf/our_turf = get_turf(src)
 	if(our_turf?.density)
-		to_chat(user, span_warning("[capitalize(declent_ru(NOMINATIVE))] заблокирован!"))
+		to_chat(user, span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] заблокирован!"))
 		return .
 	if(!isfloorturf(our_turf))
 		to_chat(user, span_warning("Болты [declent_ru(GENITIVE)] должны быть затянуты на полу!"))
@@ -193,14 +192,17 @@
 	playsound(get_turf(our_rcd), 'sound/machines/click.ogg', 50, TRUE)
 	return RCD_ACT_FAILED
 
-// Copy of `/turf/hit_by_thrown_carbon()`. A falsewall is just a wall after all.
-/obj/structure/falsewall/hit_by_thrown_carbon(mob/living/carbon/human/C, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
+// Copy of `/turf/hit_by_thrown_mob(). A falsewall is just a wall after all.
+/obj/structure/falsewall/hit_by_thrown_mob(mob/living/throwned_mob, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
 	if(mob_hurt || !density)
 		return
 	playsound(src, 'sound/weapons/punch1.ogg', 35, TRUE)
-	C.visible_message(span_danger("[C] врезается в [declent_ru(ACCUSATIVE)]!"), span_userdanger("Вы врезаетесь в [declent_ru(ACCUSATIVE)]!"))
-	C.take_organ_damage(damage)
-	C.Weaken(0.1 SECONDS)
+	throwned_mob.visible_message(
+		span_danger("[throwned_mob] вреза[PLUR_ET_UT(throwned_mob)]ся в [declent_ru(ACCUSATIVE)]!"),
+		span_userdanger("Вы врезаетесь в [declent_ru(ACCUSATIVE)]!")
+	)
+	throwned_mob.take_organ_damage(damage)
+	throwned_mob.Weaken(0.1 SECONDS)
 
 // Copy of `/atom/proc/hitby()`. Falsewalls must use this `hitby` as do regular walls.
 /obj/structure/falsewall/hitby(atom/movable/AM, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
@@ -241,7 +243,6 @@
 /*
  * Uranium Falsewalls
  */
-
 /obj/structure/falsewall/uranium
 	name = "uranium wall"
 	desc = "A wall with uranium plating. This is probably a bad idea."
@@ -250,18 +251,45 @@
 	base_icon_state = "uranium_wall"
 	mineral = /obj/item/stack/sheet/mineral/uranium
 	walltype = /turf/simulated/wall/mineral/uranium
-	var/active = null
-	var/last_event = 0
 	canSmoothWith = SMOOTH_GROUP_URANIUM_WALLS
 	smoothing_groups = SMOOTH_GROUP_URANIUM_WALLS
+	/// Mutex to prevent infinite recursion when propagating radiation pulses
+	var/active = null
+	/// Cooldown for radiation pulses
+	COOLDOWN_DECLARE(radiation_cooldown)
 
 /obj/structure/falsewall/uranium/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/radioactivity, \
-				rad_per_interaction = 12, \
-				rad_interaction_radius = 3, \
-				rad_interaction_cooldown = 1.5 SECONDS \
+	RegisterSignal(src, COMSIG_ATOM_PROPAGATE_RAD_PULSE, PROC_REF(radiate))
+
+/obj/structure/falsewall/uranium/attackby(obj/item/item, mob/user, list/modifiers, list/attack_modifiers)
+	radiate()
+	return ..()
+
+/obj/structure/falsewall/uranium/attack_hand(mob/user, list/modifiers)
+	radiate()
+	return ..()
+
+/obj/structure/falsewall/uranium/proc/radiate()
+	SIGNAL_HANDLER
+
+	if(active)
+		return
+
+	if(!COOLDOWN_FINISHED(src, radiation_cooldown))
+		return
+
+	active = TRUE
+	COOLDOWN_START(src, radiation_cooldown, 1.5 SECONDS)
+	radiation_pulse(
+		src,
+		max_range = 3,
+		threshold = RAD_LIGHT_INSULATION,
+		chance = URANIUM_IRRADIATION_CHANCE,
+		minimum_exposure_time = URANIUM_RADIATION_MINIMUM_EXPOSURE_TIME,
 	)
+	propagate_radiation_pulse()
+	active = FALSE
 
 /*
  * Other misc falsewall types
@@ -330,7 +358,7 @@
 	new /obj/structure/girder/displaced(loc)
 	qdel(src)
 
-/obj/structure/falsewall/plasma/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+/obj/structure/falsewall/plasma/temperature_expose(exposed_temperature, exposed_volume)
 	..()
 	if(exposed_temperature > 300)
 		burnbabyburn()

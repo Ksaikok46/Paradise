@@ -36,6 +36,8 @@
 /obj/item/organ/internal/heart/emp_act(intensity)
 	if(!is_robotic() || emp_proof)
 		return
+	if(emp_shielded(intensity))
+		return
 	Stop()
 
 /obj/item/organ/internal/heart/necrotize(silent = FALSE)
@@ -189,7 +191,6 @@
 	icon_state = "heart-c-u-on"
 	icon_base = "heart-c-u"
 	dead_icon = "heart-c-u-off"
-	var/emagged = FALSE
 	var/attempted_restart = FALSE
 
 /obj/item/organ/internal/heart/cybernetic/upgraded/get_ru_names()
@@ -290,6 +291,8 @@
 		emagged = FALSE
 
 /obj/item/organ/internal/heart/cybernetic/upgraded/emp_act(severity)
+	if(emp_shielded(severity))
+		return
 	..()
 
 	if(emp_proof)

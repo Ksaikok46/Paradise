@@ -220,7 +220,7 @@
 				clear_fullscreen("brute")
 
 /mob/living/simple_animal/slime/ObjBump(obj/object)
-	if(client || Atkcool || powerlevel <= 0 || age_state.age == SLIME_BABY || nutrition > get_hunger_nutrition() || (istype(object, /obj/structure/window) && !istype(object, /obj/structure/grille)))
+	if(client || Atkcool || powerlevel <= 0 || age_state.age == SLIME_BABY || nutrition > get_hunger_nutrition() || (is_window(object) && !istype(object, /obj/structure/grille)))
 		return
 
 	var/probab = 10
@@ -475,7 +475,7 @@
 				. += span_warning("It is glowing brightly with high levels of electrical activity.")
 
 			if(10)
-				. += "<span class='warning'><b>It is radiating with massive levels of electrical activity!</b></span>"
+				. += span_warning("<b>It is radiating with massive levels of electrical activity!</b>")
 
 	. += "</span>"
 
