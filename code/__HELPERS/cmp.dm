@@ -67,3 +67,7 @@
 /// Orders by integrated circuit weight
 /proc/cmp_port_order_asc(datum/port/compare1, datum/port/compare2)
 	return compare1.order - compare2.order
+
+/// Sorts client colors based on their priority
+/proc/cmp_client_colours(datum/client_colour/first_color, datum/client_colour/second_color)
+	return second_color.priority - first_color.priority

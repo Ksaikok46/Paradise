@@ -240,6 +240,11 @@
 		. = text[1]
 		return uppertext(.) + copytext(text, 1 + length(.))
 
+///Returns a string with the first letter of each word capitialized
+/proc/full_capitalize(input)
+	var/regex/first_letter = new(@"[^A-z]*?([A-z]*)", "g")
+	return replacetext(input, first_letter, /proc/capitalize)
+
 ///Returns a string depending on number it receives
 /proc/numeric_ending(num, more, one, three)
 	var/last_digit = num % 10
