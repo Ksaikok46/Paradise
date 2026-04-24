@@ -61,6 +61,8 @@
 #define SPECIES_TRAIT "species_trait"
 
 #define CLOTHING_TRAIT "clothing"
+/// Trait given by glasses
+#define GLASSES_TRAIT "glasses"
 
 #define DNA_TRAIT "dna_trait"
 
@@ -185,3 +187,6 @@
 
 /// Trait given by echolocation component.
 #define ECHOLOCATION_TRAIT "echolocation"
+
+/// Trait from light debugging
+#define LIGHT_DEBUG_TRAIT "light_debug"

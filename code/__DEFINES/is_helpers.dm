@@ -276,8 +276,6 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 
 #define is_multi_tile_object(atom) (atom.bound_width > ICON_SIZE_X || atom.bound_height > ICON_SIZE_Y)
 
-#define is_light(A) (istype(A, /atom/movable/lighting_object))
-
 #define ischest(A) (istype(A, /obj/item/organ/external/chest))
 
 #define isgroin(A) (istype(A, /obj/item/organ/external/groin))
@@ -324,6 +322,7 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define ispathanimal(A) (ispath(A, /mob/living/simple_animal))
 #define is_circuit_drone(A) (istype(A, /mob/living/simple_animal/circuit_drone))
 
+#define iscameramob(A) (istype(A, /mob/camera))
 #define isAIEye(A) (istype(A, /mob/camera/aiEye))
 #define isovermind(A) (istype(A, /mob/camera/blob))
 

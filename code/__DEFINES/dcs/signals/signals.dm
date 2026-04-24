@@ -58,6 +58,8 @@
 #define COMSIG_ATOM_NO_LONGER_PULLED "movable_no_longer_pulled"
 ///signal sent out by an atom when it is no longer pulling something : (atom/pulling)
 #define COMSIG_ATOM_NO_LONGER_PULLING "movable_no_longer_pulling"
+///from base of [/atom/proc/smooth_icon]: ()
+#define COMSIG_ATOM_SMOOTHED_ICON "atom_smoothed_icon"
 
 /// From /mob/living/proc/stop_leaning()
 #define COMSIG_LIVING_STOPPED_LEANING "living_stopped_leaning"
@@ -523,8 +525,6 @@
 #define COMSIG_MOB_SIGHT_CHANGE "mob_sight_changed"
 ///from base of mob/set_invis_see(): (new_invis, old_invis)
 #define COMSIG_MOB_SEE_INVIS_CHANGE "mob_see_invis_change"
-///from base of mob/set_see_in_dark(): (new_range, old_range)
-#define COMSIG_MOB_SEE_IN_DARK_CHANGE "mob_see_in_dark_change"
 
 ///from base of atom/attack_hand(): (mob/user)
 #define COMSIG_MOB_ATTACK_HAND "mob_attack_hand"
@@ -1412,42 +1412,6 @@
 ///from base of atom/CheckParts(): (atom/movable/new_craft) - The atom has just been used in a crafting recipe and has been moved inside new_craft.
 #define COMSIG_ATOM_USED_IN_CRAFT "atom_used_in_craft"
 
-// Lighting:
-///from base of [atom/proc/set_light]: (l_range, l_power, l_color, l_on)
-#define COMSIG_ATOM_SET_LIGHT "atom_set_light"
-	/// Blocks [/atom/proc/set_light], [/atom/proc/set_light_power], [/atom/proc/set_light_range], [/atom/proc/set_light_color], [/atom/proc/set_light_on], and [/atom/proc/set_light_flags].
-	#define COMPONENT_BLOCK_LIGHT_UPDATE (1<<0)
-///Called right before the atom changes the value of light_power to a different one, from base [atom/proc/set_light_power]: (new_power)
-#define COMSIG_ATOM_SET_LIGHT_POWER "atom_set_light_power"
-///Called right after the atom changes the value of light_power to a different one, from base of [/atom/proc/set_light_power]: (old_power)
-#define COMSIG_ATOM_UPDATE_LIGHT_POWER "atom_update_light_power"
-///Called right before the atom changes the value of light_range to a different one, from base [atom/proc/set_light_range]: (new_range)
-#define COMSIG_ATOM_SET_LIGHT_RANGE "atom_set_light_range"
-///Called right after the atom changes the value of light_range to a different one, from base of [/atom/proc/set_light_range]: (old_range)
-#define COMSIG_ATOM_UPDATE_LIGHT_RANGE "atom_update_light_range"
-///Called right before the atom changes the value of light_color to a different one, from base [atom/proc/set_light_color]: (new_color)
-#define COMSIG_ATOM_SET_LIGHT_COLOR "atom_set_light_color"
-///Called right after the atom changes the value of light_color to a different one, from base of [/atom/proc/set_light_color]: (old_color)
-#define COMSIG_ATOM_UPDATE_LIGHT_COLOR "atom_update_light_color"
-///Called right before the atom changes the value of light_on to a different one, from base [atom/proc/set_light_on]: (new_value)
-#define COMSIG_ATOM_SET_LIGHT_ON "atom_set_light_on"
-///Called right after the atom changes the value of light_on to a different one, from base of [/atom/proc/set_light_on]: (old_value)
-#define COMSIG_ATOM_UPDATE_LIGHT_ON "atom_update_light_on"
-///Called right before the atom changes the value of light_flags to a different one, from base [atom/proc/set_light_flags]: (new_flags)
-#define COMSIG_ATOM_SET_LIGHT_FLAGS "atom_set_light_flags"
-///Called right after the atom changes the value of light_flags to a different one, from base of [/atom/proc/set_light_flags]: (old_flags)
-#define COMSIG_ATOM_UPDATE_LIGHT_FLAGS "atom_update_light_flags"
-
-// /datum/element/light_eater
-///from base of [/datum/element/light_eater/proc/table_buffet]: (list/light_queue, datum/light_eater)
-#define COMSIG_LIGHT_EATER_QUEUE "light_eater_queue"
-///from base of [/datum/element/light_eater/proc/devour]: (datum/light_eater)
-#define COMSIG_LIGHT_EATER_ACT "light_eater_act"
-	///Prevents the default light eater behavior from running in case of immunity or custom behavior
-	#define COMPONENT_BLOCK_LIGHT_EATER (1<<0)
-///from base of [/datum/element/light_eater/proc/devour]: (atom/eaten_light)
-#define COMSIG_LIGHT_EATER_DEVOUR "light_eater_devour"
-
 /// datum/element/reagent_attack
 /// Source: /datum/element/reagent_attack/proc/inject (datum/element/reagent_attack, mob/living/carbon/target, reagent_id, reagent_amount, target_zone)
 #define COMSIG_REAGENT_INJECTED "reagent_inject"
@@ -1467,14 +1431,6 @@
 #define COMSIG_DO_AFTER_BEGAN "mob_do_after_began"
 /// Sent from /proc/do_after once a do_after action completes, whether via the bar filling or via interruption.
 #define COMSIG_DO_AFTER_ENDED "mob_do_after_ended"
-
-// HUD:
-/// Sent from /datum/hud/proc/eye_z_changed() : (old_offset, new_offset)
-#define COMSIG_HUD_OFFSET_CHANGED "hud_offset_changed"
-/// Sent from /datum/hud/proc/eye_z_changed() : (new_z)
-#define COMSIG_HUD_Z_CHANGED "hud_z_changed"
-/// from /datum/plane_master_group/proc/set_hud(): (datum/hud/new_hud)
-#define COMSIG_GROUP_HUD_CHANGED "group_hud_changed"
 
 ///from [/datum/move_loop/start_loop] ():
 #define COMSIG_MOVELOOP_START "moveloop_start"

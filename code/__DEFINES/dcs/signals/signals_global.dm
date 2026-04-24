@@ -42,3 +42,12 @@
 /// Global signal called after the station changes its name.
 /// (new_name, old_name)
 #define COMSIG_GLOB_STATION_NAME_CHANGED "!station_name_changed"
+
+/// Global signal when light debugging is canceled
+#define COMSIG_LIGHT_DEBUG_DISABLED "!light_debug_disabled"
+
+/// Global signal when starlight color is changed (old_star, new_star)
+#define COMSIG_STARLIGHT_COLOR_CHANGED "!starlight_color_changed"
+
+/// A client (re)connected, after all /client/New() checks have passed : (client/connected_client)
+#define COMSIG_GLOB_CLIENT_CONNECT "!client_connect"

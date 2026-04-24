@@ -148,3 +148,6 @@
 #define COMSIG_ITEM_ATTACK_SECONDARY "item_attack_secondary"
 
 #define COMSIG_CRUSHER_FIRED_BLAST "crusher_fired_blast"
+
+/// From /datum/element/undertile/hide()
+#define COMSIG_UNDERTILE_UPDATED "undertile_updated"

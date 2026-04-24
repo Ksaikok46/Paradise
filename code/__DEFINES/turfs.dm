@@ -16,6 +16,16 @@
 /// Used only by /turf/openspace. Show and grants access to what's under.
 #define TURF_FULLTRANSPARENT 2
 
+/// Makes the set turf transparent
+#define ADD_TURF_TRANSPARENCY(modturf, source) \
+	if(!HAS_TRAIT(modturf, TURF_Z_TRANSPARENT_TRAIT)) { modturf.AddElement(/datum/element/turf_z_transparency) }; \
+	ADD_TRAIT(modturf, TURF_Z_TRANSPARENT_TRAIT, (source))
+
+/// Removes the transparency from the set turf
+#define REMOVE_TURF_TRANSPARENCY(modturf, source) \
+	REMOVE_TRAIT(modturf, TURF_Z_TRANSPARENT_TRAIT, (source)); \
+	if(!HAS_TRAIT(modturf, TURF_Z_TRANSPARENT_TRAIT)) { modturf.RemoveElement(/datum/element/turf_z_transparency) }
+
 #define CHANGETURF_IGNORE_AIR (1<<0) // This flag prevents changeturf from gathering air from nearby turfs to fill the new turf with an approximation of local air
 #define CHANGETURF_KEEP_CABLING (1<<1) // This flags prevents from cables being removed. Used in maploader only
 

@@ -188,7 +188,6 @@
 
 #define TINT_IMPAIR 2			//Threshold of tint level to apply weld mask overlay
 #define TINT_BLIND 3			//Threshold of tint level to obscure vision fully
-#define EYE_SHINE_THRESHOLD 6	//dark_view threshold past which a humanoid's eyes will 'shine' in the dark.
 
 #define STATUS_UPDATE_HEALTH (1<<0)
 #define STATUS_UPDATE_STAT (1<<1)

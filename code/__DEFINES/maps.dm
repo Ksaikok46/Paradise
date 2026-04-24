@@ -40,3 +40,6 @@
 #define SHELTER_DEPLOY_BAD_AREA "bad area"
 /// Shelter spot has anchored objects that restrict deployment
 #define SHELTER_DEPLOY_ANCHORED_OBJECTS "anchored objects"
+
+///boolean - does this z disable parallax?
+#define ZTRAIT_NOPARALLAX "No Parallax"

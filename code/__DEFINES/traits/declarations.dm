@@ -1,6 +1,10 @@
 // This file contains all of the "static" define strings that tie to a trait.
 // Remember to update _globalvars/traits.dm if you're adding/removing/renaming traits.
 
+/// GLOB trait, applied whenever something in the world wants to use the distortion plane
+/// Distortion is an expensive effect, so it's worthwhile to keep it off until we care
+#define TRAIT_DISTORTION_IN_USE(z_layer) "distortion_in_use_#[z_layer]"
+
 // atom traits
 /// Trait used to prevent an atom from component radiation emission (see radioactivity.dm)
 #define TRAIT_BLOCK_RADIATION "block_radiation"
@@ -43,6 +47,8 @@
 #define TRAIT_CHASM_STOPPED "chasm_stopped"
 ///Lava will be safe to cross while it has this trait.
 #define TRAIT_LAVA_STOPPED "lava_stopped"
+/// Trait that signals to objects on this turf that its open (has UNDERFLOOR_INTERACTIBLE) but still covers them
+#define TRAIT_UNCOVERED_TURF "uncovered_turf"
 
 // mob traits
 #define TRAIT_GODMODE "godmode"
@@ -256,7 +262,6 @@
 #define	TRAIT_TELEKINESIS "telekinesis"
 #define TRAIT_RESIST_COLD "cold_resistance"
 #define TRAIT_RESIST_HEAT "heat_resistance"
-#define TRAIT_XRAY "xray"
 #define TRAIT_HULK "hulk"
 #define TRAIT_CLUMSY "clumsy"
 #define TRAIT_OBESITY "obesity"
@@ -495,6 +500,8 @@
 // Hud traits
 /// This hud is owned by a client with an open escape menu
 #define TRAIT_ESCAPE_MENU_OPEN "escape_menu_open"
+/// This hud has parallax displayed on it
+#define TRAIT_PARALLAX_DISPLAYED "parallax_displayed"
 
 /// If a human has a fracture in their legs or feet (for optimization)
 #define TRAIT_FRACTURE_FALL "fracture_fall"
@@ -511,3 +518,13 @@
 
 /// An item is ALWAYS considered baseline reachable and will pipe into CanBeReached().
 #define TRAIT_SKIP_BASIC_REACH_CHECK "skip_basic_reach_check"
+
+/// Visible on t-ray scanners if the atom/var/level == 1
+#define TRAIT_T_RAY_VISIBLE "t-ray-visible"
+
+///Used by wearable_client_colour to determine whether the mob wants to have the colours of the screen affected by worn items (some still do regardless).
+#define TRAIT_SEE_WORN_COLOURS "see_worn_colour"
+
+// Debug traits
+/// This object has light debugging tools attached to it
+#define TRAIT_LIGHTING_DEBUGGED "lighting_debugged"

@@ -1,12 +1,5 @@
 #define INVISIBILITY_NONE 0
 
-///Default see in dark. See in dark sucks.
-#define DEFAULT_SEE_IN_DARK 1e6
-
-#define SEE_IN_DARK_THRESHOLD 4
-
-#define SEE_INVISIBLE_MINIMUM 5
-
 #define SEE_INVISIBLE_OBSERVER_NOLIGHTING 15
 
 #define INVISIBILITY_LIGHTING 20
@@ -57,10 +50,9 @@
 #define VISOR_FLASHPROTECT (1<<0)
 #define VISOR_TINT (1<<1)
 #define VISOR_VISIONFLAGS (1<<2) //all following flags only matter for glasses
-#define VISOR_DARKNESSVIEW (1<<3)
-#define VISOR_INVISVIEW (1<<4)
-#define VISOR_HUDTYPE (1<<5)
-#define VISOR_EXAM_EXTENTIONS (1<<6)
+#define VISOR_INVISVIEW (1<<3)
+#define VISOR_HUDTYPE (1<<4)
+#define VISOR_EXAM_EXTENTIONS (1<<5)
 
 #define VISOR_FULL_HUD (VISOR_HUDTYPE|VISOR_EXAM_EXTENTIONS)
 
@@ -88,6 +80,6 @@
 /// NOTE: this does not function with the SIDE_MAP map format. So we can't. :(
 //#define SEE_BLACKNESS (1<<10)
 
-/// Bitfield of sight flags that show things "inside" the blackness plane
-/// We've gotta alpha it down if we get this, cause otherwise the sight flag won't work
-#define BLACKNESS_CUTTING (SEE_MOBS|SEE_OBJS|SEE_TURFS|SEE_TURFS|SEE_TURFS)
+/// Bitfield of sight flags that show THINGS but no lighting
+/// Since lighting is an underlay on turfs, this is everything but that
+#define SEE_AVOID_TURF_BLACKNESS (SEE_MOBS|SEE_OBJS)
