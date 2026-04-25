@@ -72,11 +72,11 @@
 	var/mob/target = cur_target
 	if(!target?.hud_used || !explicit_mirror)
 		target = owner.owner.mob
-		if (ismob(target.orbiting)) // If we're orbiting someone, swap to them if possible
+		if(ismob(target.orbiting)) // If we're orbiting someone, swap to them if possible
 			var/mob/as_mob = target.orbiting
-			if (as_mob.hud_used)
+			if(as_mob.hud_used)
 				target = target.orbiting
-		if (cur_target != target)
+		if(cur_target != target)
 			set_target(target, FALSE)
 	return target
 
@@ -111,12 +111,12 @@
 
 	var/datum/hud/our_hud = reference_frame.hud_used
 	var/list/our_groups = our_hud.master_groups
-	if (!our_groups[current_group])
+	if(!our_groups[current_group])
 		// We assume we'll always have at least one group
 		current_group = our_groups[length(our_hud.master_groups)]
 
 	var/list/groups = list()
-	for (var/key in our_groups)
+	for(var/key in our_groups)
 		groups += key
 
 	data["enable_group_view"] = length(groups) > 1
@@ -126,7 +126,7 @@
 	var/list/plane_info = list()
 
 	var/list/our_planes = our_hud?.get_planes_from(current_group)
-	for (var/plane_string in our_planes)
+	for(var/plane_string in our_planes)
 		var/list/this_plane = list()
 		var/atom/movable/screen/plane_master/plane = our_planes[plane_string]
 		this_plane["name"] = plane.name
@@ -144,7 +144,7 @@
 		var/list/relays = list()
 		var/list/filters = list()
 
-		for (var/atom/movable/render_plane_relay/relay as anything in plane.relays)
+		for(var/atom/movable/render_plane_relay/relay as anything in plane.relays)
 			var/list/this_relay = list()
 			this_relay["name"] = relay.name
 			this_relay["source"] = plane.plane
@@ -154,7 +154,7 @@
 			this_relay["blend_mode"] = GLOB.blend_names["[relay.blend_mode]"]
 			relays += list(this_relay)
 
-		for (var/list/filter in plane.filter_data)
+		for(var/list/filter in plane.filter_data)
 			if(!filter["render_source"])
 				continue
 

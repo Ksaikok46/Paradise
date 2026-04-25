@@ -98,7 +98,7 @@
 
 		layer.transform = new_transform
 		animate(layer, transform = matrix(), time = scaled_time, easing = QUAD_EASING | (new_parallax_movedir ? EASE_IN : EASE_OUT))
-		if (new_parallax_movedir == NONE)
+		if(new_parallax_movedir == NONE)
 			continue
 		//queue up another animate so lag doesn't create a shutter
 		animate(transform = new_transform, time = 0)
@@ -337,7 +337,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_layer)
 /atom/movable/screen/parallax_layer/update_overlays()
 	. = ..()
 	var/overlay_view = working_view
-	if (!overlay_view)
+	if(!overlay_view)
 		overlay_view = world.view
 	var/pixel_grid_size = ICON_SIZE_ALL * 15
 	var/parallax_scaler = ICON_SIZE_ALL / pixel_grid_size

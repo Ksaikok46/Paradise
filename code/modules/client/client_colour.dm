@@ -91,11 +91,11 @@
 		if(islist(client_color.color))
 			filter_color = client_color.color
 			// If our list has "type" in it then its a filter
-			if (!filter_color["type"])
+			if(!filter_color["type"])
 				filter_color = null
 
 		if(client_color.split_filters || filter_color)
-			if (current_color)
+			if(current_color)
 				. += list(list(color_matrix_filter(current_color), color_prio))
 				color_prio += 1
 				current_color = null
@@ -106,7 +106,7 @@
 
 		if(!current_color)
 			current_color = client_color.color
-			if (client_color.override)
+			if(client_color.override)
 				break
 			continue
 
@@ -146,7 +146,7 @@
 
 /// Works similarly to 'update_client_colour', but animated.
 /mob/proc/animate_client_colour(anim_time = 1 SECONDS, anim_easing = NONE)
-	if (isnull(hud_used))
+	if(isnull(hud_used))
 		return
 
 	if(anim_time <= -1)
@@ -207,11 +207,11 @@
 
 /datum/client_colour/monochrome/New(mob/owner)
 	. = ..()
-	if (owner)
+	if(owner)
 		ADD_TRAIT(owner, TRAIT_COLORBLIND, type)
 
 /datum/client_colour/monochrome/Destroy()
-	if (owner)
+	if(owner)
 		REMOVE_TRAIT(owner, TRAIT_COLORBLIND, type)
 	return ..()
 

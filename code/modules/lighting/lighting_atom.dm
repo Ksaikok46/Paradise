@@ -68,7 +68,7 @@
  * It notifies (potentially) affected light sources so they can update (if needed).
  */
 /atom/proc/set_opacity(new_opacity)
-	if (new_opacity == opacity || light_flags & LIGHT_FROZEN)
+	if(new_opacity == opacity || light_flags & LIGHT_FROZEN)
 		return
 	SEND_SIGNAL(src, COMSIG_ATOM_SET_OPACITY, new_opacity)
 	. = opacity

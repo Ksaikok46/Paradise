@@ -65,7 +65,7 @@ SUBSYSTEM_DEF(parallax)
 		LAZYADD(movable_eye.client_mobs_in_contents, processing_client.mob)
 
 		processing_client.movingmob = movable_eye
-		if (MC_TICK_CHECK)
+		if(MC_TICK_CHECK)
 			return
 	currentrun = null
 

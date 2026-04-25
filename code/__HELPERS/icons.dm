@@ -689,7 +689,7 @@ world
 	if(render_icon)
 		//Try to remove/optimize this section if you can, it's a CPU hog.
 		//Determines if there're directionals.
-		if (curdir != SOUTH)
+		if(curdir != SOUTH)
 			// icon states either have 1, 4 or 8 dirs. We only have to check
 			// one of NORTH, EAST or WEST to know that this isn't a 1-dir icon_state since they just have SOUTH.
 			if(!length(icon_states(icon(curicon, curstate, NORTH))))

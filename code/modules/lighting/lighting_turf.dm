@@ -114,5 +114,5 @@
 	if(always_lit)
 		if(!new_area.lighting_effects && old_area.lighting_effects)
 			overlays += GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
-		else if (new_area.lighting_effects && !old_area.lighting_effects)
+		else new_area.lighting_effects && !old_area.lighting_effects)
 			overlays -= GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1]

@@ -238,7 +238,7 @@
 				render_target = ref(src)
 				em_block = new(null, src)
 			return em_block
-		// Implied else if (blocks_emissive == EMISSIVE_BLOCK_NONE) -> return
+		// Implied else if(blocks_emissive == EMISSIVE_BLOCK_NONE) -> return
 	// EMISSIVE_BLOCK_GENERIC == 0
 	else
 		return fast_emissive_blocker(src)

@@ -36,11 +36,11 @@
 		return
 
 	switch(light_level)
-		if (VISION_ACTION_LIGHT_OFF)
+		if(VISION_ACTION_LIGHT_OFF)
 			set_light_level(VISION_ACTION_LIGHT_LOW)
-		if (VISION_ACTION_LIGHT_LOW)
+		if(VISION_ACTION_LIGHT_LOW)
 			set_light_level(VISION_ACTION_LIGHT_MID)
-		if (VISION_ACTION_LIGHT_MID)
+		if(VISION_ACTION_LIGHT_MID)
 			set_light_level(VISION_ACTION_LIGHT_HIG)
 		else
 			set_light_level(VISION_ACTION_LIGHT_OFF)
@@ -53,11 +53,11 @@
 	SIGNAL_HANDLER
 	var/list/color_from
 	switch(light_level)
-		if (VISION_ACTION_LIGHT_LOW)
+		if(VISION_ACTION_LIGHT_LOW)
 			color_from = low_light_cutoff
-		if (VISION_ACTION_LIGHT_MID)
+		if(VISION_ACTION_LIGHT_MID)
 			color_from = medium_light_cutoff
-		if (VISION_ACTION_LIGHT_HIG)
+		if(VISION_ACTION_LIGHT_HIG)
 			color_from = high_light_cutoff
 		else // just in case
 			color_from = list(0, 0, 0)

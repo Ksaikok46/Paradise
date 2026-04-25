@@ -10,18 +10,18 @@
 		switch(effect_type)
 			if(EMISSIVE_NO_BLOOM)
 				appearance.color = GLOB.emissive_color_no_bloom
-			if (EMISSIVE_BLOOM)
+			if(EMISSIVE_BLOOM)
 				appearance.color = GLOB.emissive_color
-			if (EMISSIVE_SPECULAR)
+			if(EMISSIVE_SPECULAR)
 				appearance.color = GLOB.specular_color
 	else
 		var/alpha_ratio = alpha/255
 		switch(effect_type)
 			if(EMISSIVE_NO_BLOOM)
 				appearance.color = _EMISSIVE_COLOR_NO_BLOOM(alpha_ratio)
-			if (EMISSIVE_BLOOM)
+			if(EMISSIVE_BLOOM)
 				appearance.color = _EMISSIVE_COLOR(alpha_ratio)
-			if (EMISSIVE_SPECULAR)
+			if(EMISSIVE_SPECULAR)
 				appearance.color = _SPECULAR_COLOR(alpha_ratio)
 
 	//Test to make sure emissives with broken or missing icon states are created
@@ -57,7 +57,7 @@
 
 /// Produces a mutable appearance glued to the [EMISSIVE_PLANE] dyed to be the [EM_BLOCK_COLOR].
 /proc/emissive_blocker(icon, icon_state = "", atom/offset_spokesman, layer, alpha = 255, appearance_flags = NONE, offset_const)
-	if (isnull(layer))
+	if(isnull(layer))
 		if(IS_TOPDOWN_PLANE(offset_spokesman.plane))
 			layer = TOPDOWN_TO_EMISSIVE_LAYER(offset_spokesman.layer)
 		else

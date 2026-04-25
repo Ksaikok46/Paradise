@@ -57,7 +57,7 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 	source_atom = owner // Set our new owner.
 	add_to_light_sources(source_atom)
 	top_atom = top
-	if (top_atom != source_atom)
+	if(top_atom != source_atom)
 		add_to_light_sources(top_atom)
 
 	source_turf = top_atom
@@ -74,13 +74,13 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 
 /datum/light_source/Destroy(force)
 	remove_lum()
-	if (source_atom)
+	if(source_atom)
 		remove_from_light_sources(source_atom)
 
-	if (top_atom)
+	if(top_atom)
 		remove_from_light_sources(top_atom)
 
-	if (needs_update)
+	if(needs_update)
 		SSlighting.sources_queue -= src
 		SSlighting.current_sources -= src
 
@@ -117,10 +117,10 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 // If you want it to go switch everybody to elastic tab stops.
 // Actually that'd be great if you could!
 #define EFFECT_UPDATE(level)                  \
-	if (needs_update == LIGHTING_NO_UPDATE) { \
+	if(needs_update == LIGHTING_NO_UPDATE) { \
 		SSlighting.sources_queue += src;      \
 	}                                         \
-	if (needs_update < level) {               \
+	if(needs_update < level) {               \
 		needs_update = level;                 \
 	}
 
@@ -141,13 +141,13 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 /// This proc will cause the light source to update the top atom, and add itself to the update queue.
 /datum/light_source/proc/update(atom/new_top_atom)
 	// This top atom is different.
-	if (new_top_atom && new_top_atom != top_atom)
+	if(new_top_atom && new_top_atom != top_atom)
 		if(top_atom != source_atom && top_atom.light_sources) // Remove ourselves from the light sources of that top atom.
 			remove_from_light_sources(top_atom)
 
 		top_atom = new_top_atom
 
-		if (top_atom != source_atom)
+		if(top_atom != source_atom)
 			add_to_light_sources(top_atom)
 
 	EFFECT_UPDATE(LIGHTING_CHECK_UPDATE)
@@ -343,7 +343,7 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 /datum/light_source/proc/recalc_corner(datum/lighting_corner/corner)
 	SETUP_CORNERS_CACHE(src)
 	LAZYINITLIST(effect_str)
-	if (effect_str[corner]) // Already have one.
+	if(effect_str[corner]) // Already have one.
 		REMOVE_CORNER(corner)
 		effect_str[corner] = 0
 
@@ -353,22 +353,22 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 
 // Keep in mind. Lighting corners accept the bottom left (northwest) set of cords to them as input
 #define GENERATE_MISSING_CORNERS(gen_for)                                                                 \
-	if (!gen_for.lighting_corner_NE) {                                                                    \
+	if(!gen_for.lighting_corner_NE) {                                                                    \
 		gen_for.lighting_corner_NE = new /datum/lighting_corner(gen_for.x, gen_for.y, gen_for.z);         \
 	}                                                                                                     \
-	if (!gen_for.lighting_corner_SE) {                                                                    \
+	if(!gen_for.lighting_corner_SE) {                                                                    \
 		gen_for.lighting_corner_SE = new /datum/lighting_corner(gen_for.x, gen_for.y - 1, gen_for.z);     \
 	}                                                                                                     \
-	if (!gen_for.lighting_corner_SW) {                                                                    \
+	if(!gen_for.lighting_corner_SW) {                                                                    \
 		gen_for.lighting_corner_SW = new /datum/lighting_corner(gen_for.x - 1, gen_for.y - 1, gen_for.z); \
 	}                                                                                                     \
-	if (!gen_for.lighting_corner_NW) {                                                                    \
+	if(!gen_for.lighting_corner_NW) {                                                                    \
 		gen_for.lighting_corner_NW = new /datum/lighting_corner(gen_for.x - 1, gen_for.y, gen_for.z);     \
 	}                                                                                                     \
 	gen_for.lighting_corners_initialised = TRUE;
 
 #define INSERT_CORNERS(insert_into, draw_from)             \
-	if (!draw_from.lighting_corners_initialised) {         \
+	if(!draw_from.lighting_corners_initialised) {         \
 		GENERATE_MISSING_CORNERS(draw_from);               \
 	}                                                      \
 	insert_into[draw_from.lighting_corner_NE] = 0;         \
@@ -383,23 +383,23 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 	var/atom/source_atom = src.source_atom
 	var/turf/old_source_turf = source_turf
 
-	if (QDELETED(source_atom))
+	if(QDELETED(source_atom))
 		qdel(src)
 		return FALSE
 
-	if (source_atom.light_power != light_power)
+	if(source_atom.light_power != light_power)
 		light_power = source_atom.light_power
 		update = TRUE
 
-	if (source_atom.light_range != light_range)
+	if(source_atom.light_range != light_range)
 		light_range = source_atom.light_range
 		update = TRUE
 
-	if (!top_atom)
+	if(!top_atom)
 		top_atom = source_atom
 		update = TRUE
 
-	if (!light_range || !light_power)
+	if(!light_range || !light_power)
 		qdel(src)
 		return FALSE
 
@@ -415,27 +415,27 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 			source_turf = top_atom.loc
 			update = TRUE
 
-	if (!isturf(source_turf))
-		if (applied)
+	if(!isturf(source_turf))
+		if(applied)
 			remove_lum()
 		return FALSE
 
-	if (light_range && light_power && !applied)
+	if(light_range && light_power && !applied)
 		update = TRUE
 
-	if (source_atom.light_color != light_color)
+	if(source_atom.light_color != light_color)
 		light_color = source_atom.light_color
 		PARSE_LIGHT_COLOR(src)
 		update = TRUE
 
-	else if (applied_lum_r != lum_r || applied_lum_g != lum_g || applied_lum_b != lum_b)
+	else if(applied_lum_r != lum_r || applied_lum_g != lum_g || applied_lum_b != lum_b)
 		update = TRUE
 
 	if(source_atom.light_dir != light_dir)
 		light_dir = source_atom.light_dir
 		update = TRUE
 
-	if (source_atom.light_angle != light_angle)
+	if(source_atom.light_angle != light_angle)
 		light_angle = source_atom.light_angle
 		update = TRUE
 
@@ -451,20 +451,20 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 		update = TRUE
 
 	// If we need to update, well, update
-	if (update)
+	if(update)
 		needs_update = LIGHTING_CHECK_UPDATE
 		applied = TRUE
 		return TRUE
 
 	// Otherwise, go off the needs_update var. If it requires an update provide one, otherwise we're kosher
-	if (needs_update == LIGHTING_CHECK_UPDATE)
+	if(needs_update == LIGHTING_CHECK_UPDATE)
 		return FALSE //nothing's changed
 	return TRUE
 
 /// Returns a list of lighting corners this source impacts
 /datum/light_source/proc/impacted_corners()
 	var/list/datum/lighting_corner/corners = list()
-	if (!source_turf)
+	if(!source_turf)
 		return list()
 
 	var/oldlum = source_turf.luminosity
@@ -524,14 +524,14 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 	LAZYINITLIST(src.effect_str)
 	for (var/datum/lighting_corner/corner as anything in new_corners)
 		APPLY_CORNER(corner)
-		if (. != 0)
+		if(. != 0)
 			LAZYADD(corner.affecting, src)
 			effect_str[corner] = .
 	// New corners are a subset of corners. so if they're both the same length, there are NO old corners!
 	if(needs_update != LIGHTING_VIS_UPDATE && length(corners) != length(new_corners))
 		for (var/datum/lighting_corner/corner as anything in corners - new_corners) // Existing corners
 			APPLY_CORNER(corner)
-			if (. != 0)
+			if(. != 0)
 				effect_str[corner] = .
 			else
 				LAZYREMOVE(corner.affecting, src)
