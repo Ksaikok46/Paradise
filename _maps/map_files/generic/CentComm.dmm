@@ -8225,7 +8225,6 @@
 /obj/effect/decal/cleanable/crayon{
 	color = "yellow";
 	icon_state = "guy";
-	layer = 5;
 	pixel_y = -30
 	},
 /obj/effect/decal/cleanable/crayon{
@@ -29798,9 +29797,7 @@
 /area/centcom/specops)
 "nUi" = (
 /obj/structure/bookcase,
-/obj/effect/decal/cleanable/cobweb{
-	layer = 4
-	},
+/obj/effect/decal/cleanable/cobweb,
 /turf/simulated/floor/plating,
 /area/centcom/zone2)
 "nUn" = (
@@ -40158,9 +40155,7 @@
 /area/centcom/zone2)
 "sFz" = (
 /obj/structure/closet/crate,
-/obj/effect/decal/cleanable/cobweb{
-	layer = 4
-	},
+/obj/effect/decal/cleanable/cobweb,
 /turf/simulated/floor/plating,
 /area/centcom/zone2)
 "sFI" = (

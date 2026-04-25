@@ -7938,9 +7938,7 @@
 	output_dir = 1;
 	use_power = 0
 	},
-/obj/effect/decal/cleanable/cobweb2{
-	layer = 4
-	},
+/obj/effect/decal/cleanable/cobweb2,
 /turf/simulated/floor/plasteel,
 /area/mine/living_quarters)
 "Tf" = (

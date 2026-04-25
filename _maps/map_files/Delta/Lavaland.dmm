@@ -7433,9 +7433,7 @@
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors)
 "OG" = (
-/obj/effect/decal/cleanable/cobweb2{
-	layer = 4
-	},
+/obj/effect/decal/cleanable/cobweb2,
 /obj/machinery/camera{
 	c_tag = "Mining Smeltery";
 	network = list("Mining Outpost")

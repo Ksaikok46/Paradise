@@ -50214,9 +50214,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/asmaint6)
 "hAG" = (
-/obj/effect/decal/cleanable/cobweb{
-	layer = 4
-	},
+/obj/effect/decal/cleanable/cobweb,
 /obj/structure/reagent_dispensers/watertank/high,
 /turf/simulated/floor/plating,
 /area/security/permahallway)
@@ -58608,9 +58606,7 @@
 /obj/structure/janitorialcart,
 /obj/item/mop,
 /obj/item/reagent_containers/glass/bucket,
-/obj/effect/decal/cleanable/cobweb{
-	layer = 4
-	},
+/obj/effect/decal/cleanable/cobweb,
 /turf/simulated/floor/plating,
 /area/hallway/primary/command/east)
 "iSL" = (
