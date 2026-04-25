@@ -11,3 +11,5 @@ sound/music/pilotpriest-now-be-the-light.ogg is song by PILOTPRIEST (Anthony Sco
 sound/music/dies_irae.ogg is Dies Irae (Day of Wrath) from Requiem in D minor, K. 626 by Wolfgang Amadeus Mozart. The composition is in the public domain.
 
 sound/music/knight_dance.ogg is Dance of the Knights from Romeo and Juliet, Op. 64 by Sergei Prokofiev. This recording is in the public domain.
+
+night_vision_on.ogg by Syna-Max -- https://freesound.org/s/60345/ -- License: Attribution NonCommercial 4.0
