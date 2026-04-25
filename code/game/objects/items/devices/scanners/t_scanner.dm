@@ -133,7 +133,7 @@
 		t_ray_images += img
 
 	if(length(t_ray_images))
-		flick_overlay(t_ray_images, list(viewer.client), flick_time)
+		flick_overlay_global(t_ray_images, list(viewer.client), flick_time)
 
 /obj/item/t_scanner/security
 	name = "Противо-маскировочное ТГц устройство"
@@ -214,7 +214,7 @@
 		alert_searchers(invisible_object)
 
 	if(length(t_ray_images))
-		flick_overlay(t_ray_images, list(viewer.client), pulse_duration)
+		flick_overlay_global(t_ray_images, list(viewer.client), pulse_duration)
 
 /obj/item/t_scanner/security/proc/alert_searchers(mob/living/found_mob)
 	var/list/alerted = viewers(7, found_mob)

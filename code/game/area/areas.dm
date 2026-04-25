@@ -119,7 +119,7 @@
 	/// Turrets use this list to see if individual power/lethal settings are allowed
 	var/list/obj/machinery/turretid/turret_controls = list()
 
-	luminosity = TRUE
+	luminosity = 1
 	///List of mutable appearances we underlay to show light
 	///In the form plane offset + 1 -> appearance to use
 	var/list/mutable_appearance/lighting_effects = null
@@ -131,8 +131,6 @@
 	var/base_lighting_color = COLOR_WHITE
 	///Whether this area allows static lighting and thus loads the lighting objects
 	var/static_lighting = TRUE
-	///Whether this area is iluminated by starlight
-	var/use_starlight = FALSE
 
 /area/New(loc, ...)
 	// This interacts with the map loader, so it needs to be set immediately
@@ -152,16 +150,15 @@
 
 	map_name = name // Save the initial (the name set in the map) name of the area.
 
-	if(use_starlight && CONFIG_GET(flag/starlight))
-		// Areas lit by starlight are not supposed to be fullbright 4head
-		base_lighting_alpha = 0
-		base_lighting_color = null
-		static_lighting = TRUE
-
-	if(!requires_power)
+	if(requires_power)
+		luminosity = 0
+	else
 		power_light = TRUE
 		power_equip = TRUE
 		power_environ = TRUE
+
+		if(static_lighting)
+			luminosity = 0
 
 	. = ..()
 

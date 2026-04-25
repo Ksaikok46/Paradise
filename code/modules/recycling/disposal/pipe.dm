@@ -43,7 +43,7 @@
 		if(initialize_dirs & DISP_DIR_FLIP)
 			dpdir |= REVERSE_DIR(dir)
 
-	AddElement(/datum/element/undertile)
+	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 
 /obj/structure/disposalpipe/Destroy()
 	spew_forth()

@@ -275,7 +275,7 @@
 	for(var/mob/M in viewers(A))
 		if(M.client)
 			viewing |= M.client
-	flick_overlay(I,viewing,8)
+	flick_overlay_global(I,viewing,8)
 	I.alpha = 0
 	animate(I, pixel_z = 32, alpha = 255, time = 5, easing = ELASTIC_EASING)
 

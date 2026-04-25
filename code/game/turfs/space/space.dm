@@ -1,3 +1,47 @@
+///The base color of light space emits
+GLOBAL_VAR_INIT(base_starlight_color, default_starlight_color())
+///The color of light space is currently emitting
+GLOBAL_VAR_INIT(starlight_color, default_starlight_color())
+/proc/default_starlight_color()
+	var/turf/space/read_from = /turf/space
+	return initial(read_from.light_color)
+
+///The range of the light space is displaying
+GLOBAL_VAR_INIT(starlight_range, default_starlight_range())
+/proc/default_starlight_range()
+	var/turf/space/read_from = /turf/space
+	return initial(read_from.light_range)
+
+///The power of the light space is throwin out
+GLOBAL_VAR_INIT(starlight_power, default_starlight_power())
+/proc/default_starlight_power()
+	var/turf/space/read_from = /turf/space
+	return initial(read_from.light_power)
+
+/proc/set_base_starlight(star_color = null, range = null, power = null)
+	GLOB.base_starlight_color = star_color
+	set_starlight(star_color, range, power)
+
+/proc/set_starlight(star_color = null, range = null, power = null)
+	if(isnull(star_color))
+		star_color = GLOB.starlight_color
+	var/old_star_color = GLOB.starlight_color
+	GLOB.starlight_color = star_color
+	// set light color on all lit turfs
+	for(var/turf/space/spess as anything in GLOB.starlight)
+		spess.set_light(l_range = range, l_power = power, l_color = star_color)
+
+	if(star_color == old_star_color)
+		return
+
+	// Update the base overlays
+	for(var/obj/light as anything in GLOB.starlight_objects)
+		light.color = star_color
+	// Send some signals that'll update everything that uses the color
+	SEND_GLOBAL_SIGNAL(COMSIG_STARLIGHT_COLOR_CHANGED, old_star_color, star_color)
+
+GLOBAL_LIST_EMPTY(starlight)
+
 /turf/space
 	icon = 'icons/turf/space.dmi'
 	name = "\proper space"
@@ -12,14 +56,17 @@
 
 	plane = PLANE_SPACE
 	layer = SPACE_LAYER
-	light_power = 0.25
+	light_power = 1
+	light_range = 2
+	light_color = COLOR_STARLIGHT
+	light_height = LIGHTING_HEIGHT_SPACE
+	light_on = FALSE
 	always_lit = TRUE
 	intact = FALSE
 	underfloor_accessibility = UNDERFLOOR_INTERACTABLE
 	// We do NOT want atmos adjacent turfs
 	init_air = FALSE
 
-	plane = PLANE_SPACE
 	footstep = null
 	barefootstep = null
 	clawfootstep = null
@@ -56,7 +103,7 @@
 		// Intentionally not add_overlay for performance reasons.
 		// add_overlay does a bunch of generic stuff, like creating a new list for overlays,
 		// queueing compile, cloning appearance, etc etc etc that is not necessary here.
-		overlays += GLOB.fullbright_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
+		overlays += GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
 
 	if(light_power && light_range)
 		update_light()
@@ -65,6 +112,10 @@
 		directional_opacity = ALL_CARDINALS
 	ComponentInitialize()
 	return INITIALIZE_HINT_NORMAL
+
+/turf/space/Destroy(force)
+	GLOB.starlight -= src
+	return ..()
 
 /turf/space/ComponentInitialize()
 	if(!is_station_level(z))
@@ -83,16 +134,6 @@
 	var/datum/space_level/S = GLOB.space_manager.get_zlev(z)
 	S.add_to_transit(src)
 	S.apply_transition(src)
-
-/turf/space/proc/update_starlight()
-	if(CONFIG_GET(flag/starlight))
-		for(var/t in RANGE_TURFS(1,src)) //RANGE_TURFS is in code\__HELPERS\game.dm
-			if(isspaceturf(t))
-				//let's NOT update this that much pls
-				continue
-			set_light(2, l_on = TRUE)
-			return
-		set_light_on(FALSE)
 
 /turf/space/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -401,3 +442,24 @@
 
 /turf/space/zAirOut()
 	return TRUE
+
+/// Updates starlight. Called when we're unsure of a turf's starlight state
+/// Returns TRUE if we succeed, FALSE otherwise
+/turf/space/proc/update_starlight()
+	for(var/t in RANGE_TURFS(1, src)) //RANGE_TURFS is in code\__HELPERS\game.dm
+		// I've got a lot of cordons near spaceturfs, be good kids
+		if(isspaceturf(t) || istype(t, /turf/cordon))
+			//let's NOT update this that much pls
+			continue
+		enable_starlight()
+		return TRUE
+	GLOB.starlight -= src
+	set_light(l_on = FALSE)
+	return FALSE
+
+/// Turns on the stars, if they aren't already
+/turf/space/proc/enable_starlight()
+	if(!light_on)
+		set_light(l_on = TRUE, l_range = GLOB.starlight_range, l_power = GLOB.starlight_power, l_color = GLOB.starlight_color)
+		GLOB.starlight += src
+

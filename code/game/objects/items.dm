@@ -292,7 +292,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	/// Same as visor_flags_inv_transparent, but for flags_cover
 	var/visor_flags_cover = NONE
 	/// What to toggle when toggled with weldingvisortoggle()
-	var/visor_vars_to_toggle = VISOR_FLASHPROTECT|VISOR_TINT|VISOR_VISIONFLAGS|VISOR_DARKNESSVIEW|VISOR_INVISVIEW|VISOR_FULL_HUD
+	var/visor_vars_to_toggle = VISOR_FLASHPROTECT|VISOR_TINT|VISOR_VISIONFLAGS|VISOR_INVISVIEW|VISOR_FULL_HUD
 
 	/// In tiles, how far this weapon can reach; 1 for adjacent, which is default
 	var/reach = 1
@@ -1508,6 +1508,13 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 /obj/item/proc/ignition_effect(atom/target, mob/user)
 	if(get_temperature() >= FIRE_MINIMUM_TEMPERATURE_TO_EXIST)
 		return span_notice("[user] lights [target] with [src].")
+
+/obj/item/proc/update_slot_icon()
+	SIGNAL_HANDLER
+	if(!ismob(loc) || QDELETED(loc))
+		return
+	var/mob/owner = loc
+	owner.update_clothing(slot_flags | owner.get_slot_by_item(src))
 
 ///Returns the temperature of src. If you want to know if an item is hot use this proc.
 /obj/item/proc/get_temperature()

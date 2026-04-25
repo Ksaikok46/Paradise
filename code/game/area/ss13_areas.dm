@@ -46,6 +46,7 @@ This applies to all STANDARD station areas
 	always_unpowered = TRUE
 	static_lighting = FALSE
 	base_lighting_alpha = 255
+	base_lighting_color = COLOR_STARLIGHT
 	power_light = FALSE
 	power_equip = FALSE
 	power_environ = FALSE
@@ -57,7 +58,9 @@ This applies to all STANDARD station areas
 
 /area/space/nearstation
 	icon_state = "space_near"
-	use_starlight = TRUE
+	static_lighting = TRUE
+	base_lighting_alpha = 0
+	base_lighting_color = null
 
 /area/space/planetary
 	icon_state = "space_planet"
@@ -223,7 +226,6 @@ This applies to all STANDARD station areas
 /area/shuttle/specops
 	name = "Special Ops Shuttle"
 	icon_state = "shuttlered"
-	parallax_movedir = EAST
 	area_flags = NONE
 
 /area/shuttle/specops/centcom
@@ -235,7 +237,6 @@ This applies to all STANDARD station areas
 	name = "Syndicate Elite Shuttle"
 	icon_state = "shuttlered"
 	nad_allowed = TRUE
-	parallax_movedir = SOUTH
 	area_flags = NONE
 
 /area/shuttle/syndicate_elite/mothership
@@ -247,7 +248,6 @@ This applies to all STANDARD station areas
 	name = "Syndicate SIT Shuttle"
 	icon_state = "shuttlered"
 	nad_allowed = TRUE
-	parallax_movedir = SOUTH
 	area_flags = NONE
 
 /area/shuttle/assault_pod
@@ -261,7 +261,6 @@ This applies to all STANDARD station areas
 /area/shuttle/administration
 	name = "Nanotrasen Vessel"
 	icon_state = "shuttlered"
-	parallax_movedir = WEST
 	area_flags = NONE
 
 /area/shuttle/administration/centcom

@@ -165,9 +165,9 @@
 	for(var/atom/movable/content as anything in src)
 		Entered(content)
 
-	if(always_lit)
-		var/mutable_appearance/overlay = GLOB.fullbright_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
-		add_overlay(overlay)
+	var/area/our_area = loc
+	if(!our_area.area_has_base_lighting && always_lit) //Only provide your own lighting if the area doesn't for you
+		add_overlay(GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1])
 
 	if(light_power && light_range)
 		update_light()
@@ -225,6 +225,33 @@
 	. = ..()
 	if(!.)
 		user.Move_Pulled(src)
+
+/turf/proc/change_area(area/old_area, area/new_area)
+
+	old_area.contents -= src
+
+	LISTASSERTLEN(old_area.turfs_to_uncontain_by_zlevel, z, list())
+	LISTASSERTLEN(new_area.turfs_by_zlevel, z, list())
+	old_area.turfs_to_uncontain_by_zlevel[z] += src
+	new_area.turfs_by_zlevel[z] += src
+	new_area.contents += src
+
+	var/old_force_no_grav = force_no_gravity
+	if(isspacearea(new_area))
+		force_no_gravity = TRUE
+	else
+		force_no_gravity = FALSE
+
+	if(old_force_no_grav != force_no_gravity)
+		//inform atoms on the turf that their area has changed
+		for(var/mob/living/mob in contents)
+			mob.refresh_gravity()
+
+	on_change_area(old_area, new_area)
+
+/// Allows for reactions to an area change without inherently requiring change_area() be called (I hate maploading)
+/turf/proc/on_change_area(area/old_area, area/new_area)
+	transfer_area_lighting(old_area, new_area)
 
 /turf/attack_robot(mob/user)
 	user.Move_Pulled(src)
@@ -363,9 +390,10 @@
 	if(!GLOB.use_preloader && path == type) // Don't no-op if the map loader requires it to be reconstructed
 		return src
 
-	set_light_on(FALSE)
 	var/old_opacity = opacity
-	var/old_always_lit = always_lit
+	// I'm so sorry brother
+	// This is used for a starlight optimization
+	var/old_light_range = light_range
 	var/old_lighting_object = lighting_object
 	var/old_blueprint_data = blueprint_data
 	var/old_directional_opacity = directional_opacity
@@ -418,14 +446,6 @@
 
 	dynamic_lumcount = old_dynamic_lumcount
 
-	if(W.always_lit)
-		// We are guarenteed to have these overlays because of how generation works
-		var/mutable_appearance/overlay = GLOB.fullbright_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
-		W.add_overlay(overlay)
-	else if(old_always_lit)
-		var/mutable_appearance/overlay = GLOB.fullbright_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
-		W.cut_overlay(overlay)
-
 	// we need to refresh gravity for all living mobs to cover possible gravity change
 	for(var/mob/living/mob in contents)
 		if(HAS_TRAIT(mob, TRAIT_NEGATES_GRAVITY))
@@ -436,7 +456,12 @@
 		mob.refresh_gravity()
 
 	if(SSlighting.initialized)
-		lighting_object = old_lighting_object
+		// Space tiles should never have lighting objects
+		if(!always_lit)
+			// Should have a lighting object if we never had one
+			lighting_object = old_lighting_object || new /datum/lighting_object(src)
+		else if(old_lighting_object)
+			qdel(old_lighting_object, force = TRUE)
 
 		directional_opacity = old_directional_opacity
 		recalculate_directional_opacity()
@@ -444,14 +469,28 @@
 		if(lighting_object && !lighting_object.needs_update)
 			lighting_object.update()
 
-		if(old_always_lit != always_lit)
-			if(!always_lit)
-				lighting_build_overlay()
-			else
-				lighting_clear_overlay()
+	// If we're space, then we're either lit, or not, and impacting our neighbors, or not
+	if(isspaceturf(src))
+		var/turf/space/lit_turf = src
+		// This also counts as a removal, so we need to do a full rebuild
+		if(!ispath(old_type, /turf/space))
+			lit_turf.update_starlight()
+			for(var/turf/space/space_tile in RANGE_TURFS(1, src) - src)
+				space_tile.update_starlight()
+		else if(old_light_range)
+			lit_turf.enable_starlight()
 
-		for(var/turf/space/S in RANGE_TURFS(1, src)) //RANGE_TURFS is in code\__HELPERS\game.dm
-			S.update_starlight()
+	// If we're a cordon we count against a light, but also don't produce any ourselves
+	else if (istype(src, /turf/cordon))
+		// This counts as removing a source of starlight, so we need to update the space tile to inform it
+		if(!ispath(old_type, /turf/space))
+			for(var/turf/space/space_tile in RANGE_TURFS(1, src))
+				space_tile.update_starlight()
+
+	// If we're not either, but were formerly a space turf, then we want light
+	else if(ispath(old_type, /turf/space))
+		for(var/turf/space/space_tile in RANGE_TURFS(1, src))
+			space_tile.enable_starlight()
 
 	if(old_opacity != opacity && SSticker)
 		GLOB.cameranet.bareMajorChunkChange(src)
@@ -877,8 +916,8 @@
 	underlay_appearance.icon_state = "0"
 	SET_PLANE(underlay_appearance, PLANE_SPACE, generate_for)
 	if(!generate_for.render_target)
-		generate_for.render_target = generate_for.UID()
-	var/atom/movable/emissive_blocker/em_block = new(null, generate_for)
+		generate_for.render_target = ref(generate_for)
+	var/atom/movable/render_step/emissive_blocker/em_block = new(null, generate_for)
 	underlay_appearance.overlays += em_block
 	// We used it because it's convienient and easy, but it's gotta go now or it'll hang refs
 	QDEL_NULL(em_block)
@@ -887,7 +926,7 @@
 	// I would like to use GLOB.starbright_overlays here
 	// But that breaks down for... some? reason. I think receiving a render relay breaks keep_together or something
 	// So we're just gonna accept  that this'll break with starlight color changing. hardly matters since this is really only for offset stuff, but I'd love to fix it someday
-	var/mutable_appearance/light = new(GLOB.default_lighting_underlays_by_z[generate_for.z])
+	var/mutable_appearance/light = new(GLOB.starlight_objects[GET_TURF_PLANE_OFFSET(generate_for) + 1])
 	light.render_target = ""
 	light.appearance_flags |= KEEP_TOGETHER
 	// Now apply a copy of the turf, set to multiply

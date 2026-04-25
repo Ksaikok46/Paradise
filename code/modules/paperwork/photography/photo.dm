@@ -80,14 +80,6 @@
 
 /obj/item/photo/proc/show(mob/user)
 	var/icon/img_shown = new/icon(img)
-	var/colormatrix = user.get_screen_colour()
-	// Apply colorblindness effects, if any.
-	if(islist(colormatrix))
-		img_shown.MapColors(
-			colormatrix[1], colormatrix[2], colormatrix[3],
-			colormatrix[4], colormatrix[5], colormatrix[6],
-			colormatrix[7], colormatrix[8], colormatrix[9],
-		)
 	usr << browse_rsc(img_shown, "tmp_photo.png")
 	var/datum/browser/popup = new(usr, "Photo[UID()]", null, 64 * photo_size, scribble ? 400 : 64 * photo_size)
 	popup.set_content("<div class='photo-container' style='width: [64*photo_size]px; height: [64*photo_size]px;'> \

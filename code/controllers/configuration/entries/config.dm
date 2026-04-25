@@ -549,9 +549,6 @@
 	key_mode = KEY_MODE_TEXT
 	value_mode = VALUE_MODE_NUM
 
-/// Whether space turfs have ambient light or not
-/datum/config_entry/flag/starlight
-
 /datum/config_entry/flag/allow_holidays
 
 ///number of players before the server starts rerouting

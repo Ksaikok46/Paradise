@@ -9,8 +9,6 @@
 	var/datum/hud/our_hud
 	/// List in the form "[plane]" = object, the plane masters we own
 	var/list/atom/movable/screen/plane_master/plane_masters = list()
-	/// Does it needs to offset to work properly
-	var/do_offset = TRUE
 	/// The visual offset we are currently using
 	var/active_offset = 0
 	/// What, if any, submap we render onto
@@ -36,12 +34,13 @@
 	if(our_hud)
 		our_hud.master_groups -= key
 		hide_hud()
+	var/datum/hud/old_hud = our_hud
 	our_hud = new_hud
 	if(new_hud)
 		our_hud.master_groups[key] = src
 		show_hud()
 		build_planes_offset(our_hud, active_offset)
-	SEND_SIGNAL(src, COMSIG_GROUP_HUD_CHANGED, our_hud)
+	SEND_SIGNAL(src, COMSIG_GROUP_HUD_CHANGED, old_hud, our_hud)
 
 /// Display a plane master group to some viewer, so show all our planes to it
 /datum/plane_master_group/proc/attach_to(datum/hud/viewing_hud)
@@ -86,6 +85,10 @@
 /datum/plane_master_group/proc/show_plane(atom/movable/screen/plane_master/plane)
 	plane.show_to(our_hud.mymob)
 
+/// Nice wrapper for the "[]"ing
+/datum/plane_master_group/proc/get_plane(plane)
+	return plane_masters["[plane]"]
+
 /// Returns a list of all the plane master types we want to create
 /datum/plane_master_group/proc/get_plane_types()
 	return subtypesof(/atom/movable/screen/plane_master) - /atom/movable/screen/plane_master/rendering_plate
@@ -116,7 +119,9 @@
 	// No offset? piss off
 	if(!SSmapping.max_plane_offset)
 		return
+
 	active_offset = new_offset
+
 	// Each time we go "down" a visual z level, we'll reduce the scale by this amount
 	// Chosen because mothblocks liked it, didn't cause motion sickness while also giving a sense of height
 	var/scale_by = 0.965
@@ -129,11 +134,12 @@
 		scale_by = 1
 
 	var/list/offsets = list()
-	var/multiz_boundary = do_offset ? our_mob?.canon_client?.prefs?.multiz_detail : MULTIZ_DETAIL_LOW //low means no offset
+	var/multiz_boundary = our_mob?.canon_client?.prefs.toggles2 & PREFTOGGLE_2_PARALLAX_MULTIZ
+
 	// We accept negatives so going down "zooms" away the drop above as it goes
 	for(var/offset in -SSmapping.max_plane_offset to SSmapping.max_plane_offset)
 		// Multiz boundaries disable transforms
-		if(multiz_boundary != MULTIZ_PERFORMANCE_DISABLE && (multiz_boundary < abs(offset)))
+		if(multiz_boundary && (multiz_boundary < abs(offset)))
 			offsets += null
 			continue
 
@@ -141,6 +147,7 @@
 		if(offset == 0)
 			offsets += null
 			continue
+
 		var/scale = scale_by ** (offset)
 		var/matrix/multiz_shrink = matrix()
 		multiz_shrink.Scale(scale)
@@ -157,10 +164,11 @@
 				// Required for making things like the blind fullscreen not render over runechat
 				plane.offset_relays_in_place(new_offset)
 			continue
+
 		var/visual_offset = plane.offset - new_offset
 
 		// Basically uh, if we're showing something down X amount of levels, or up any amount of levels
-		if(multiz_boundary != MULTIZ_PERFORMANCE_DISABLE && (visual_offset > multiz_boundary || visual_offset < 0))
+		if(multiz_boundary && (visual_offset > multiz_boundary || visual_offset < 0))
 			plane.outside_bounds(our_mob)
 		else if(plane.is_outside_bounds)
 			plane.inside_bounds(our_mob)
@@ -179,7 +187,6 @@
 /// This is because it's annoying to get turfs to position inside it correctly
 /// If you wanna try someday feel free, but I can't manage it
 /datum/plane_master_group/popup
-	do_offset = FALSE
 
 /datum/plane_master_group/popup/build_planes_offset(datum/hud/source, new_offset, use_scale = TRUE)
 	return ..(source, new_offset, FALSE)

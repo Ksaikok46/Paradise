@@ -275,8 +275,6 @@
 		areaInstance.name = name
 		areaInstance.contents += return_ordered_turfs()
 
-	areaInstance.parallax_movedir = preferred_direction
-
 	#ifdef DOCKING_PORT_HIGHLIGHT
 	highlight("#0f0")
 	#endif
@@ -621,7 +619,6 @@
 			W.update_audio()
 
 	mobile_port.unlockPortDoors(new_dock)
-	areaInstance.parallax_movedir = mobile_port.preferred_direction
 	SEND_SIGNAL(mobile_port, COMSIG_SHUTTLE_DOCK, new_dock)
 
 /obj/docking_port/mobile/proc/is_turf_blacklisted_for_transit(turf/T)

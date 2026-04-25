@@ -63,9 +63,6 @@
 	if(smooth)
 		QUEUE_SMOOTH(src)
 
-/mob/postDock()
-	update_parallax_contents()
-
 /obj/machinery/door/airlock/postDock(obj/docking_port/stationary/S1)
 	. = ..()
 	if(!S1.lock_shuttle_doors && id_tag == "s_docking_airlock")

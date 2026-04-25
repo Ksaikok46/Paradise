@@ -20,6 +20,13 @@
 	clawfootstep = FOOTSTEP_GLASS
 	/// Amount of SSobj ticks (Roughly 2 seconds) that a extinguished glass floor tile has been lit up
 	var/light_process = 0
+	/// List of /atom/movable/render_step that are being used to make this glass floor glow
+	/// These are OWNED by this floor, they delete when we delete them, not before not after
+	var/list/glow_stuff
+	/// How much alpha to leave when cutting away emissive blockers
+	var/alpha_to_leave = 255
+	/// Color of starlight to use. Defaults to STARLIGHT_COLOR if not set
+	var/starlight_color
 
 /turf/simulated/floor/glass/Initialize(mapload)
 	dir = SOUTH //dirs that are not 2/south cause smoothing jank
@@ -28,15 +35,13 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /turf/simulated/floor/glass/LateInitialize()
+	ADD_TURF_TRANSPARENCY(src, INNATE_TRAIT)
+	setup_glow()
+
+/turf/simulated/floor/glass/Destroy()
 	. = ..()
-	AddElement(/datum/element/turf_z_transparency)
-	var/turf/T = GET_TURF_BELOW(src)
-	if(T)
-		if(!isspaceturf(T))
-			light_power = 0
-			light_range = 0
-			update_light()
-		RegisterSignal(T, COMSIG_TURF_CHANGE, PROC_REF(update_below_light))
+	QDEL_LIST(glow_stuff)
+	UnregisterSignal(SSdcs, COMSIG_STARLIGHT_COLOR_CHANGED)
 
 /turf/simulated/floor/glass/welder_act(mob/user, obj/item/I)
 	if(!broken && !burnt)
@@ -98,47 +103,25 @@
 	playsound(src, 'sound/items/deconstruct.ogg', 80, TRUE)
 	ChangeTurf(/turf/simulated/floor/plating)
 
-/turf/simulated/floor/glass/extinguish_light(force = FALSE)
-	light_power = 0
-	light_range = 0
-	update_light()
-	name = "dimmed glass flooring"
-	desc = "Something shadowy moves to cover the glass. Perhaps shining a light will force it to clear?"
-	START_PROCESSING(SSobj, src)
-
-/turf/simulated/floor/glass/process()
-	if(get_lumcount() > 0.2)
-		light_process++
-		if(light_process > 3)
-			reset_light()
+/// If this turf is at the bottom of the local rendering stack
+/// Then we're gonna make it emissive block so the space below glows
+/turf/simulated/floor/glass/proc/setup_glow()
+	if(GET_TURF_PLANE_OFFSET(src) != GET_LOWEST_STACK_OFFSET(z)) // We ain't the bottom brother
 		return
-	light_process = 0
-
-/turf/simulated/floor/glass/proc/reset_light()
-	light_process = 0
-	var/turf/below = GET_TURF_BELOW(src)
-	if(isspaceturf(below))
-		light_power = initial(light_power)
-		light_range = initial(light_range)
-		update_light()
-	name = initial(name)
-	desc = initial(desc)
-	STOP_PROCESSING(SSobj, src)
-
-/turf/simulated/floor/glass/proc/update_below_light(new_path)
-	if(isprocessing) // we're extinguished
+	// We assume no parallax means no space means no light
+	if(check_level_trait(z, ZTRAIT_NOPARALLAX))
 		return
-	if(ispath(new_path, /turf/space))
-		light_power = initial(light_power)
-		light_range = initial(light_range)
-	light_power = 0
-	light_range = 0
-	update_light()
 
-/turf/simulated/floor/glass/Destroy()
-	if(isprocessing)
-		STOP_PROCESSING(SSobj, src)
-	return ..()
+	glow_stuff = partially_block_emissives(src, alpha_to_leave)
+	if(!starlight_color)
+		RegisterSignal(SSdcs, COMSIG_STARLIGHT_COLOR_CHANGED, PROC_REF(starlight_changed))
+	else
+		UnregisterSignal(SSdcs, COMSIG_STARLIGHT_COLOR_CHANGED)
+	set_light(2, 1, starlight_color || GLOB.starlight_color, l_height = LIGHTING_HEIGHT_SPACE)
+
+/turf/simulated/floor/glass/proc/starlight_changed(datum/source, old_star, new_star)
+	if(light_color == old_star)
+		set_light(l_color = new_star)
 
 /* Changin turf while not finishing impact for our falling may runtime us
 /turf/simulated/floor/glass/zImpact(atom/movable/falling, levels, turf/prev_turf)

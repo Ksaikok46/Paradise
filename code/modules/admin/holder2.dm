@@ -28,8 +28,10 @@ GLOBAL_PROTECT(href_token)
 
 	var/datum/spawn_menu/spawn_menu
 	var/datum/spawnpanel/spawn_panel
+	var/datum/plane_master_debug/plane_debug
 
 /datum/admins/New(initial_rank, initial_rights, ckey)
+	plane_debug = new(src)
 	if(IsAdminAdvancedProcCall())
 		to_chat(usr, span_boldannounceooc("Admin rank creation blocked: Advanced ProcCall detected."))
 		log_and_message_admins("attempted to edit feedback a new admin rank via advanced proc-call")
@@ -61,6 +63,7 @@ GLOBAL_PROTECT(href_token)
 	if(istype(C))
 		owner = C
 		owner.holder = src
+		plane_debug = new(src)
 		owner.add_admin_verbs()	//TODO
 		remove_verb(owner, /client/proc/readmin)
 		owner.init_verbs() //re-initialize the verb list
@@ -73,6 +76,7 @@ GLOBAL_PROTECT(href_token)
 		return
 	if(owner)
 		GLOB.admins -= owner
+		QDEL_NULL(plane_debug)
 		owner.remove_admin_verbs()
 		owner.init_verbs()
 		owner.holder = null

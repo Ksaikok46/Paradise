@@ -30,7 +30,7 @@
 
 	pipename = initial(pipe_type.name)
 	update_appearance(UPDATE_ICON_STATE)
-	AddElement(/datum/element/undertile)
+	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 
 	if(!is_pipe())
 		set_density(TRUE)

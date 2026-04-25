@@ -23,8 +23,7 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /turf/space/openspace/LateInitialize()
-	. = ..()
-	AddElement(/datum/element/turf_z_transparency)
+	ADD_TURF_TRANSPARENCY(src, INNATE_TRAIT)
 
 /turf/space/openspace/get_smooth_underlay_icon(mutable_appearance/underlay_appearance, turf/asking_turf, adjacency_dir)
 	generate_space_underlay(underlay_appearance, asking_turf)
@@ -199,5 +198,31 @@
 
 /turf/space/openspace/bullet_act(obj/projectile/P, def_zone)
 	return -1
+
+/turf/space/openspace/enable_starlight()
+	var/turf/below = GET_TURF_BELOW(src)
+	// Override = TRUE beacuse we could have our starlight updated many times without a failure, which'd trigger this
+	RegisterSignal(below, COMSIG_TURF_CHANGE, PROC_REF(on_below_change), override = TRUE)
+	if(!isspaceturf(below) || light_on)
+		return
+	set_light(l_on = TRUE, l_range = GLOB.starlight_range, l_power = GLOB.starlight_power, l_color = GLOB.starlight_color)
+	GLOB.starlight += src
+
+/turf/space/openspace/update_starlight()
+	. = ..()
+	if(.)
+		return
+	// If we're here, the starlight is not to be
+	var/turf/below = GET_TURF_BELOW(src)
+	UnregisterSignal(below, COMSIG_TURF_CHANGE)
+
+/turf/space/openspace/proc/on_below_change(turf/source, path, list/new_baseturfs, flags, list/post_change_callbacks)
+	SIGNAL_HANDLER
+	if(isspaceturf(source) && !ispath(path, /turf/space))
+		GLOB.starlight += src
+		set_light(l_on = TRUE, l_range = GLOB.starlight_range, l_power = GLOB.starlight_power, l_color = GLOB.starlight_color)
+	else if(!isspaceturf(source) && ispath(path, /turf/space))
+		GLOB.starlight -= src
+		set_light(l_on = FALSE)
 
 // Every new proc that should be edited or added here. Also needs to be copied into /turf/simulated/openspace. I'm not sorry.

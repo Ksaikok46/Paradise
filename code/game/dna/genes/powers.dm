@@ -159,7 +159,7 @@
 	activation_messages = list("Стены внезапно исчезают.")
 	deactivation_messages = list("Стены вокруг вас появляются вновь.")
 	instability = GENE_INSTABILITY_MAJOR
-	traits_to_add = list(TRAIT_XRAY)
+	traits_to_add = list(TRAIT_XRAY_VISION)
 	activation_prob = 15
 
 /datum/dna/gene/basic/xray/New()

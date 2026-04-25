@@ -2,7 +2,12 @@
 	name = "open space"
 	desc = "Watch your step!"
 	icon = 'icons/turf/space.dmi'
-	icon_state = "openspace" //transparent
+	// We don't actually draw openspace, but it needs to have color
+	// In its icon state so we can count it as a "non black" tile
+	// In this case it has color of RGBA(0,0,0,1)
+	icon_state = "openspace"
+	plane = TRANSPARENT_FLOOR_PLANE
+	layer = SPACE_LAYER
 	baseturf = /turf/simulated/openspace
 	//mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	pathing_pass_method = TURF_PATHING_PASS_PROC
@@ -38,7 +43,7 @@
 
 /turf/simulated/openspace/LateInitialize()
 	. = ..()
-	AddElement(/datum/element/turf_z_transparency)
+	ADD_TURF_TRANSPARENCY(src, INNATE_TRAIT)
 
 /turf/simulated/openspace/ChangeTurf(path, defer_change, keep_icon, after_flags, copy_existing_baseturf)
 	UnregisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON)

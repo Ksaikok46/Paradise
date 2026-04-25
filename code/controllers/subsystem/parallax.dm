@@ -25,11 +25,13 @@ SUBSYSTEM_DEF(parallax)
 //These are cached per client so needs to be done asap so people joining at roundstart do not miss these.
 /datum/controller/subsystem/parallax/PreInit()
 	. = ..()
-	set_random_parallax_layer(pickweight(random_parallax_weights))
+
+	set_random_parallax_layer(pick_weight_classic(random_parallax_weights))
+
 	planet_y_offset = rand(100, 160)
 	planet_x_offset = rand(100, 160)
 
-/datum/controller/subsystem/parallax/fire(resumed = 0)
+/datum/controller/subsystem/parallax/fire(resumed = FALSE)
 	if(!resumed)
 		src.currentrun = GLOB.clients.Copy()
 
@@ -37,32 +39,33 @@ SUBSYSTEM_DEF(parallax)
 	var/list/currentrun = src.currentrun
 
 	while(length(currentrun))
-		var/client/C = currentrun[length(currentrun)]
+		var/client/processing_client = currentrun[currentrun.len]
 		currentrun.len--
-		if(QDELETED(C) || !C.eye)
+		if(QDELETED(processing_client) || !processing_client.eye)
 			if(MC_TICK_CHECK)
 				return
 			continue
-		var/atom/movable/A = C.eye
-		if(!istype(A))
+
+		var/atom/movable/movable_eye = processing_client.eye
+		if(!istype(movable_eye))
 			continue
 
-		while(isloc(A.loc) && !isturf(A.loc))
-			A = A.loc
+		while(isloc(movable_eye.loc) && !isturf(movable_eye.loc))
+			movable_eye = movable_eye.loc
 		//get the last movable holding the mobs eye
 
-		if(A == C.movingmob)
+		if(movable_eye == processing_client.movingmob)
 			if(MC_TICK_CHECK)
 				return
 			continue
 
 		//eye and the last recorded eye are different, and the last recorded eye isnt just the clients mob
-		if(!isnull(C.movingmob))
-			LAZYREMOVE(C.movingmob.client_mobs_in_contents, C.mob)
-		LAZYADD(A.client_mobs_in_contents, C.mob)
+		if(!isnull(processing_client.movingmob))
+			LAZYREMOVE(processing_client.movingmob.client_mobs_in_contents, processing_client.mob)
+		LAZYADD(movable_eye.client_mobs_in_contents, processing_client.mob)
 
-		C.movingmob = A
-		if(MC_TICK_CHECK)
+		processing_client.movingmob = movable_eye
+		if (MC_TICK_CHECK)
 			return
 	currentrun = null
 
@@ -71,7 +74,7 @@ SUBSYSTEM_DEF(parallax)
 	if(picked_parallax == PARALLAX_NONE)
 		return
 
-	random_layer = new picked_parallax(null,  /* hud_owner = */ null, /* template = */ TRUE)
+	random_layer = new picked_parallax(null,  /* hud_owner = */ null, /* owner = */ null, /* template = */ TRUE)
 	RegisterSignal(random_layer, COMSIG_QDELETING, PROC_REF(clear_references))
 	random_layer.get_random_look()
 
@@ -85,8 +88,9 @@ SUBSYSTEM_DEF(parallax)
 	//Parallax is one of the first things to be set (during client join), so rarely is anything fast enough to swap it out
 	//That's why we need to swap the layers out for fast joining clients :/
 	for(var/client/client as anything in GLOB.clients)
-		client.parallax_layers_cached?.Cut()
-		client.mob?.hud_used?.update_parallax_pref(client.mob)
+		// gotta clear things out
+		client?.parallax_rock?.set_layer_settings(0, FALSE, FALSE)
+		client.mob?.hud_used?.update_parallax_pref()
 
 /datum/controller/subsystem/parallax/proc/clear_references()
 	SIGNAL_HANDLER
@@ -96,5 +100,13 @@ SUBSYSTEM_DEF(parallax)
 /// Called at the end of SSstation setup, in-case we want to run some code that would otherwise be too early to run (like GLOB. stuff)
 /datum/controller/subsystem/parallax/proc/post_station_setup()
 	random_layer?.apply_global_effects()
+
+/// Return the most dominant color, if we have a colored background (mostly nebula gas)
+/datum/controller/subsystem/parallax/proc/get_parallax_color()
+	var/atom/movable/screen/parallax_layer/random/space_gas/gas = random_layer
+	if(!istype(gas))
+		return
+
+	return gas.parallax_color
 
 #undef PARALLAX_NONE

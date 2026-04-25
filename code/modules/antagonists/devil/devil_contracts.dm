@@ -198,7 +198,7 @@ GLOBAL_LIST_INIT(devil_guns, (GLOB.summoned_guns - NOT_DEVIL_GUNS + DEVIL_GUNS))
 	return TRUE
 
 /datum/devil_contract/knowledge/fulfill_contract(mob/living/carbon/human/user)
-	ADD_TRAIT(user, TRAIT_XRAY, UNIQUE_TRAIT_SOURCE(src))
+	ADD_TRAIT(user, TRAIT_XRAY_VISION, UNIQUE_TRAIT_SOURCE(src))
 	user.update_sight()
 	user.update_misc_effects()
 	user.mind.AddSpell(new /obj/effect/proc_holder/spell/view_range(null))

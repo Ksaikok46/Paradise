@@ -262,7 +262,6 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 	var/list/choosen_gears = list()
 	/// Parallax
 	var/parallax = PARALLAX_HIGH
-	var/multiz_detail = MULTIZ_DETAIL_DEFAULT
 
 	/// Screentip Mode, in pixels. 8 is small, 15 is mega big, 0 is off.
 	var/screentip_mode = 8
@@ -278,8 +277,8 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 	var/list/keybindings_overrides = null
 	/// View range preference for this client
 	var/viewrange = DEFAULT_CLIENT_VIEWSIZE
-	/// How dark things are if client is a ghost, 0-255
-	var/ghost_darkness_level = LIGHTING_PLANE_ALPHA_VISIBLE
+	/// How dark things are if client is a ghost, 0-100
+	var/ghost_darkness_level = LIGHTING_CUTOFF_VISIBLE
 
 	/// Minigames notification about their end, start and etc.
 	var/minigames_notifications = TRUE
@@ -605,6 +604,8 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 				dat += "<b>OOC заметки:</b> <a href='byond://?_src_=prefs;preference=metadata;task=input'><b>Редактировать</b></a><br>"
 			dat += "<b>Параллакс:</b> <a href='byond://?_src_=prefs;preference=parallax'>"
 			switch(parallax)
+				if(PARALLAX_OLD)
+					dat += "Старый"
 				if(PARALLAX_LOW)
 					dat += "Низкое качество"
 				if(PARALLAX_MED)
@@ -617,18 +618,6 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					dat += "Высокое качество"
 			dat += "</a><br>"
 			dat += "<b>Multi-Z параллакс:</b> <a href='byond://?_src_=prefs;preference=parallax_multiz'>[toggles2 & PREFTOGGLE_2_PARALLAX_MULTIZ ? "Включить" : "Выключить"]</a><br>"
-			dat += "<b>Качество Multi-Z параллакса:</b> <a href='byond://?_src_=prefs;preference=multiz_detail'>"
-			switch(multiz_detail)
-				if(MULTIZ_DETAIL_DEFAULT)
-					dat += "По умолчанию"
-				if(MULTIZ_DETAIL_LOW)
-					dat += "Низкое качество"
-				if(MULTIZ_DETAIL_MEDIUM)
-					dat += "Среднее качество"
-				if(MULTIZ_DETAIL_HIGH)
-					dat += "Высокое качество"
-				else
-					dat += "ОШИБКА"
 			dat += "</a><br>"
 			dat += "<b>Проигрывать админ-MIDI:</b> <a href='byond://?_src_=prefs;preference=hear_midis'><b>[(sound & SOUND_MIDI) ? "Да" : "Нет"]</b></a><br>"
 			dat += "<b>Проигрывать музыку в лобби:</b> <a href='byond://?_src_=prefs;preference=lobby_music'><b>[(sound & SOUND_LOBBY) ? "Да" : "Нет"]</b></a><br>"
@@ -2639,6 +2628,7 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 				if("parallax")
 					var/parallax_styles = list(
 						"Отключено" = PARALLAX_DISABLE,
+						"Старый" = PARALLAX_OLD,
 						"Низкое" = PARALLAX_LOW,
 						"Среднее" = PARALLAX_MED,
 						"Высокое" = PARALLAX_HIGH,
@@ -2648,41 +2638,10 @@ GLOBAL_LIST_INIT(special_role_times, list(//minimum age (in days) for accounts t
 					var/new_parallax = tgui_input_list(user, "Выберите качество параллакса", "Параллакс", parallax_styles)
 					if(!new_parallax)
 						return
-					/*
-					if(multiz_detail != MULTIZ_DETAIL_DEFAULT && parallax_styles[new_parallax] == PARALLAX_DISABLE)
-						to_chat(user, span_warning("Due to technical difficulties you can't set with non-default Multi-Z settings. Please turn on \"Parallax\" in order to limit Multi-Z."))
-						return
-					*/
 
 					parallax = parallax_styles[new_parallax]
 					if(parent?.mob && parent.mob.hud_used)
-						parent.mob.hud_used.update_parallax_pref(parent.mob)
-
-				if("multiz_detail")
-					var/multiz_det_styles = list(
-						"По умолчанию" = MULTIZ_DETAIL_DEFAULT,
-						"Низкое" = MULTIZ_DETAIL_LOW,
-						"Среднее" = MULTIZ_DETAIL_MEDIUM,
-						"Высокое" = MULTIZ_DETAIL_HIGH,
-					)
-
-					var/new_value = tgui_input_list(user, "Выберите качество Multi-Z параллакса", "Multi-Z параллакс", multiz_det_styles)
-					if(!new_value)
-						return
-					/*
-					if(parallax == PARALLAX_DISABLE && multiz_det_styles[new_value] != MULTIZ_DETAIL_DEFAULT)
-						to_chat(user, span_warning("Due to technical difficulties you can't set with disabled parallax. Please set \"Multi-Z Detail\" to default in order to disable Parallax."))
-						return
-					*/
-
-					multiz_detail = multiz_det_styles[new_value]
-					var/datum/hud/my_hud = parent.mob?.hud_used
-					if(!my_hud)
-						return
-
-					for(var/group_key in my_hud.master_groups)
-						var/datum/plane_master_group/group = my_hud.master_groups[group_key]
-						group.build_planes_offset(my_hud, my_hud.current_plane_offset)
+						parent.mob.hud_used.update_parallax_pref()
 
 				if("parallax_multiz")
 					toggles2 ^= PREFTOGGLE_2_PARALLAX_MULTIZ

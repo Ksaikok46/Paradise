@@ -426,7 +426,7 @@
 
 /datum/spellbook_entry/item/scryingorb/Buy(mob/living/carbon/human/user, obj/item/spellbook/book)
 	if(..())
-		if(!HAS_TRAIT_FROM(user, TRAIT_XRAY, MAGIC_TRAIT))
+		if(!HAS_TRAIT_FROM(user, TRAIT_XRAY_VISION, MAGIC_TRAIT))
 			ADD_TRAIT(user, TRAIT_XRAY_VISION, MAGIC_TRAIT)
 			ADD_TRAIT(user, TRAIT_NIGHT_VISION, MAGIC_TRAIT)
 			user.update_sight()
