@@ -12,9 +12,9 @@
 // Builds a lighting object for us, but only if our area is dynamic.
 /turf/proc/lighting_build_overlay()
 	if(lighting_object)
-		qdel(lighting_object,force=TRUE) //Shitty fix for lighting objects persisting after death
+		qdel(lighting_object, force=TRUE) //Shitty fix for lighting objects persisting after death
 
-	new /atom/movable/lighting_object(src)
+	new /datum/lighting_object(src)
 
 // Used to get a scaled lumcount.
 /turf/proc/get_lumcount(minlum = 0, maxlum = 1)
@@ -36,6 +36,7 @@
 	if(L)
 		totallums += L.lum_r + L.lum_b + L.lum_g
 
+
 	totallums /= 12 // 4 corners, each with 3 channels, get the average.
 
 	totallums = (totallums - minlum) / (maxlum - minlum)
@@ -53,44 +54,6 @@
 		return FALSE
 
 	return !(luminosity || dynamic_lumcount)
-
-/turf/proc/change_area(area/old_area, area/new_area)
-
-	old_area.contents -= src
-
-	LISTASSERTLEN(old_area.turfs_to_uncontain_by_zlevel, z, list())
-	LISTASSERTLEN(new_area.turfs_by_zlevel, z, list())
-	old_area.turfs_to_uncontain_by_zlevel[z] += src
-	new_area.turfs_by_zlevel[z] += src
-	new_area.contents += src
-
-	var/old_force_no_grav = force_no_gravity
-	if(isspacearea(new_area))
-		force_no_gravity = TRUE
-	else
-		force_no_gravity = FALSE
-
-	if(old_force_no_grav != force_no_gravity)
-		//inform atoms on the turf that their area has changed
-		for(var/mob/living/mob in contents)
-			mob.refresh_gravity()
-
-	if(SSlighting.initialized)
-		if(new_area.static_lighting != old_area.static_lighting)
-			if(new_area.static_lighting)
-				lighting_build_overlay()
-			else
-				lighting_clear_overlay()
-
-	// We will only run this logic on turfs off the prime z layer
-	// Since on the prime z layer, we use an overlay on the area instead, to save time
-	if(SSmapping.z_level_to_plane_offset[z])
-		var/index = SSmapping.z_level_to_plane_offset[z]
-		//Inherit overlay of new area
-		if(old_area.lighting_effects)
-			cut_overlay(old_area.lighting_effects[index])
-		if(new_area.lighting_effects)
-			add_overlay(new_area.lighting_effects[index])
 
 ///Proc to add movable sources of opacity on the turf and let it handle lighting code.
 /turf/proc/add_opacity_source(atom/movable/new_source)
@@ -113,7 +76,7 @@
 		directional_opacity = ALL_CARDINALS
 		if(. != directional_opacity)
 			reconsider_lights()
-		return .
+		return
 	directional_opacity = NONE
 	if(opacity_sources)
 		for(var/atom/movable/opacity_source as anything in opacity_sources)
@@ -122,12 +85,34 @@
 			else //If fulltile and opaque, then the whole tile blocks view, no need to continue checking.
 				directional_opacity = ALL_CARDINALS
 				break
+	else
+		for(var/atom/movable/content as anything in contents)
+			SEND_SIGNAL(content, COMSIG_TURF_NO_LONGER_BLOCK_LIGHT)
 	if(. != directional_opacity && (. == ALL_CARDINALS || directional_opacity == ALL_CARDINALS))
 		reconsider_lights() //The lighting system only cares whether the tile is fully concealed from all directions or not.
 
-/turf/set_opacity(new_opacity)
-	. = ..()
-	if(isnull(.))
-		return .
-	recalculate_directional_opacity()
+///Transfer the lighting of one area to another
+/turf/proc/transfer_area_lighting(area/old_area, area/new_area)
+	if(SSlighting.initialized && !always_lit)
+		if(new_area.static_lighting != old_area.static_lighting)
+			if(new_area.static_lighting)
+				lighting_build_overlay()
+			else
+				lighting_clear_overlay()
 
+	// We will only run this logic on turfs off the prime z layer
+	// Since on the prime z layer, we use an overlay on the area instead, to save time
+	if(SSmapping.z_level_to_plane_offset[z])
+		var/index = SSmapping.z_level_to_plane_offset[z] + 1
+		//Inherit overlay of new area
+		if(old_area.lighting_effects)
+			cut_overlay(old_area.lighting_effects[index])
+		if(new_area.lighting_effects)
+			add_overlay(new_area.lighting_effects[index])
+
+	// Manage removing/adding starlight overlays, we'll inherit from the area so we can drop it if the area has it already
+	if(always_lit)
+		if(!new_area.lighting_effects && old_area.lighting_effects)
+			overlays += GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
+		else if (new_area.lighting_effects && !old_area.lighting_effects)
+			overlays -= GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1]

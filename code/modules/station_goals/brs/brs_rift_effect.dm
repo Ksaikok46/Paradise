@@ -6,7 +6,6 @@
 	appearance_flags = LONG_GLIDE
 	invisibility = INVISIBILITY_ANOMALY
 	level = 1 // t-ray scaners show only things with level = 1
-	luminosity = 1
 	alpha = 180
 	var/size
 	var/time_per_tile

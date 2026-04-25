@@ -3,6 +3,7 @@
 	abstract_type = /turf
 	level = 1
 	luminosity = 1
+	light_height = LIGHTING_HEIGHT_FLOOR
 
 	vis_flags = VIS_INHERIT_ID	// Important for interaction with and visualization of openspace.
 
@@ -76,7 +77,7 @@
 	var/always_lit = FALSE
 	var/tmp/lighting_corners_initialised = FALSE
 	/// Our lighting object.
-	var/tmp/atom/movable/lighting_object/lighting_object
+	var/tmp/datum/lighting_object/lighting_object
 	// Lighting Corner datums.
 	var/tmp/datum/lighting_corner/lighting_corner_NE
 	var/tmp/datum/lighting_corner/lighting_corner_SE

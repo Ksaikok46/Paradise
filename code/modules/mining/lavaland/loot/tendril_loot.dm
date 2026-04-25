@@ -253,12 +253,9 @@
 	icon = 'icons/obj/lighting.dmi'
 	icon_state = "lantern-blue"
 	item_state = "lantern"
-	light_range = 7
 	var/obj/effect/wisp/wisp
 	var/sight_flags = SEE_MOBS
-	var/lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
-	light_system = MOVABLE_LIGHT
-	light_on = FALSE
+	var/static/list/color_cutoffs = list(10, 25, 25)
 
 /obj/item/wisp_lantern/get_ru_names()
 	return list(
@@ -289,7 +286,6 @@
 		wisp.forceMove(user)
 		update_icon(UPDATE_ICON_STATE)
 		INVOKE_ASYNC(wisp, TYPE_PROC_REF(/atom/movable, orbit), user, 20)
-		set_light_on(FALSE)
 
 		user.update_sight()
 
@@ -300,7 +296,6 @@
 		balloon_alert(user, "дух возвращён")
 		wisp.stop_orbit()
 		wisp.forceMove(src)
-		set_light_on(TRUE)
 
 		user.update_sight()
 
@@ -313,11 +308,9 @@
 	update_icon(UPDATE_ICON_STATE)
 
 /obj/item/wisp_lantern/Destroy()
-	if(wisp)
-		if(wisp.loc == src)
-			qdel(wisp)
-		else
-			wisp.visible_message(span_notice("Дух огорчённо вздыхает, а затем улетает восвояси."))
+	if(wisp && wisp.loc != src)
+		wisp.visible_message(span_notice("Дух огорчённо вздыхает, а затем улетает восвояси."))
+	QDEL_NULL(wisp)
 	return ..()
 
 /obj/item/wisp_lantern/proc/update_user_sight(mob/user)
@@ -330,8 +323,13 @@
 	desc = "Счастливо освещает вам путь."
 	icon = 'icons/obj/lighting.dmi'
 	icon_state = "orb"
-	light_range = 7
+	light_range = 6
+	light_power = 1.2
+	light_color = "#79f1ff"
+	light_system = OVERLAY_LIGHT
+	light_flags = LIGHT_ATTACHED
 	layer = ABOVE_ALL_MOB_LAYER
+	plane = ABOVE_GAME_PLANE
 
 /obj/effect/wisp/get_ru_names()
 	return list(

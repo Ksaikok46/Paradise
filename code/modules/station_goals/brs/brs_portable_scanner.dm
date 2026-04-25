@@ -27,7 +27,6 @@
 	name = "Портативный сканер блюспейс разлома"
 	icon = 'icons/obj/machines/BRS/scanner_dynamic.dmi'
 	icon_state = "scanner"
-	luminosity = 1
 	max_integrity = 300
 	integrity_failure = 50
 

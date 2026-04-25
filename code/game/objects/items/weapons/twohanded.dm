@@ -290,7 +290,7 @@
 	light_power = 2
 	light_range = 2
 	light_on = FALSE
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	needs_permit = TRUE
 	var/static/list/colormap = list(red=COLOR_SOFT_RED, blue=LIGHT_COLOR_BLUE, green=LIGHT_COLOR_GREEN, purple=LIGHT_COLOR_PURPLE, yellow=LIGHT_COLOR_BRIGHT_YELLOW, pink =LIGHT_COLOR_PURPLE, orange =LIGHT_COLOR_ORANGE, darkblue=LIGHT_COLOR_BLUE, rainbow=LIGHT_COLOR_DEFAULT)
 
@@ -1037,7 +1037,7 @@
 	force_wielded = 25
 	block_chance = 50
 	block_type = MELEE_ATTACKS
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	light_range = 3
 	light_power = 6
 	siemens_coefficient = 0

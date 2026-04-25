@@ -88,7 +88,7 @@
 		return
 	SSticker.mode.add_clocker(mind)
 
-/mob/living/silicon/robot/drone/Destroy()
+/mob/living/silicon/robot/cogscarab/Destroy()
 	for(var/datum/action/innate/hide/drone/cogscarab/hide in actions)
 		hide.Remove(src)
 	return ..()
@@ -154,7 +154,7 @@
 	if(stat == CONSCIOUS)
 		add_overlay("eyes-[icon_state]")
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 
 /mob/living/silicon/robot/cogscarab/attackby(obj/item/I, mob/user, params)

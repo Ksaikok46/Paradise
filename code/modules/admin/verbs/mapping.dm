@@ -148,3 +148,20 @@ ADMIN_VERB(count_objects_all, R_DEBUG, "Count Objects All", "Counts the number o
 
 	to_chat(world, "There are [count] objects of type [type_path] in the game world.", confidential = TRUE)
 	BLACKBOX_LOG_ADMIN_VERB("Count Objects All")
+
+ADMIN_VERB_VISIBILITY(modify_lights, ADMIN_VERB_VISIBLITY_FLAG_MAPPING_DEBUG)
+ADMIN_VERB(modify_lights, R_DEBUG, "Toggle Light Debug", "Toggles light debug mode.", ADMIN_CATEGORY_MAPPING)
+	if(GLOB.light_debug_enabled)
+		undebug_light_sources()
+		return
+
+	for(var/obj/machinery/light/fix_up as anything in SSmachines.get_by_type(/obj/machinery/light))
+		// Only fix lights that started out fixed
+		if(initial(fix_up.status) == LIGHT_OK)
+			fix_up.fix()
+		CHECK_TICK
+	debug_light_sources()
+
+ADMIN_VERB_VISIBILITY(visualize_lights, ADMIN_VERB_VISIBLITY_FLAG_MAPPING_DEBUG)
+ADMIN_VERB(visualize_lights, R_DEBUG, "Visualize Lighting Corners", "Visualizes the corners of all lights on the station.", ADMIN_CATEGORY_MAPPING)
+	display_corners()

@@ -42,11 +42,10 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 /// Otherwise the lower turf might get shifted around, which is dumb. do this instead.
 /obj/effect/abstract/z_holder
 	name = null
-	invisibility = 0
-	layer = OBJ_LAYER
 	plane = HUD_PLANE
+	anchored = TRUE
+	move_resist = INFINITY
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	appearance_flags = PIXEL_SCALE
 
 	var/datum/z_pillar/pillar
 	var/turf/show_for
@@ -107,7 +106,7 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 		var/turf/visual_target = GET_TURF_ABOVE(to_display)
 		/// Basically, if we used to be under a non transparent turf, but are no longer in that position
 		/// Then we add to the transparent turf we're now under, and nuke the old object
-		if(!visual_target.transparent_floor)
+		if(!istransparentturf(visual_target))
 			return
 
 		holding.vis_contents -= to_display
@@ -122,7 +121,7 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 	sources |= source
 
 	var/turf/visual_target = GET_TURF_ABOVE(to_display)
-	if(visual_target.transparent_floor || isopenspaceturf(visual_target))
+	if(istransparentturf(visual_target) || isopenspaceturf(visual_target))
 		visual_target.vis_contents += to_display
 	else
 		var/obj/effect/abstract/z_holder/hold_this = new(visual_target)
@@ -167,7 +166,7 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 	if(holding)
 		return
 
-	if(parent.transparent_floor || isopenspaceturf(parent))
+	if(istransparentturf(parent) || isopenspaceturf(parent))
 		parent.vis_contents += orphan
 	else
 		var/obj/effect/abstract/z_holder/hold_this = new(parent)
@@ -187,8 +186,6 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 	RegisterSignal(target, COMSIG_TURF_MULTIZ_DEL, PROC_REF(on_multiz_turf_del))
 	RegisterSignal(target, COMSIG_TURF_MULTIZ_NEW, PROC_REF(on_multiz_turf_new))
 
-	ADD_TRAIT(our_turf, TURF_Z_TRANSPARENT_TRAIT, TURF_TRAIT)
-
 	if(!mapload)
 		update_multi_z(our_turf)
 
@@ -198,7 +195,6 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 	clear_multiz(our_turf)
 
 	UnregisterSignal(our_turf, list(COMSIG_TURF_MULTIZ_NEW, COMSIG_TURF_MULTIZ_DEL))
-	REMOVE_TRAIT(our_turf, TURF_Z_TRANSPARENT_TRAIT, TURF_TRAIT)
 
 /datum/element/turf_z_transparency/proc/on_multiz_turf_del(turf/our_turf, turf/below_turf, dir)
 	SIGNAL_HANDLER
@@ -232,10 +228,10 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 	// it will make them look significantly nicer, and should let you tie into their logic more easily
 	// Just please don't break behavior yeah? thanks, I love you <3
 	if(iswallturf(our_turf) || ismineralturf(our_turf)) //Show girders below closed turfs
-		var/mutable_appearance/girder_underlay = mutable_appearance('icons/obj/structures.dmi', "girder", layer = TRANSPARENT_GIRDER_LAYER)
+		var/mutable_appearance/girder_underlay = mutable_appearance('icons/obj/structures.dmi', "girder", layer = BELOW_CLOSED_TURF_LAYER)
 		girder_underlay.appearance_flags = RESET_ALPHA | RESET_COLOR
 		our_turf.underlays += girder_underlay
-		var/mutable_appearance/plating_underlay = mutable_appearance('icons/turf/floors.dmi', "plating", layer = TRANSPARENT_PLATING_LAYER)
+		var/mutable_appearance/plating_underlay = mutable_appearance('icons/turf/floors.dmi', "plating", layer = LOW_FLOOR_LAYER, offset_spokesman = our_turf, plane = FLOOR_PLANE)
 		plating_underlay.appearance_flags = RESET_ALPHA | RESET_COLOR
 		our_turf.underlays += plating_underlay
 	return TRUE
@@ -253,10 +249,10 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 		our_turf.underlays -= get_baseturf_underlay(our_turf)
 
 	if(iswallturf(our_turf)) //Show girders below closed turfs
-		var/mutable_appearance/girder_underlay = mutable_appearance('icons/obj/structures.dmi', "girder", layer = TURF_LAYER-0.01)
+		var/mutable_appearance/girder_underlay = mutable_appearance('icons/obj/structures.dmi', "girder", layer = BELOW_CLOSED_TURF_LAYER)
 		girder_underlay.appearance_flags = RESET_ALPHA | RESET_COLOR
 		our_turf.underlays -= girder_underlay
-		var/mutable_appearance/plating_underlay = mutable_appearance('icons/turf/floors.dmi', "plating", layer = TURF_LAYER-0.02)
+		var/mutable_appearance/plating_underlay = mutable_appearance('icons/turf/floors.dmi', "plating", layer = LOW_FLOOR_LAYER, offset_spokesman = our_turf, plane = FLOOR_PLANE)
 		plating_underlay.appearance_flags = RESET_ALPHA | RESET_COLOR
 		our_turf.underlays -= plating_underlay
 
@@ -268,7 +264,7 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 		if(!ispath(path))
 			warning("Z-level [our_turf.z] has invalid baseturf '[check_level_trait(our_turf.z, ZTRAIT_BASETURF)]'")
 			path = /turf/space
-	var/mutable_appearance/underlay_appearance = mutable_appearance(initial(path.icon), initial(path.icon_state), layer = TRANSPARENT_PLATING_LAYER, offset_spokesman = our_turf, plane = PLANE_SPACE)
+	var/mutable_appearance/underlay_appearance = mutable_appearance(initial(path.icon), initial(path.icon_state), layer = SPACE_LAYER + 0.1, offset_spokesman = our_turf, plane = PLANE_SPACE)
 	underlay_appearance.appearance_flags = RESET_ALPHA | RESET_COLOR
 	return underlay_appearance
 

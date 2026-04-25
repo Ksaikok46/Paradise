@@ -62,7 +62,7 @@
  *
  * Note: the following functions don't call the base for optimization and must copypasta handling:
  * * [/turf/proc/Initialize]
- * * [/turf/simulated/space/proc/Initialize]
+ * * [/turf/space/proc/Initialize]
  */
 /atom/proc/Initialize(mapload, ...)
 	SHOULD_NOT_SLEEP(TRUE)
@@ -85,7 +85,7 @@
 	if(color)
 		add_atom_colour(color, FIXED_COLOUR_PRIORITY)
 
-	if(light_system == STATIC_LIGHT && light_power && light_range)
+	if(light_system == COMPLEX_LIGHT && light_power && light_range)
 		update_light()
 
 	if(loc)

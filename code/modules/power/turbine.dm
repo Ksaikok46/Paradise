@@ -120,7 +120,6 @@
 		/mob/oranges_ear,
 		/obj/effect,
 		/obj/docking_port,
-		/atom/movable/lighting_object,
 	))
 
 /obj/machinery/power/turbine
@@ -403,7 +402,7 @@
 
 	// We just changed our composition
 	gas_heat_capacity = compressor_gas.heat_capacity()
-	
+
 	var/bearing_damage_ratio = (1 - compressor.bearing_damage / BEARING_DAMAGE_MAX)
 
 	// The portion of the thermal energy of the gas converted to kinetic energy

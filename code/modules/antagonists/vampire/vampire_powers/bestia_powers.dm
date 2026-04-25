@@ -1204,7 +1204,7 @@
 	if(QDELETED(user))
 		return
 
-	user_image.remove_light()
+	user_image.set_light(0)
 	var/obj/structure/closet/coffin/vampire/coffin = new(user_turf, user)
 	coffin.no_manipulation = TRUE
 	coffin.alpha = 0

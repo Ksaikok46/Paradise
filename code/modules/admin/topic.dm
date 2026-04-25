@@ -3264,6 +3264,7 @@
 				log_and_message_admins("broke all lights")
 				for(var/obj/machinery/light/L in SSmachines.get_by_type(/obj/machinery/light))
 					L.break_light_tube()
+					CHECK_TICK
 			if("whiteout")
 				if(!you_realy_want_do_this())
 					return
@@ -3272,6 +3273,7 @@
 				for(var/obj/machinery/light/L in SSmachines.get_by_type(/obj/machinery/light))
 					L.fix()
 					L.switchcount = 0
+					CHECK_TICK
 			if("floorlava")
 				if(!you_realy_want_do_this())
 					return

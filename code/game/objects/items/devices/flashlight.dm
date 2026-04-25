@@ -15,7 +15,7 @@
 	slot_flags = ITEM_SLOT_BELT
 	materials = list(MAT_METAL=50, MAT_GLASS=20)
 	actions_types = list(/datum/action/item_action/toggle_light)
-	light_system = MOVABLE_LIGHT_DIRECTIONAL
+	light_system = OVERLAY_LIGHT_DIRECTIONAL
 	light_range = 4
 	light_on = FALSE
 	light_color = COLOR_LIGHT_YELLOW
@@ -24,6 +24,8 @@
 	var/on = FALSE
 	/// The sound the light makes when it's turned on/off
 	var/togglesound = 'sound/weapons/empty.ogg'
+	/// When true, painting the flashlight won't change its light color
+	var/ignore_base_color = FALSE
 
 /obj/item/flashlight/get_ru_names()
 	return list(
@@ -37,7 +39,7 @@
 
 /obj/item/flashlight/dummy
 	name = "Testing flashlight"
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 
 /obj/item/flashlight/dummy/get_ru_names()
 	return list(
@@ -62,7 +64,7 @@
 		icon_state = "[initial(icon_state)]"
 
 /obj/item/flashlight/proc/update_brightness()
-	if(light_system == STATIC_LIGHT)
+	if(light_system == COMPLEX_LIGHT)
 		update_light()
 	set_light_on(on)
 	update_icon()
@@ -119,7 +121,7 @@
 			var/obj/item/organ/internal/eyes/eyes = human_target.get_int_organ(/obj/item/organ/internal/eyes)
 			if(human_target.stat == DEAD || !eyes || HAS_TRAIT(human_target, TRAIT_BLIND))	//mob is dead or fully blind
 				to_chat(user, span_notice("Зрачки [human_target.declent_ru(GENITIVE)] не реагируют на свет!"))
-			else if(HAS_TRAIT(human_target, TRAIT_XRAY) || human_target.nightvision >= 8) //The mob's either got the X-RAY vision or has a tapetum lucidum (extreme nightvision, i.e. Vulp/Tajara with COLOURBLIND & their monkey forms).
+			else if(HAS_TRAIT(human_target, TRAIT_XRAY_VISION) || human_target.lighting_cutoff >= LIGHTING_CUTOFF_HIGH) //The mob's either got the X-RAY vision or has a tapetum lucidum (extreme nightvision, i.e. Vulp/Tajara with COLOURBLIND & their monkey forms).
 				to_chat(user, span_notice("Зрачки [human_target.declent_ru(GENITIVE)] угрожающе светятся!"))
 			else //they're okay!
 				if(human_target.flash_eyes(visual = TRUE))
@@ -131,6 +133,16 @@
 		update_brightness()
 		update_equipped_item()
 
+/obj/item/flashlight/update_atom_colour()
+	. = ..()
+	if(ignore_base_color)
+		return
+	var/list/applied_matrix = cached_color_filter
+	if(!applied_matrix)
+		applied_matrix = color_transition_filter(color, SATURATION_OVERRIDE)
+	var/new_light_color = apply_matrix_to_color(initial(light_color), applied_matrix["color"], applied_matrix["space"] || COLORSPACE_RGB)
+	set_light_color(new_light_color)
+
 /obj/item/flashlight/pen
 	name = "penlight"
 	desc = "Небольшой фонарь в форме ручки. Используется медицинским персоналом."
@@ -140,7 +152,7 @@
 	belt_icon = "penlight"
 	w_class = WEIGHT_CLASS_TINY
 	slot_flags = ITEM_SLOT_BELT|ITEM_SLOT_EARS
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	light_range = 2
 
 /obj/item/flashlight/pen/get_ru_names()
@@ -221,7 +233,9 @@
 	gender = FEMALE
 	icon_state = "lamp"
 	item_state = "lamp"
-	light_range = 5
+	light_range = 3.5
+	light_system = COMPLEX_LIGHT
+	light_color = LIGHT_COLOR_FAINT_BLUE
 	w_class = WEIGHT_CLASS_BULKY
 	materials = list()
 	on = TRUE
@@ -281,7 +295,7 @@
 	desc = "Ручной аварийный источник света. Заполнен пиротехническим составом, который поджигается \
 			при активации, давая яркое пламя красного цвета."
 	light_range = 8
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	light_color = "#ff0000"
 	icon_state = "flare"
 	item_state = "flare"
@@ -419,7 +433,7 @@
 	produce_heat = 0
 	fuel_lower = 1600
 	fuel_upp = 2000
-	blocks_emissive = FALSE
+	blocks_emissive = EMISSIVE_BLOCK_NONE
 	var/chemglow_sprite_type = "green"
 
 /obj/item/flashlight/flare/glowstick/get_ru_names()
@@ -589,7 +603,7 @@
 	icon_state = "slime"
 	w_class = WEIGHT_CLASS_TINY
 	light_range = 6
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	light_color = "#FFBF00"
 	materials = list()
 	on = TRUE //Bio-luminesence has one setting, on.
@@ -671,7 +685,7 @@
 	name = "disco light"
 	desc = "Groovy..."
 	icon_state = null
-	light_system = STATIC_LIGHT
+	light_system = COMPLEX_LIGHT
 	light_color = null
 	light_range = 0
 	light_power = 10

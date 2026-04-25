@@ -7,6 +7,10 @@
 	var/description
 	/// If true this was initialized with no set direction - will follow the parent dir.
 	var/directional
+	/// The base icon state that this decal was initialized with.
+	var/base_icon_state
+	/// What smoothing junction this was initialized with.
+	var/smoothing
 	/// The overlay applied by this decal to the target.
 	var/mutable_appearance/pic
 
@@ -40,28 +44,40 @@
 	if(directional) //Even when the dirs are the same rotation is coming out as not 0 for some reason
 		rotation = SIMPLIFY_DEGREES(dir2angle(new_dir)-dir2angle(old_dir))
 		new_dir = turn(pic.dir, -rotation)
+
+	var/pic_color = pic.color
+	if(islist(pic_color))
+		pic_color = string_list(pic_color)
+
 	return list(
 		"icon" = pic.icon,
-		"icon_state" = pic.icon_state,
+		"icon_state" = base_icon_state,
 		"dir" = new_dir,
 		"plane" = pic.plane,
 		"layer" = pic.layer,
 		"alpha" = pic.alpha,
-		"color" = pic.color,
+		"color" = pic_color,
+		"smoothing" = smoothing,
 		"cleanable" = cleanable,
 		"desc" = description
 	)
 
-/datum/element/decal/Attach(atom/target, _icon, _icon_state, _dir, _plane = FLOAT_PLANE, _layer = FLOAT_LAYER, _alpha = 255, _color, _cleanable = CLEAN_GOD, _description, mutable_appearance/_pic)
+/datum/element/decal/Attach(atom/target, _icon, _icon_state, _dir, _plane = FLOAT_PLANE, _layer = FLOAT_LAYER, _alpha = 255, _color, _smoothing, _cleanable = CLEAN_GOD, _description, mutable_appearance/_pic)
 	. = ..()
 	if(!isatom(target))
 		return ELEMENT_INCOMPATIBLE
+	// Color matrixes should be stringlisted as to avoid dupes
+	if(islist(_color))
+		_color = string_list(_color)
 	if(_pic)
 		pic = _pic
-	else if(!generate_appearance(_icon, _icon_state, _dir, _plane, _layer, _color, _alpha, target))
+	else if(!generate_appearance(_icon, _icon_state, _dir, _plane, _layer, _color, _alpha, _smoothing, target))
 		return ELEMENT_INCOMPATIBLE
 	description = _description
 	cleanable = _cleanable
+	directional = _dir
+	base_icon_state = _icon_state
+	smoothing = _smoothing
 
 	RegisterSignal(target, COMSIG_ATOM_UPDATE_OVERLAYS, PROC_REF(apply_overlay), TRUE)
 	if(target.flags & INITIALIZED)
@@ -73,6 +89,8 @@
 	if(_dir)
 		RegisterSignal(target, COMSIG_ATOM_DECALS_ROTATING, PROC_REF(shuttle_rotate), TRUE)
 		SSdcs.RegisterSignal(target, COMSIG_ATOM_DIR_CHANGE, TYPE_PROC_REF(/datum/controller/subsystem/processing/dcs, rotate_decals), override=TRUE)
+	//if(!isnull(_smoothing))
+	//	RegisterSignal(target, COMSIG_ATOM_SMOOTHED_ICON, PROC_REF(smooth_react), TRUE)
 	if(_cleanable)
 		RegisterSignal(target, COMSIG_COMPONENT_CLEAN_ACT, PROC_REF(clean_react), TRUE)
 	if(_description)
@@ -88,10 +106,15 @@
  * all args are fed into creating an image, they are byond vars for images you'll recognize in the byond docs
  * (except source, source is the object whose appearance we're copying.)
  */
-/datum/element/decal/proc/generate_appearance(_icon, _icon_state, _dir, _plane, _layer, _color, _alpha, source)
+/datum/element/decal/proc/generate_appearance(_icon, _icon_state, _dir, _plane, _layer, _color, _alpha, _smoothing, source)
 	if(!_icon || !_icon_state)
 		return FALSE
-	var/temp_image = image(_icon, null, _icon_state, _layer, _dir)
+
+	if(_plane == EMISSIVE_PLANE)
+		pic = emissive_appearance(_icon, isnull(_smoothing) ? _icon_state : "[_icon_state]-[_smoothing]", source, _layer, _alpha)
+		return TRUE
+
+	var/temp_image = image(_icon, null, isnull(_smoothing) ? _icon_state : "[_icon_state]-[_smoothing]", _layer, _dir)
 	pic = new(temp_image)
 	var/atom/atom_source = source
 	SET_PLANE_EXPLICIT(pic, _plane, atom_source)
@@ -100,11 +123,12 @@
 	return TRUE
 
 /datum/element/decal/Detach(atom/source)
-	UnregisterSignal(source, list(COMSIG_ATOM_DIR_CHANGE, COMSIG_COMPONENT_CLEAN_ACT, COMSIG_PARENT_EXAMINE, COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_TURF_ON_SHUTTLE_MOVE))
+	UnregisterSignal(source, list(COMSIG_ATOM_DIR_CHANGE, COMSIG_COMPONENT_CLEAN_ACT, COMSIG_ATOM_EXAMINE, COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_TURF_ON_SHUTTLE_MOVE, COMSIG_ATOM_SMOOTHED_ICON, COMSIG_ATOM_DECALS_ROTATING))
 	SSdcs.UnregisterSignal(source, COMSIG_ATOM_DIR_CHANGE)
 	source.update_appearance(UPDATE_OVERLAYS)
 	if(isitem(source))
-		INVOKE_ASYNC(source, TYPE_PROC_REF(/obj/item, update_equipped_item))
+		INVOKE_ASYNC(source, TYPE_PROC_REF(/obj/item/, update_slot_icon))
+	SEND_SIGNAL(source, COMSIG_TURF_DECAL_DETACHED, description, cleanable, directional, pic)
 	return ..()
 
 /datum/element/decal/proc/late_update_icon(atom/source)

@@ -308,7 +308,7 @@
 		stack_trace("Invalid target in CanAttack(): [the_target]")
 		return FALSE
 
-	if(isturf(the_target) || !the_target || the_target.type == /atom/movable/lighting_object) // bail out on invalids
+	if(isturf(the_target) || !the_target) // bail out on invalids
 		return FALSE
 
 	if(ismob(the_target)) //Target is in godmode, ignore it.

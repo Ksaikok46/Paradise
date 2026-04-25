@@ -583,7 +583,6 @@
 
 		// Always do this stuff as it ensures that the destination turfs still behave properly with the rest of the shuttle transit
 		/* UPDATE ATMOS & LIGHT */
-		newT.lighting_build_overlay()
 		newT.recalculate_atmos_connectivity()
 
 		if(!should_transit)

@@ -27,7 +27,9 @@
 	layer = MASSIVE_OBJ_PLANE
 	alpha = 250
 	blend_mode = BLEND_ADD
-	light_range = 2
+	light_range = LIGHT_RANGE_FIRE
+	light_power = 1
+	light_color = LIGHT_COLOR_FIRE
 
 	var/volume = 125
 	var/temperature = FIRE_MINIMUM_TEMPERATURE_TO_EXIST
@@ -133,7 +135,6 @@
 	var/new_light_color = rgb(r, g, b)
 
 	if(isnull(light_color))
-		light_color = new_light_color
 		set_light_color(new_light_color)
 	else
 		var/list/light_rgb = rgb2num(light_color)
@@ -143,7 +144,6 @@
 
 		if(r_delta > 10 || g_delta > 10 || b_delta > 10)
 			set_light_color(new_light_color)
-			light_color = new_light_color
 
 	heat_r /= 255
 	heat_g /= 255

@@ -73,13 +73,13 @@
 	///Cast range for the directional cast (how far away the atom is moved)
 	var/cast_range = 2
 
-/datum/component/overlay_lighting/Initialize(_range, _power, _color, starts_on, is_directional)
+/datum/component/overlay_lighting/Initialize(_range, _power, _color, starts_on, is_directional, is_beam, force)
 	if(!ismovable(parent))
 		return COMPONENT_INCOMPATIBLE
 
 	var/atom/movable/movable_parent = parent
-	if(movable_parent.light_system != MOVABLE_LIGHT && movable_parent.light_system != MOVABLE_LIGHT_DIRECTIONAL)
-		stack_trace("[type] added to [parent], with [movable_parent.light_system] value for the light_system var. Use [MOVABLE_LIGHT] or [MOVABLE_LIGHT_DIRECTIONAL] instead.")
+	if(!force && movable_parent.light_system != OVERLAY_LIGHT && movable_parent.light_system != OVERLAY_LIGHT_DIRECTIONAL)
+		stack_trace("[type] added to [parent], with [movable_parent.light_system] value for the light_system var. Use [OVERLAY_LIGHT] or [OVERLAY_LIGHT_DIRECTIONAL] instead.")
 		return COMPONENT_INCOMPATIBLE
 
 	. = ..()
@@ -88,12 +88,14 @@
 	SET_PLANE_EXPLICIT(visible_mask, O_LIGHTING_VISUAL_PLANE, movable_parent)
 	visible_mask.appearance_flags = RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
 	visible_mask.alpha = 0
+	visible_mask.blend_mode = BLEND_ADD
 	if(is_directional)
 		directional = TRUE
 		cone = image('icons/effects/light_overlays/light_cone.dmi', icon_state = "light")
 		SET_PLANE_EXPLICIT(cone, O_LIGHTING_VISUAL_PLANE, movable_parent)
 		cone.appearance_flags = RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
 		cone.alpha = 110
+		cone.blend_mode = BLEND_ADD
 		cone.transform = cone.transform.Translate(-32, -32)
 		set_direction(movable_parent.dir)
 	if(!isnull(_range))
@@ -257,6 +259,9 @@
 ///Used to determine the new valid current_holder from the parent's loc.
 /datum/component/overlay_lighting/proc/check_holder()
 	var/atom/movable/movable_parent = GET_PARENT
+	if(QDELETED(movable_parent))
+		set_holder(null)
+		return
 	if(isturf(movable_parent.loc))
 		set_holder(movable_parent)
 		return
@@ -265,7 +270,11 @@
 		set_holder(null)
 		return
 	if(isturf(inside.loc))
-		set_holder(inside)
+		// storage items block light, also don't be moving into a qdeleted item
+		if(QDELETED(inside) || istype(inside, /obj/item/storage))
+			set_holder(null)
+		else
+			set_holder(inside)
 		return
 	set_holder(null)
 
@@ -273,6 +282,7 @@
 /datum/component/overlay_lighting/proc/on_holder_qdel(atom/movable/source, force)
 	SIGNAL_HANDLER
 	if(QDELETED(current_holder))
+		set_holder(null)
 		return
 	UnregisterSignal(current_holder, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED))
 	if(directional)
@@ -312,6 +322,8 @@
 ///Called when the current_holder is qdeleted, to remove the light effect.
 /datum/component/overlay_lighting/proc/on_parent_attached_to_qdel(atom/movable/source, force)
 	SIGNAL_HANDLER
+	if(isnull(parent_attached_to))
+		return
 	UnregisterSignal(parent_attached_to, list(COMSIG_QDELETING, COMSIG_MOVABLE_MOVED))
 	if(directional)
 		UnregisterSignal(parent_attached_to, COMSIG_ATOM_DIR_CHANGE)
@@ -364,13 +376,15 @@
 	if(current_holder && overlay_lighting_flags & LIGHTING_ON)
 		current_holder.underlays -= visible_mask
 	visible_mask.alpha = set_alpha
+	visible_mask.blend_mode = new_power > 0 ? BLEND_ADD : BLEND_SUBTRACT
 	if(current_holder && overlay_lighting_flags & LIGHTING_ON)
 		current_holder.underlays += visible_mask
 	if(!directional)
 		return
 	if(current_holder && overlay_lighting_flags & LIGHTING_ON)
 		current_holder.underlays -= cone
-	cone.alpha = min(200, (abs(new_power) * 90)+20)
+	cone.alpha = min(120, (abs(new_power) * 60) + 15)
+	cone.blend_mode = new_power > 0 ? BLEND_ADD : BLEND_SUBTRACT
 	if(current_holder && overlay_lighting_flags & LIGHTING_ON)
 		current_holder.underlays += cone
 

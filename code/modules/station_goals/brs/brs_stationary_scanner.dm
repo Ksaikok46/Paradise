@@ -30,7 +30,6 @@
 	pixel_x = -32
 	pixel_y = -32
 	density = TRUE
-	luminosity = 1
 	max_integrity = 500
 	integrity_failure = 100
 

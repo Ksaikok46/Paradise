@@ -53,6 +53,7 @@
 	milla_freeze.invoke_async(T.z)
 	UNTIL(milla_freeze.done)
 	SSicon_smooth.add_halt_source(src)
+	var/list/turf/turfs = block(ST_bot_left, ST_top_right)
 	try
 		var/list/bounds = GLOB.maploader.load_map(get_file(), min_x, min_y, placement.z, shouldCropMap = TRUE)
 		if(!bounds)
@@ -65,15 +66,23 @@
 		SSicon_smooth.remove_halt_source(src)
 		GLOB.space_manager.remove_dirt(placement.z)
 		var/datum/milla_safe_must_sleep/late_setup_level/milla = new()
-		milla.invoke_async(bot_left, top_right, block(ST_bot_left, ST_top_right))
+		milla.invoke_async(bot_left, top_right, turfs)
 		message_admins("Map template [name] threw an error while loading. Safe exit attempted, but check for errors at [ADMIN_COORDJMP(placement)].")
 		log_admin("Map template [name] threw an error while loading. Safe exit attempted.")
 		throw e
 
+	for(var/turf/unlit as anything in turfs)
+		if(unlit.always_lit)
+			continue
+		var/area/loc_area = unlit.loc
+		if(!loc_area.static_lighting)
+			continue
+		unlit.lighting_build_overlay()
+
 	SSicon_smooth.remove_halt_source(src)
 	GLOB.space_manager.remove_dirt(placement.z)
 	var/datum/milla_safe_must_sleep/late_setup_level/milla = new()
-	milla.invoke_async(bot_left, top_right, block(ST_bot_left, ST_top_right))
+	milla.invoke_async(bot_left, top_right, turfs)
 	add_game_logs("[name] loaded at [min_x],[min_y],[placement.z]")
 	return 1
 

@@ -99,15 +99,22 @@
 	var/greyscale_colors
 
 	///Light systems, both shouldn't be active at the same time.
-	var/light_system = STATIC_LIGHT
+	var/light_system = COMPLEX_LIGHT
 	///Range of the light in tiles. Zero means no light.
 	var/light_range = 0
 	///Intensity of the light. The stronger, the less shadows you will see on the lit area.
 	var/light_power = 1
 	///Hexadecimal RGB string representing the colour of the light. White by default.
 	var/light_color = COLOR_WHITE
+	/// Angle of light to show in light_dir
+	/// 360 is a circle, 90 is a cone, etc.
+	var/light_angle = 360
+	/// What angle to project light in
+	var/light_dir = NORTH
 	///Boolean variable for toggleable lights. Has no effect without the proper light_system, light_range and light_power values.
 	var/light_on = TRUE
+	/// How many tiles "up" this light is. 1 is typical, should only really change this if it's a floor light
+	var/light_height = LIGHTING_HEIGHT
 	///Bitflags to determine lighting-related atom properties.
 	var/light_flags = NONE
 	///Our light source. Don't fuck with this directly unless you have a good reason!
@@ -1135,9 +1142,11 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 /atom/proc/get_remote_view_fullscreens(mob/user)
 	return
 
-//the sight changes to give to the mob whose perspective is set to that atom (e.g. A mob with nightvision loses its nightvision while looking through a normal camera)
+/**
+ * The sight changes to give to the mob whose perspective is set to that atom
+ * (e.g. A mob with nightvision loses its nightvision while looking through a normal camera)
+ */
 /atom/proc/update_remote_sight(mob/living/user)
-	user.sync_lighting_plane_alpha()
 	return
 
 /atom/proc/isinspace()
@@ -1208,7 +1217,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 		var/image/I = image('icons/mob/talk.dmi', src, "[bubble_icon][say_test(message)]", FLY_LAYER)
 		SET_PLANE_EXPLICIT(I, ABOVE_GAME_PLANE, src)
 		I.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
-		INVOKE_ASYNC(GLOBAL_PROC, /proc/flick_overlay, I, speech_bubble_hearers, 30)
+		INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(flick_overlay_global), I, speech_bubble_hearers, 30)
 
 /atom/proc/select_voice(mob/user, silent_target = FALSE, override = FALSE)
 	if(!ismob(src) && !user)
@@ -1264,30 +1273,47 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
  */
 /atom/vv_edit_var(var_name, var_value)
 	var/old_light_flags = light_flags
+	// Disable frozen lights for now, so we can actually modify it
+	light_flags &= ~LIGHT_FROZEN
 	switch(var_name)
 		if(NAMEOF(src, light_range))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_range = var_value)
 			else
 				set_light_range(var_value)
 			. = TRUE
 
 		if(NAMEOF(src, light_power))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_power = var_value)
 			else
 				set_light_power(var_value)
 			. = TRUE
 
 		if(NAMEOF(src, light_color))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_color = var_value)
 			else
 				set_light_color(var_value)
 			. = TRUE
 
+		if(NAMEOF(src, light_angle))
+			if(light_system == COMPLEX_LIGHT)
+				set_light(l_angle = var_value)
+				. = TRUE
+
+		if(NAMEOF(src, light_dir))
+			if(light_system == COMPLEX_LIGHT)
+				set_light(l_dir = var_value)
+				. = TRUE
+
+		if(NAMEOF(src, light_height))
+			if(light_system == COMPLEX_LIGHT)
+				set_light(l_height = var_value)
+				. = TRUE
+
 		if(NAMEOF(src, light_on))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_on = var_value)
 			else
 				set_light_on(var_value)
@@ -1633,19 +1659,6 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	SEND_SIGNAL(src, COMSIG_ATOM_SET_DENSITY, new_density)
 	. = density
 	density = new_density
-
-/**
- * Updates the atom's opacity value.
- *
- * This exists to act as a hook for associated behavior.
- * It notifies (potentially) affected light sources so they can update (if needed).
- */
-/atom/proc/set_opacity(new_opacity)
-	if(new_opacity == opacity)
-		return
-	SEND_SIGNAL(src, COMSIG_ATOM_SET_OPACITY, new_opacity)
-	. = opacity
-	opacity = new_opacity
 
 ///Setter for the `base_pixel_x` variable to append behavior related to its changing.
 /atom/proc/set_base_pixel_x(new_value)

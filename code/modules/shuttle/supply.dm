@@ -100,9 +100,6 @@
 			if(!A.simulated)
 				continue
 
-			if(is_light(A))
-				continue
-
 			if(istype(A, /obj/machinery/light))
 				continue //hacky but whatever, shuttles need three spots each for this shit
 			contcount++

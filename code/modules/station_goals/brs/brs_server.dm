@@ -28,7 +28,6 @@
 	icon_state = "scan_server"
 	anchored = TRUE
 	density = TRUE
-	luminosity = 1
 	max_integrity = 350
 	integrity_failure = 150
 

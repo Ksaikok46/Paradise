@@ -94,8 +94,15 @@
 	main_group.attach_to(src)
 
 	for(var/mytype in subtypesof(/atom/movable/plane_master_controller))
-		var/atom/movable/plane_master_controller/controller_instance = new mytype(src)
+		var/atom/movable/plane_master_controller/controller_instance = new mytype(null, src)
 		plane_master_controllers[controller_instance.name] = controller_instance
+
+	owner.overlay_fullscreen("see_through_darkness", /atom/movable/screen/fullscreen/see_through_darkness)
+
+	// Register onto the global spacelight appearances
+	// So they can be render targeted by anything in the world
+	for(var/obj/starlight_appearance/starlight as anything in GLOB.starlight_objects)
+		register_reuse(starlight)
 
 	screentip_text = new(null, src)
 	static_inventory += screentip_text
@@ -176,6 +183,8 @@
 
 /datum/hud/proc/on_eye_change(datum/source, atom/old_eye, atom/new_eye)
 	SIGNAL_HANDLER
+	SEND_SIGNAL(src, COMSIG_HUD_EYE_CHANGED, old_eye, new_eye)
+
 	if(old_eye)
 		UnregisterSignal(old_eye, COMSIG_MOVABLE_Z_CHANGED)
 	if(new_eye)
@@ -222,6 +231,8 @@
 
 /datum/hud/proc/on_plane_increase(datum/source, old_max_offset, new_max_offset)
 	SIGNAL_HANDLER
+	for(var/i in old_max_offset + 1 to new_max_offset)
+		register_reuse(GLOB.starlight_objects[i + 1])
 	build_plane_groups(old_max_offset + 1, new_max_offset)
 
 /// Creates the required plane masters to fill out new z layers (because each "level" of multiz gets its own plane master set)
@@ -334,7 +345,7 @@
 	reorganize_alerts()
 	reload_fullscreen()
 	if(screenmob == mymob)
-		update_parallax_pref(screenmob)
+		update_parallax_pref()
 	else
 		viewmob.hud_used.update_parallax_pref()
 

@@ -9,7 +9,6 @@
 	icon_state = "miningradio"
 	desc = "Метеорологическое радио, предназначенное для использования в неблагоприятных условиях. Подает звуковые предупреждения о приближении шторма. Имеет доступ к каналу карго."
 	freqlock = TRUE
-	luminosity = 1
 	light_range = 1.6
 	/// Currently displayed warning level
 	var/warning_level = WEATHER_ALERT_CLEAR
@@ -21,7 +20,7 @@
 	var/state_warning = "urgentwarning"
 	/// Overlay added when you are in danger
 	var/state_danger = "direwarning"
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 
 /obj/item/radio/weather_monitor/get_ru_names()
 	return list(

@@ -10,7 +10,7 @@
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF | FREEZE_PROOF
 	light_range = 5
 	light_color = COLOR_VIVID_YELLOW
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	move_resist = INFINITY
 	var/list/possible_dirs
 	///Cooldown on the expansion process
@@ -28,7 +28,7 @@
 	var/turf/our_turf = get_turf(src)
 
 	if(our_turf)
-		our_turf.opacity = FALSE
+		our_turf.set_opacity(FALSE)
 		possible_dirs = is_multi_z_level(our_turf.z)? GLOB.cardinals_multiz.Copy() : GLOB.cardinal.Copy()
 		possible_dirs -= dir_to_remove
 

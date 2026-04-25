@@ -170,7 +170,7 @@
 	slowdown_active = SHOES_SLOWDOWN //wiz hardsuit already slows you down, no need to double it
 	magpulse_name = "gripping ability"
 	magical = TRUE
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	light_on = FALSE
 	light_range = 2
 
