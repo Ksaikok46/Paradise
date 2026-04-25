@@ -177,35 +177,6 @@
 	user.visible_message(span_warning("[user] появляется из ниоткуда!"), \
 						span_shadowling("Ваша теневая маскировка исчезает."))
 
-/obj/effect/proc_holder/spell/shadowling_vision
-	name = "Shadowling Darksight"
-	desc = "Дарует вам ночное зрение."
-	base_cooldown = 0
-	clothes_req = FALSE
-	action_icon_state = "darksight"
-
-/obj/effect/proc_holder/spell/shadowling_vision/Destroy()
-	action?.owner?.set_vision_override(null)
-	return ..()
-
-/obj/effect/proc_holder/spell/shadowling_vision/create_new_targeting()
-	return new /datum/spell_targeting/self
-
-/obj/effect/proc_holder/spell/shadowling_vision/cast(list/targets, mob/living/carbon/human/user = usr)
-	if(!istype(user))
-		return
-
-	if(!user.vision_type)
-		to_chat(user, span_notice("Вы изменяете положение нервных волокон в глазах, что позволяет вам видеть в темноте."))
-		user.set_vision_override(/datum/vision_override/nightvision)
-	else
-		to_chat(user, span_notice("Вы возвращаете нормальное зрение."))
-		user.set_vision_override(null)
-
-/obj/effect/proc_holder/spell/shadowling_vision/thrall
-	desc = "Thrall Darksight"
-	desc = "Дарует вам возможность видеть в темноте."
-
 /obj/effect/proc_holder/spell/aoe/shadowling_icy_veins
 	name = "Icy Veins"
 	desc = "Моментально замораживает кровь ближайших существ, оглушает их и наносит термические повреждения."
@@ -350,7 +321,7 @@
 	)
 	user.set_species(/datum/species/shadow/ling)
 	user.adjustCloneLoss(-(user.getCloneLoss()))
-	user.set_vision_override(/datum/vision_override/nightvision) // nighvision withot button
+	user.lighting_cutoff = LIGHTING_CUTOFF_HIGH // nighvision withot button
 	var/obj/item/organ/internal/cyberimp/eyes/eyes
 	eyes = new /obj/item/organ/internal/cyberimp/eyes/thermals/ling(null) // thermal without item
 	eyes.insert(user)

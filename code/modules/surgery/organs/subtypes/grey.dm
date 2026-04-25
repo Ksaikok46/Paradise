@@ -48,7 +48,6 @@
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Даже в таком виде они выглядят абсолютно пустыми и безэмоциональными."
 	icon = 'icons/obj/species_organs/grey.dmi'
 	item_state = "grey_eyes"
-	see_in_dark = 3
 	examine_mod = EXAMINE_INSTANT // Insta carbon examine
 
 /obj/item/organ/internal/eyes/grey/get_ru_names()

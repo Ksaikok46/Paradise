@@ -10,8 +10,11 @@
 	icon_dead = "shade_dead"
 	speed = 0
 	stop_automated_movement = TRUE
-	nightvision = 8
 	see_invisible = SEE_INVISIBLE_HIDDEN_RUNES
+	// Vivid red, cause cult theme
+	lighting_cutoff_red = 30
+	lighting_cutoff_green = 5
+	lighting_cutoff_blue = 20
 	attack_sound = 'sound/weapons/punch1.ogg'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	faction = list("cult")
@@ -52,6 +55,10 @@
 	. = ..()
 	if(holy)
 		ADD_TRAIT(src, TRAIT_HEALS_FROM_HOLY_PYLONS, INNATE_TRAIT)
+		// blue
+		lighting_cutoff_red = 5
+		lighting_cutoff_green = 20
+		lighting_cutoff_blue = 30
 	else
 		ADD_TRAIT(src, TRAIT_HEALS_FROM_CULT_PYLONS, INNATE_TRAIT)
 	ADD_TRAIT(src, TRAIT_NO_FLOATING_ANIM, INNATE_TRAIT)
@@ -130,7 +137,7 @@
 	mob_size = MOB_SIZE_LARGE
 	move_resist = MOVE_FORCE_STRONG
 	pull_force = MOVE_FORCE_STRONG
-	construct_spells = list(/obj/effect/proc_holder/spell/night_vision, /obj/effect/proc_holder/spell/aoe/conjure/build/lesserforcewall)
+	construct_spells = list(/obj/effect/proc_holder/spell/aoe/conjure/build/lesserforcewall)
 	force_threshold = 11
 	playstyle_string = "<b>You are a Juggernaut. Though slow, your shell can withstand extreme punishment, \
 						create shield walls, rip apart enemies and walls alike, and even deflect energy weapons.</b>"
@@ -161,7 +168,7 @@
 	faction = list("neutral")
 	icon_state = "holy_juggernaut"
 	icon_living = "holy_juggernaut"
-	construct_spells = list(/obj/effect/proc_holder/spell/night_vision, /obj/effect/proc_holder/spell/aoe/conjure/build/lesserforcewall/holy)
+	construct_spells = list(/obj/effect/proc_holder/spell/aoe/conjure/build/lesserforcewall/holy)
 	holy = TRUE
 
 ////////////////////////Wraith/////////////////////////////////////////////
@@ -180,7 +187,7 @@
 	attacktext = "рубит"
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	construct_type = "wraith"
-	construct_spells = list(/obj/effect/proc_holder/spell/night_vision, /obj/effect/proc_holder/spell/ethereal_jaunt/shift)
+	construct_spells = list(/obj/effect/proc_holder/spell/ethereal_jaunt/shift)
 	retreat_distance = 2 //AI wraiths will move in and out of combat
 	playstyle_string = "<b>You are a Wraith. Though relatively fragile, you are fast, deadly, and even able to phase through walls.</b>"
 	tts_seed = "Kelthuzad"
@@ -198,7 +205,7 @@
 	icon_state = "holy_shifter"
 	icon_living = "holy_shifter"
 	holy = TRUE
-	construct_spells = list(/obj/effect/proc_holder/spell/night_vision, /obj/effect/proc_holder/spell/ethereal_jaunt/shift/holy)
+	construct_spells = list(/obj/effect/proc_holder/spell/ethereal_jaunt/shift/holy)
 
 /////////////////////////////Artificer/////////////////////////
 
@@ -223,7 +230,6 @@
 	attack_sound = 'sound/weapons/punch2.ogg'
 	construct_type = "builder"
 	construct_spells = list(
-		/obj/effect/proc_holder/spell/night_vision,
 		/obj/effect/proc_holder/spell/projectile/magic_missile/lesser,
 		/obj/effect/proc_holder/spell/aoe/conjure/construct/lesser,
 		/obj/effect/proc_holder/spell/aoe/conjure/build/wall,
@@ -287,7 +293,6 @@
 	icon_living = "holy_artificer"
 	holy = TRUE
 	construct_spells = list(
-		/obj/effect/proc_holder/spell/night_vision,
 		/obj/effect/proc_holder/spell/projectile/magic_missile/lesser,
 		/obj/effect/proc_holder/spell/aoe/conjure/construct/lesser/holy,
 		/obj/effect/proc_holder/spell/aoe/conjure/build/wall/holy,
@@ -344,7 +349,6 @@
 	attack_sound = 'sound/weapons/tap.ogg'
 	construct_type = "harvester"
 	construct_spells = list(
-		/obj/effect/proc_holder/spell/night_vision,
 		/obj/effect/proc_holder/spell/aoe/conjure/build/wall,
 		/obj/effect/proc_holder/spell/aoe/conjure/build/floor,
 		/obj/effect/proc_holder/spell/smoke/disable,

@@ -2,7 +2,6 @@
 	species_type = /datum/species/shadow
 	name = "shadow orbs"
 	desc = "Две тёмные сферы, напоминающие человеческие глаза. Судя по всему, эти принадлежали тени."
-	see_in_dark = 8
 
 /obj/item/organ/internal/eyes/shadow/get_ru_names()
 	return list(

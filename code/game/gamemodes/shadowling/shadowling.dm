@@ -131,7 +131,6 @@ Made by Xhuis
 		new_thrall_mind.current.add_language(LANGUAGE_HIVE_SHADOWLING)
 		//If you add spells to thrall, be sure to remove them on dethrallize
 		new_thrall_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_guise(null))
-		new_thrall_mind.AddSpell(new /obj/effect/proc_holder/spell/shadowling_vision/thrall(null))
 		var/list/messages = list()
 		messages.Add(span_shadowling("><b>Ты видишь правду. Ты понимаешь, каким дураком ты был..</b>"))
 		messages.Add(span_shadowling("<b>Тенелинги — твои хозяева.</b> Служи им превыше всего и следите за тем, чтобы они достигли своих целей."))
@@ -178,7 +177,6 @@ Made by Xhuis
 	update_shadow_icons_removed(thrall_mind)
 	//If you add spells to thrall, be sure to remove them on dethrallize
 	thrall_mind.RemoveSpell(/obj/effect/proc_holder/spell/shadowling_guise)
-	thrall_mind.RemoveSpell(/obj/effect/proc_holder/spell/shadowling_vision/thrall)
 	thrall_mind.current.remove_language(LANGUAGE_HIVE_SHADOWLING)
 	if(kill && ishuman(thrall_mind.current)) //If dethrallization surgery fails, kill the mob as well as dethralling them
 		var/mob/living/carbon/human/H = thrall_mind.current

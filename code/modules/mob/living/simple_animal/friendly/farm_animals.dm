@@ -13,7 +13,6 @@
 	tts_seed = "Muradin"
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat = 4)
 	response_help = "гладит"
@@ -140,7 +139,6 @@
 	tts_seed = "Cairne"
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat/slab = 6)
 	food_type = list(/obj/item/reagent_containers/food/snacks/grown/wheat)
@@ -510,7 +508,6 @@ GLOBAL_VAR_INIT(chicken_count, 0)
 	emote_see = list("перекатывается по земле")
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat/ham = 6)
 	response_help = "гладит"
@@ -549,7 +546,6 @@ GLOBAL_VAR_INIT(chicken_count, 0)
 	emote_see = list("важно расхаживает")
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat/bird = 4)
 	response_help = "гладит"
@@ -587,7 +583,6 @@ GLOBAL_VAR_INIT(chicken_count, 0)
 	emote_see = list("хлопает крыльями")
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat/bird = 6)
 	response_help = "гладит"
@@ -653,7 +648,6 @@ GLOBAL_VAR_INIT(chicken_count, 0)
 	emote_see = list("хлопает ластами")
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat = 6)
 	response_help = "гладит"
 	response_disarm = "осторожно отодвигает в сторону"
@@ -690,7 +684,6 @@ GLOBAL_VAR_INIT(chicken_count, 0)
 	emote_see = list("хлопает ластами")
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat = 6)
 	response_help = "гладит"
 	response_disarm = "осторожно отодвигает в сторону"

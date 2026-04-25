@@ -2,7 +2,6 @@
 	name = "luam eyeballs"
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали луам."
 	item_state = "nian_eyes"
-	see_in_dark = 5
 
 /obj/item/organ/internal/eyes/nian/get_ru_names()
 	return list(

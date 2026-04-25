@@ -8,7 +8,9 @@
 	maxHealth = 300
 	health = 300
 	move_resist = MOVE_FORCE_STRONG
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE // so they can tell where the darkness is
+	lighting_cutoff_red = 35
+	lighting_cutoff_green = 40
+	lighting_cutoff_blue = 50
 	loot = list(/obj/item/organ/internal/heart/demon/shadow)
 	death_sound = 'sound/shadowdemon/shadowdeath.ogg'
 	var/thrown_alert = FALSE

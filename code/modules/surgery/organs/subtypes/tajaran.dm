@@ -44,7 +44,8 @@
 	item_state = "tajaran_eyes"
 	colourblind_matrix = MATRIX_TAJ_CBLIND //The colour matrix parameter that the mob will receive when they get the disability.
 	replace_colours = TRITANOPIA_COLOR_REPLACE
-	see_in_dark = 8
+	// kinda tritanopia
+	color_cutoffs = list(8, 3, 8)
 
 /obj/item/organ/internal/eyes/tajaran/get_ru_names()
 	return list(

@@ -22,7 +22,6 @@
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали унатху."
 	icon = 'icons/obj/species_organs/unathi.dmi'
 	item_state = "unathi_eyes"
-	see_in_dark = 3
 
 /obj/item/organ/internal/eyes/unathi/get_ru_names()
 	return list(
@@ -157,7 +156,7 @@
 	name = "ash walker eyes"
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали пеплоходцу."
 	vision_flags = SEE_TURFS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 
 /obj/item/organ/internal/eyes/unathi/ash_walker/get_ru_names()
 	return list(
@@ -173,7 +172,7 @@
 	name = "ash walker shaman eyes"
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали шаману пеплоходцев."
 	vision_flags = SEE_TURFS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 
 /obj/item/organ/internal/eyes/unathi/ash_walker_shaman/get_ru_names()
 	return list(

@@ -23,10 +23,9 @@
 	/// HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 	var/client/canon_client
 
-	see_in_dark = DEFAULT_SEE_IN_DARK
-
-	/// Backward compatibility var for determining nightvision like it used to be see_in_dark and see_through_darkness screen-overlay
-	var/nightvision = 0
+	// We never want to hide a turf because it's not lit
+	// We can rely on the lighting plane to handle that for us
+	see_in_dark = 1e6
 
 	/// On /mob so clientless mobs will throw alerts properly
 	/// Contains /atom/movable/screen/alert only
@@ -151,6 +150,10 @@
 	/// Carbon
 	var/obj/item/clothing/mask/wear_mask = null
 
+	/// Assoc list of client_colour datum -> source it came from
+	var/list/client_colours = list()
+	/// List of filter names used in the past client color update for cleanup
+	var/list/color_filter_store = list()
 	var/datum/hud/hud_used = null
 	/// Mob hud type
 	var/hud_type = /datum/hud
@@ -160,7 +163,6 @@
 	/// For research scanner equipped mobs. Enable to show research data when examining.
 	var/research_scanner = 0
 
-	var/lighting_alpha = LIGHTING_PLANE_ALPHA_VISIBLE
 	var/list/mapobjs
 
 	var/in_throw_mode = FALSE
@@ -267,9 +269,6 @@
 
 	var/last_logout = 0
 
-	/// Vision override datum.
-	var/datum/vision_override/vision_type = null
-
 	/// Counters for huds and icon types
 	var/list/huds_counter = list("huds" = list(), "icons" = list())
 
@@ -338,3 +337,17 @@
 
 	/// Mob bitflags
 	var/mob_flags = NONE
+
+	/// Percentage of how much rgb to max the lighting plane at
+	/// This lets us brighten it without washing out color
+	/// Scale from 0-100, reset off update_sight()
+	var/lighting_cutoff = LIGHTING_CUTOFF_VISIBLE
+	// Individual color max for red, we can use this to color darkness without tinting the light
+	var/lighting_cutoff_red = 0
+	// Individual color max for green, we can use this to color darkness without tinting the light
+	var/lighting_cutoff_green = 0
+	// Individual color max for blue, we can use this to color darkness without tinting the light
+	var/lighting_cutoff_blue = 0
+	/// A list of red, green and blue cutoffs
+	/// This is what actually gets applied to the mob, it's modified by things like glasses
+	var/list/lighting_color_cutoffs

@@ -478,9 +478,9 @@
 		chat_message_type = MESSAGE_TYPE_COMBAT
 	)
 
-	if(target.vision_type) //Turns off their darksight if it's still active.
+	if(target.lighting_cutoff) //Turns off their darksight if it's still active.
 		to_chat(target, span_boldannounceic("Ваши глаза заливает пелена боли, вы теряете возможность видеть в темноте!"))
-		target.set_vision_override(null)
+		target.lighting_cutoff = target.default_lighting_cutoff()
 	SSticker.mode.remove_thrall(target.mind, 0)
 	target.visible_message(span_warning("Кусок чёрной сочащейся плоти выпадает из [affected.declent_ru(GENITIVE)] [target]!"))
 	var/obj/item/organ/thing = new /obj/item/organ/internal/shadowtumor(get_turf(target))

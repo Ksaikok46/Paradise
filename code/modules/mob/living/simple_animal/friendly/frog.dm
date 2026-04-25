@@ -21,7 +21,6 @@
 	tts_seed = "pantheon"
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 10
 	maxHealth = 10
 	health = 10
 	blood_volume = BLOOD_VOLUME_SURVIVE

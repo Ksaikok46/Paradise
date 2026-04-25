@@ -2094,9 +2094,9 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 		return
 
 	set_invis_see(initial(see_invisible))
-	nightvision = initial(nightvision)
-	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
+	var/new_sight = initial(sight)
+	lighting_cutoff = initial(lighting_cutoff)
+	lighting_color_cutoffs = list(lighting_cutoff_red, lighting_cutoff_green, lighting_cutoff_blue)
 
 	if(client.eye != src)
 		var/atom/A = client.eye
@@ -2104,19 +2104,22 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 			return
 
 	if(sight_mode & SILICONMESON)
-		add_sight(SEE_TURFS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		new_sight |= SEE_TURFS
+		lighting_cutoff = max(lighting_cutoff, LIGHTING_CUTOFF_LOW)
+		lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, list(5, 15, 5))
 
 	if(sight_mode & SILICONXRAY)
-		add_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-		set_invis_see(LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE)
-		nightvision = 8
+		new_sight |= SEE_TURFS|SEE_MOBS|SEE_OBJS
+		set_invis_see(SEE_INVISIBLE_LIVING)
 
 	if(sight_mode & SILICONTHERM)
-		add_sight(SEE_MOBS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		new_sight |= SEE_MOBS
+		lighting_cutoff = max(lighting_cutoff, LIGHTING_CUTOFF_LOW)
+		lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, list(15, 8, 5))
+		set_invis_see(min(see_invisible, SEE_INVISIBLE_LIVING))
 
-	..()
+	set_sight(new_sight)
+	return ..()
 
 /// Used in `robot.dm` when the user presses "Q" by default.
 /mob/living/silicon/robot/proc/on_drop_hotkey_press()

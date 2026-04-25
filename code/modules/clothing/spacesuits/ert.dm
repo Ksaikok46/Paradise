@@ -293,8 +293,7 @@
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	vision_flags = SEE_MOBS
 	actions_types = null
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //don't render darkness while wearing these
-	see_in_dark = 8
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	HUDType = MEDHUD
 	strip_delay = 130
 	sprite_sheets = list(

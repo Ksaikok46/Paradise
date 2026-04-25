@@ -115,7 +115,7 @@ GLOBAL_LIST_INIT(possibleShadowlingNames, list("U'ruan", "Y`shej", "Nex", "Hel-u
 	var/obj/item/organ/internal/cyberimp/eyes/eyes
 	eyes = new /obj/item/organ/internal/cyberimp/eyes/thermals/ling(null) // thermal without item
 	eyes.insert(user)
-	user.set_vision_override(/datum/vision_override/nightvision) // nighvision withot button
+	user.lighting_cutoff = LIGHTING_CUTOFF_HIGH // nighvision withot button
 
 	sleep(1 SECONDS)
 	if(QDELETED(user))

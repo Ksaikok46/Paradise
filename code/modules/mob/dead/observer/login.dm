@@ -9,3 +9,5 @@
 		can_reenter_corpse = 0
 		GLOB.respawnable_list -= src
 	update_admin_actions()
+	lighting_cutoff = default_lighting_cutoff()
+	update_sight()

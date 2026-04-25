@@ -44,7 +44,6 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	status_flags = CANSTUN|CANPARALYSE|CANPUSH
 	mob_size = MOB_SIZE_LARGE
 	sight = SEE_TURFS | SEE_MOBS | SEE_OBJS
-	nightvision = 8
 	can_buckle_to = FALSE
 	hud_type = /datum/hud/ai
 	var/list/network = list("SS13","Telecomms","Research Outpost","Mining Outpost")
@@ -1381,7 +1380,7 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 	client.set_eye(eyeobj)
 	return TRUE
 
-/mob/living/silicon/ai/can_see(atom/A, length)
+/mob/living/silicon/ai/proc/can_see(atom/A, length)
 	if(isturf(loc)) //AI in core, check if on cameras
 		//get_turf_pixel() is because APCs in maint aren't actually in view of the inner camera
 		//apc_override is needed here because AIs use their own APC when depowered
@@ -1540,16 +1539,13 @@ GLOBAL_LIST_INIT(ai_verbs_default, list(
 		return
 
 	set_invis_see(initial(see_invisible))
-	nightvision = initial(nightvision)
 	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
+	lighting_cutoff = default_lighting_cutoff()
 
 	if(aiRestorePowerRoutine)
 		clear_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-		nightvision = 0
 
-	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
-	sync_lighting_plane_alpha()
+	return ..()
 
 /mob/living/silicon/ai/ghostize(can_reenter_corpse)
 	var/old_turf = get_turf(eyeobj)

@@ -10,14 +10,6 @@
 		var/mob/living/carbon/alien/humanoid/hunter/AH = usr
 		AH.toggle_leap()
 
-/atom/movable/screen/alien/nightvision
-	name = "toggle night-vision"
-	icon_state = "nightvision1"
-
-/atom/movable/screen/alien/nightvision/Click()
-	var/mob/living/carbon/alien/humanoid/A = usr
-	A.nightvisiontoggle()
-
 /atom/movable/screen/alien/plasma_display
 	icon = 'icons/mob/screen_gen.dmi'
 	icon_state = "power_display2"
@@ -125,9 +117,6 @@
 
 	mymob.healths = new /atom/movable/screen/healths/alien(null, src)
 	infodisplay += mymob.healths
-
-	nightvisionicon = new /atom/movable/screen/alien/nightvision(null, src)
-	infodisplay += nightvisionicon
 
 	mymob.pullin = new /atom/movable/screen/pull(null, src)
 	mymob.pullin.icon = 'icons/mob/screen_alien.dmi'

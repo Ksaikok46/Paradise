@@ -887,3 +887,9 @@ GLOBAL_LIST_INIT(intents, list(INTENT_HELP,INTENT_DISARM,INTENT_GRAB,INTENT_HARM
 		if(bypass_warning && !length(limbs))
 			CRASH("limbs is empty and the chest is blacklisted. this may not be intended!")
 	return (((chest_blacklisted && !base_zone) || even_weights) ? pick_weight_classic(limbs) : ran_zone(base_zone, base_probability, limbs))
+
+/// Returns this mob's default lighting cutoff
+/mob/proc/default_lighting_cutoff()
+	//if(client?.combo_hud_enabled && (client?.prefs?.toggles & COMBOHUD_LIGHTING))
+	//	return LIGHTING_CUTOFF_FULLBRIGHT
+	return initial(lighting_cutoff)

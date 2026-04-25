@@ -314,9 +314,10 @@
 	return ..()
 
 /obj/item/wisp_lantern/proc/update_user_sight(mob/user)
+	SIGNAL_HANDLER
 	user.add_sight(sight_flags)
-	if(!isnull(lighting_alpha))
-		user.lighting_alpha = min(user.lighting_alpha, lighting_alpha)
+	if(!isnull(color_cutoffs))
+		user.lighting_color_cutoffs = blend_cutoff_colors(user.lighting_color_cutoffs, color_cutoffs)
 
 /obj/effect/wisp
 	name = "friendly wisp"

@@ -74,6 +74,9 @@
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_EYE_LING
 	status = NONE
+	// Going for an orange color here
+	color_cutoffs = list(25, 8, 5)
+	vision_flags = SEE_MOBS
 	aug_message = "We adjust our eyes to sense prey through walls."
 
 /obj/item/organ/internal/cyberimp/eyes/thermals/ling/emp_act(severity)
@@ -84,12 +87,10 @@
 	if(ishuman(owner))
 		var/mob/living/carbon/human/h_owner = owner
 		h_owner.weakeyes = TRUE
-		if(!h_owner.vision_type)
-			h_owner.set_vision_override(/datum/vision_override/nightvision)
 
 /obj/item/organ/internal/cyberimp/eyes/thermals/ling/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	if(ishuman(owner))
 		var/mob/living/carbon/human/h_owner = owner
 		h_owner.weakeyes = FALSE
-		h_owner.set_vision_override(null)
+		h_owner.lighting_cutoff = h_owner.default_lighting_cutoff()
 	. = ..()

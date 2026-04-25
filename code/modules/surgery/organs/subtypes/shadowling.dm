@@ -31,7 +31,6 @@
 	species_type = /datum/species/shadow/ling
 	name = "shadowling eyeballs"
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали тенелингу."
-	see_in_dark = 9
 
 /obj/item/organ/internal/eyes/shadowling/get_ru_names()
 	return list(

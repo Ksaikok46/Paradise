@@ -1733,8 +1733,8 @@
 	switch(var_name)
 		if(NAMEOF(src, maxHealth))
 			updatehealth(reason = "var edit")
-		if(NAMEOF(src, lighting_alpha))
-			sync_lighting_plane_alpha()
+		if(NAMEOF(src, lighting_cutoff))
+			sync_lighting_plane_cutoff()
 
 /mob/living/throw_at(atom/target, range, speed, mob/thrower, spin, diagonals_first, datum/callback/callback, force, dodgeable, block_movement)
 	stop_pulling()
@@ -1762,11 +1762,15 @@
 /**
  * Can this mob see in the dark
  *
- * Cursed version of checking lighting_cutoffs, just making orientation on nightvision see_in_dark analog
- *
+ * This checks all traits, glasses, and robotic eyeball implants to see if the mob can see in the dark
+ * this does NOT check if the mob is missing it's eyeballs.
 **/
 /mob/proc/has_nightvision()
-	return nightvision >= 4
+	// Somewhat conservative, basically is your lighting plane bright enough that you the user can see stuff
+	var/light_offset = lighting_cutoff
+	if(length(lighting_color_cutoffs) == 3)
+		light_offset += (lighting_color_cutoffs[1] + lighting_color_cutoffs[2] + lighting_color_cutoffs[3]) / 3
+	return light_offset >= LIGHTING_NIGHTVISION_THRESHOLD
 
 /mob/living/proc/examine_distance_check(atom/target)
 	if(target in view(client.maxview(), client.eye))

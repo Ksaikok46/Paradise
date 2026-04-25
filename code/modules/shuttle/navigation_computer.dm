@@ -315,9 +315,10 @@
 		return
 
 /mob/camera/aiEye/remote/shuttle_docker/update_remote_sight(mob/living/user)
-	user.set_sight(SEE_TURFS)
-
-	..() // what the fuck
+	user.set_sight(BLIND|SEE_TURFS)
+	// Pale blue, should look nice I think
+	user.lighting_color_cutoffs = list(30, 40, 50)
+	user.sync_lighting_plane_cutoff()
 	return TRUE
 
 /datum/action/innate/shuttledocker_rotate

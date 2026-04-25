@@ -17,19 +17,22 @@
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
 	)
 	/// Bitflags for vision enhancements (e.g., SEE_TURFS, SEE_MOBS).
-	var/vision_flags = 0
-	/// How well the wearer can see in darkness (base human is 2).
-	var/see_in_dark = 2
+	var/vision_flags = NONE
 	/// Level of invisibility the wearer can see (default SEE_INVISIBLE_LIVING).
 	var/invis_view = SEE_INVISIBLE_LIVING
 	/// Override to allow glasses to see higher invisibility levels than normal.
 	var/invis_override = 0
-	/// Alpha value for lighting plane when worn (affects darkness rendering).
-	var/lighting_alpha
+	/// A percentage of how much rgb to "max" on the lighting plane
+	/// This lets us brighten darkness without washing out bright color
+	var/lighting_cutoff = null
+	/// Similar to lighting_cutoff, except it has individual r g and b components in the same 0-100 scale
+	var/list/color_cutoffs = null
+	/// Colors your vision when worn
+	var/glass_colour_type
+	/// Whether or not vision coloring is forcing
+	var/forced_glass_color = FALSE
 	/// List of examine extensions (e.g., medical HUD, science HUD).
 	var/examine_extensions = EXAMINE_HUD_NONE
-	/// List of color matrix to override client.color while worn (e.g., grayscale).
-	var/list/color_view = null
 	/// Whether the glasses have prescription lenses.
 	var/prescription = FALSE
 	/// Whether the glasses can be upgraded with prescription lenses.
@@ -41,6 +44,9 @@
 
 /obj/item/clothing/glasses/Initialize(mapload)
 	. = ..()
+	if(glass_colour_type)
+		AddElement(/datum/element/wearable_client_colour, glass_colour_type, ITEM_SLOT_EYES, GLASSES_TRAIT, forced = forced_glass_color, comsig_toggle = COMSIG_CLICK_ALT_SECONDARY)
+
 	if(prescription_upgradable && prescription)
 		// Pre-upgraded upgradable glasses
 		upgrade_prescription()
@@ -129,10 +135,15 @@
 		return .
 	if(visor_vars_to_toggle & VISOR_VISIONFLAGS)
 		vision_flags ^= initial(vision_flags)
-	if(visor_vars_to_toggle & VISOR_DARKNESSVIEW)
-		see_in_dark ^= initial(see_in_dark)
 	if(visor_vars_to_toggle & VISOR_INVISVIEW)
 		invis_view ^= initial(invis_view)
+
+/obj/item/clothing/glasses/proc/change_glass_color(new_color_type)
+	if(glass_colour_type)
+		RemoveElement(/datum/element/wearable_client_colour, glass_colour_type, ITEM_SLOT_EYES, GLASSES_TRAIT, forced = forced_glass_color)
+	glass_colour_type = new_color_type
+	if(glass_colour_type)
+		AddElement(/datum/element/wearable_client_colour, glass_colour_type, ITEM_SLOT_EYES, GLASSES_TRAIT, forced = forced_glass_color)
 
 /obj/item/clothing/glasses/meson
 	name = "optical meson scanner"
@@ -141,7 +152,9 @@
 	item_state = "meson"
 	origin_tech = "magnets=1;engineering=2"
 	vision_flags = SEE_TURFS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	// Mesons get to be lightly green
+	color_cutoffs = list(5, 15, 5)
+	glass_colour_type = /datum/client_colour/glass_colour/lightgreen
 	prescription_upgradable = TRUE
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
@@ -197,9 +210,15 @@
 	icon_state = "nvgmeson"
 	item_state = "nvgmeson"
 	origin_tech = "magnets=4;engineering=5;plasmatech=4"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	// Night vision mesons get the same but more intense
+	color_cutoffs = list(10, 35, 10)
+	glass_colour_type = /datum/client_colour/glass_colour/lightgreen
+	actions_types = list(/datum/action/item_action/toggle_nv)
 	prescription_upgradable = FALSE
+
+/obj/item/clothing/glasses/meson/night/update_icon_state()
+	. = ..()
+	icon_state = length(color_cutoffs) ? initial(icon_state) : "nvgmeson_off"
 
 /obj/item/clothing/glasses/meson/night/get_ru_names()
 	return list(
@@ -290,6 +309,7 @@
 	icon_state = "purple"
 	item_state = "purple"
 	origin_tech = "magnets=2;engineering=1"
+	glass_colour_type = /datum/client_colour/glass_colour/purple
 	examine_extensions = EXAMINE_HUD_SCIENCE
 	resistance_flags = ACID_PROOF
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 100)
@@ -313,8 +333,14 @@
 	name = "night vision science goggle"
 	desc = "Now you can science in darkness."
 	icon_state = "nvpurple"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //don't render darkness while wearing these
+	// Real vivid purple
+	color_cutoffs = list(30, 5, 15)
+	glass_colour_type = /datum/client_colour/glass_colour/lightpurple
+	actions_types = list(/datum/action/item_action/toggle_nv)
+
+/obj/item/clothing/glasses/science/night/update_icon_state()
+	. = ..()
+	icon_state = length(color_cutoffs) ? initial(icon_state) : "night_off"
 
 /obj/item/clothing/glasses/science/heart
 	name = "heart science glasses"
@@ -354,7 +380,6 @@
 	desc = "These'll keep the soap out of your eyes."
 	icon_state = "purple"
 	item_state = "purple"
-
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
@@ -370,8 +395,14 @@
 	icon_state = "night"
 	item_state = "glasses"
 	origin_tech = "materials=4;magnets=4;plasmatech=4;engineering=4"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //don't render darkness while wearing these
+	// Dark green
+	color_cutoffs = list(10, 25, 10)
+	glass_colour_type = /datum/client_colour/glass_colour/lightgreen
+	actions_types = list(/datum/action/item_action/toggle_nv)
+
+/obj/item/clothing/glasses/night/update_icon_state()
+	. = ..()
+	icon_state = length(color_cutoffs) ? initial(icon_state) : "night_off"
 
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
@@ -454,7 +485,7 @@
 	desc = "These odd glasses use a form of neutron-based imaging to completely negate the effects of light and darkness."
 	origin_tech = null
 	vision_flags = NONE
-	lighting_alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
 
 /obj/item/clothing/glasses/material/lighting/Initialize(mapload)
 	. = ..()
@@ -523,7 +554,7 @@
 	desc = "Strangely ancient technology used to help provide rudimentary eye cover. Enhanced shielding blocks many flashes."
 	icon_state = "sun"
 	item_state = "sunglasses"
-	see_in_dark = 1
+	glass_colour_type = /datum/client_colour/glass_colour/gray
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 	prescription_upgradable = TRUE
@@ -568,18 +599,8 @@
 /obj/item/clothing/glasses/sunglasses/noir
 	name = "noir sunglasses"
 	desc = "Somehow these seem even more out-of-date than normal sunglasses."
-	actions_types = list(/datum/action/item_action/noir)
-
-/obj/item/clothing/glasses/sunglasses/noir/attack_self(mob/user)
-	toggle_noir(user)
-
-/obj/item/clothing/glasses/sunglasses/noir/item_action_slot_check(slot, mob/user, datum/action/action)
-	if(slot == ITEM_SLOT_EYES)
-		return TRUE
-
-/obj/item/clothing/glasses/sunglasses/noir/proc/toggle_noir(mob/user)
-	color_view = color_view ? null : MATRIX_GREYSCALE //Toggles between null and grayscale, with null being the default option.
-	user.update_client_colour()
+	glass_colour_type = /datum/client_colour/monochrome/glasses
+	forced_glass_color =  TRUE
 
 /obj/item/clothing/glasses/sunglasses/yeah
 	name = "agreeable glasses"
@@ -610,7 +631,6 @@
 	desc = "Strangely ancient technology used to help provide rudimentary eye cover. Enhanced shielding blocks many flashes."
 	icon_state = "sun"
 	item_state = "sunglasses"
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 
@@ -651,6 +671,7 @@
 	icon_state = "welding-g"
 	item_state = "welding-g"
 	actions_types = list(/datum/action/item_action/toggle)
+	glass_colour_type = /datum/client_colour/glass_colour/gray
 	flash_protect = FLASH_PROTECTION_WELDER
 	tint = 2
 	can_toggle = TRUE
@@ -723,8 +744,10 @@
 	item_state = "thermal"
 	origin_tech = "magnets=3"
 	vision_flags = SEE_MOBS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 	flash_protect = FLASH_PROTECTION_SENSITIVE
+	// Going for an orange color here
+	color_cutoffs = list(25, 8, 5)
+	glass_colour_type = /datum/client_colour/glass_colour/red
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/eyes.dmi',
@@ -801,10 +824,9 @@
 	icon_state = "godeye"
 	item_state = "godeye"
 	vision_flags = SEE_TURFS|SEE_MOBS|SEE_OBJS
-	see_in_dark = 8
 	examine_extensions = EXAMINE_HUD_SCIENCE
 	flags_cover = null
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
 	resistance_flags = LAVA_PROOF | FIRE_PROOF
 	HUDType = DATA_HUD_MEDICAL_ADVANCED
 	var/double_eye = FALSE
@@ -934,6 +956,7 @@
 	desc = "Cheap plastic glasses with a fancy shape."
 	icon_state = "heart"
 	item_state = "heart"
+	glass_colour_type = /datum/client_colour/glass_colour/lightpurple
 	sprite_sheets = list(
 		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/eyes.dmi',
 		SPECIES_FARWA = 'icons/mob/clothing/species/monkey/eyes.dmi',

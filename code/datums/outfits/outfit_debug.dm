@@ -113,9 +113,9 @@
 	desc = "Медицинский, охранно-диагностический худ."
 	icon_state = "nvgmeson"
 	flash_protect = FLASH_PROTECTION_WELDER
-
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
+	glass_colour_type = FALSE
 	prescription_upgradable = FALSE
-
 	HUDType = list(DATA_HUD_MEDICAL_ADVANCED, DATA_HUD_DIAGNOSTIC_ADVANCED, DATA_HUD_SECURITY_ADVANCED, DATA_HUD_HYDROPONIC)
 	examine_extensions = EXAMINE_HUD_SECURITY_READ | EXAMINE_HUD_SECURITY_WRITE | EXAMINE_HUD_MEDICAL | EXAMINE_HUD_SKILLS
 
@@ -164,14 +164,12 @@
 	return
 
 /obj/item/clothing/glasses/hud/debug/proc/remove_xray(mob/user)
-	see_in_dark = initial(see_in_dark)
-	lighting_alpha = initial(lighting_alpha)
-	REMOVE_TRAIT(user, TRAIT_XRAY, "debug_glasses[UID()]")
+	user.lighting_cutoff = user.default_lighting_cutoff()
+	REMOVE_TRAIT(user, TRAIT_XRAY_VISION, "debug_glasses[UID()]")
 
 /obj/item/clothing/glasses/hud/debug/proc/add_xray(mob/user)
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
-	ADD_TRAIT(user, TRAIT_XRAY, "debug_glasses[UID()]")
+	user.lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
+	ADD_TRAIT(user, TRAIT_XRAY_VISION, "debug_glasses[UID()]")
 
 /obj/item/debug
 	abstract_type = /obj/item/debug

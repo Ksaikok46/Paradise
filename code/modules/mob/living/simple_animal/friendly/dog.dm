@@ -20,7 +20,6 @@
 	melee_damage_type = STAMINA
 	melee_damage_lower = 6
 	melee_damage_upper = 10
-	nightvision = 5
 	speak_chance = 1
 	turns_per_move = 10
 	gold_core_spawnable = FRIENDLY_SPAWN

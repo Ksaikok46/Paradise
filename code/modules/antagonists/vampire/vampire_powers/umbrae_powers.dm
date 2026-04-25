@@ -351,3 +351,12 @@
 /datum/vampire_passive/xray
 	gain_desc = "Теперь вы можете видеть сквозь стены, если вы не заметили."
 
+/datum/vampire_passive/xray/on_apply(datum/antagonist/vampire/vampire_datum)
+	var/mob/living/vampire = vampire_datum.owner.current
+	ADD_TRAIT(vampire, TRAIT_XRAY_VISION, VAMPIRE_TRAIT)
+	vampire.update_sight()
+
+/datum/vampire_passive/xray/on_remove(datum/antagonist/vampire/vampire_datum)
+	var/mob/living/vampire = vampire_datum.owner.current
+	REMOVE_TRAIT(vampire, TRAIT_XRAY_VISION, VAMPIRE_TRAIT)
+	vampire.update_sight()

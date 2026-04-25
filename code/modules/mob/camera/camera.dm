@@ -45,3 +45,7 @@
 /mob/camera/can_z_move(direction, turf/start, turf/destination, z_move_flags = NONE, mob/living/rider)
 	z_move_flags |= ZMOVE_IGNORE_OBSTACLES  //cameras do not respect these FLOORS you speak so much of
 	return ..()
+
+/mob/camera/update_sight()
+	lighting_color_cutoffs = list(lighting_cutoff_red, lighting_cutoff_green, lighting_cutoff_blue)
+	return ..()

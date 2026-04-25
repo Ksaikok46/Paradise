@@ -12,8 +12,11 @@
 	dna = null
 	ventcrawler_trait = TRAIT_VENTCRAWLER_ALIEN
 	abstract_type = /mob/living/carbon/alien
-	var/nightvision_enabled = FALSE
-	nightvision = 4
+	sight = SEE_MOBS
+	// Going for a dark purple here
+	lighting_cutoff_red = 30
+	lighting_cutoff_green = 15
+	lighting_cutoff_blue = 50
 
 	verb_say = "шипит"
 	verb_ask = "вопросительно шипит"
@@ -51,7 +54,6 @@
 	var/death_message = "изда%(ет,ют)% тихий гортанный звук, зелёная кровь пузырится из %(его,её,его,их)% пасти..."
 	var/death_sound = 'sound/voice/hiss6.ogg'
 
-	var/datum/action/innate/alien_nightvision_toggle/night_vision_action
 	var/static/praetorian_count = 0
 	var/static/queen_count = 0
 	var/static/queen_maximum = 0
@@ -60,8 +62,6 @@
 	..()
 	create_reagents(1000)
 	add_verb(src, /mob/living/verb/mob_sleep)
-	night_vision_action = new
-	night_vision_action.Grant(src)
 
 	for(var/organ_path in get_caste_organs())
 		new organ_path(src)
@@ -74,9 +74,6 @@
 	GLOB.aliens_list += src
 
 /mob/living/carbon/alien/Destroy()
-	if(night_vision_action)
-		night_vision_action.Remove(src)
-		night_vision_action = null
 	GLOB.aliens_list -= src
 	return ..()
 
@@ -97,7 +94,8 @@
 	return list(
 		/obj/item/organ/internal/brain/xeno,
 		/obj/item/organ/internal/xenos/hivenode,
-		/obj/item/organ/internal/ears
+		/obj/item/organ/internal/ears,
+		/obj/item/organ/internal/eyes/alien,
 	)
 
 /mob/living/carbon/alien/get_status_tab_items()
@@ -229,23 +227,6 @@
 /mob/living/carbon/alien/setDNA()
 	return
 
-/mob/living/carbon/alien/verb/nightvisiontoggle()
-	set name = "Toggle Night Vision"
-
-	if(!nightvision_enabled)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-		nightvision = 8
-		nightvision_enabled = TRUE
-		usr.hud_used.nightvisionicon.icon_state = "nightvision1"
-	else if(nightvision_enabled)
-		lighting_alpha = initial(lighting_alpha)
-		nightvision_enabled = FALSE
-		usr.hud_used.nightvisionicon.icon_state = "nightvision0"
-
-	update_sight()
-	if(is_ventcrawling(src))
-		update_pipe_vision()
-
 /mob/living/carbon/alien/assess_threat(mob/living/simple_animal/bot/secbot/judgebot, lasercolor)
 	if(judgebot.emagged == 2)
 		return 10 //Everyone is a criminal!
@@ -347,37 +328,6 @@ Des: Removes all infected images from the alien.
 		return pick("xltrails_1", "xltrails_2")
 	else
 		return pick("xttrails_1", "xttrails_2")
-
-/mob/living/carbon/alien/update_sight()
-	if(!client)
-		return
-	if(stat == DEAD)
-		grant_death_vision()
-		return
-
-	set_invis_see(initial(see_invisible))
-	set_sight(SEE_MOBS)
-	if(nightvision_enabled)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-	else
-		lighting_alpha = initial(lighting_alpha)
-
-	if(client.eye != src)
-		var/atom/A = client.eye
-		if(A.update_remote_sight(src)) //returns 1 if we override all other sight updates.
-			return
-
-	for(var/obj/item/organ/internal/cyberimp/eyes/cyber_eyes in internal_organs)
-		add_sight(cyber_eyes.vision_flags)
-		if(cyber_eyes.see_in_dark)
-			nightvision = max(nightvision, cyber_eyes.see_in_dark)
-		if(cyber_eyes.see_invisible)
-			set_invis_see(min(see_invisible, cyber_eyes.see_invisible))
-		if(!isnull(cyber_eyes.lighting_alpha))
-			lighting_alpha = min(lighting_alpha, cyber_eyes.lighting_alpha)
-
-	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
-	sync_lighting_plane_alpha()
 
 #undef ALIEN_BURN_MOD
 #undef ALIEN_BRUTE_MOD

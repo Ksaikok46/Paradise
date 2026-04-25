@@ -20,6 +20,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	density = FALSE
 	blocks_emissive = EMISSIVE_BLOCK_NONE // Ghosts are transparent, duh
 	alpha = 127
+	lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 	light_system = NO_LIGHT_SUPPORT
 	invisibility = INVISIBILITY_OBSERVER
 	pass_flags = PASSEVERYTHING
@@ -138,7 +139,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	if(!client)
 		return
 	UnregisterSignal(src, COMSIG_MOB_HUD_CREATED)
-	lighting_alpha = client.prefs.ghost_darkness_level //Remembers ghost lighting pref
+	lighting_cutoff = client.prefs.ghost_darkness_level //Remembers ghost lighting pref
 	update_sight()
 
 /mob/dead/observer/proc/cleanup_observe()
@@ -471,7 +472,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		to_chat(src, span_warning("Некуда прыгать!"))
 		return
 	forceMove(pick(turfs))
-	update_parallax_contents()
 
 /mob/dead/observer/verb/follow()
 	set category = VERB_CATEGORY_GHOST
@@ -560,7 +560,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 	if(T && isturf(T))	//Make sure the turf exists, then move the source to that destination.
 		A.forceMove(T)
-		M.update_parallax_contents()
 		return
 	to_chat(A, "Это существо не находится в игровом мире.")
 
@@ -712,7 +711,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 	client.set_eye(mob_eye)
 	sight = mob_eye.sight
-	lighting_alpha = mob_eye.lighting_alpha
+	lighting_cutoff = mob_eye.lighting_cutoff
 	update_sight()
 
 	client.clear_screen()
@@ -729,7 +728,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	cleanup_observe()
 
 	hud_used?.plane_master_controllers[PLANE_MASTERS_GAME].remove_filter("eye_blur")
-	lighting_alpha = client?.prefs.ghost_darkness_level
+	lighting_cutoff = client?.prefs.ghost_darkness_level
 	update_sight()
 
 	if(do_observe_target)
@@ -753,7 +752,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 	// idk why, but we need to hold '?' here, else this runtimes sometimes
 	sight = do_observe_target?.sight
-	lighting_alpha = do_observe_target?.lighting_alpha
+	lighting_cutoff = do_observe_target?.lighting_cutoff
 	update_sight()
 
 /mob/dead/observer/verb/toggle_ghostsee()
@@ -770,10 +769,10 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	set desc = "Choose how much darkness you want to see."
 	set category = VERB_CATEGORY_GHOST
 	var/list/ghost_darkness_levels = list(
-		"Стандартное освещение" = LIGHTING_PLANE_ALPHA_VISIBLE,
-		"Темнее" = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE,
-		"Ярче" = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE,
-		"Полное освещение" = LIGHTING_PLANE_ALPHA_INVISIBLE,
+		"Стандартное освещение" = LIGHTING_CUTOFF_VISIBLE,
+		"Темнее" = LIGHTING_CUTOFF_MEDIUM,
+		"Ярче" = LIGHTING_CUTOFF_HIGH,
+		"Полное освещение" = LIGHTING_CUTOFF_FULLBRIGHT,
 	)
 	var/desired_dark = tgui_input_list(usr, "Выберите, на сколько хорошо вы хотите видеть", "Выбор освещения", ghost_darkness_levels)
 	if(isnull(desired_dark))
@@ -782,7 +781,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		return
 	client.prefs.ghost_darkness_level = ghost_darkness_levels[desired_dark]
 	client.prefs.save_preferences(src)
-	lighting_alpha = client.prefs.ghost_darkness_level
+	lighting_cutoff = client.prefs.ghost_darkness_level
 	update_sight()
 
 /mob/dead/observer/update_sight()

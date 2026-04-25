@@ -863,13 +863,13 @@
 /datum/status_effect/lavaland_night_vision/on_apply()
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human = owner
-		human.set_vision_override(/datum/vision_override/nightvision)
+		human.lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	return TRUE
 
 /datum/status_effect/lavaland_night_vision/on_remove()
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human = owner
-		human.set_vision_override(null)
+		human.lighting_cutoff = human.default_lighting_cutoff()
 
 /atom/movable/screen/alert/status_effect/lavaland_blood_regen
 	name = "Кроветворение"

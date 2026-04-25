@@ -308,6 +308,8 @@
 	item_state = "blindfold"
 	invis_override = SEE_INVISIBLE_HIDDEN_RUNES
 	flash_protect = FLASH_PROTECTION_FLASH
+	color_cutoffs = list(40, 0, 0) //red
+	glass_colour_type = null
 	prescription = TRUE
 	origin_tech = null
 

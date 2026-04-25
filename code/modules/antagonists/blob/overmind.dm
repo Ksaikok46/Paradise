@@ -6,10 +6,12 @@ GLOBAL_LIST_EMPTY(overminds)
 	desc = "The overmind. It controls the blob."
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "marker"
-	nightvision = 8
 	sight = SEE_TURFS|SEE_MOBS|SEE_OBJS
 	invisibility = INVISIBILITY_OBSERVER
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	// Vivid blue green, would be cool to make this change with strain
+	lighting_cutoff_red = 0
+	lighting_cutoff_green = 35
+	lighting_cutoff_blue = 20
 	mouse_opacity = MOUSE_OPACITY_OPAQUE
 	see_invisible = SEE_INVISIBLE_LIVING
 	pass_flags = PASSBLOB
@@ -98,7 +100,7 @@ GLOBAL_LIST_EMPTY(overminds)
 		return FALSE
 	sync_mind()
 	update_health_hud()
-	sync_lighting_plane_alpha()
+	sync_lighting_plane_cutoff()
 	add_points(0)
 	var/turf/T = get_turf(src)
 	if(isturf(T))

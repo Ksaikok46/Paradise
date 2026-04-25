@@ -6,8 +6,9 @@
 	melee_damage_upper = 18
 	carp_stamina_damage = 18
 	speed = -0.2
-	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff_red = 12
+	lighting_cutoff_green = 15
+	lighting_cutoff_blue = 34
 	sight = SEE_TURFS|SEE_MOBS|SEE_OBJS
 	gold_core_spawnable = NO_SPAWN
 	/// Ability which lets carp teleport around

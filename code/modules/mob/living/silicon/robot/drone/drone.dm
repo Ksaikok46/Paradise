@@ -18,6 +18,10 @@
 	pull_force = MOVE_FORCE_VERY_WEAK // Can only drag small items
 	modules_break = FALSE
 	drain_act_protected = TRUE
+	// Going for a sort of pale green here
+	lighting_cutoff_red = 30
+	lighting_cutoff_green = 35
+	lighting_cutoff_blue = 25
 
 	// We need to keep track of a few module items so we don't need to do list operations
 	// every time we need them. These get set in New() after the module is chosen.

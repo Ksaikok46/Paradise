@@ -34,7 +34,6 @@
 	no_equip = list(ITEM_SLOT_HEAD, ITEM_SLOT_EYES, ITEM_SLOT_MASK, ITEM_SLOT_CLOTH_OUTER, ITEM_SLOT_GLOVES, ITEM_SLOT_FEET, ITEM_SLOT_CLOTH_INNER, ITEM_SLOT_SUITSTORE)
 	nojumpsuit = TRUE
 	silent_steps = 1
-	grant_vision_toggle = 0
 
 	warning_low_pressure = -INFINITY
 	hazard_low_pressure = -INFINITY

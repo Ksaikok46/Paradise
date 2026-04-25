@@ -252,7 +252,6 @@
 	name = "Переключить мезонное зрение"
 	button_icon_state = "meson"
 	var/sight_flags = SEE_TURFS
-	var/lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 
 /datum/action/innate/minedrone/toggle_meson_vision/Activate()
 	var/mob/living/user = owner
@@ -268,9 +267,9 @@
 	to_chat(user, span_notice("Вы [!is_active ? "включили" : "выключили"] мезонное зрение.</span>"))
 
 /datum/action/innate/minedrone/toggle_meson_vision/proc/update_user_sight(mob/living/user)
+	SIGNAL_HANDLER
 	user.add_sight(sight_flags)
-	if(!isnull(lighting_alpha))
-		user.lighting_alpha = min(user.lighting_alpha, lighting_alpha)
+	user.lighting_color_cutoffs = list(5, 15, 5)
 
 /datum/action/innate/minedrone/toggle_mode
 	name = "Переключить режим"

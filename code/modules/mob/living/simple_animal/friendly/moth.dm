@@ -11,7 +11,6 @@
 	response_harm = "squashes"
 	maxHealth = 15
 	health = 15
-	nightvision = 100
 	friendly = "nudges"
 	density = FALSE
 	pass_flags = PASSTABLE | PASSGRILLE | PASSMOB

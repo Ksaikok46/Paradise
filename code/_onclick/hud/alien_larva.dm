@@ -17,9 +17,6 @@
 	mymob.healths = new /atom/movable/screen/healths/alien(null, src)
 	infodisplay += mymob.healths
 
-	nightvisionicon = new /atom/movable/screen/alien/nightvision(null, src)
-	infodisplay += nightvisionicon
-
 	mymob.pullin = new /atom/movable/screen/pull(null, src)
 	mymob.pullin.icon = 'icons/mob/screen_alien.dmi'
 	mymob.pullin.update_icon(UPDATE_ICON_STATE)

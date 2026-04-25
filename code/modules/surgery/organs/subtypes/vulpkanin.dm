@@ -49,7 +49,8 @@
 	item_state = "vulpkanin_eyes"
 	colourblind_matrix = MATRIX_VULP_CBLIND //The colour matrix parameter that the mob will receive when they get the disability.
 	replace_colours = PROTANOPIA_COLOR_REPLACE
-	see_in_dark = 8
+	// kinda protanopia
+	color_cutoffs = list(3, 8, 8)
 
 /obj/item/organ/internal/eyes/vulpkanin/get_ru_names()
 	return list(

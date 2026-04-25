@@ -32,13 +32,12 @@
 
 	animate_movement = NO_STEPS // Do not animate movement, you jump around as you're a scary statue.
 
-	nightvision = 8
 	vision_range = 12
 	aggro_vision_range = 12
 
 	search_objects = 1 // So that it can see through walls
 
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	sight = SEE_SELF|SEE_MOBS|SEE_OBJS|SEE_TURFS
 	move_force = MOVE_FORCE_EXTREMELY_STRONG
 	move_resist = MOVE_FORCE_EXTREMELY_STRONG
@@ -60,7 +59,6 @@
 	// Give spells
 	AddSpell(new /obj/effect/proc_holder/spell/aoe/flicker_lights(null))
 	AddSpell(new /obj/effect/proc_holder/spell/aoe/blindness(null))
-	AddSpell(new /obj/effect/proc_holder/spell/night_vision(null))
 
 	// Set creator
 	if(creator)

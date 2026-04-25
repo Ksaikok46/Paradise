@@ -13,8 +13,9 @@
 	stat_attack = UNCONSCIOUS
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	sight = SEE_TURFS|SEE_MOBS|SEE_OBJS
-	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff_red = 20
+	lighting_cutoff_green = 40
+	lighting_cutoff_blue = 30
 	can_buckle_to = FALSE
 	universal_speak = TRUE // So mobs can understand them when a blob uses Blob Broadcast
 	sentience_type = SENTIENCE_OTHER

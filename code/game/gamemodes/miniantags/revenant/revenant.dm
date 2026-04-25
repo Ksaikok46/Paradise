@@ -19,8 +19,9 @@
 	invisibility = INVISIBILITY_REVENANT
 	health =  INFINITY //Revenants don't use health, they use essence instead
 	maxHealth =  INFINITY
-	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff_red = 30
+	lighting_cutoff_green = 5
+	lighting_cutoff_blue = 15
 	response_help   = "passes through"
 	response_disarm = "swings at"
 	response_harm   = "punches"
@@ -217,7 +218,6 @@
 			to_chat(src, chat_box_red(messages.Join("<br>")))
 
 /mob/living/simple_animal/revenant/proc/giveSpells()
-	mind.AddSpell(new /obj/effect/proc_holder/spell/night_vision/revenant(null))
 	mind.AddSpell(new /obj/effect/proc_holder/spell/revenant_transmit(null))
 	mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/revenant/defile(null))
 	mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/revenant/malfunction(null))

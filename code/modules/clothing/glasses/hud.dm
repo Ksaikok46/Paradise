@@ -69,6 +69,7 @@
 		if(DATA_HUD_MEDICAL_ADVANCED)
 			HUDType = DATA_HUD_SECURITY_BASIC
 			examine_extensions = EXAMINE_HUD_SKILLS
+			glass_colour_type = /datum/client_colour/glass_colour/lightblue
 			hudMode = "навыков"
 		if(DATA_HUD_SECURITY_BASIC)
 			HUDType = DATA_HUD_SECURITY_ADVANCED
@@ -97,7 +98,7 @@ MEDICAL
 	icon_state = "healthhud"
 	HUDType = DATA_HUD_MEDICAL_ADVANCED
 	examine_extensions = EXAMINE_HUD_MEDICAL
-
+	glass_colour_type = /datum/client_colour/glass_colour/lightblue
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
@@ -115,9 +116,15 @@ MEDICAL
 	icon_state = "healthhudnight"
 	item_state = "nvghud"
 	origin_tech = "magnets=4;biotech=4;plasmatech=4;engineering=5"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	// Blue green, dark
+	color_cutoffs = list(20, 20, 45)
+	glass_colour_type = /datum/client_colour/glass_colour/lightgreen
+	actions_types = list(/datum/action/item_action/toggle_nv)
 	prescription_upgradable = FALSE
+
+/obj/item/clothing/glasses/hud/health/night/update_icon_state()
+	. = ..()
+	icon_state = length(color_cutoffs) ? initial(icon_state) : "night_off"
 
 /obj/item/clothing/glasses/hud/health/heart
 	name = "Heart Medical Glasses"
@@ -136,7 +143,6 @@ MEDICAL
 	name = "medical sunglasses"
 	desc = "Sunglasses with a medical HUD."
 	icon_state = "sunhudmed"
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 
@@ -160,7 +166,6 @@ MEDICAL
 	)
 
 /obj/item/clothing/glasses/hud/health/tajblind/sunglasses
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint_up = 1
 
@@ -189,7 +194,7 @@ MEDICAL
 			и анализа состояния здоровья окружающих существ."
 	icon_state = "mesonhealth"
 	vision_flags = SEE_TURFS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	color_cutoffs = list(5, 15, 15)
 
 /obj/item/clothing/glasses/hud/health/meson/get_ru_names()
 	return list(
@@ -222,6 +227,7 @@ DIAGNOSTIC
 	icon_state = "diagnostichud"
 	origin_tech = "magnets=2;engineering=2"
 	HUDType = DATA_HUD_DIAGNOSTIC
+	glass_colour_type = /datum/client_colour/glass_colour/lightorange
 
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
@@ -253,9 +259,15 @@ DIAGNOSTIC
 	icon_state = "diagnostichudnight"
 	item_state = "nvghud"
 	origin_tech = "magnets=4;powerstorage=4;plasmatech=4;engineering=5"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	// Pale yellow
+	color_cutoffs = list(25, 15, 5)
+	glass_colour_type = /datum/client_colour/glass_colour/lightyellow
+	actions_types = list(/datum/action/item_action/toggle_nv)
 	prescription_upgradable = FALSE
+
+/obj/item/clothing/glasses/hud/diagnostic/night/update_icon_state()
+	. = ..()
+	icon_state = length(color_cutoffs) ? initial(icon_state) : "night_off"
 
 /obj/item/clothing/glasses/hud/diagnostic/sunglasses
 	name = "diagnostic sunglasses"
@@ -274,7 +286,6 @@ DIAGNOSTIC
 	actions_types = list(/datum/action/item_action/toggle)
 
 /obj/item/clothing/glasses/hud/diagnostic/tajblind/sunglasses
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint_up = 1
 
@@ -317,6 +328,7 @@ SECURITY
 	desc = "A heads-up display that scans the humans in view and provides accurate data about their ID status and security records."
 	icon_state = "securityhud"
 	origin_tech = "magnets=3;combat=2"
+	glass_colour_type = /datum/client_colour/glass_colour/red
 	var/global/list/jobs[0]
 	HUDType = DATA_HUD_SECURITY_ADVANCED
 	examine_extensions = EXAMINE_HUD_SECURITY_READ | EXAMINE_HUD_SECURITY_WRITE
@@ -350,17 +362,23 @@ SECURITY
 	desc = "An advanced heads-up display which provides id data and vision in complete darkness."
 	icon_state = "securityhudnight"
 	origin_tech = "magnets=4;combat=4;plasmatech=4;engineering=5"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //don't render darkness while wearing these
+	// Red with a tint of green
+	color_cutoffs = list(40, 15, 10)
+	glass_colour_type = /datum/client_colour/glass_colour/lightred
+	actions_types = list(/datum/action/item_action/toggle_nv)
 	prescription_upgradable = FALSE
+
+/obj/item/clothing/glasses/hud/security/night/update_icon_state()
+	. = ..()
+	icon_state = length(color_cutoffs) ? initial(icon_state) : "night_off"
 
 /obj/item/clothing/glasses/hud/security/sunglasses
 	name = "security sunglasses"
 	desc = "Sunglasses with a security HUD."
 	icon_state = "sunhud"
 	origin_tech = "magnets=3;combat=3;engineering=3"
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
+	glass_colour_type = /datum/client_colour/glass_colour/darkred
 	tint = 1
 
 	sprite_sheets = list(
@@ -390,7 +408,7 @@ SECURITY
 	item_state = "secgoggles-g"
 	over_hat = TRUE
 	can_toggle = TRUE
-	visor_vars_to_toggle = VISOR_FLASHPROTECT | VISOR_TINT | VISOR_DARKNESSVIEW | VISOR_FULL_HUD
+	visor_vars_to_toggle = VISOR_FLASHPROTECT | VISOR_TINT | VISOR_FULL_HUD
 	actions_types = list(/datum/action/item_action/toggle)
 	visor_flags_cover = GLASSESCOVERSEYES
 	sprite_sheets = list(
@@ -424,7 +442,6 @@ SECURITY
 	icon_state = "jensenshades"
 	item_state = "jensenshades"
 	vision_flags = SEE_MOBS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 
 /obj/item/clothing/glasses/hud/security/sunglasses/tajblind
 	name = "sleek veil"
@@ -487,6 +504,7 @@ HYDROPONIC
 	icon_state = "hydroponichud"
 	HUDType = DATA_HUD_HYDROPONIC
 	examine_extensions = EXAMINE_HUD_BOTANY
+	glass_colour_type = /datum/client_colour/glass_colour/lightgreen
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/eyes.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
@@ -516,8 +534,8 @@ HYDROPONIC
 	desc = "A hydroponic HUD fitted with a light amplifier."
 	icon_state = "hydroponichudnight"
 	item_state = "nvghud"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	color_cutoffs = list(10, 40, 15)
+	glass_colour_type = /datum/client_colour/glass_colour/lightgreen
 	prescription_upgradable = FALSE
 
 /obj/item/clothing/glasses/hud/hydroponic/sunglasses
@@ -525,7 +543,6 @@ HYDROPONIC
 	desc = "For cool botanists only"
 	icon_state = "sunhudhydro"
 	item_state = "sunhudhydro"
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 
@@ -538,7 +555,6 @@ HYDROPONIC
 	actions_types = list(/datum/action/item_action/toggle)
 
 /obj/item/clothing/glasses/hud/hydroponic/tajblind/sunglasses
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint_up = 1
 
@@ -583,6 +599,7 @@ SKILLS
 	item_state = "skill"
 	HUDType = DATA_HUD_SECURITY_BASIC
 	examine_extensions = EXAMINE_HUD_SKILLS
+	glass_colour_type = /datum/client_colour/glass_colour/blue
 	sprite_sheets = list(
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/eyes.dmi',
 		SPECIES_GREY  = 'icons/mob/clothing/species/grey/eyes.dmi',
@@ -611,7 +628,6 @@ SKILLS
 	name = "skills sunglasses"
 	desc = "Sunglasses with a build-in skills HUD, showing the employment history of nearby NT crew members."
 	icon_state = "sunhudskill"
-	see_in_dark = 1 // None of these three can be converted to booleans. Do not try it.
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 	sprite_sheets = list(
@@ -634,7 +650,6 @@ SKILLS
 	actions_types = list(/datum/action/item_action/toggle)
 
 /obj/item/clothing/glasses/hud/skills/tajblind/sunglasses
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint_up = 1
 
@@ -647,7 +662,6 @@ SKILLS
 	actions_types = list(/datum/action/item_action/switch_hud)
 	icon_state = "sunhudmed"
 	origin_tech = "magnets=4;combat=4;engineering=4;biotech=4"
-	see_in_dark = 1
 	flash_protect = FLASH_PROTECTION_FLASH
 	tint = 1
 	HUDType = DATA_HUD_MEDICAL_ADVANCED

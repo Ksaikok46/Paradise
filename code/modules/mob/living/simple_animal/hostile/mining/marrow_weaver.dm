@@ -20,7 +20,6 @@
 	melee_damage_upper = 16
 	stat_attack = 1
 	robust_searching = 1
-	nightvision = 7
 	ventcrawler_trait = TRAIT_VENTCRAWLER_ALWAYS
 	pass_flags = PASSTABLE
 	attack_sound = 'sound/weapons/bite.ogg'
@@ -140,7 +139,6 @@
 /mob/living/simple_animal/hostile/asteroid/marrowweaver/dangerous
 	health = 320
 	maxHealth = 320
-	nightvision = 8
 	speed = 5
 	move_to_delay = 14
 	anger_move_to_delay = 6

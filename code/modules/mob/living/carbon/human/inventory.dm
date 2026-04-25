@@ -32,7 +32,7 @@
 		update_tint()
 	if(our_glasses.prescription)
 		update_nearsighted_effects()
-	if(our_glasses.vision_flags || our_glasses.see_in_dark || our_glasses.invis_override || our_glasses.invis_view || !isnull(our_glasses.lighting_alpha))
+	if(our_glasses.vision_flags || our_glasses.invis_override || our_glasses.invis_view || !isnull(our_glasses.lighting_cutoff))
 		update_sight()
 		update_client_colour()
 	if(our_glasses.flags_cover & GLASSESCOVERSEYES)
@@ -105,7 +105,7 @@
 		if(forced || hat.tint || initial(hat.tint))
 			update_tint()
 
-		if(forced || hat.vision_flags || hat.see_in_dark || !isnull(hat.lighting_alpha))
+		if(forced || hat.vision_flags || !isnull(hat.lighting_cutoff))
 			update_sight()
 
 	if(forced || \

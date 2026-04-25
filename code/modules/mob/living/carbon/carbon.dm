@@ -395,7 +395,6 @@
 /mob/living/carbon/flash_eyes(intensity = 1, override_blindness_check, affect_silicon, visual, type = /atom/movable/screen/fullscreen/flash)
 	. = ..()
 	var/damage = intensity - check_eye_prot()
-	var/extra_damage = 0
 	if(.)
 		if(visual)
 			return
@@ -407,32 +406,17 @@
 		if(weakeyes)
 			Stun(4 SECONDS)
 
-		var/extra_darkview = 0
-		if(E.see_in_dark)
-			extra_darkview = max(E.see_in_dark - 2, 0)
-			extra_damage = extra_darkview
-
-		var/light_amount = 10 // assume full brightness
-		if(isturf(loc))
-			var/turf/T = loc
-			light_amount = round(T.get_lumcount() * 10)
-
-		// a dark view of 8, in full darkness, will result in maximum 1st tier damage
-		var/extra_prob = (10 - light_amount) * extra_darkview
-
 		switch(damage)
 			if(1)
 				to_chat(src, span_warning("Ваши глаза немного щиплет."))
-				var/minor_damage_multiplier = min(40 + extra_prob, 100) / 100
-				var/minor_damage = minor_damage_multiplier * (1 + extra_damage)
-				E.internal_receive_damage(minor_damage, silent = TRUE)
+				E.internal_receive_damage(1, silent = TRUE)
 			if(2)
 				to_chat(src, span_warning("Ваши глаза болят от яркого света."))
-				E.internal_receive_damage(rand(2, 4) + extra_damage, silent = TRUE)
+				E.internal_receive_damage(rand(2, 4), silent = TRUE)
 
 			else
 				to_chat(src, span_danger("Ваши глаза сильно болят от яркого света!"))
-				E.internal_receive_damage(rand(12, 16) + extra_damage, silent = TRUE)
+				E.internal_receive_damage(rand(12, 16), silent = TRUE)
 
 		if(E.damage >= E.min_bruised_damage)
 			if(E.damage >= E.min_broken_damage)
@@ -936,47 +920,76 @@ so that different stomachs can handle things in different ways VB*/
 
 	set_invis_see(initial(see_invisible))
 	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
-	nightvision = initial(nightvision)
-
-	for(var/obj/item/organ/internal/cyberimp/eyes/cyber_eyes in internal_organs)
-		add_sight(cyber_eyes.vision_flags)
-
-		if(cyber_eyes.see_in_dark)
-			nightvision = max(nightvision, cyber_eyes.see_in_dark)
-
-		if(cyber_eyes.see_invisible)
-			set_invis_see(min(see_invisible, cyber_eyes.see_invisible))
-
-		if(!isnull(cyber_eyes.lighting_alpha))
-			lighting_alpha = min(lighting_alpha, cyber_eyes.lighting_alpha)
+	lighting_cutoff = initial(lighting_cutoff)
+	lighting_color_cutoffs = list(lighting_cutoff_red, lighting_cutoff_green, lighting_cutoff_blue)
 
 	if(client.eye && client.eye != src)
 		var/atom/atom = client.eye
-
 		if(atom.update_remote_sight(src)) // returns TRUE if we override all other sight updates.
 			return
 
-	if(HAS_TRAIT(src, TRAIT_XRAY))
-		add_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	var/sight_flags_to_add
 
-	if(HAS_TRAIT(src, TRAIT_THERMAL_VISION))
-		add_sight(SEE_MOBS)
-		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
+	var/obj/item/organ/internal/cyberimp/eyes/cyber_eyes = locate() in internal_organs
+	if(cyber_eyes)
+		sight_flags_to_add |= cyber_eyes.vision_flags
 
-	if(HAS_TRAIT(src, TRAIT_MESON_VISION))
-		add_sight(SEE_TURFS)
-		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
+		if(cyber_eyes.see_invisible)
+			set_invis_see(max(see_invisible, cyber_eyes.see_invisible))
+
+		if(cyber_eyes.lighting_cutoff)
+			lighting_cutoff = max(lighting_cutoff, cyber_eyes.lighting_cutoff)
+
+		if(length(cyber_eyes.color_cutoffs))
+			lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, cyber_eyes.color_cutoffs)
+
+	var/obj/item/organ/internal/eyes/eyes = get_organ_slot(INTERNAL_ORGAN_EYES)
+	if(eyes)
+		sight_flags_to_add |= eyes.vision_flags
+
+		if(eyes.see_invisible)
+			set_invis_see(max(see_invisible, eyes.see_invisible))
+
+		if(eyes.lighting_cutoff)
+			lighting_cutoff = max(lighting_cutoff, eyes.lighting_cutoff)
+
+		if(length(eyes.color_cutoffs))
+			lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, eyes.color_cutoffs)
+
+	if(ishuman(src))
+		var/mob/living/carbon/human/human = src
+		var/obj/item/clothing/glasses/glasses = human.glasses
+		if(glasses)
+			sight_flags_to_add |= glasses.vision_flags
+
+			if(glasses.invis_override)
+				set_invis_see(max(see_invisible, glasses.invis_override))
+
+			if(glasses.lighting_cutoff)
+				lighting_cutoff = max(lighting_cutoff, glasses.lighting_cutoff)
+
+			if(length(glasses.color_cutoffs))
+				lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, glasses.color_cutoffs)
 
 	if(HAS_TRAIT(src, TRAIT_NIGHT_VISION))
-		nightvision = max(nightvision, 8)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+		lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
+
+	if(HAS_TRAIT(src, TRAIT_THERMAL_VISION))
+		sight_flags_to_add |= SEE_MOBS
+		lighting_cutoff = max(lighting_cutoff, LIGHTING_CUTOFF_MEDIUM)
+
+	if(HAS_TRAIT(src, TRAIT_MESON_VISION))
+		sight_flags_to_add |= SEE_TURFS
+		lighting_cutoff = max(lighting_cutoff, LIGHTING_CUTOFF_MEDIUM)
+
+	if(HAS_TRAIT(src, TRAIT_XRAY_VISION))
+		sight_flags_to_add |= SEE_TURFS|SEE_MOBS|SEE_OBJS
 
 	if(HAS_TRAIT(src, TRAIT_ECHOLOCATOR))
-		add_sight(SEE_MOBS|SEE_TURFS)
-		lighting_alpha = max(lighting_alpha, LIGHTING_PLANE_ALPHA_INVISIBLE)
+		sight_flags_to_add |= SEE_MOBS|SEE_TURFS
+		lighting_cutoff = max(lighting_cutoff, LIGHTING_CUTOFF_FULLBRIGHT)
 
+	set_sight(sight_flags_to_add)
 	return ..()
 
 /mob/living/carbon/ExtinguishMob()

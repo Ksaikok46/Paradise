@@ -449,12 +449,9 @@
 /obj/machinery/camera/update_remote_sight(mob/living/user)
 	if(isXRay() && isAI(user))
 		user.add_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-		user.nightvision = max(user.nightvision, 8)
-		user.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+		user.lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	else
-		user.set_sight(initial(user.sight))
-		user.nightvision = initial(user.nightvision)
-		user.lighting_alpha = initial(user.lighting_alpha)
+		user.lighting_cutoff = user.default_lighting_cutoff()
 
 	..()
 	return TRUE

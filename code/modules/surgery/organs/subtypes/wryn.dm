@@ -160,7 +160,6 @@
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали врину."
 	icon = 'icons/obj/species_organs/wryn.dmi'
 	item_state = "wryn_eyes"
-	see_in_dark = 3
 
 /obj/item/organ/internal/eyes/wryn/get_ru_names()
 	return list(

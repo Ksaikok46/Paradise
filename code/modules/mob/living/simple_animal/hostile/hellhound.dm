@@ -20,7 +20,6 @@
 	attacktext = "кусает"
 	attack_sound = 'sound/effects/bite.ogg'
 	speak_emote = list("рычит")
-	nightvision = 9
 	wander = 0
 	AI_delay_max = 0.5 SECONDS
 	var/life_regen_cycles = 0

@@ -7,10 +7,13 @@
 	parent_organ_zone = BODY_ZONE_PRECISE_EYES
 	w_class = WEIGHT_CLASS_TINY
 
-	var/vision_flags = 0
-	var/see_in_dark = 0
+	var/vision_flags = NONE
+	// Duplicated from normal organ/internal/eyes because of organ code bullshit
+	/// How much darkness to cut out of your view (basically, night vision)
+	var/lighting_cutoff = null
+	/// List of color cutoffs from eyes, or null if not applicable
+	var/list/color_cutoffs = null
 	var/see_invisible = SEE_INVISIBLE_LIVING
-	var/lighting_alpha = LIGHTING_PLANE_ALPHA_VISIBLE
 
 	var/eye_colour = "#000000" // Should never be null
 	var/flash_protect = FLASH_PROTECTION_NONE
@@ -62,7 +65,6 @@
 	icon_state = "mesonhud_implant"
 	origin_tech = "materials=4;engineering=4;biotech=4;magnets=4"
 	vision_flags = SEE_TURFS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 	aug_message = "Suddenly, you realize how much of a mess the station really is..."
 
 /obj/item/organ/internal/cyberimp/eyes/meson/insert(mob/living/carbon/human/user_human, special = FALSE)
@@ -79,8 +81,14 @@
 	implant_color = "#000000"
 	origin_tech = "materials=4;programming=4;biotech=7;magnets=4"
 	vision_flags = SEE_MOBS | SEE_OBJS | SEE_TURFS
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+
+/obj/item/organ/internal/cyberimp/eyes/meson/insert(mob/living/carbon/human/user_human, special = FALSE)
+	ADD_TRAIT(user_human, TRAIT_XRAY_VISION, UNIQUE_TRAIT_SOURCE(src))
+	return ..()
+
+/obj/item/organ/internal/cyberimp/eyes/meson/remove(mob/living/carbon/human/user_human, special = FALSE)
+	REMOVE_TRAIT(user_human, TRAIT_XRAY_VISION, UNIQUE_TRAIT_SOURCE(src))
+	return ..()
 
 /obj/item/organ/internal/cyberimp/eyes/thermals
 	name = "Thermals implant"
@@ -88,10 +96,17 @@
 	icon_state = "thermal_implant"
 	eye_colour = "#FFCC00"
 	vision_flags = SEE_MOBS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 	flash_protect = FLASH_PROTECTION_SENSITIVE
 	origin_tech = "materials=5;programming=4;biotech=4;magnets=4"
 	aug_message = "You see prey everywhere you look..."
+
+/obj/item/organ/internal/cyberimp/eyes/meson/insert(mob/living/carbon/human/user_human, special = FALSE)
+	ADD_TRAIT(user_human, TRAIT_THERMAL_VISION, UNIQUE_TRAIT_SOURCE(src))
+	return ..()
+
+/obj/item/organ/internal/cyberimp/eyes/meson/remove(mob/living/carbon/human/user_human, special = FALSE)
+	REMOVE_TRAIT(user_human, TRAIT_THERMAL_VISION, UNIQUE_TRAIT_SOURCE(src))
+	return ..()
 
 /obj/item/organ/internal/cyberimp/eyes/thermals/empproof/emp_act(severity)
 	if(emp_shielded(severity))

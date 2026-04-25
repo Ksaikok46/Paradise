@@ -79,7 +79,6 @@
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали драску."
 	icon = 'icons/obj/species_organs/drask.dmi'
 	item_state = "drask_eyes"
-	see_in_dark = 5
 
 /obj/item/organ/internal/eyes/drask/get_ru_names()
 	return list(

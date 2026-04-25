@@ -14,7 +14,6 @@
 	var/meow_sound = SFX_CAT_MEOW //Used in emote.
 	speak_chance = 1
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	animal_species = /mob/living/simple_animal/pet/cat
 	childtype = list(/mob/living/simple_animal/pet/cat/kitten)

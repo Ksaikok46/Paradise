@@ -7,7 +7,6 @@
 	icon_resting = "slugcat_rest"
 	speak = list("Furrr.","Uhh.", "Hurrr.")
 	turns_per_move = 5
-	nightvision = 8
 	health = 100
 	maxHealth = 100
 	melee_damage_type = STAMINA

@@ -725,7 +725,8 @@
 	unlock_sound = 'sound/items/rped.ogg'
 
 /datum/AI_Module/large/upgrade_cameras/upgrade(mob/living/silicon/ai/AI)
-	AI.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //Night-vision, without which X-ray would be very limited in power.
+	// Sets up nightvision
+	RegisterSignal(AI, COMSIG_MOB_UPDATE_SIGHT, PROC_REF(on_update_sight))
 	AI.update_sight()
 	var/upgraded_cameras = 0
 
@@ -745,6 +746,11 @@
 			upgraded_cameras++
 
 	unlock_text = replacetext(unlock_text, "CAMSUPGRADED", "<b>[upgraded_cameras]</b>") //This works, since unlock text is called after upgrade()
+
+/datum/AI_Module/large/upgrade_cameras/proc/on_update_sight(mob/source)
+	SIGNAL_HANDLER
+	// Dim blue, pretty
+	source.lighting_color_cutoffs = blend_cutoff_colors(source.lighting_color_cutoffs, list(5, 25, 35))
 
 /datum/AI_Module/large/eavesdrop
 	module_name = "Enhanced Surveillance"

@@ -1,29 +1,3 @@
-/datum/action/innate/alien_nightvision_toggle
-	name = "Переключить ночное зрение"
-	button_icon_state = "meson"
-
-/datum/action/innate/alien_nightvision_toggle/Activate()
-	var/mob/living/carbon/alien/host = owner
-
-	if(!IsAvailable())
-		return
-
-	if(!host.nightvision_enabled)
-		host.nightvision = 8
-		host.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-		host.nightvision_enabled = TRUE
-		usr.hud_used.nightvisionicon.icon_state = "nightvision1"
-		host.update_sight()
-		return
-
-	if(host.nightvision_enabled)
-		host.nightvision = initial(host.nightvision)
-		host.lighting_alpha = initial(host.lighting_alpha)
-		host.nightvision_enabled = FALSE
-		usr.hud_used.nightvisionicon.icon_state = "nightvision0"
-		host.update_sight()
-		return
-
 /proc/playsound_xenobuild(object)
 	var/turf/object_turf = get_turf(object)
 

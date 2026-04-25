@@ -1735,7 +1735,10 @@
 	harm_intent_damage = 5	// punching transformed vampire is pretty useless
 	universal_speak = TRUE	// and speak to anyone too
 	mob_size = MOB_SIZE_LARGE
-	nightvision = 8	// full night vision
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
+	lighting_cutoff_red = 20
+	lighting_cutoff_green = 5
+	lighting_cutoff_blue = 10
 	atmos_requirements = list("min_oxy" = 5, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)	// we need oxygen only
 	AI_delay_max = 0 SECONDS
 	var/dead_for_sure = FALSE	// we need this to prevent death() proc to invoke nultiple times
@@ -1815,28 +1818,25 @@
 
 	set_invis_see(initial(see_invisible))
 	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
-	nightvision = initial(nightvision)
-
+	lighting_cutoff = default_lighting_cutoff()
 	var/datum/antagonist/vampire/vamp = mind?.has_antag_datum(/datum/antagonist/vampire)
 	if(vamp)
 		if(vamp.get_ability(/datum/vampire_passive/xray))
 			add_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-			lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+			lighting_cutoff = LIGHTING_CUTOFF_HIGH
 		else if(vamp.get_ability(/datum/vampire_passive/full))
 			add_sight(SEE_MOBS)
-			lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+			lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
 		else if(vamp.get_ability(/datum/vampire_passive/vision))
 			add_sight(SEE_MOBS)
-			lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+			lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 
 	if(client.eye != src)
 		var/atom/A = client.eye
 		if(A.update_remote_sight(src))
 			return
 
-	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
-	sync_lighting_plane_alpha()
+	return ..()
 
 /mob/living/simple_animal/hostile/vampire/do_attack_animation(atom/A, visual_effect_icon, obj/item/used_item, no_effect)
 	if(!no_effect && !visual_effect_icon)

@@ -287,14 +287,14 @@
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human = owner
 		human.force_gene_block(GLOB.colourblindblock, TRUE)
-		human.set_vision_override(/datum/vision_override/nightvision)
+		human.lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	return TRUE
 
 /datum/status_effect/lavaland_vision/on_remove()
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human = owner
 		human.force_gene_block(GLOB.colourblindblock, FALSE)
-		human.set_vision_override(null)
+		human.lighting_cutoff = human.default_lighting_cutoff()
 
 /atom/movable/screen/alert/status_effect/temperature_stabilize
 	name = "Тушёный пивной червь"

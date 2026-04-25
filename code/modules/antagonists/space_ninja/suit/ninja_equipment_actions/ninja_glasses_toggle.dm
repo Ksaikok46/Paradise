@@ -13,24 +13,21 @@
 	current_mode = mode ? mode : next_mode()
 	switch(current_mode)
 		if(NINJA_NIGHTVISION)
-			see_in_dark = 8
-			lighting_alpha = 160
+			lighting_cutoff = LIGHTING_CUTOFF_LOW
 			flash_protect = FLASH_PROTECTION_SENSITIVE
 			vision_flags &= ~SEE_MOBS
 			icon_state = "[initial(icon_state)]"
 			item_state = "[initial(item_state)]"
 			balloon_alert(user, "режим — Ночное видение")
 		if(NINJA_THERMALS)
-			see_in_dark = 2
-			lighting_alpha = 220
+			lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 			flash_protect = FLASH_PROTECTION_SENSITIVE
 			vision_flags |= SEE_MOBS
 			icon_state = "[initial(icon_state)]_red"
 			item_state = "[initial(item_state)]_red"
 			balloon_alert(user, "режим — Термальное видение")
 		if(NINJA_FLASHPROTECTION)
-			see_in_dark = 2
-			lighting_alpha = null
+			lighting_cutoff = null
 			flash_protect = FLASH_PROTECTION_FLASH
 			vision_flags &= ~SEE_MOBS
 			icon_state = "[initial(icon_state)]_blue"

@@ -19,7 +19,7 @@
 
 	has_organ = list(
 		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain,
-		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/shadow, //8 darksight.
+		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/shadow,
 		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
 	)
 
@@ -38,38 +38,10 @@
 		"сворачивает себе шею!",
 		"пялится на ближайший источник света!")
 
-	var/grant_vision_toggle = TRUE
-
 	disliked_food = NONE
-
-/datum/action/innate/shadow/darkvision //Darkvision toggle so shadowpeople can actually see where darkness is
-	name = "Переключить ночное зрение"
-	check_flags = AB_CHECK_CONSCIOUS
-	button_icon_state = "blind"
-
-/datum/action/innate/shadow/darkvision/Activate()
-	var/mob/living/carbon/human/human = owner
-	if(!human.vision_type)
-		human.set_vision_override(/datum/vision_override/nightvision)
-		to_chat(human, span_notice("Вы изменяете свой взор, чтобы видеть сквозь тьму."))
-	else
-		human.set_vision_override(null)
-		to_chat(human, span_notice("Вы изменяете свой взор, чтобы вновь различать свет и тени."))
-
-/datum/species/shadow/on_species_gain(mob/living/carbon/human/human)
-	. = ..()
-	if(grant_vision_toggle)
-		var/datum/action/innate/shadow/darkvision/vision_toggle = locate() in human.actions
-		if(!vision_toggle)
-			vision_toggle = new
-			vision_toggle.Grant(human)
 
 /datum/species/shadow/on_species_loss(mob/living/carbon/human/human)
 	. = ..()
-	var/datum/action/innate/shadow/darkvision/vision_toggle = locate() in human.actions
-	if(grant_vision_toggle && vision_toggle)
-		human.vision_type = null
-		vision_toggle.Remove(human)
 	human.clear_alert("lightexposure")
 	human.remove_status_effect(STATUS_EFFECT_SHADOW_EMPOWER)
 

@@ -24,7 +24,6 @@
 	attack_sound = 'sound/weapons/punch1.ogg'
 	faction = list("hostile", "monkey", "jungle")
 	robust_searching = TRUE
-	nightvision = 8
 	can_collar = TRUE
 	footstep_type = FOOTSTEP_MOB_BAREFOOT
 	gold_core_spawnable = HOSTILE_SPAWN

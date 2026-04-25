@@ -11,10 +11,9 @@
 	if(iscarbon(arrived))
 		var/mob/living/carbon/C = arrived
 		C.set_invis_see(initial(C.see_invisible))
-		C.nightvision = initial(C.nightvision)
 		C.set_sight(initial(C.sight))
-		C.lighting_alpha = initial(C.lighting_alpha)
-		C.sync_lighting_plane_alpha()
+		C.lighting_cutoff = C.default_lighting_cutoff()
+		C.sync_lighting_plane_cutoff()
 		C.AddComponent(/datum/component/vision_reset)
 
 /area/vision_change_area/Exited(atom/movable/departed, area/new_area)
@@ -37,10 +36,9 @@
 
 /datum/component/vision_reset/proc/change_vision()
 	my_mob.set_invis_see(initial(my_mob.see_invisible))
-	my_mob.nightvision = initial(my_mob.nightvision)
 	my_mob.set_sight(initial(my_mob.sight))
-	my_mob.lighting_alpha = initial(my_mob.lighting_alpha)
-	my_mob.sync_lighting_plane_alpha()
+	my_mob.lighting_cutoff = my_mob.default_lighting_cutoff()
+	my_mob.sync_lighting_plane_cutoff()
 
 /datum/component/vision_reset/Destroy(force)
 	UnregisterSignal(my_mob, COMSIG_MOB_UPDATE_SIGHT)

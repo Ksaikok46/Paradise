@@ -1117,19 +1117,17 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 		return null
 	return has_organ[organ_slot]
 
-/datum/species/proc/update_sight(mob/living/carbon/human/human)
+/datum/species/proc/update_sight(mob/living/carbon/human/human) // vision refactor TODO ksaikok
 	human.set_sight(initial(human.sight))
 
 	var/obj/item/organ/internal/eyes/eyes = human.get_int_organ(/obj/item/organ/internal/eyes)
 	if(eyes)
 		human.add_sight(eyes.vision_flags)
-		human.nightvision = eyes.see_in_dark
 		human.set_invis_see(eyes.see_invisible)
-		human.lighting_alpha = eyes.lighting_alpha
+		human.lighting_cutoff = eyes.lighting_cutoff
 	else
-		human.nightvision = initial(human.nightvision)
 		human.set_invis_see(initial(human.see_invisible))
-		human.lighting_alpha = initial(human.lighting_alpha)
+		human.lighting_cutoff = human.default_lighting_cutoff()
 
 	if(human.client && human.client.eye != human)
 		var/atom/atom = human.client.eye
@@ -1140,86 +1138,62 @@ It'll return null if the organ doesn't correspond, so include null checks when u
 	if(vamp)
 		if(vamp.get_ability(/datum/vampire_passive/xray))
 			human.add_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-			human.nightvision += 8
-			human.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+			human.lighting_cutoff = LIGHTING_CUTOFF_HIGH
 		else if(vamp.get_ability(/datum/vampire_passive/full))
 			human.add_sight(SEE_MOBS)
-			human.nightvision += 8
-			human.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+			human.lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
 		else if(vamp.get_ability(/datum/vampire_passive/vision))
 			human.add_sight(SEE_MOBS)
-			human.nightvision += 1 // base of 2, 2+1 is 3
-			human.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+			human.lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 
 	for(var/obj/item/organ/internal/cyberimp/eyes/cyber_eyes in human.internal_organs)
 		human.add_sight(cyber_eyes.vision_flags)
-		if(cyber_eyes.see_in_dark)
-			human.nightvision = max(human.nightvision, cyber_eyes.see_in_dark)
 		if(cyber_eyes.see_invisible)
 			human.set_invis_see(min(human.see_invisible, cyber_eyes.see_invisible))
-		if(cyber_eyes.lighting_alpha)
-			human.lighting_alpha = min(human.lighting_alpha, cyber_eyes.lighting_alpha)
+		if(cyber_eyes.lighting_cutoff)
+			human.lighting_cutoff = min(human.lighting_cutoff, cyber_eyes.lighting_cutoff)
 
 	// my glasses, I can't see without my glasses
 	if(human.glasses)
 		var/obj/item/clothing/glasses/glasses = human.glasses
 		human.add_sight(glasses.vision_flags)
-		human.nightvision = max(glasses.see_in_dark, human.nightvision)
 
 		if(glasses.invis_override)
 			human.set_invis_see(glasses.invis_override)
 		else
 			human.set_invis_see(min(glasses.invis_view, human.see_invisible))
 
-		if(!isnull(glasses.lighting_alpha))
-			human.lighting_alpha = min(glasses.lighting_alpha, human.lighting_alpha)
+		if(!isnull(glasses.lighting_cutoff))
+			human.lighting_cutoff = min(glasses.lighting_cutoff, human.lighting_cutoff)
 
 	// better living through hat trading
 	if(human.head)
 		if(istype(human.head, /obj/item/clothing/head))
 			var/obj/item/clothing/head/hat = human.head
 			human.add_sight(hat.vision_flags)
-			human.nightvision = max(hat.see_in_dark, human.nightvision)
 
-			if(!isnull(hat.lighting_alpha))
-				human.lighting_alpha = min(hat.lighting_alpha, human.lighting_alpha)
-
-	if(human.vision_type)
-		human.add_sight(human.vision_type.sight_flags)
-		human.nightvision = max(human.nightvision, human.vision_type.see_in_dark)
-
-		if(!isnull(human.vision_type.lighting_alpha))
-			human.lighting_alpha = min(human.vision_type.lighting_alpha, human.lighting_alpha)
-
-		if(human.vision_type.light_sensitive)
-			human.weakeyes = TRUE
+			if(!isnull(hat.lighting_cutoff))
+				human.lighting_cutoff = min(hat.lighting_cutoff, human.lighting_cutoff)
 
 	if(HAS_TRAIT(human, TRAIT_MESON_VISION))
 		human.add_sight(SEE_TURFS)
-		human.lighting_alpha = min(human.lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
+		human.lighting_cutoff = min(human.lighting_cutoff, LIGHTING_CUTOFF_REAL_LOW)
 
 	if(HAS_TRAIT(human, TRAIT_THERMAL_VISION))
 		human.add_sight(SEE_MOBS)
-		human.lighting_alpha = min(human.lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
+		human.lighting_cutoff = min(human.lighting_cutoff, LIGHTING_CUTOFF_REAL_LOW)
 
 	if(HAS_TRAIT(human, TRAIT_XRAY_VISION))
 		human.add_sight(SEE_TURFS|SEE_MOBS|SEE_OBJS)
+		human.lighting_cutoff = min(human.lighting_cutoff, LIGHTING_CUTOFF_HIGH)
 
 	if(HAS_TRAIT(human, TRAIT_NIGHT_VISION))
-		human.nightvision = max(human.nightvision, 8)
-		human.lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-
-	if(HAS_TRAIT(human, TRAIT_XRAY))
-		human.add_sight((SEE_TURFS|SEE_MOBS|SEE_OBJS))
-
-	if(HAS_TRAIT(human, TRAIT_MESON_VISION))
-		human.add_sight(SEE_TURFS)
-		human.lighting_alpha = min(human.lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
+		human.lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 
 	if(human.has_status_effect(STATUS_EFFECT_SUMMONEDGHOST))
 		human.set_invis_see(SEE_INVISIBLE_OBSERVER)
 
-	human.sync_lighting_plane_alpha()
+	human.sync_lighting_plane_cutoff()
 
 #define MAX_WATER_TEMPERATURE_CHANGE 10
 #define MIN_TEMPERATURE_DIFF 10

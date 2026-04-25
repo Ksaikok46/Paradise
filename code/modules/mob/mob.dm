@@ -233,7 +233,7 @@
 			if(mob != loc) // Only give the blind message to hearers that aren't the location
 				msg = blind_message
 				msg_type = EMOTE_AUDIBLE
-		else if(!HAS_TRAIT(mob, TRAIT_HEAR_THROUGH_DARKNESS) && mob.lighting_alpha < LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE && turf.is_softly_lit() && !in_range(turf, mob)) //if it is too dark, unless we're right next to them.
+		else if(!HAS_TRAIT(mob, TRAIT_HEAR_THROUGH_DARKNESS) && mob.lighting_cutoff < LIGHTING_CUTOFF_REAL_LOW && turf.is_softly_lit() && !in_range(turf, mob)) //if it is too dark, unless we're right next to them.
 			msg = blind_message
 			msg_type = EMOTE_AUDIBLE
 		if(!msg)
@@ -1246,8 +1246,15 @@
 	return FALSE
 
 /mob/proc/update_sight()
+	SHOULD_CALL_PARENT(TRUE)
 	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
-	sync_lighting_plane_alpha()
+	sync_lighting_plane_cutoff()
+
+/mob/proc/sync_lighting_plane_cutoff()
+	if(!hud_used)
+		return
+	for(var/atom/movable/screen/plane_master/rendering_plate/lighting/light_plane as anything in hud_used.get_true_plane_masters(RENDER_PLANE_LIGHTING))
+		light_plane.set_light_cutoff(lighting_cutoff, lighting_color_cutoffs)
 
 ///Update the mouse pointer of the attached client in this mob
 /mob/proc/update_mouse_pointer()
@@ -1259,38 +1266,6 @@
 
 	if(client.mouse_override_icon)
 		client.mouse_pointer_icon = client.mouse_override_icon
-
-/mob/proc/set_vision_override(datum/vision_override/O)
-	QDEL_NULL(vision_type)
-	if(O) //in case of null
-		vision_type = new O
-		for(var/mob/dead/observer/observe as anything in inventory_observers)
-			if(!observe.client)
-				LAZYREMOVE(inventory_observers, observe)
-				continue
-			observe.vision_type = vision_type
-	update_sight()
-
-/mob/proc/sync_lighting_plane_alpha()
-	if(!hud_used)
-		return
-	for(var/atom/movable/screen/plane_master/rendering_plate/lighting/light_plane in hud_used.get_true_plane_masters(RENDER_PLANE_LIGHTING))
-		light_plane.set_alpha(lighting_alpha)
-
-	sync_nightvision_screen() //Sync up the overlay used for nightvision to the amount of see_in_dark a mob has. This needs to be called everywhere sync_lighting_plane_alpha() is.
-
-/mob/proc/sync_nightvision_screen()
-	var/atom/movable/screen/fullscreen/see_through_darkness/S = screens["see_through_darkness"]
-	if(S)
-		var/suffix = ""
-		var/nighvision_coeff = nightvision
-		switch(nighvision_coeff)
-			if(3 to 8)
-				suffix = "_[nighvision_coeff]"
-			if(8 to INFINITY)
-				suffix = "_8"
-
-		S.icon_state = "[initial(S.icon_state)][suffix]"
 
 ///Adjust the nutrition of a mob
 /mob/proc/adjust_nutrition(change, forced)

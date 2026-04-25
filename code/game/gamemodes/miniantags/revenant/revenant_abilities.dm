@@ -120,15 +120,6 @@
 	draining = FALSE
 	essence_drained = 0
 
-/**
- * Toggle night vision: lets the revenant toggle its night vision
- */
-/obj/effect/proc_holder/spell/night_vision/revenant
-	base_cooldown = 0
-	message = span_revennotice_alt("Вы переключаете ночное зрение.")
-	action_icon_state = "r_nightvision"
-	action_background_icon_state = "bg_revenant"
-
 //Transmit: the revemant's only direct way to communicate. Sends a single message silently to a single mob
 /obj/effect/proc_holder/spell/revenant_transmit
 	name = "Шёпот"

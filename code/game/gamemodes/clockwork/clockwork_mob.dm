@@ -18,7 +18,6 @@
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	pressure_resistance = 100
 	stop_automated_movement = TRUE
-	nightvision = 8
 	pass_flags = PASSTABLE
 	AIStatus = AI_OFF // Usually someone WILL play for him but i don't know about this on chief.
 	universal_speak = TRUE

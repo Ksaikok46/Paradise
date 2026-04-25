@@ -12,8 +12,7 @@
 	maxHealth = 100000
 	speed = 0
 	var/phasing = 0
-	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
 
 	universal_speak = 1
 

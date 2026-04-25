@@ -561,9 +561,11 @@
 	var/blockTracking // Do we block AI tracking?
 	var/HUDType = null
 
-	var/vision_flags = 0
-	var/see_in_dark = 0
-	var/lighting_alpha
+	var/vision_flags = NONE
+	/// This lets us brighten darkness without washing out bright color
+	var/lighting_cutoff = null
+	/// Similar to lighting_cutoff, except it has individual r g and b components in the same 0-100 scale
+	var/list/color_cutoffs = null
 
 	sprite_sheets = list(
 		SPECIES_MONKEY = 'icons/mob/clothing/species/monkey/head.dmi',

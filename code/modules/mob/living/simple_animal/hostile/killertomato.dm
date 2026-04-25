@@ -7,7 +7,6 @@
 	turns_per_move = 5
 	maxHealth = 30
 	health = 30
-	nightvision = 3
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/tomatomeat = 2)
 	response_help  = "толкает"
 	response_disarm = "отталкивает"

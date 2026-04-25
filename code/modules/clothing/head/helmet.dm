@@ -66,7 +66,7 @@
 	desc = "A helmet with a built-in thermal scanning visor."
 	icon_state = "helmetthermals"
 	vision_flags = SEE_MOBS
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 
 /obj/item/clothing/head/helmet/meson
 	name = "meson visor helmet"
@@ -92,8 +92,7 @@
 	name = "night-vision helmet"
 	desc = "A helmet with a built-in pair of night vision goggles."
 	icon_state = "helmetNVG"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE //don't render darkness while wearing these
+	lighting_cutoff = LIGHTING_CUTOFF_LOW
 
 /obj/item/clothing/head/helmet/alt
 	name = "bulletproof helmet"
@@ -452,8 +451,7 @@
 	name = "Judge's helmet"
 	desc = "Commonly used security headgear for the more theatrically inclined. Wear this in hostage situations to make everything worse."
 	icon_state = "streetjudge_helmet"
-	see_in_dark = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 	sprite_sheets = list(
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/helmet.dmi',
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/helmet.dmi',

@@ -14,7 +14,6 @@
 	tts_seed = "Jaina"
 	yelp_sound = 'sound/creatures/fox_yelp.ogg' //Used on death.
 	turns_per_move = 5
-	nightvision = 6
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat = 3)
 	response_help = "гладит"
@@ -179,7 +178,6 @@
 	icon_living = "fennec"
 	icon_dead = "fennec_dead"
 	icon_resting = "fennec_rest"
-	nightvision = 10
 	holder_type = /obj/item/holder/fennec
 	tts_seed = "Riffleman"
 

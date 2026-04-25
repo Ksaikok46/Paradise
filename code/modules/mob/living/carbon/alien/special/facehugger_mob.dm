@@ -29,8 +29,7 @@
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	pull_force = MOVE_FORCE_EXTREMELY_WEAK
 	environment_smash = ENVIRONMENT_SMASH_NONE
-	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_LOW
 	intent = INTENT_HARM
 	blood_volume = 20
 	blood_color = BLOOD_COLOR_XENO

@@ -120,9 +120,6 @@
 	if(ai.stat == DEAD || ai.control_disabled)
 		to_chat(user, span_notice("Unable to establish a connection: No signal is being detected from the AI."))
 		return
-	if(ai.nightvision == 0)
-		to_chat(user, span_notice("Unable to establish a connection: Only a faint signal is being detected from the AI, and it is not responding to our requests. It may be low on power."))
-		return
 	if(!installed_module.check_install(user))
 		return
 

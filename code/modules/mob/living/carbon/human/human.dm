@@ -441,18 +441,6 @@
 		id = inactive_hand.GetID()
 	return id
 
-/mob/living/carbon/human/update_sight()
-	if(!client)
-		return
-
-	if(stat == DEAD)
-		grant_death_vision()
-		return
-
-	dna.species.update_sight(src)
-	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_SIGHT)
-	sync_lighting_plane_alpha()
-
 /// Calculates the siemens coeff based on clothing and species, can also restart hearts.
 /mob/living/carbon/human/electrocute_act(shock_damage, atom/source, siemens_coeff = 1, flags = NONE, jitter_time = 10 SECONDS, stutter_time = 6 SECONDS, stun_duration = 4 SECONDS)
 	//Calculates the siemens coeff based on clothing. Completely ignores the arguments
@@ -1397,7 +1385,7 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 */
 /mob/living/carbon/human/proc/eyes_shine()
 	// Has xray shining
-	if(HAS_TRAIT(src, TRAIT_XRAY) || HAS_TRAIT(src, TRAIT_HULK))
+	if(HAS_TRAIT(src, TRAIT_XRAY_VISION) || HAS_TRAIT(src, TRAIT_HULK))
 		return TRUE
 
 	// Eyes covered by something

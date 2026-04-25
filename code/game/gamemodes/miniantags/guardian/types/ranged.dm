@@ -7,8 +7,7 @@
 	projectilesound = 'sound/effects/hit_on_shattered_glass.ogg'
 	ranged = 1
 	range = 13
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
-	nightvision = 8
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 	playstyle_string = "Будучи <b>Стрелком</b>, вы не обладаете сопротивлением урону, но способны распылять осколки кристалла с невероятно высокой скоростью. Вы также можете расставлять наблюдательные силки, чтобы следить за передвижением противника. Наконец, вы можете перейти в режим разведчика, в котором вы не можете атаковать, но можете двигаться без ограничений. Следите за энергией для стрельбы и старайтесь не стрелять в хозяина!"
 	magic_fluff_string = "...и вытаскиваете Дозорного, инопланетного мастера дальнего боя."
 	tech_fluff_string = "Последовательность загрузки завершена. Активированы модули дальнего боя. Рой голопаразитов запущен."
@@ -68,18 +67,18 @@
 
 /mob/living/simple_animal/hostile/guardian/ranged/ToggleLight()
 	var/msg
-	switch(lighting_alpha)
-		if(LIGHTING_PLANE_ALPHA_VISIBLE)
-			lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+	switch(lighting_cutoff)
+		if(LIGHTING_CUTOFF_VISIBLE)
+			lighting_cutoff = LIGHTING_CUTOFF_LOW
 			msg = "Вы активировали ночное зрение."
-		if(LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
-			lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+		if(LIGHTING_CUTOFF_LOW)
+			lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 			msg = "Вы усилили ночное зрение."
-		if(LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE)
-			lighting_alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
+		if(LIGHTING_CUTOFF_MEDIUM)
+			lighting_cutoff = LIGHTING_CUTOFF_HIGH
 			msg = "Вы увеличили ночное зрение до максимума."
 		else
-			lighting_alpha = LIGHTING_PLANE_ALPHA_VISIBLE
+			lighting_cutoff = LIGHTING_CUTOFF_VISIBLE
 			msg = "Вы выключили ночное зрение."
 
 	update_sight()

@@ -92,8 +92,7 @@
 	stat_attack = UNCONSCIOUS
 	gold_core_spawnable = HOSTILE_SPAWN
 	faction = list("undead")
-	nightvision = 8
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
 	deathmessage = "превращается в груду костей!"
 	del_on_death = TRUE
 	loot = list(/obj/effect/decal/remains/human)

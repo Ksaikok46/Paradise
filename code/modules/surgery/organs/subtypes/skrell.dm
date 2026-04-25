@@ -176,7 +176,6 @@
 	desc = "Парный орган, отвечающий за зрение — восприятие света и его трансформацию в видимое изображение. Эти принадлежали скреллу."
 	icon = 'icons/obj/species_organs/skrell.dmi'
 	item_state = "skrell_eyes"
-	see_in_dark = 5
 	can_see_food = TRUE
 
 /obj/item/organ/internal/eyes/skrell/get_ru_names()

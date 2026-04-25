@@ -446,9 +446,9 @@
 		return
 
 	set_invis_see(initial(see_invisible))
-	nightvision = initial(nightvision)
-	set_sight(initial(sight))
-	lighting_alpha = initial(lighting_alpha)
+	var/new_sight = initial(sight)
+	lighting_cutoff = LIGHTING_CUTOFF_VISIBLE
+	lighting_color_cutoffs = list(lighting_cutoff_red, lighting_cutoff_green, lighting_cutoff_blue)
 
 	if(client.eye != src)
 		var/atom/A = client.eye
@@ -456,18 +456,19 @@
 			return
 
 	if(sight_mode & SILICONMESON)
-		add_sight(SEE_TURFS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		new_sight |= SEE_TURFS
+		lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, list(5, 15, 5))
 
 	if(sight_mode & SILICONTHERM)
-		add_sight(SEE_MOBS)
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		new_sight |= SEE_MOBS
+		lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, list(25, 8, 5))
+		set_invis_see(min(see_invisible, SEE_INVISIBLE_LIVING))
 
 	if(sight_mode & SILICONNIGHTVISION)
-		nightvision = 8
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+		lighting_cutoff = LIGHTING_CUTOFF_LOW
+		lighting_color_cutoffs = blend_cutoff_colors(lighting_color_cutoffs, list(5, 15, 5))
 
-	..()
+	return ..()
 
 //Overriding this will stop a number of headaches down the track.
 /mob/living/silicon/pai/attackby(obj/item/I, mob/user, params)
