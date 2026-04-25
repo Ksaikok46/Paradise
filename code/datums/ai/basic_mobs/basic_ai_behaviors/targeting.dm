@@ -17,7 +17,7 @@
 	potential_targets = hearers(vision_range, controller.pawn) - living_mob //Remove self, so we don't suicide
 
 	for(var/HM in typecache_filter_list(range(vision_range, living_mob), hostile_machines)) //Can we see any hostile machines?
-		if(living_mob.can_see(living_mob, HM, vision_range))
+		if(can_see(living_mob, HM, vision_range))
 			potential_targets += HM
 
 	if(!length(potential_targets))

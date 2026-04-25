@@ -100,7 +100,7 @@
 	icon = 'icons/effects/alphacolors.dmi'
 	icon_state = "white"
 	plane = LIGHTING_PLANE
-	layer = LIGHTING_LAYER
+	layer = LIGHTING_ABOVE_ALL
 	blend_mode = BLEND_ADD
 
 /obj/effect/dummy/lighting_obj
@@ -108,7 +108,7 @@
 	desc = "Tell a coder if you're seeing this."
 	icon_state = "nothing"
 	light_color = "#FFFFFF"
-	light_system = MOVABLE_LIGHT
+	light_system = OVERLAY_LIGHT
 	light_range = MINIMUM_USEFUL_LIGHT_RANGE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 

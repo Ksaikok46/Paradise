@@ -206,7 +206,7 @@ obj/effect/overlayTest
 	icon_state = "blue"
 	pixel_x = -24
 	pixel_y = 24
-	layer = TURF_LAYER // Should appear below the rest of the overlays
+	layer = LOW_FLOOR_LAYER // Should appear below the rest of the overlays
 
 world
 	view = "7x7"

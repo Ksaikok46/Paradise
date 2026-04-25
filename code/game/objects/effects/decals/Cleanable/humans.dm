@@ -4,7 +4,6 @@
 	name = "blood"
 	desc = "Оно густое и липкое. Возможно, это шедевр местного повара?"
 	gender = PLURAL
-	plane = GAME_PLANE
 	icon = 'icons/effects/blood.dmi'
 	icon_state = "mfloor1"
 	random_icon_states = list("mfloor1", "mfloor2", "mfloor3", "mfloor4", "mfloor5", "mfloor6", "mfloor7")
@@ -198,7 +197,7 @@
 	icon_state = "nothing"
 	desc = "Ваши инстинкты подсказывают, что не стоит идти этим путём."
 	gender = PLURAL
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	random_icon_states = null
 	blood_DNA = list()
 	var/list/existing_dirs = list()
@@ -240,7 +239,7 @@
 /obj/effect/decal/cleanable/blood/gibs
 	name = "gibs"
 	desc = "Кто-то или что-то явно было разорвано на части."
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	icon_state = "gib2"
 	random_icon_states = list("gib1", "gib2", "gib3", "gib4", "gib5", "gib6")
 	no_clear = TRUE

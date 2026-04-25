@@ -167,6 +167,8 @@
 	var/impact_light_color_override
 	var/hitscan_duration = 0.3 SECONDS
 
+	blocks_emissive = EMISSIVE_BLOCK_GENERIC
+
 /obj/projectile/Initialize(mapload)
 	. = ..()
 	maximum_range = range

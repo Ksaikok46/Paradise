@@ -315,7 +315,7 @@
 	name = "resin floor"
 	desc = "A thick resin surface covers the floor."
 	anchored = TRUE
-	layer = ABOVE_ICYOVERLAY_LAYER
+	layer = ABOVE_NORMAL_TURF_LAYER
 	plane = FLOOR_PLANE
 	icon_state = "weeds"
 	max_integrity = 15

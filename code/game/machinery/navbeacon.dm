@@ -34,7 +34,7 @@
 	set_codes()
 
 	if(!theoretical)
-		AddElement(/datum/element/undertile)
+		AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 
 	if(!codes || !length(codes))
 		stack_trace("Empty codes datum at ([x],[y],[z]) (codes_txt: [codes_txt])")

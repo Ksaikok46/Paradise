@@ -21,7 +21,7 @@
 	if(iswallturf(get_turf(src)) || istype(get_turf(src), /turf/simulated/wall/shuttle))
 		level = 1
 
-	AddElement(/datum/element/undertile)
+	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 
 /obj/machinery/atmospherics/pipe/Destroy()
 	var/turf/turf = get_turf(src)

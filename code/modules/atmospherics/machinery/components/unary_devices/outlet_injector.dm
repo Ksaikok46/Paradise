@@ -3,8 +3,7 @@
 	desc = "Has a valve and pump attached to it"
 	icon = 'icons/obj/pipes_and_stuff/atmospherics/atmos/injector.dmi'
 	icon_state = "map_injector"
-	layer = GAS_PIPE_VISIBLE_LAYER + GAS_SCRUBBER_OFFSET
-	layer_offset = GAS_SCRUBBER_OFFSET
+	layer = GAS_SCRUBBER_LAYER
 	resistance_flags = FIRE_PROOF | UNACIDABLE | ACID_PROOF //really helpful in building gas chambers for xenomorphs
 	can_unwrench = TRUE
 	var/injecting = 0

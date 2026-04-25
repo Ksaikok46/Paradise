@@ -409,7 +409,7 @@
 	var/list/potential_victims = list()
 
 	for(var/mob/living/carbon/potential_victim in range(aoe_range, get_turf(possessed_object)))
-		if(!possessed_object.can_see(potential_victim, aoe_range)) // You can't see me
+		if(!can_see(possessed_object, potential_victim, aoe_range)) // You can't see me
 			continue
 
 		if(potential_victim.stat != CONSCIOUS) // Don't kill our precious essence-filled sleepy mobs

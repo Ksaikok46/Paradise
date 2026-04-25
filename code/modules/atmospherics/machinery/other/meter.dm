@@ -5,8 +5,7 @@
 	icon_state = "/obj/machinery/atmospherics/meter"
 	post_init_icon_state = "meter"
 	can_unwrench = TRUE
-	layer = GAS_PIPE_VISIBLE_LAYER + GAS_PUMP_OFFSET
-	layer_offset = GAS_PUMP_OFFSET
+	layer = GAS_PUMP_LAYER
 	greyscale_config = /datum/greyscale_config/meter
 	greyscale_colors = COLOR_GRAY
 	max_integrity = 150

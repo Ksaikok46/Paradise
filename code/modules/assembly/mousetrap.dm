@@ -164,6 +164,6 @@
 	if(!isliving(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
-	layer = TURF_LAYER + 0.2
+	layer = LOW_FLOOR_LAYER + 0.2
 	to_chat(user, span_notice("You hide [src]."))
 

@@ -114,7 +114,7 @@
 			I = image('icons/mob/headcrab.dmi', icon_state = "[crab_head_overlay]_gray")
 		add_overlay(I)
 
-		if(blocks_emissive)
+		if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 			add_overlay(get_emissive_block())
 
 /mob/living/simple_animal/hostile/headcrab/CanAttack(atom/the_target)

@@ -8,6 +8,7 @@
 	dir = NONE // dir will contain dominant direction for junction pipes
 	max_integrity = 200
 	on_blueprints = TRUE
+	plane = FLOOR_PLANE
 	layer = DISPOSAL_PIPE_LAYER // slightly lower than wires and other pipes
 	level = 1	// underfloor only
 	damage_deflection = 10

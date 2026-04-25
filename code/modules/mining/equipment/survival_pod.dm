@@ -418,7 +418,7 @@
 /obj/structure/fans/tiny
 	name = "tiny fan"
 	desc = "Небольшой вентилятор, создающий постоянный поток воздуха."
-	layer = TURF_LAYER+0.1
+	layer = ABOVE_NORMAL_TURF_LAYER
 	density = FALSE
 	icon_state = "fan_tiny"
 	buildstackamount = 2

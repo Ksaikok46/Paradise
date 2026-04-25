@@ -7,6 +7,7 @@
 	resistance_flags = INDESTRUCTIBLE|LAVA_PROOF|FIRE_PROOF|UNACIDABLE|ACID_PROOF|FREEZE_PROOF
 	move_resist = INFINITY
 	anchored = TRUE
+	blocks_emissive = EMISSIVE_BLOCK_GENERIC
 
 /obj/effect/add_debris_element() // They're not hittable, and prevents recursions.
 	return
@@ -63,7 +64,6 @@
 /obj/effect/abstract
 	name = "Abstract object"
 	invisibility = INVISIBILITY_ABSTRACT
-	layer = TURF_LAYER
 	icon = null
 	icon_state = null
 	armor = list(MELEE = 100, BULLET = 100, LASER = 100, ENERGY = 100, BOMB = 100, BIO = 100, FIRE = 100, ACID = 100)

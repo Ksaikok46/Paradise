@@ -5,7 +5,6 @@
 	icon_state = "singularity_s1"
 	anchored = TRUE
 	density = TRUE
-	layer = MASSIVE_OBJ_LAYER
 	light_range = 6
 	appearance_flags = LONG_GLIDE
 	var/current_size = 1

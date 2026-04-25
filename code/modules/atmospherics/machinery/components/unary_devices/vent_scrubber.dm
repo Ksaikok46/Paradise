@@ -6,8 +6,7 @@
 
 	name = "air scrubber"
 	desc = "Has a valve and pump attached to it"
-	layer = GAS_PIPE_VISIBLE_LAYER + GAS_SCRUBBER_OFFSET
-	layer_offset = GAS_SCRUBBER_OFFSET
+	layer = GAS_SCRUBBER_LAYER
 
 	idle_power_usage = SCRUBBER_IDLE_POWER_USAGE
 	active_power_usage = 60

@@ -21,8 +21,6 @@
 	user.buckled?.unbuckle_mob(user, TRUE)
 	user.pulledby?.stop_pulling()
 
-	user.layer = LOW_LANDMARK_LAYER
-
 	ADD_TRAIT(user, TRAIT_IMMOBILIZED, UNIQUE_TRAIT_SOURCE(src))
 
 	for(var/i in 1 to 7)

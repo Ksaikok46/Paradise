@@ -21,6 +21,8 @@
  * just lines, they have two endpoints (d1 and d2).
  */
 /obj/structure/cable
+	plane = FLOOR_PLANE
+	layer = WIRE_LAYER //Above hidden pipes, GAS_PIPE_HIDDEN_LAYER
 	level = 1
 	anchored = TRUE
 	on_blueprints = TRUE
@@ -31,7 +33,6 @@
 	icon_state = "0-1"
 	var/d1 = 0
 	var/d2 = 1
-	layer = WIRE_LAYER //Just below unary stuff, which is at 2.45 and above pipes, which are at 2.4
 	color = CABLE_HEX_COLOR_RED
 
 /obj/structure/cable/yellow
@@ -64,7 +65,7 @@
 	d2 = text2num(copytext( icon_state, dash+1 ))
 
 	LAZYADD(GLOB.cable_list, src) //add it to the global cable list
-	AddElement(/datum/element/undertile)
+	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 
 /obj/structure/cable/Destroy()					// called when a cable is deleted
 	if(powernet)

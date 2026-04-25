@@ -510,7 +510,7 @@ GLOBAL_LIST_EMPTY(BSA_modes_list)
 	cam_screen = new
 	cam_screen.generate_view(map_name)
 	crosshair = image('icons/obj/supplypods_32x32.dmi', "LZ", get_turf(src))
-	crosshair.layer = CAMERA_STATIC_LAYER
+	crosshair.layer = NAVIGATION_EYE_LAYER
 	crosshair.plane = MASSIVE_OBJ_PLANE
 	crosshair.appearance_flags = PIXEL_SCALE
 	crosshair.transform = matrix(4, 4, MATRIX_SCALE)

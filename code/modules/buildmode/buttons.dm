@@ -1,6 +1,5 @@
 /atom/movable/screen/buildmode
 	icon = 'icons/misc/buildmode.dmi'
-	layer = BUILDMOD_LAYER
 	var/datum/click_intercept/buildmode/bd
 
 /atom/movable/screen/buildmode/New(bld)

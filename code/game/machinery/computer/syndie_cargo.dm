@@ -125,7 +125,7 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 /****************************
 Код со времён когда этот обьект был абстрактным эффектом вместо датума, оставлен на всякий случай.
 
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	density = FALSE
 	icon = 'icons/effects/mapping_helpers.dmi'
 	icon_state = null

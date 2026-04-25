@@ -152,6 +152,13 @@
 		var/mob/camera/blob/B = usr
 		B.relocate_core()
 
+/atom/movable/screen/blob_power_display
+	name = "blob power"
+	icon_state = "block"
+	screen_loc = ui_health
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	plane = ABOVE_HUD_PLANE
+
 /atom/movable/screen/blob/Split
 	icon_state = "ui_split"
 	name = "Разделить сознание (ERROR)"
@@ -175,7 +182,6 @@
 	blobpwrdisplay.icon_state = "block"
 	blobpwrdisplay.screen_loc = ui_health
 	blobpwrdisplay.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	blobpwrdisplay.layer = ABOVE_HUD_LAYER
 	SET_PLANE_EXPLICIT(blobpwrdisplay, ABOVE_HUD_PLANE, mymob)
 	static_inventory += blobpwrdisplay
 

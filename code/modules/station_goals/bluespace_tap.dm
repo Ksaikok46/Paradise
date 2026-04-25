@@ -203,12 +203,11 @@
 	max_integrity = 300
 	pixel_x = -32	//shamelessly stolen from dna vault
 	pixel_y = -64
-	plane = BELOW_GAME_PLANE
+	layer = HIGH_OBJ_LAYER
 	/// For faking having a big machine, dummy 'machines' that are hidden inside the large sprite and make certain tiles dense. See new and destroy.
 	var/list/obj/structure/fillers = list()
 	density = TRUE
 	interact_offline = TRUE
-	luminosity = 1
 
 	/// Correspond to power required for a mining level, first entry for level 1, etc.
 	var/list/power_needs = list(1 kW, 5 kW, 50 kW, 100 kW, 500 kW,

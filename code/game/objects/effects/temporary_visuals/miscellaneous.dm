@@ -203,7 +203,6 @@
 	icon_state = "3"
 	light_range = LIGHT_RANGE_FIRE
 	light_color = LIGHT_COLOR_FIRE
-	layer = MASSIVE_OBJ_LAYER
 	alpha = 250
 	blend_mode = BLEND_ADD
 
@@ -313,7 +312,7 @@
 /obj/effect/temp_visual/shockwave
 	icon = 'icons/effects/light_overlays/shockwave.dmi'
 	icon_state = "shockwave"
-	plane = GRAVITY_PULSE_PLANE
+	plane = DISPLACEMENT_PLANE
 	pixel_x = -496
 	pixel_y = -496
 

@@ -125,7 +125,7 @@
 
 
 /obj/machinery/atmospherics/unary/thermomachine/update_pipe_image()
-	pipe_vision_img = image('icons/obj/pipes_and_stuff/atmospherics/thermomachine.dmi', "pipe",  loc = src.loc, layer = ABOVE_HUD_LAYER + src.layer, dir = src.dir)
+	pipe_vision_img = image('icons/obj/pipes_and_stuff/atmospherics/thermomachine.dmi', "pipe",  loc = src.loc, layer = ABOVE_NORMAL_TURF_LAYER + src.layer, dir = src.dir)
 	var/turf/tile = get_turf(src)
 	SET_PLANE_EXPLICIT(pipe_vision_img, PIPECRAWL_IMAGES_PLANE, tile)
 

@@ -9,8 +9,7 @@
 	name = "air vent"
 	desc = "Has a valve and pump attached to it"
 
-	layer = GAS_PIPE_VISIBLE_LAYER + GAS_SCRUBBER_OFFSET
-	layer_offset = GAS_SCRUBBER_OFFSET
+	layer = GAS_PUMP_LAYER + TOPDOWN_LAYER // TODO ksaikok multiple piping layers
 
 	vent_movement = VENTCRAWL_ALLOWED|VENTCRAWL_CAN_SEE|VENTCRAWL_ENTRANCE_ALLOWED
 

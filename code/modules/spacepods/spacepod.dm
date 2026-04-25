@@ -42,7 +42,6 @@
 	resistance_flags = ACID_PROOF
 	movement_type = FLYING
 
-	layer = BEHIND_MOB_LAYER
 	infra_luminosity = 15
 
 	var/mob/living/pilot	//There is only ever one pilot and he gets all the privledge
@@ -239,7 +238,7 @@
 
 	light_color = icon_light_color[src.icon_state]
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 
 /obj/spacepod/bullet_act(obj/projectile/P)

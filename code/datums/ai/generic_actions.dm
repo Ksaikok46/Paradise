@@ -205,7 +205,7 @@
 
 	var/datum/weakref/attack_ref = controller.blackboard[BB_ATTACK_TARGET]
 	var/atom/movable/attack_target = attack_ref?.resolve()
-	if(!attack_target || !living_pawn.can_see(attack_target, length = controller.blackboard[BB_VISION_RANGE]))
+	if(!attack_target || !can_see(living_pawn, attack_target, length = controller.blackboard[BB_VISION_RANGE]))
 		finish_action(controller, FALSE)
 		return
 

@@ -1,6 +1,6 @@
 /obj/effect/map_effect/marker/mapmanip
 	name = "mapmanip marker"
-	layer = POINT_LAYER
+	layer = LIGHTING_ABOVE_ALL
 
 /obj/effect/map_effect/marker/mapmanip/Initialize(mapload)
 	. = ..()
@@ -26,7 +26,7 @@
 
 /obj/effect/map_effect/marker_helper
 	name = "marker helper"
-	layer = POINT_LAYER
+	layer = LIGHTING_ABOVE_ALL
 
 /obj/effect/map_effect/marker_helper/Initialize(mapload)
 	. = ..()

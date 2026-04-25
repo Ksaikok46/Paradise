@@ -348,7 +348,6 @@
 
 	update_held_items()
 
-	I.layer = ABOVE_HUD_LAYER
 	SET_PLANE_EXPLICIT(I, ABOVE_HUD_PLANE, src)
 
 	return TRUE

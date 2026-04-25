@@ -13,7 +13,7 @@
 	container_type = OPENCONTAINER
 	has_lid = TRUE
 	resistance_flags = ACID_PROOF
-	blocks_emissive = FALSE
+	blocks_emissive = EMISSIVE_BLOCK_NONE
 	var/label_text = ""
 
 /obj/item/reagent_containers/glass/New()
@@ -195,7 +195,7 @@
 
 	if(!is_open_container())
 		. += "lid_[initial(icon_state)]"
-		if(blocks_emissive == FALSE)
+		if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 			. += emissive_blocker(icon, "lid_[initial(icon_state)]", src)
 
 	if(assembly)

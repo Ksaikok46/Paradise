@@ -9,7 +9,6 @@
 	var/unfastened = FALSE
 
 	footstep = FOOTSTEP_PLATING
-	real_layer = PLATING_LAYER
 
 /turf/simulated/floor/plating/Initialize(mapload)
 	. = ..()

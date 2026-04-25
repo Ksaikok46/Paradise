@@ -111,7 +111,7 @@ GLOBAL_LIST_EMPTY(safes)
 	if(!drill_timer)
 		return
 	cut_overlay(progress_bar)
-	progress_bar = image('icons/effects/progressbar.dmi', src, "prog_bar_[round((((world.time - drill_start_time) / time_to_drill) * 100), 5)]", HUD_LAYER)
+	progress_bar = image('icons/effects/progressbar.dmi', src, "prog_bar_[round((((world.time - drill_start_time) / time_to_drill) * 100), 5)]", HUD_PLANE)
 	add_overlay(progress_bar)
 	if(prob(DRILL_SPARK_CHANCE))
 		drill.spark_system.start()
@@ -458,8 +458,7 @@ GLOBAL_LIST_EMPTY(safes)
 	icon_state = "floorsafe"
 	density = FALSE
 	level = 1 //Under the floor
-	plane = FLOOR_PLANE
-	layer = ABOVE_PLATING_LAYER
+	layer = LOW_OBJ_LAYER
 	drill_x_offset = -1
 	drill_y_offset = 20
 

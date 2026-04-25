@@ -358,7 +358,6 @@
 			LAZYREMOVE(inventory_observers, observe)
 
 	I.forceMove(src)
-	I.layer = ABOVE_HUD_LAYER
 	SET_PLANE_EXPLICIT(I, ABOVE_HUD_PLANE, src)
 
 	switch(slot)

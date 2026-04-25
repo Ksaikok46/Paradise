@@ -326,6 +326,7 @@
 	name = "\proper space"
 	icon = 'icons/turf/space.dmi'
 	icon_state = "0"
+	layer = SPACE_LAYER
 	plane = PLANE_SPACE
 
 /turf/simulated/floor/holofloor/space/Initialize(mapload)

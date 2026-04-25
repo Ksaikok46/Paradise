@@ -174,7 +174,7 @@
 		if(hat)
 			add_overlay(hat)
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 
 /mob/living/silicon/robot/drone/choose_icon()

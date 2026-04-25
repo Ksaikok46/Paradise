@@ -3,8 +3,7 @@
 	desc = "A rune drawn in crayon."
 	icon = 'icons/effects/crayondecal.dmi'
 	icon_state = "rune1"
-	layer = MID_TURF_LAYER
-	plane = GAME_PLANE //makes the graffiti visible over a wall.
+	layer = CLEANABLE_FLOOR_OBJECT_LAYER
 	mergeable_decal = FALSE // Allows crayon drawings to overlap one another.
 
 /obj/effect/decal/cleanable/crayon/Initialize(mapload, main = BLOOD_COLOR_RED, type = "rune1", e_name = "rune")

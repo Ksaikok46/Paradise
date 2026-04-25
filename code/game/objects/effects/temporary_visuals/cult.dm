@@ -33,7 +33,7 @@
 /obj/effect/temp_visual/cult/turf
 	name = "unholy glow"
 	icon_state = "wallglow"
-	layer = TURF_LAYER + 0.07
+	layer = LOW_FLOOR_LAYER + 0.07
 
 /obj/effect/temp_visual/cult/turf/open/floor
 	icon_state = "floorglow"

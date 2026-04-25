@@ -705,7 +705,6 @@
 	icon_state = ""
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	screen_loc = ui_combo
-	layer = ABOVE_HUD_LAYER
 	var/streak
 
 /atom/movable/screen/combo/Destroy()

@@ -127,7 +127,7 @@
 	else
 		add_overlay(cap_living)
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 
 /mob/living/simple_animal/hostile/mushroom/proc/Recover()

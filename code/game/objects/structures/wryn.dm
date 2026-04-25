@@ -95,7 +95,7 @@
 	name = "wax floor"
 	desc = "Что-то жёлтое и липкое покрывает пол... Так стоп..."
 	anchored = TRUE
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	plane = FLOOR_PLANE
 	cares_about_temperature = TRUE
 	var/list/icons = list("wax_floor1", "wax_floor2", "wax_floor3")

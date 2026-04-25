@@ -1,8 +1,7 @@
 /obj/machinery/atmospherics/binary
 	initialize_directions = SOUTH|NORTH
 
-	layer = GAS_PIPE_VISIBLE_LAYER + GAS_PUMP_OFFSET
-	layer_offset = GAS_PUMP_OFFSET
+	layer = GAS_PUMP_LAYER
 
 	var/datum/gas_mixture/air1
 	var/datum/gas_mixture/air2

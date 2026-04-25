@@ -6,8 +6,6 @@
 
 	idle_power_usage = 10
 
-	layer = BUTTONS_LAYER
-
 	var/on = TRUE
 
 /obj/machinery/embedded_controller/Destroy()

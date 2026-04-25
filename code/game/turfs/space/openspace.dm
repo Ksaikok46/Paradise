@@ -1,7 +1,11 @@
 /turf/space/openspace
 	name = "open space"
 	desc = "Watch your step!"
-	icon_state = "openspace" //transparent
+	// We don't actually draw openspace, but it needs to have color
+	// In its icon state so we can count it as a "non black" tile
+	// In this case it has color of RGBA(0,0,0,1)
+	icon_state = "openspace"
+	plane = TRANSPARENT_FLOOR_PLANE
 	baseturf = /turf/space/openspace
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	pathing_pass_method = TURF_PATHING_PASS_PROC
@@ -12,6 +16,9 @@
 	. = ..()
 	if(!GET_TURF_BELOW(src))
 		stack_trace("[src] was inited as openspace with nothing below it at ([x], [y], [z])")
+	// We make the assumption that the space plane will never be blacklisted, as an optimization
+	if(SSmapping.max_plane_offset)
+		plane = TRANSPARENT_FLOOR_PLANE - (PLANE_RANGE * SSmapping.z_level_to_plane_offset[z])
 	RegisterSignal(src, COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON, PROC_REF(on_atom_created))
 	return INITIALIZE_HINT_LATELOAD
 

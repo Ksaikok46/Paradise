@@ -125,8 +125,8 @@
 		var/mutable_appearance/MA = new(in_turf_atom)
 		MA.alpha = isliving(in_turf_atom) ? 255 : 128
 		MA.dir = in_turf_atom.dir
-		if(MA.layer < TURF_LAYER)
-			MA.layer += TRAY_SCAN_LAYER_OFFSET
+		if(MA.layer < LOW_FLOOR_LAYER)
+			MA.layer = ABOVE_NORMAL_TURF_LAYER
 		MA.plane = GAME_PLANE
 		SET_PLANE_EXPLICIT(MA, GAME_PLANE, turf)
 		img.appearance = MA
@@ -206,8 +206,8 @@
 		var/mutable_appearance/MA = new(invisible_object)
 		MA.alpha = 255
 		MA.dir = invisible_object.dir
-		if(MA.layer < TURF_LAYER)
-			MA.layer += TRAY_SCAN_LAYER_OFFSET
+		if(MA.layer < LOW_FLOOR_LAYER)
+			MA.layer = ABOVE_NORMAL_TURF_LAYER
 		MA.plane = GAME_PLANE
 		I.appearance = MA
 		t_ray_images += I

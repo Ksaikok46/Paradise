@@ -204,7 +204,7 @@
 
 /obj/item/analyzer/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
 	. = ..()
-	if(!user.can_see(target, scan_range))
+	if(!can_see(user, target, scan_range))
 		return
 
 	target_mode = ANALYZER_MODE_TARGET

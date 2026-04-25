@@ -278,7 +278,7 @@ GLOBAL_LIST_INIT(major_hallutinations, list("fake"=20,"death"=10,"xeno"=10,"sing
 		qdel(src)
 		return
 
-	fakebroken = image('icons/turf/floors.dmi', wall, "plating", layer = TURF_LAYER)
+	fakebroken = image('icons/turf/floors.dmi', wall, "plating", layer = ABOVE_NORMAL_TURF_LAYER)
 	SET_PLANE_EXPLICIT(fakebroken, FLOOR_PLANE, wall)
 	var/turf/landing = get_turf(target)
 	var/turf/landing_image_turf = get_step(landing, SOUTHWEST) //the icon is 3x3
@@ -1077,11 +1077,11 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 
 					switch(rand(1,4))
 						if(1)
-							halimage = image('icons/turf/space.dmi',target,"[rand(1,25)]",TURF_LAYER)
+							halimage = image('icons/turf/space.dmi',target,"[rand(1,25)]",LOW_FLOOR_LAYER)
 						if(2)
-							halimage = image('icons/turf/floors/lava.dmi',target,"smooth",TURF_LAYER)
+							halimage = image('icons/turf/floors/lava.dmi',target,"smooth",LOW_FLOOR_LAYER)
 						if(3)
-							halimage = image('icons/turf/floors/Chasms.dmi',target,"smooth",TURF_LAYER)
+							halimage = image('icons/turf/floors/Chasms.dmi',target,"smooth",LOW_FLOOR_LAYER)
 						if(4)
 							halimage = image('icons/obj/assemblies.dmi',target,"plastic-explosive2",OBJ_LAYER+0.01)
 
@@ -1115,15 +1115,15 @@ GLOBAL_LIST_INIT(non_fakeattack_weapons, list(/obj/item/gun/projectile, /obj/ite
 					var/turf/simulated/floor/target = pick(possible_points)
 					switch(rand(1,4))
 						if(1)
-							var/image/body = image('icons/mob/human.dmi', target, "husk_s", TURF_LAYER)
+							var/image/body = image('icons/mob/human.dmi', target, "husk_s", LOW_FLOOR_LAYER)
 							var/matrix/M = matrix()
 							M.Turn(90)
 							body.transform = M
 							halbody = body
 						if(2,3)
-							halbody = image('icons/mob/human.dmi', target, "husk_s", TURF_LAYER)
+							halbody = image('icons/mob/human.dmi', target, "husk_s", LOW_FLOOR_LAYER)
 						if(4)
-							halbody = image('icons/mob/alien.dmi', target, "alienother", TURF_LAYER)
+							halbody = image('icons/mob/alien.dmi', target, "alienother", LOW_FLOOR_LAYER)
 
 					if(client)
 						client.images += halbody

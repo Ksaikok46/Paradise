@@ -1,8 +1,7 @@
 /obj/machinery/atmospherics/trinary
 	initialize_directions = SOUTH|NORTH|WEST
 
-	layer = GAS_PIPE_VISIBLE_LAYER + GAS_FILTER_OFFSET
-	layer_offset = GAS_FILTER_OFFSET
+	layer = GAS_FILTER_LAYER
 
 	var/datum/gas_mixture/air1
 	var/datum/gas_mixture/air2

@@ -66,7 +66,7 @@
 /obj/effect/clockwork/overlay/floor
 	icon = 'icons/turf/floors.dmi'
 	icon_state = "clockwork_floor"
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	plane = FLOOR_PLANE
 
 /obj/item/clockwork/clockgolem_remains

@@ -41,9 +41,9 @@ GLOBAL_LIST_EMPTY(holopads)
 	anchored = TRUE
 	idle_power_usage = 5
 	active_power_usage = 100
-	layer = HOLOPAD_LAYER //Preventing mice and drones from sneaking under them.
-	plane = FLOOR_PLANE
 	max_integrity = 300
+	layer = ABOVE_OPEN_TURF_LAYER
+	plane = FLOOR_PLANE
 	light_on = FALSE
 	light_range = 2
 	armor = list(melee = 50, bullet = 20, laser = 20, energy = 20, bomb = 0, bio = 0, fire = 50, acid = 0)

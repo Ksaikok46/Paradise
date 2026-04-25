@@ -4,7 +4,7 @@
 	check_flags = AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
 	button_icon_state = "mouse_gray_sleep"
 	var/layer_to_change_from = MOB_LAYER
-	var/layer_to_change_to = TURF_LAYER + 0.2
+	var/layer_to_change_to = LOW_FLOOR_LAYER + 0.2
 
 /datum/action/innate/hide/Grant(mob/user)
 	. = ..()

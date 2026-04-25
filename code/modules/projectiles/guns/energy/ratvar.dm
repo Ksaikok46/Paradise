@@ -21,7 +21,7 @@
 	var/heal_bullet = /obj/item/ammo_casing/energy/rat/slug/heal
 	var/stun_bullet = /obj/item/ammo_casing/energy/rat/slug/stun
 	isclockwork = TRUE
-	blocks_emissive = FALSE
+	blocks_emissive = EMISSIVE_BLOCK_NONE
 
 /obj/item/gun/energy/clockwork/get_ru_names()
 	return list(
@@ -151,7 +151,7 @@
 	isclockwork = TRUE
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/light/rat)
 	recoil = new /datum/gun_recoil/high()
-	blocks_emissive = FALSE
+	blocks_emissive = EMISSIVE_BLOCK_NONE
 	COOLDOWN_DECLARE(overheated)
 	COOLDOWN_DECLARE(balloon)
 	var/datum/component/automatic_fire/autofire

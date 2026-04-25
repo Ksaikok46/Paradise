@@ -545,7 +545,7 @@
 
 /obj/item/storage/backpack/satchel_flat/Initialize(mapload)
 	. = ..()
-	AddElement(/datum/element/undertile, use_anchor = TRUE)
+	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE, INVISIBILITY_OBSERVER, use_anchor = TRUE)
 
 /obj/item/storage/backpack/satchel_flat/populate_contents()
 	new /obj/item/stack/tile/plasteel(src)

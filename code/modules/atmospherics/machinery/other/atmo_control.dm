@@ -1,6 +1,8 @@
 /obj/machinery/atmospherics/air_sensor
 	icon_state = "gsensor1"
 	name = "gas sensor"
+	layer = BELOW_OBJ_LAYER
+	plane = MASSIVE_OBJ_PLANE
 
 	//multitool_menu_type = /datum/multitool_menu/idtag/freq/air_sensor
 	frequency = ATMOS_TANKS_FREQ

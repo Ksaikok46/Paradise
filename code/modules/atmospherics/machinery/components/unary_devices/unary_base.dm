@@ -1,6 +1,6 @@
 /obj/machinery/atmospherics/unary
 	initialize_directions = SOUTH
-	layer = TURF_LAYER+0.1
+	layer = GAS_PUMP_LAYER + TOPDOWN_LAYER // TODO ksaikok pipe layering
 	/// The current air contents of this device
 	var/datum/gas_mixture/air_contents
 	/// Our one pipe node (we're unary)

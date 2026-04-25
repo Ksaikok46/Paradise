@@ -61,5 +61,4 @@
 	. = ..()
 	// Need to do this here because it's overriden by the parent call
 	color = EM_BLOCK_COLOR
-	appearance_flags = EMISSIVE_APPEARANCE_FLAGS
 

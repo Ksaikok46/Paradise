@@ -181,7 +181,6 @@
 	desc = "Old and rusty rails. Looks like they were lying here for hundreds of years."
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "rail"
-	layer = TURF_LAYER
 
 /mob/living/simple_animal/hostile/monkey_shaftminer
 	name = "Monkey shaftminer"

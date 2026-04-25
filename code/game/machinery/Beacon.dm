@@ -4,10 +4,8 @@
 	name = "Bluespace Gigabeacon"
 	desc = "A device that draws power from bluespace and creates a permanent tracking beacon."
 	level = 1		// underfloor
-	layer = WIRE_LAYER
-	plane = FLOOR_PLANE
-	layer = 2.5
 	anchored = TRUE
+	layer = LOW_OBJ_LAYER
 	var/syndicate = 0
 	var/area_bypass = FALSE
 	var/obj/item/beacon/Beacon
@@ -16,7 +14,7 @@
 
 /obj/machinery/bluespace_beacon/Initialize(mapload)
 	. = ..()
-	AddElement(/datum/element/undertile)
+	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 	create_beacon()
 
 /obj/machinery/bluespace_beacon/proc/create_beacon()

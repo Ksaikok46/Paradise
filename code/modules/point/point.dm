@@ -46,7 +46,6 @@
 	var/mutable_appearance/thought_bubble = mutable_appearance(
 		'icons/effects/effects.dmi',
 		thought_bubble_image,
-		layer = POINT_LAYER,
 		offset_spokesman = src,
 		plane = POINT_PLANE,
 		appearance_flags = KEEP_APART,
@@ -96,7 +95,6 @@
 	desc = "It's an arrow hanging in mid-air. There may be a wizard about."
 	icon = 'icons/mob/screen_gen.dmi'
 	icon_state = "arrow"
-	layer = POINT_LAYER
 	plane = POINT_PLANE
 	duration = POINT_TIME
 	randomdir = FALSE

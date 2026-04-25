@@ -62,7 +62,7 @@
 		return
 	if(!COOLDOWN_FINISHED(src, heel_cooldown))
 		return
-	if(!pawn.can_see(carbon_thrower, length = AI_DOG_VISION_RANGE))
+	if(!can_see(pawn, carbon_thrower, length = AI_DOG_VISION_RANGE))
 		return
 	var/obj/item/thrown_thing = carbon_thrower.get_active_hand()
 	if(!isitem(thrown_thing))
@@ -77,7 +77,7 @@
 	SIGNAL_HANDLER
 
 	UnregisterSignal(thrown_thing, list(COMSIG_QDELETING, COMSIG_MOVABLE_THROW_LANDED))
-	if(!istype(thrown_thing) || !isturf(thrown_thing.loc) || !pawn.can_see(thrown_thing, length = AI_DOG_VISION_RANGE))
+	if(!istype(thrown_thing) || !isturf(thrown_thing.loc) || !can_see(pawn, thrown_thing, length = AI_DOG_VISION_RANGE))
 		return
 
 	current_movement_target = thrown_thing
@@ -176,7 +176,7 @@
 /datum/ai_controller/dog/proc/check_menu(mob/user)
 	if(!istype(user))
 		CRASH("A non-mob is trying to issue an order to [pawn].")
-	if(user.incapacitated() || !user.can_see(pawn, length = AI_DOG_VISION_RANGE))
+	if(user.incapacitated() || !can_see(user, pawn, length = AI_DOG_VISION_RANGE))
 		return FALSE
 	return TRUE
 
@@ -207,7 +207,7 @@
 	else
 		return
 
-	if(!pawn.can_see(speaker, length = AI_DOG_VISION_RANGE))
+	if(!can_see(pawn, speaker, length = AI_DOG_VISION_RANGE))
 		return
 	set_command_mode(speaker, command)
 
@@ -247,7 +247,7 @@
 		return
 	if(pointed_movable == pawn || blackboard[BB_FETCH_TARGET] || !istype(pointed_movable) || blackboard[BB_DOG_ORDER_MODE] == DOG_COMMAND_NONE) // busy or no command
 		return
-	if(!pawn.can_see(pointing_friend, length = AI_DOG_VISION_RANGE) || !pawn.can_see(pointed_movable, length = AI_DOG_VISION_RANGE))
+	if(!can_see(pawn, pointing_friend, length = AI_DOG_VISION_RANGE) || !can_see(pawn, pointed_movable, length = AI_DOG_VISION_RANGE))
 		return
 
 	COOLDOWN_START(src, command_cooldown, AI_DOG_COMMAND_COOLDOWN)

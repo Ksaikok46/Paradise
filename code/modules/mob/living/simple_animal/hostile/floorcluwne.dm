@@ -406,7 +406,6 @@
 /obj/effect/temp_visual/fcluwne_manifest
 	icon = 'icons/turf/floors.dmi'
 	icon_state = "fcluwne_manifest"
-	layer = TURF_LAYER
 	duration = 150
 	randomdir = FALSE
 

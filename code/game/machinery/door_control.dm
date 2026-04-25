@@ -289,7 +289,7 @@
 	if(open || (stat & NOPOWER))
 		return
 
-	underlays += emissive_appearance(icon, "[base_icon_state]_lightmask", src)
+	underlays += emissive_appearance(icon, "[base_icon_state]_lightmask", src, alpha = 128)
 
 /obj/machinery/door_control/secure //Use icon_state = "altdoorctrl" if you just want cool icon for your button on map. This button is created for Admin-zones.
 	icon_state = "altdoorctrl"

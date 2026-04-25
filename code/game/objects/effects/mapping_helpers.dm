@@ -3,8 +3,7 @@
 	name = "baseturf editor"
 	icon = 'icons/effects/mapping_helpers.dmi'
 	icon_state = "standart"
-	layer = POINT_LAYER
-
+	plane = POINT_PLANE
 	var/baseturf
 
 /obj/effect/baseturf_helper/Initialize(mapload)
@@ -71,7 +70,7 @@
 /obj/effect/mapping_helpers
 	icon = 'icons/effects/mapping_helpers.dmi'
 	icon_state = "standart"
-	layer = 10
+	layer = ABOVE_ALL_MOB_LAYER
 	var/late = FALSE
 
 /obj/effect/mapping_helpers/Initialize(mapload)
@@ -164,7 +163,7 @@
 	icon = 'icons/effects/mapping_helpers.dmi'
 	icon_state = "merge_conflict_marker"
 	desc = "If you are seeing this in-game: someone REALLY, REALLY, REALLY fucked up. Please make an issue report on GitHub or contact a coder as soon as possible."
-	plane = POINT_LAYER
+	plane = POINT_PLANE
 
 ///We REALLY do not want un-addressed merge conflicts in maps for an inexhaustible list of reasons. This should help ensure that this will not be missed in case linters fail to catch it for any reason what-so-ever.
 /obj/merge_conflict_marker/Initialize(mapload)

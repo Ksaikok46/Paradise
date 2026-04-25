@@ -336,8 +336,6 @@
 							span_warning("Вы пытаетесь отпрыгнуть в сторону, но внезапно оказываетесь прижаты к земле!"),
 							span_notice("Вы слышите, как напрягаются мощные мышцы, и внезапно раздается грохот, когда тело падает на пол."))
 			return FALSE
-		var/prevLayer = user.layer
-		user.layer = LOW_LANDMARK_LAYER
 
 		ADD_TRAIT(user, TRAIT_MOVE_FLYING, SPELL_LEAP_TRAIT)
 
@@ -355,8 +353,6 @@
 		else if(HAS_TRAIT(user, TRAIT_FAT) && prob(66))
 			user.visible_message(span_danger("[user.name] пада[PLUR_ET_YUT(user)] на землю под весом своего тела!"))
 			user.AdjustWeakened(20 SECONDS)
-
-		user.layer = prevLayer
 
 	if(isobj(user.loc))
 		var/obj/container = user.loc

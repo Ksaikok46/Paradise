@@ -5,6 +5,8 @@
 	oxygen = MOLES_O2STANDARD
 	nitrogen = MOLES_N2STANDARD
 	abstract_type = /turf/simulated
+	layer = LOW_FLOOR_LAYER
+	plane = FLOOR_PLANE
 
 	var/wet = 0
 	var/image/wet_overlay = null

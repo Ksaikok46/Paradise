@@ -1346,7 +1346,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 
 	update_fire()
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 
 	if(module)

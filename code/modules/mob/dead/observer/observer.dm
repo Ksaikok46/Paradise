@@ -14,12 +14,11 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	desc = "Это п-п-п-п-призраааак!" //jinkies!
 	icon = 'icons/mob/mob.dmi'
 	icon_state = "ghost"
-	layer = GHOST_LAYER
 	plane = GHOST_PLANE
 	stat = DEAD
 	movement_type = GROUND|FLYING
 	density = FALSE
-	blocks_emissive = FALSE // Ghosts are transparent, duh
+	blocks_emissive = EMISSIVE_BLOCK_NONE // Ghosts are transparent, duh
 	alpha = 127
 	light_system = NO_LIGHT_SUPPORT
 	invisibility = INVISIBILITY_OBSERVER
@@ -173,8 +172,6 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 		MA.icon = initial(icon)
 		MA.icon_state = initial(icon_state)
 	MA.underlays = COPY.underlays
-	MA.layer = GHOST_LAYER
-	MA.plane = GAME_PLANE
 	. = MA
 
 /*

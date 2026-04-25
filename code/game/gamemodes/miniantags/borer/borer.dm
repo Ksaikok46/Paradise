@@ -483,7 +483,7 @@
 		return
 
 	if(!hiding)
-		layer = TURF_LAYER+0.2
+		layer = LOW_FLOOR_LAYER+0.2
 		to_chat(src, span_notice("Вы прячетесь."))
 		hiding = TRUE
 		return

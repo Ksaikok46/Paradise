@@ -83,7 +83,6 @@
 		boxes.master = src
 		boxes.icon_state = "block"
 		boxes.screen_loc = "7,7 to 10,8"
-		boxes.layer = HUD_LAYER
 		boxes.plane = HUD_PLANE
 
 	closer = new /atom/movable/screen/close()
@@ -309,7 +308,6 @@
 	boxes.screen_loc = "[tx],[ty] to [mx],[my]"
 	for(var/obj/O in contents)
 		O.screen_loc = "[cx],[cy]"
-		O.layer = ABOVE_HUD_LAYER
 		SET_PLANE_EXPLICIT(O, ABOVE_HUD_PLANE, loc)
 		cx++
 		if(cx > mx)
@@ -330,7 +328,6 @@
 			ND.sample_object.mouse_opacity = MOUSE_OPACITY_OPAQUE
 			ND.sample_object.screen_loc = "[cx]:16,[cy]:16"
 			ND.sample_object.maptext = "<font color='white' face='Small Fonts'>[(ND.number > 1) ? "[ND.number]" : ""]</font>"
-			ND.sample_object.layer = ABOVE_HUD_LAYER
 			SET_PLANE_EXPLICIT(ND.sample_object, ABOVE_HUD_PLANE, src)
 			cx++
 			if(cx > (4 + cols))
@@ -341,7 +338,6 @@
 			O.mouse_opacity = MOUSE_OPACITY_OPAQUE //This is here so storage items that spawn with contents correctly have the "click around item to equip"
 			O.screen_loc = "[cx]:16,[cy]:16"
 			O.maptext = ""
-			O.layer = ABOVE_HUD_LAYER
 			SET_PLANE_EXPLICIT(O, ABOVE_HUD_PLANE, src)
 			cx++
 			if(cx > (4 + cols))
@@ -480,7 +476,6 @@
 			continue
 
 		stored.screen_loc = "[STORAGE_TILE_POSITION_X]:[floor((startpoint + endpoint) / 2)],[STORAGE_TILE_POSITION_Y]:[STORAGE_PIXEL_POSITION_Y + STORAGE_SIZE_MULTIPLIER_Y * (lines_num - current_level - 1)]"
-		stored.layer = ABOVE_HUD_LAYER
 		stored.mouse_opacity = MOUSE_OPACITY_OPAQUE
 		stored.maptext = ""
 		SET_PLANE_EXPLICIT(stored, ABOVE_HUD_PLANE, storage)
@@ -779,7 +774,6 @@
 				W.pixel_x = pixel_x
 				W.pixel_y = pixel_y
 				W.do_pickup_animation(usr)
-			W.layer = ABOVE_HUD_LAYER
 			SET_PLANE_EXPLICIT(W, ABOVE_HUD_PLANE, src)
 			W.pixel_y = initial(W.pixel_y)
 			W.pixel_x = initial(W.pixel_x)

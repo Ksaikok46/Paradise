@@ -598,7 +598,7 @@
 
 	item.pixel_x = initial(item.pixel_x)
 	item.pixel_y = initial(item.pixel_y)
-	item.layer = ABOVE_HUD_LAYER
+	item.layer = ABOVE_HUD_PLANE
 	SET_PLANE_EXPLICIT(item, ABOVE_HUD_PLANE, src)
 	item.forceMove(src)
 
@@ -729,7 +729,7 @@
 
 	update_fire()
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 
 /mob/living/simple_animal/Login()

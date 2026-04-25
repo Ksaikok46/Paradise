@@ -20,10 +20,6 @@
 	/// It's a check that determines if the turf is transparent to reveal the stuff(pipes, safe, cables and e.t.c.) without looking on intact
 	var/transparent_floor = TURF_NONTRANSPARENT
 
-	/// Set if the turf should appear on a different layer while in-game and map editing, otherwise use normal layer.
-	var/real_layer = TURF_LAYER
-	layer = MAP_EDITOR_TURF_LAYER
-
 	///Properties for open tiles (/floor)
 	/// All the gas vars, on the turf, are meant to be utilized for initializing a gas datum and setting its first gas values; the turf vars are never further modified at runtime; it is never directly used for calculations by the atmospherics system.
 	var/oxygen = 0
@@ -143,9 +139,6 @@
 	if(flags & INITIALIZED)
 		stack_trace("Warning: [src]([type]) initialized multiple times!")
 	flags |= INITIALIZED
-
-	if(layer == MAP_EDITOR_TURF_LAYER)
-		layer = real_layer
 
 	/// We do NOT use the shortcut here, because this is faster
 	if(SSmapping.max_plane_offset)
@@ -664,7 +657,6 @@
 	var/image/I = new
 	I.appearance = AM.appearance
 	SET_PLANE(I, GAME_PLANE, src)
-	I.layer = GHOST_LAYER + AM.layer
 	I.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM
 	I.loc = src
 	I.setDir(AM.dir)
@@ -922,7 +914,7 @@
 	// And rely on LIGHTING_MASK_LAYER to ensure we mask ONLY that bit
 	var/mutable_appearance/turf_mask = new(mask.appearance)
 	SET_PLANE(turf_mask, LIGHTING_PLANE, generate_for)
-	turf_mask.layer = LIGHTING_LAYER
+	turf_mask.layer = LIGHTING_MASK_LAYER
 	/// Any color becomes white. Anything else is black, and it's fully opaque
 	/// Ought to work
 	turf_mask.color = list(255,255,255,0, 255,255,255,0, 255,255,255,0, 0,0,0,0, 0,0,0,255)

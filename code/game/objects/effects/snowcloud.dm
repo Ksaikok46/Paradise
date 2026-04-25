@@ -68,7 +68,6 @@
 	desc = "Perfect for making snow angels, or throwing at other people!"
 	icon_state = "snow1"
 	plane = FLOOR_PLANE
-	layer = ABOVE_ICYOVERLAY_LAYER
 	var/critical_temp = T0C
 
 /obj/effect/snow/Initialize(mapload)

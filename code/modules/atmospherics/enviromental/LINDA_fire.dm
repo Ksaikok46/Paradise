@@ -24,7 +24,7 @@
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	icon = 'icons/goonstation/effects/fire.dmi'
 	icon_state = "1"
-	layer = MASSIVE_OBJ_LAYER
+	layer = MASSIVE_OBJ_PLANE
 	alpha = 250
 	blend_mode = BLEND_ADD
 	light_range = 2

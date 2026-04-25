@@ -14,7 +14,7 @@ Pipelines + Other Objects -> Pipe network
 	power_channel = ENVIRON
 	on_blueprints = TRUE
 	armor = list(MELEE = 25, BULLET = 10, LASER = 10, ENERGY = 100, BOMB = 0, BIO = 100, FIRE = 100, ACID = 70)
-	layer = GAS_PIPE_HIDDEN_LAYER //under wires
+	layer = GAS_PIPE_HIDDEN_LAYER + TOPDOWN_LAYER // TODO ksaikok multiple piping layers
 	interaction_flags_atom = parent_type::interaction_flags_atom | INTERACT_ATOM_IGNORE_MOBILITY
 
 	/// Generic over VISIBLE and HIDDEN, should be less than 0.01, or you'll reorder non-pipe things.
@@ -90,13 +90,13 @@ Pipelines + Other Objects -> Pipe network
 	switch(level)
 		if(1)
 			SET_PLANE_IMPLICIT(src, FLOOR_PLANE)
-			layer = GAS_PIPE_HIDDEN_LAYER + layer_offset
+			layer = layer + layer_offset
 		if(2)
 			SET_PLANE_IMPLICIT(src, GAME_PLANE)
-			layer = GAS_PIPE_VISIBLE_LAYER + layer_offset
+			layer = layer + layer_offset
 
 /obj/machinery/atmospherics/proc/update_pipe_image()
-	pipe_vision_img = image(src, loc = src.loc, layer = ABOVE_HUD_LAYER + src.layer, dir = src.dir)
+	pipe_vision_img = image(src, loc = src.loc, layer = ABOVE_HUD_PLANE + src.layer, dir = src.dir)
 	var/turf/T = get_turf(src)
 	SET_PLANE_EXPLICIT(pipe_vision_img, PIPECRAWL_IMAGES_PLANE, T)
 

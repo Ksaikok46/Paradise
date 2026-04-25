@@ -137,7 +137,7 @@
 	to_chat(user, span_notice("You unattached [src]."))
 	pixel_w = 0
 	pixel_z = 0
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	set_anchored(FALSE)
 	target = null
 	update_icon(UPDATE_ICON_STATE)

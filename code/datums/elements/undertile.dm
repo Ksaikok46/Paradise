@@ -8,18 +8,20 @@
 /datum/element/undertile
 	element_flags = ELEMENT_BESPOKE
 	argument_hash_start_idx = 2
-	///level of invisibility applied when under a tile. Could be INVISIBILITY_OBSERVER if you still want it to be visible to ghosts
+	/// The invisiblity trait applied, like TRAIT_T_RAY_VISIBLE
+	var/invisibility_trait
+	/// Level of invisibility applied when under a tile. Could be INVISIBILITY_OBSERVER if you still want it to be visible to ghosts
 	var/invisibility_level
-	///an overlay for the tile if we wish to apply that
+	/// An overlay for the tile if we wish to apply that
 	var/tile_overlay
-	///whether we use alpha or not. TRUE uses ALPHA_UNDERTILE because otherwise we have 200 different instances of this element for different alphas
+	/// Whether we use alpha or not. TRUE uses ALPHA_UNDERTILE because otherwise we have 200 different instances of this element for different alphas
 	var/use_alpha
-	///We will switch between anchored and unanchored. for stuff like satchels that shouldn't be pullable under tiles but are otherwise unanchored
+	/// We will switch between anchored and unanchored. for stuff like satchels that shouldn't be pullable under tiles but are otherwise unanchored
 	var/use_anchor
-	///Will hiding the object tilt the tile it is beneath?
+	/// Will hiding the object tilt the tile it is beneath?
 	var/tilt_tile
 
-/datum/element/undertile/Attach(datum/target, invisibility_level = INVISIBILITY_MAXIMUM, tile_overlay, use_alpha = TRUE, use_anchor = FALSE, tilt_tile = FALSE)
+/datum/element/undertile/Attach(datum/target, invisibility_trait, invisibility_level = INVISIBILITY_MAXIMUM, tile_overlay, use_alpha = TRUE, use_anchor = FALSE, tilt_tile = FALSE)
 	. = ..()
 
 	if(!ismovable(target))
@@ -27,6 +29,7 @@
 
 	RegisterSignal(target, COMSIG_OBJ_HIDE, PROC_REF(hide))
 
+	src.invisibility_trait = invisibility_trait
 	src.invisibility_level = invisibility_level
 	src.tile_overlay = tile_overlay
 	src.use_alpha = use_alpha
@@ -50,7 +53,7 @@
 		if(PLANE_TO_TRUE(source.plane) != FLOOR_PLANE)
 			// We do this so that turfs that allow you to see what's underneath them don't have to be on the game plane (which causes ambient occlusion weirdness)
 			SET_PLANE_IMPLICIT(source, FLOOR_PLANE)
-			source.layer = ABOVE_PLATING_LAYER
+			source.layer = BELOW_CATWALK_LAYER
 
 		ADD_TRAIT(source, TRAIT_UNDERFLOOR, ELEMENT_TRAIT(src))
 
@@ -69,11 +72,21 @@
 			if(use_alpha)
 				source.alpha = ALPHA_UNDERTILE
 
+			if(invisibility_trait)
+				ADD_TRAIT(source, invisibility_trait, ELEMENT_TRAIT(type))
+
 	else
-		SET_PLANE_IMPLICIT(source, initial(source.plane))
-		source.layer = initial(source.layer)
+		if(!HAS_TRAIT(source.loc, TRAIT_UNCOVERED_TURF))
+			SET_PLANE_IMPLICIT(source, initial(source.plane))
+			source.layer = initial(source.layer)
+		else
+			SET_PLANE_IMPLICIT(source, FLOOR_PLANE)
+			source.layer = BELOW_CATWALK_LAYER
 
 		REMOVE_TRAIT(source, TRAIT_UNDERFLOOR, ELEMENT_TRAIT(src))
+
+		if(invisibility_trait)
+			REMOVE_TRAIT(source, invisibility_trait, ELEMENT_TRAIT(type))
 
 		if(tile_overlay)
 			T.overlays -= tile_overlay
@@ -88,6 +101,8 @@
 
 		if(use_anchor)
 			source.set_anchored(FALSE)
+
+	SEND_SIGNAL(source, COMSIG_UNDERTILE_UPDATED)
 
 /datum/element/undertile/Detach(atom/movable/source, visibility_trait, invisibility_level = INVISIBILITY_MAXIMUM)
 	. = ..()

@@ -368,7 +368,7 @@
 	else if(vampire_dir & SOUTH)
 		pixel_y_diff = -shift
 		//If vampire is standing north of the target and facing south, the target should be displayed on top of the vampire
-		owner.current.layer = BEHIND_MOB_LAYER
+		owner.current.layer = BELOW_MOB_LAYER
 
 	if(vampire_dir & EAST)
 		pixel_x_diff = shift

@@ -2,8 +2,6 @@
 	name = "AI liquid dispenser"
 	icon = 'icons/obj/device.dmi'
 	icon_state = "liquid_dispenser"
-	layer = 3
-	plane = FLOOR_PLANE
 	anchored = TRUE
 	armor = list(melee = 50, bullet = 20, laser = 20, energy = 20, bomb = 0, bio = 0, fire = 50, acid = 30)
 	interaction_flags_click = ALLOW_SILICON_REACH

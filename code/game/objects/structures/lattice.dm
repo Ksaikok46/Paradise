@@ -7,8 +7,8 @@
 	anchored = TRUE
 	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 50)
 	max_integrity = 50
-	layer = LATTICE_LAYER //under pipes
-	plane = FLOOR_PLANE // I'd set to GAME_PLANE, but may fuck with pipes, srubbers and pumps. Also you see better lower floor under catwalk.
+	layer = LOW_FLOOR_LAYER
+	plane = FLOOR_PLANE
 	var/number_of_rods = 1
 	canSmoothWith = SMOOTH_GROUP_LATTICE + SMOOTH_GROUP_CATWALK + SMOOTH_GROUP_WALLS + SMOOTH_GROUP_FLOOR
 	smooth = SMOOTH_BITMASK

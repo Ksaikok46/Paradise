@@ -77,7 +77,7 @@
 		if(living_target.stat == DEAD) //bitch is dead
 			return FALSE
 
-	return source.can_see(dinner, radius)
+	return can_see(source, dinner, radius)
 
 /// Hunts down a specific atom type.
 /datum/ai_behavior/hunt_target

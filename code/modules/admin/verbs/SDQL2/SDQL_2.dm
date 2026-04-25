@@ -1,6 +1,7 @@
 // Exist only for sdql2, deleted by official paradise
 /obj/effect/statclick
 	name = "Initializing..."
+	blocks_emissive = EMISSIVE_BLOCK_NONE
 	var/target
 
 INITIALIZE_IMMEDIATE(/obj/effect/statclick)

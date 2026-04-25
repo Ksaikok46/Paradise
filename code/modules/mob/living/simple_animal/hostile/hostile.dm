@@ -169,14 +169,14 @@
 
 		var/static/possible_targets = typecacheof(list(/obj/machinery/porta_turret, /obj/mecha, /obj/spacepod, /mob/living))
 		for(var/HM in typecache_filter_list(range(vision_range, targets_from), possible_targets))
-			if(targets_from.can_see(HM, vision_range))
+			if(can_see(targets_from, HM, vision_range))
 				. += HM
 	else
 		. = oview(vision_range, targets_from)
 	if(retaliate_only)
 		return . &= enemies // Remove all entries that aren't in enemies
 
-/mob/living/simple_animal/hostile/can_see(atom/target, length)
+/mob/living/simple_animal/hostile/proc/can_see(atom/target, length)
 	if(!target || target.invisibility > see_invisible)
 		return FALSE
 	var/turf/current_turf = get_turf(src)

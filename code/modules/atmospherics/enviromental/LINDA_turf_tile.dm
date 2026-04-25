@@ -168,7 +168,7 @@
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	icon = 'icons/effects/tile_effects.dmi'
 	icon_state = "wind"
-	layer = MASSIVE_OBJ_LAYER
+	layer = MASSIVE_OBJ_PLANE
 	blend_mode = BLEND_OVERLAY
 	// See comment on attempt_init.
 	flags = /obj/effect::flags | INITIALIZED

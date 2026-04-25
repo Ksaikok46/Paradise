@@ -643,7 +643,6 @@
 	if(distance < leap_range)
 		leap_range = distance + 1
 
-	user.layer = LOW_LANDMARK_LAYER
 	user.pass_flags |= (PASSTABLE|PASSGRILLE|PASSFENCE|PASSMOB)
 	user.add_traits(list(TRAIT_MOVE_FLYING, TRAIT_IMMOBILIZED), SPELL_LUNGE_TRAIT)
 
@@ -1281,7 +1280,6 @@
 /obj/effect/abstract/vampire
 	name = "Flying vampire..."
 	invisibility = 0
-	layer = LOW_LANDMARK_LAYER
 
 /**
  * "Mysterious" coffin.

@@ -84,6 +84,6 @@
 	update_pockets()
 	update_fire()
 
-	if(blocks_emissive)
+	if(blocks_emissive != EMISSIVE_BLOCK_NONE)
 		add_overlay(get_emissive_block())
 

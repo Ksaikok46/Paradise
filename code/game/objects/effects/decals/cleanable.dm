@@ -1,9 +1,9 @@
 /obj/effect/decal/cleanable
 	abstract_type = /obj/effect/decal/cleanable
+	layer = CLEANABLE_FLOOR_OBJECT_LAYER
 	var/list/random_icon_states = list()
 	var/bloodiness = 0 //0-100, amount of blood in this decal, used for making footprints and affecting the alpha of bloody footprints
 	var/mergeable_decal = TRUE //when two of these are on a same tile or do we need to merge them into just one?
-	layer = CLEANABLES_LAYER
 
 /obj/effect/decal/cleanable/Initialize(mapload)
 	. = ..()

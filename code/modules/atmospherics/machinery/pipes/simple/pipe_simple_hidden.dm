@@ -2,14 +2,13 @@
 	icon_state = "intact"
 	alpha = 128		//set for the benefit of mapping - this is reset to opaque when the pipe is spawned in game
 	// these are inherited, but it's nice to have them explicit here
+	layer = GAS_PIPE_HIDDEN_LAYER + TOPDOWN_LAYER // TODO ksaikok pipe layering
 
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers
 	name = "Scrubbers pipe"
 	desc = "A one meter section of scrubbers pipe"
 	icon_state = "intact-scrubbers"
 	connect_types = list(3)
-	layer = GAS_PIPE_HIDDEN_LAYER + GAS_PIPE_SCRUB_OFFSET
-	layer_offset = GAS_PIPE_SCRUB_OFFSET
 	icon_connect_type = "-scrubbers"
 	color = PIPE_COLOR_RED
 
@@ -18,8 +17,6 @@
 	desc = "A one meter section of supply pipe"
 	icon_state = "intact-supply"
 	connect_types = list(2)
-	layer = GAS_PIPE_HIDDEN_LAYER + GAS_PIPE_SUPPLY_OFFSET
-	layer_offset = GAS_PIPE_SUPPLY_OFFSET
 	icon_connect_type = "-supply"
 	color = PIPE_COLOR_BLUE
 

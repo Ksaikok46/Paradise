@@ -1,7 +1,6 @@
 /obj/effect/temp_visual/bubbles
 	name = "bubbles"
 	icon_state = "bubbles"
-	layer = CLEANABLES_LAYER
 	duration = 30
 	randomdir = FALSE
 

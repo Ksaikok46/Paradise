@@ -2,7 +2,7 @@
 	name = "snow"
 	desc = "A crunchy layer of freshly fallen snow."
 	anchored = TRUE
-	layer = TURF_LAYER
+	layer = LOW_FLOOR_LAYER
 	plane = FLOOR_PLANE
 	icon = 'icons/turf/snow.dmi'
 	icon_state = "snow"
