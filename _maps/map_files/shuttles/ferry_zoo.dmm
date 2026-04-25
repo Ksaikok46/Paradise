@@ -8,7 +8,6 @@
 "b" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 2;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /mob/living/simple_animal/pet/dog/corgi/narsie{
@@ -26,7 +25,6 @@
 "i" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 2;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /mob/living/simple_animal/hulk/zilla,
@@ -57,7 +55,6 @@
 "o" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /obj/structure/window/plasmareinforced{
@@ -76,7 +73,6 @@
 "w" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /mob/living/simple_animal/hostile/creature{
@@ -95,7 +91,6 @@
 "D" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /mob/living/simple_animal/hostile/netherworld/migo{
@@ -166,7 +161,6 @@
 "N" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /mob/living/simple_animal/hostile/hellhound{
@@ -214,7 +208,6 @@
 "Q" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 2;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /obj/structure/window/plasmareinforced{
@@ -255,7 +248,6 @@
 "T" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 2;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /obj/structure/window/reinforced/survival_pod/unhittable{
@@ -270,7 +262,6 @@
 "W" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /obj/structure/window/reinforced/survival_pod/unhittable{
@@ -286,7 +277,6 @@
 "Z" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 2;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /mob/living/simple_animal/pet/penguin/emperor{

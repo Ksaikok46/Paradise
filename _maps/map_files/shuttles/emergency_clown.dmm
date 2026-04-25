@@ -269,7 +269,6 @@
 "bd" = (
 /obj/structure/table,
 /obj/item/storage/firstaid/o2{
-	layer = 2.8;
 	pixel_x = 4;
 	pixel_y = 6
 	},
@@ -288,7 +287,6 @@
 /area/shuttle/escape)
 "be" = (
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_x = 28
 	},

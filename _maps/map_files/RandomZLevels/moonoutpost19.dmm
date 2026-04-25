@@ -1279,7 +1279,6 @@
 "cQ" = (
 /obj/machinery/conveyor_switch/oneway{
 	id = "awaysyndie";
-	layer = 3.1;
 	name = "mining conveyor"
 	},
 /obj/effect/decal/warning_stripes/west,
@@ -2302,7 +2301,6 @@
 "eW" = (
 /obj/machinery/atmospherics/unary/vent_pump{
 	dir = 4;
-	layer = 2.4;
 	on = 1
 	},
 /turf/simulated/floor/plasteel{
@@ -2579,8 +2577,7 @@
 "fv" = (
 /obj/structure/table,
 /obj/item/stack/sheet/mineral/plasma{
-	amount = 20;
-	layer = 2.9
+	amount = 20
 	},
 /obj/machinery/light/small{
 	active_power_usage = 0;
@@ -5169,7 +5166,6 @@
 	},
 /obj/machinery/atmospherics/unary/vent_pump{
 	dir = 4;
-	layer = 2.4;
 	on = 1
 	},
 /obj/effect/decal/cleanable/dirt,
@@ -6476,8 +6472,7 @@
 	specialfunctions = 4
 	},
 /obj/effect/decal/remains/human{
-	desc = "They look like human remains. The skeleton is laid out on its side and there seems to have been no sign of struggle.";
-	layer = 4.1
+	desc = "They look like human remains. The skeleton is laid out on its side and there seems to have been no sign of struggle."
 	},
 /turf/simulated/floor/carpet{
 	germ_level = 20
@@ -6723,9 +6718,7 @@
 	item_state = "facehugger_impregnated";
 	stat = 2
 	},
-/obj/item/clothing/mask/face/bat{
-	layer = 3.1
-	},
+/obj/item/clothing/mask/face/bat,
 /obj/item/clothing/gloves/color/red/insulated,
 /turf/simulated/floor/plating/asteroid/airless,
 /area/moonoutpost19/hive)

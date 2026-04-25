@@ -4764,21 +4764,11 @@
 /area/mine/storage)
 "Bz" = (
 /obj/structure/safe/floor,
-/obj/item/whetstone/cult{
-	layer = 2.9
-	},
-/obj/item/mining_voucher{
-	layer = 2.9
-	},
-/obj/item/crusher_trophy/blaster_tubes/magma_wing{
-	layer = 2.9
-	},
-/obj/item/clothing/gloves/combat{
-	layer = 2.9
-	},
-/obj/item/clothing/accessory/necklace/talisman{
-	layer = 2.9
-	},
+/obj/item/whetstone/cult,
+/obj/item/mining_voucher,
+/obj/item/crusher_trophy/blaster_tubes/magma_wing,
+/obj/item/clothing/gloves/combat,
+/obj/item/clothing/accessory/necklace/talisman,
 /obj/effect/turf_decal/tile/neutral{
 	dir = 4
 	},
@@ -6851,7 +6841,6 @@
 /area/mine/living_quarters)
 "NA" = (
 /obj/item/trash/syndi_cakes{
-	layer = 1.9;
 	pixel_x = -6;
 	pixel_y = -6
 	},

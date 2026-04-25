@@ -31,9 +31,7 @@
 /area/template_noop)
 "ee" = (
 /obj/effect/spawner/window,
-/obj/structure/barricade/wooden/crude{
-	layer = 4
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plating,
 /area/template_noop)
 "gF" = (

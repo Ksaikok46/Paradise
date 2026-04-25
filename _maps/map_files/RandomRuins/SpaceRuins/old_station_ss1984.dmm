@@ -174,8 +174,7 @@
 	dir = 8
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/box/flashbangs,
 /obj/item/ammo_box/speedloader/shotgun/beanbag,
@@ -988,8 +987,7 @@
 	dir = 8
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/ammo_box/shotgun/beanbag,
 /obj/item/ammo_box/shotgun,
@@ -2531,7 +2529,6 @@
 "iX" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/sign/vacuum/external{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/cable/orange{
@@ -3052,7 +3049,6 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table,
 /obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5;
 	pixel_y = 16;
 	pixel_x = -6
 	},
@@ -4449,7 +4445,6 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/machinery/light_construct/small{
@@ -7617,7 +7612,6 @@
 	initialize_directions = 1;
 	internal_pressure_bound = 4000;
 	internal_pressure_bound_default = 4000;
-	layer = 2.4;
 	name = "co2 vent";
 	on = 1;
 	pressure_checks = 2;
@@ -8252,8 +8246,7 @@
 	dir = 8
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	color = "red"
@@ -11715,7 +11708,6 @@
 /area/ruin/space/ancientstation/charlie_hydrostorage)
 "OS" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plating/airless,

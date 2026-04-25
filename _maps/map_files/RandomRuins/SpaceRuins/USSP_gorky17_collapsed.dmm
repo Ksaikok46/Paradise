@@ -93,7 +93,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/grille/broken,
@@ -361,7 +360,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/window/reinforced{
@@ -397,7 +395,6 @@
 	icon_state = "1-2"
 	},
 /obj/machinery/computer/old_frame/macintosh{
-	layer = 3.15;
 	pixel_y = 8
 	},
 /turf/simulated/floor/plasteel{
@@ -662,7 +659,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -688,7 +684,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -786,7 +781,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -916,7 +910,6 @@
 /area/ruin/space/USSP_gorky17/collapsed/kitchen)
 "db" = (
 /obj/effect/mapping_helpers/light{
-	layer = 5;
 	light_range = 5
 	},
 /turf/space,
@@ -1306,7 +1299,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1511;
-	layer = 3.5;
 	master_tag = "g17solars";
 	name = "Gorky17 exterior access button";
 	pixel_x = -23;
@@ -1432,7 +1424,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/window/reinforced{
@@ -1458,7 +1449,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -1477,7 +1467,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -1586,7 +1575,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -1600,7 +1588,6 @@
 /obj/machinery/airlock_sensor{
 	frequency = 1512;
 	id_tag = "g17minig_sensor";
-	layer = 2.8;
 	name = "Gorky17 airlock sensor";
 	pixel_x = 24;
 	pixel_y = 4
@@ -1608,7 +1595,6 @@
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	frequency = 1512;
 	id_tag = "g17mining";
-	layer = 3.1;
 	name = "Gorky17 Airlock Controller";
 	pixel_x = 24;
 	pixel_y = -6;
@@ -1631,7 +1617,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -1719,7 +1704,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/window/reinforced{
@@ -2021,7 +2005,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -2039,7 +2022,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plasteel{
@@ -2126,7 +2108,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -2599,7 +2580,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "g17flash1";
-	layer = 5;
 	name = "Gorky17 flash 1";
 	pixel_y = 55;
 	range = 3
@@ -3280,7 +3260,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/window/reinforced{
@@ -4058,7 +4037,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/grille,
@@ -4308,7 +4286,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1511;
-	layer = 4;
 	master_tag = "g17solars";
 	name = "Gorky17 interior access button";
 	pixel_x = -23;
@@ -4457,7 +4434,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/effect/spawner/window/reinforced,
@@ -4533,7 +4509,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -4591,7 +4566,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/effect/spawner/window/reinforced,
@@ -5764,7 +5738,6 @@
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	frequency = 1511;
 	id_tag = "g17solars";
-	layer = 3.1;
 	name = "Gorky17 Airlock Controller";
 	pixel_x = 24;
 	pixel_y = -6;
@@ -5777,7 +5750,6 @@
 /obj/machinery/airlock_sensor{
 	frequency = 1511;
 	id_tag = "g17solars_sensor";
-	layer = 2.8;
 	name = "Gorky17 airlock sensor";
 	pixel_x = 24;
 	pixel_y = 4
@@ -6184,7 +6156,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -6245,7 +6216,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -6512,7 +6482,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -6521,7 +6490,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/window/reinforced{
@@ -6557,9 +6525,7 @@
 /turf/space,
 /area/ruin/space/USSP_gorky17/collapsed/solars)
 "uh" = (
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /obj/structure/marker_beacon{
 	icon_state = "markerjade-on"
 	},
@@ -6655,7 +6621,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -7037,7 +7002,6 @@
 "vF" = (
 /obj/structure/table,
 /obj/machinery/computer/old_frame/macintosh{
-	layer = 3.15;
 	pixel_y = 8
 	},
 /turf/simulated/floor/plasteel{
@@ -7127,7 +7091,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plasteel{
@@ -7149,7 +7112,6 @@
 	icon_state = "markerburgundy-on"
 	},
 /obj/machinery/computer/old_frame/macintosh{
-	layer = 3.15;
 	pixel_y = 8
 	},
 /turf/simulated/floor/plasteel{
@@ -7523,7 +7485,6 @@
 "xa" = (
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden,
@@ -8454,7 +8415,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -8888,7 +8848,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/machinery/atmospherics/pipe/simple/visible/purple{
@@ -9006,7 +8965,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/grille/broken,
@@ -9776,7 +9734,6 @@
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	frequency = 1510;
 	id_tag = "g17solarn";
-	layer = 3.1;
 	name = "Gorky17 Airlock Controller";
 	pixel_y = -25;
 	req_access = list(122);
@@ -9788,7 +9745,6 @@
 /obj/machinery/airlock_sensor{
 	frequency = 1510;
 	id_tag = "g17solarn_sensor";
-	layer = 2.8;
 	name = "Gorky17 airlock sensor";
 	pixel_x = 12;
 	pixel_y = -25
@@ -10294,7 +10250,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -11419,7 +11374,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plasteel{
@@ -11448,7 +11402,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -11519,7 +11472,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -12027,7 +11979,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -12368,7 +12319,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/grille/broken,
@@ -12922,7 +12872,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -13047,7 +12996,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1512;
-	layer = 3.5;
 	master_tag = "g17mining";
 	name = "Gorky17 exterior access button";
 	pixel_x = -23;
@@ -13193,7 +13141,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1512;
-	layer = 4;
 	master_tag = "g17mining";
 	name = "Gorky17 interior access button";
 	pixel_x = -23;
@@ -13513,7 +13460,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/window/reinforced{
@@ -14433,7 +14379,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1510;
-	layer = 3.1;
 	master_tag = "g17solarn";
 	name = "Gorky17 interior access button";
 	pixel_x = 25;
@@ -14547,7 +14492,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -14560,7 +14504,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -14907,7 +14850,6 @@
 "SP" = (
 /obj/structure/table,
 /obj/machinery/computer/security/old_frame/macintosh{
-	layer = 3.1;
 	name = "Gorky17 security camera console";
 	network = list("USSP_gorky17");
 	pixel_y = 8
@@ -15054,7 +14996,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -15346,7 +15287,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/effect/spawner/window/reinforced,
@@ -15843,7 +15783,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1510;
-	layer = 3.1;
 	master_tag = "g17solarn";
 	name = "Gorky17 exterior access button";
 	pixel_x = -25;
@@ -15867,7 +15806,6 @@
 /obj/structure/cable,
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -15875,7 +15813,6 @@
 "VL" = (
 /obj/structure/table/reinforced,
 /obj/machinery/computer/security/old_frame/macintosh{
-	layer = 3.1;
 	name = "Gorky17 security camera console";
 	network = list("USSP_gorky17");
 	pixel_y = 8
@@ -16544,7 +16481,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/structure/grille/broken,
@@ -16634,7 +16570,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /turf/simulated/floor/plating,
@@ -17048,7 +16983,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "g17extlock";
-	layer = 3.3;
 	name = "Gorky17 exterior blast door"
 	},
 /obj/effect/spawner/window/reinforced,

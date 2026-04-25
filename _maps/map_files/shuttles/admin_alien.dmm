@@ -478,8 +478,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/wall/shuttle,
 /area/shuttle/administration)
@@ -503,8 +502,7 @@
 /area/shuttle/administration)
 "up" = (
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -662,8 +660,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/wall/shuttle,
 /area/shuttle/administration)
@@ -781,8 +778,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/wall/shuttle,
 /area/shuttle/administration)

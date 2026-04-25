@@ -90,9 +90,7 @@
 	},
 /area/shuttle/transport)
 "r" = (
-/obj/machinery/bodyscanner{
-	layer = 3.5
-	},
+/obj/machinery/bodyscanner,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "whiteblue"

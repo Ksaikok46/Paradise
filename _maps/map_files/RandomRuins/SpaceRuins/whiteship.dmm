@@ -30,7 +30,6 @@
 /area/shuttle/abandoned)
 "aO" = (
 /obj/structure/sink{
-	layer = 4;
 	pixel_y = 19
 	},
 /obj/structure/mirror{
@@ -407,7 +406,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "whiteshipbridgeshutters";
-	layer = 3;
 	name = "Medical Ship Bridge Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -725,7 +723,6 @@
 "qp" = (
 /obj/structure/sink{
 	dir = 4;
-	layer = 4;
 	pixel_x = 12
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -1119,7 +1116,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "whiteshiproom1";
-	layer = 3;
 	name = "Room 1 Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -1230,7 +1226,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "whiteshiproom2";
-	layer = 3;
 	name = "Room 2 Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -1281,7 +1276,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "whiteshipbridgeshutters";
-	layer = 3;
 	name = "Medical Ship Bridge Shutters"
 	},
 /obj/docking_port/stationary/whiteship{
@@ -1578,7 +1572,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "whiteshipinnershutters";
-	layer = 3;
 	name = "Medical Ship Inner Shutters"
 	},
 /obj/machinery/atmospherics/pipe/simple/visible/purple{
@@ -2307,7 +2300,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "whiteshipinnershutters";
-	layer = 3;
 	name = "Medical Ship Inner Shutters"
 	},
 /turf/simulated/floor/plating,

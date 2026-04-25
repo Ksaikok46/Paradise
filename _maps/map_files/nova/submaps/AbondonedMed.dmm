@@ -151,9 +151,7 @@
 /obj/structure/door_assembly/door_assembly_mai{
 	anchored = 1
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plating,
 /area/maintenance/apmaint)
 "bM" = (
@@ -266,7 +264,6 @@
 	},
 /obj/structure/chair/comfy/shuttle/dark{
 	dir = 8;
-	layer = 3.4;
 	pixel_x = 6
 	},
 /obj/machinery/light/small{
@@ -523,9 +520,7 @@
 /obj/structure/window/reinforced{
 	dir = 4
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plating,
 /area/maintenance/abandonedhangar)
 "eD" = (
@@ -535,8 +530,7 @@
 /area/maintenance/apmaint)
 "eE" = (
 /obj/structure/chair/comfy/shuttle/dark{
-	dir = 1;
-	layer = 3.4
+	dir = 1
 	},
 /obj/structure/table/tray{
 	pixel_y = 6;
@@ -544,7 +538,6 @@
 	},
 /obj/machinery/computer/cryopod{
 	pixel_y = 18;
-	layer = 3.3;
 	name = "Oversight console";
 	desc = "Интерфейс управления системой контроля корабля.";
 	use_power = 0
@@ -590,9 +583,7 @@
 /obj/structure/door_assembly/door_assembly_mai{
 	anchored = 1
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plasteel,
 /area/maintenance/apmaint)
 "eU" = (
@@ -918,9 +909,7 @@
 /area/maintenance/medroom)
 "ih" = (
 /obj/effect/decal/cleanable/glass,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/grille,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -1118,8 +1107,7 @@
 /area/maintenance/apmaint)
 "jO" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/reagent_containers/iv_bag,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -1446,12 +1434,8 @@
 	},
 /area/maintenance/kitchen)
 "nU" = (
-/obj/effect/spawner/random_barrier/possibly_welded_airlock{
-	layer = 2.9
-	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/effect/spawner/random_barrier/possibly_welded_airlock,
+/obj/structure/barricade/wooden,
 /obj/machinery/atmospherics/pipe/simple/hidden/universal{
 	dir = 4
 	},
@@ -3010,7 +2994,6 @@
 	},
 /obj/structure/chair/comfy/shuttle/dark{
 	dir = 8;
-	layer = 3.4;
 	pixel_x = 6
 	},
 /obj/effect/decal/cleanable/dust,
@@ -4021,12 +4004,8 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/spawner/random_barrier/possibly_welded_airlock{
-	layer = 2.9
-	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/effect/spawner/random_barrier/possibly_welded_airlock,
+/obj/structure/barricade/wooden,
 /obj/structure/cable{
 	icon_state = "2-8"
 	},
@@ -5076,7 +5055,6 @@
 	},
 /obj/structure/chair/comfy/shuttle/dark{
 	dir = 4;
-	layer = 3.4;
 	pixel_x = -7
 	},
 /obj/effect/decal/cleanable/dust,
@@ -5220,7 +5198,6 @@
 	},
 /obj/structure/chair/comfy/shuttle/dark{
 	dir = 4;
-	layer = 3.4;
 	pixel_x = -7
 	},
 /obj/machinery/light/small{

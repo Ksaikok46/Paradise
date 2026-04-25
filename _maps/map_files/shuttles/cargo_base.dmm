@@ -36,14 +36,12 @@
 	},
 /obj/machinery/door_control{
 	id = "QMLoaddoor2";
-	layer = 3;
 	name = "Loading Doors";
 	pixel_x = 24;
 	pixel_y = 8
 	},
 /obj/machinery/door_control{
 	id = "QMLoaddoor";
-	layer = 3;
 	name = "Loading Doors";
 	pixel_x = 24;
 	pixel_y = -8

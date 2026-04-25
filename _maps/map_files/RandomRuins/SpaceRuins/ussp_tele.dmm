@@ -84,9 +84,7 @@
 /obj/machinery/light_construct/small{
 	dir = 4
 	},
-/obj/machinery/atmospherics/unary/portables_connector{
-	layer = 2
-	},
+/obj/machinery/atmospherics/unary/portables_connector,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "floorgrime"
 	},

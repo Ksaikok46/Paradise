@@ -505,7 +505,6 @@
 	dir = 1
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/engine,
@@ -713,7 +712,6 @@
 /area/security/medbay)
 "aep" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/suit_storage_unit/security/warden,
@@ -1113,7 +1111,6 @@
 /area/storage/secure)
 "afY" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/camera{
@@ -1627,7 +1624,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
 	id_tag = "secrange";
-	layer = 5;
 	name = "Security Range Shutters"
 	},
 /turf/simulated/floor/plasteel,
@@ -1655,7 +1651,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
 	id_tag = "secrange";
-	layer = 5;
 	name = "Security Range Shutters"
 	},
 /turf/simulated/floor/plasteel,
@@ -2609,7 +2604,6 @@
 /area/security/checkpoint/south)
 "amc" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32;
 	pixel_y = 32
 	},
@@ -3794,7 +3788,6 @@
 /area/security/brig)
 "aqy" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -3819,7 +3812,6 @@
 /area/security/brig)
 "aqD" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/atmospherics/unary/vent_pump/on,
@@ -4506,7 +4498,6 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -6855,8 +6846,7 @@
 	icon_state = "4-8"
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/briefcase{
 	pixel_x = -2;
@@ -7076,7 +7066,6 @@
 /obj/item/lighter,
 /obj/item/storage/fancy/cigarettes/cigpack_robust,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -7178,7 +7167,6 @@
 	req_access = list(2)
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/alarm{
@@ -8557,7 +8545,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/shutters{
 	id_tag = "Warden";
-	layer = 4;
 	name = "Privacy Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -9390,7 +9377,6 @@
 /area/security/permabrig)
 "aIV" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/carpet,
@@ -10150,7 +10136,6 @@
 	},
 /obj/machinery/door/poddoor/shutters/preopen{
 	id_tag = "courtroomshutters";
-	layer = 3.3;
 	name = "Courtroom Privacy Shutters"
 	},
 /turf/simulated/floor/wood,
@@ -10435,7 +10420,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/shutters/preopen{
 	id_tag = "courtroomshutters";
-	layer = 3.3;
 	name = "Courtroom Privacy Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -10553,7 +10537,6 @@
 "aNO" = (
 /obj/structure/closet/secure_closet/brig,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel,
@@ -12915,7 +12898,6 @@
 /area/chapel/main)
 "aYQ" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/door/firedoor,
@@ -12926,8 +12908,7 @@
 /area/hallway/secondary/exit)
 "aYR" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/mask/gas,
 /obj/item/clothing/mask/gas{
@@ -13819,7 +13800,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_chapel_airlock";
 	name = "exterior access button";
 	pixel_x = -25;
@@ -14068,7 +14048,6 @@
 	dir = 4
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -14497,7 +14476,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "solar_chapel_sensor";
-	layer = 3.3;
 	pixel_x = 25;
 	pixel_y = 12
 	},
@@ -14507,7 +14485,6 @@
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "solar_chapel_airlock";
-	layer = 3.3;
 	pixel_x = 25;
 	req_access = list(13);
 	tag_airpump = "solar_chapel_pump";
@@ -14521,7 +14498,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_tool_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -14930,7 +14906,6 @@
 	dir = 1
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -15423,7 +15398,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_chapel_airlock";
 	name = "interior access button";
 	pixel_x = 25;
@@ -15450,8 +15424,7 @@
 /area/hydroponics)
 "big" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/tank/internals/emergency_oxygen/engi,
 /obj/item/tank/internals/emergency_oxygen/engi,
@@ -15514,7 +15487,6 @@
 	dir = 8
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/wood{
@@ -15540,13 +15512,11 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "solar_tool_sensor";
-	layer = 3.3;
 	pixel_x = 25;
 	pixel_y = 12
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "solar_tool_airlock";
-	layer = 3.3;
 	pixel_x = 25;
 	req_access = list(13);
 	tag_airpump = "solar_tool_pump";
@@ -15591,8 +15561,7 @@
 /area/security/permabrig)
 "biC" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/borgupload{
 	pixel_x = -1;
@@ -16805,7 +16774,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_tool_airlock";
 	name = "interior access button";
 	pixel_x = 25;
@@ -17864,7 +17832,6 @@
 /area/magistrateoffice)
 "brS" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel,
@@ -18481,7 +18448,6 @@
 /area/assembly/robotics)
 "buz" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/closet/secure_closet{
@@ -18580,7 +18546,6 @@
 	pixel_y = 4
 	},
 /obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5;
 	pixel_x = 11;
 	pixel_y = 5
 	},
@@ -18654,7 +18619,6 @@
 	dir = 1
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/carpet/arcade,
@@ -19732,7 +19696,6 @@
 	dir = 4
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/machinery/light{
@@ -19828,7 +19791,6 @@
 	},
 /obj/machinery/door/poddoor/shutters/preopen{
 	id_tag = "courtroomshutters";
-	layer = 3.3;
 	name = "Courtroom Privacy Shutters"
 	},
 /obj/structure/cable{
@@ -21201,7 +21163,6 @@
 /obj/machinery/door/window/eastleft{
 	base_state = "right";
 	icon_state = "right";
-	layer = 3;
 	req_access = list(50)
 	},
 /obj/machinery/disposal/deliveryChute{
@@ -21651,7 +21612,6 @@
 "bJd" = (
 /obj/item/twohanded/required/kirbyplants,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel,
@@ -22945,7 +22905,6 @@
 /obj/structure/closet/secure_closet/miner,
 /obj/effect/turf_decal/siding/wood,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -24437,7 +24396,6 @@
 /area/maintenance/asmaint)
 "bTq" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/machinery/disposal,
@@ -24846,7 +24804,6 @@
 /area/crew_quarters/dorms)
 "bUC" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -25396,7 +25353,6 @@
 	network = list("Research","SS13")
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/item/twohanded/required/kirbyplants,
@@ -25588,7 +25544,6 @@
 /area/escapepodbay)
 "bXm" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel,
@@ -26843,7 +26798,6 @@
 /area/medical/genetics)
 "caY" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -27249,7 +27203,6 @@
 "ccr" = (
 /obj/machinery/computer/robotics,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /turf/simulated/floor/glass/reinforced,
@@ -27688,7 +27641,6 @@
 /area/hallway/primary/central/south)
 "ced" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -27711,7 +27663,6 @@
 	dir = 1
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/table/tray,
@@ -27760,7 +27711,6 @@
 	pixel_y = 7
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/item/paper_bin/nanotrasen,
@@ -30050,7 +30000,6 @@
 /area/maintenance/asmaint)
 "cmm" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/camera{
@@ -30518,7 +30467,6 @@
 	icon_state = "2-8"
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -30749,7 +30697,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.6;
 	master_tag = "viro_lab_airlock_control";
 	name = "Virology Lab Access Button";
 	pixel_x = -24;
@@ -31438,7 +31385,6 @@
 /area/engineering/engine/monitor)
 "csE" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/machinery/door/firedoor,
@@ -31470,7 +31416,6 @@
 /obj/effect/decal/warning_stripes/yellow,
 /obj/machinery/computer/drone_control,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -31620,8 +31565,7 @@
 /area/engineering/break_room)
 "ctk" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/shoes/magboots,
 /obj/item/clothing/suit/space/hardsuit/medical,
@@ -31890,8 +31834,7 @@
 /area/medical/sleeper)
 "cuw" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/shoes/magboots,
 /obj/item/clothing/suit/space/hardsuit/medical,
@@ -32956,7 +32899,6 @@
 "cxP" = (
 /obj/structure/bed,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -34224,9 +34166,7 @@
 /obj/item/stack/sheet/metal{
 	amount = 50
 	},
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.9
-	},
+/obj/item/stack/sheet/mineral/plasma,
 /obj/item/stack/sheet/glass{
 	amount = 50;
 	pixel_x = 3;
@@ -34493,8 +34433,7 @@
 /area/maintenance/asmaint)
 "cEe" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/crew{
 	pixel_x = -1;
@@ -34949,7 +34888,6 @@
 	dir = 8
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/machinery/vending/chinese,
@@ -35198,7 +35136,6 @@
 /area/storage/eva)
 "cHx" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -35319,7 +35256,6 @@
 	pixel_x = -24
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -35796,7 +35732,6 @@
 /obj/structure/closet/secure_closet/atmos_personal,
 /obj/item/storage/briefcase/inflatable,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -36506,7 +36441,6 @@
 /area/toxins/xenobiology)
 "cMQ" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -37367,7 +37301,6 @@
 /area/medical/medbay2)
 "cQq" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -37448,7 +37381,6 @@
 /area/hallway/primary/central/north)
 "cQC" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -37540,8 +37472,7 @@
 /obj/item/clothing/glasses/welding,
 /obj/item/clothing/glasses/welding,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/firealarm{
 	name = "north fire alarm";
@@ -38742,7 +38673,6 @@
 	icon_state = "2-8"
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plating/airless,
@@ -39466,9 +39396,7 @@
 /obj/structure/cable{
 	icon_state = "0-4"
 	},
-/obj/machinery/status_display{
-	layer = 4
-	},
+/obj/machinery/status_display,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
@@ -39491,7 +39419,6 @@
 /area/maintenance/turbine)
 "cXn" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -40282,7 +40209,6 @@
 	req_access = list(24)
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plating,
@@ -40298,7 +40224,6 @@
 	dir = 1
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -40873,7 +40798,6 @@
 "dcD" = (
 /obj/structure/bed,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /obj/machinery/atmospherics/unary/vent_pump/on{
@@ -41737,7 +41661,6 @@
 	req_access = list(37)
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/wood,
@@ -41848,7 +41771,6 @@
 /area/hallway/secondary/exit)
 "dgk" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -42066,8 +41988,7 @@
 /area/maintenance/asmaint2)
 "dhf" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/robotics{
 	pixel_x = -2;
@@ -44344,7 +44265,6 @@
 "dph" = (
 /obj/structure/table,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /obj/item/toy/figure/borg,
@@ -44425,7 +44345,6 @@
 /area/turret_protected/ai_upload)
 "dpA" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/bluegrid,
@@ -44965,7 +44884,6 @@
 	dir = 4
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /turf/simulated/floor/bluegrid,
@@ -45162,7 +45080,6 @@
 /obj/machinery/suit_storage_unit/atmos,
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -45554,7 +45471,6 @@
 /area/toxins/explab)
 "dEg" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/camera{
@@ -46626,8 +46542,7 @@
 	pixel_y = 6
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/gun/energy/laser/practice,
 /obj/item/gun/energy/laser/practice,
@@ -47062,8 +46977,7 @@
 /area/space)
 "epd" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -47341,8 +47255,7 @@
 /area/quartermaster/qm)
 "euc" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/toolbox/electrical{
 	pixel_x = 1;
@@ -47647,7 +47560,6 @@
 /obj/item/clothing/mask/balaclava,
 /obj/effect/decal/warning_stripes/red,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/machinery/light{
@@ -47743,7 +47655,6 @@
 	dir = 8
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/bluegrid,
@@ -47867,8 +47778,7 @@
 "eGq" = (
 /obj/effect/decal/cleanable/dust,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/briefcase/inflatable,
 /turf/simulated/floor/plasteel{
@@ -48639,9 +48549,7 @@
 "eWF" = (
 /obj/machinery/door/airlock/bananium/glass,
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/lubed,
 /area/maintenance/apmaint)
 "eWI" = (
@@ -49461,13 +49369,11 @@
 /obj/machinery/airlock_sensor{
 	frequency = 1450;
 	id_tag = "east_sensor";
-	layer = 3.3;
 	pixel_y = -25
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	frequency = 1450;
 	id_tag = "east_maint";
-	layer = 3.3;
 	pixel_y = 25;
 	req_access = list(13);
 	tag_airpump = "east_pump";
@@ -49574,7 +49480,6 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
 /obj/machinery/computer/security/telescreen{
 	desc = "Used for watching the E.X.P.E.R.I-MENTOR chamber.";
-	layer = 4;
 	name = "E.X.P.E.R.I-MENTOR Camera Screen";
 	network = list("Telepad");
 	pixel_y = 30
@@ -50234,8 +50139,7 @@
 /area/engineering/engine)
 "fKn" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/door/window{
 	dir = 8;
@@ -50564,7 +50468,6 @@
 	},
 /obj/machinery/access_button{
 	command = "cycle_exterior";
-	layer = 3.1;
 	master_tag = "turbine_control";
 	name = "Gas Turbine Airlock Control";
 	pixel_x = 5;
@@ -51260,13 +51163,11 @@
 /obj/machinery/airlock_sensor{
 	frequency = 1450;
 	id_tag = "south_sensor";
-	layer = 3.3;
 	pixel_y = -25
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	frequency = 1450;
 	id_tag = "south_maint";
-	layer = 3.3;
 	pixel_y = 25;
 	req_access = list(13);
 	tag_airpump = "south_pump";
@@ -51999,7 +51900,6 @@
 	},
 /obj/structure/cable,
 /obj/item/enginepicker{
-	layer = 3.1;
 	pixel_x = -9;
 	pixel_y = 10
 	},
@@ -52529,8 +52429,7 @@
 /area/hallway/primary/central/se)
 "gKZ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/lockbox/mindshield,
 /obj/item/storage/box/trackimp,
@@ -53506,7 +53405,6 @@
 	},
 /obj/machinery/disposal,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -53846,7 +53744,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1450;
-	layer = 3.3;
 	master_tag = "south_maint";
 	name = "exterior access button";
 	pixel_x = -25;
@@ -53897,7 +53794,6 @@
 /area/hydroponics)
 "hri" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/effect/decal/warning_stripes/yellow/hollow,
@@ -53999,9 +53895,7 @@
 /area/quartermaster/office)
 "hrY" = (
 /obj/structure/table/reinforced,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/item/book/random,
 /turf/simulated/floor/plating,
 /area/maintenance/apmaint)
@@ -54424,9 +54318,7 @@
 "hBZ" = (
 /obj/machinery/light_switch/directional/west,
 /obj/structure/table,
-/obj/item/storage/box/pillbottles{
-	layer = 4
-	},
+/obj/item/storage/box/pillbottles,
 /obj/item/storage/box/bodybags{
 	pixel_x = 5;
 	pixel_y = 5
@@ -54442,7 +54334,6 @@
 	pixel_x = 32
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -55207,9 +55098,7 @@
 	},
 /area/security/permabrig)
 "hUp" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plating,
 /area/maintenance/apmaint)
 "hUq" = (
@@ -55246,8 +55135,7 @@
 /area/space)
 "hVi" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/wood,
@@ -55395,7 +55283,6 @@
 /area/maintenance/trading)
 "hYV" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/transit_tube/horizontal,
@@ -56327,7 +56214,6 @@
 /area/security/permabrig)
 "ivd" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -56941,8 +56827,7 @@
 "iJd" = (
 /obj/effect/turf_decal/siding/wood/pallet,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/item/toy/crayon/spraycan,
@@ -57592,7 +57477,6 @@
 /area/bridge/meeting_room)
 "iUQ" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -58149,7 +58033,6 @@
 /area/maintenance/engineering)
 "jjX" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -58844,7 +58727,6 @@
 	dir = 9
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -59235,7 +59117,6 @@
 /obj/structure/closet/secure_closet/engineering_personal,
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -59623,7 +59504,6 @@
 /obj/effect/decal/warning_stripes/north,
 /obj/machinery/chem_master,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -59643,7 +59523,6 @@
 /obj/item/autopsy_scanner,
 /obj/machinery/light_switch/directional/west,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -59701,7 +59580,6 @@
 	dir = 8
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/effect/decal/cleanable/dirt,
@@ -60054,7 +59932,6 @@
 "keA" = (
 /obj/structure/closet/emcloset,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -60395,7 +60272,6 @@
 /obj/structure/closet/l3closet,
 /obj/item/clothing/mask/gas,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -60407,7 +60283,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "ai_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -61308,7 +61183,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "robotics_solar_airlock";
 	name = "interior access button";
 	pixel_x = -25;
@@ -61597,7 +61471,6 @@
 /obj/structure/dispenser,
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plating,
@@ -63333,9 +63206,7 @@
 /obj/effect/decal/cleanable/dust,
 /obj/structure/closet/crate/can,
 /obj/item/reagent_containers/glass/beaker/large,
-/obj/item/kitchen/knife{
-	layer = 3.2
-	},
+/obj/item/kitchen/knife,
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/plating,
 /area/maintenance/trading)
@@ -63430,8 +63301,7 @@
 /area/medical/morgue)
 "lBu" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/target,
 /obj/item/target,
@@ -63659,7 +63529,6 @@
 /area/maintenance/atmospherics)
 "lIc" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/machinery/camera{
@@ -63880,7 +63749,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1450;
-	layer = 3.3;
 	master_tag = "sci_maint";
 	name = "exterior access button";
 	pixel_x = -24;
@@ -63942,7 +63810,6 @@
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/effect/decal/warning_stripes/east,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -64795,7 +64662,6 @@
 /obj/structure/table,
 /obj/item/beacon,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -64895,7 +64761,6 @@
 /area/hallway/primary/port)
 "mfy" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -65153,8 +65018,7 @@
 /area/hallway/primary/starboard/east)
 "mlW" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -65772,8 +65636,7 @@
 /area/space)
 "mAO" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/fancy/donut_box,
 /obj/item/storage/box/teargas{
@@ -66258,7 +66121,6 @@
 "mLB" = (
 /obj/structure/reagent_dispensers/water_cooler,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -66590,7 +66452,6 @@
 /area/engineering/hardsuitstorage)
 "mWk" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/disposalpipe/segment{
@@ -66842,7 +66703,6 @@
 /area/toxins/mixing)
 "ndd" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -66941,8 +66801,7 @@
 	pixel_x = 24
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/toolbox/electrical{
 	pixel_x = 1;
@@ -67603,13 +67462,11 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "ai_sensor";
-	layer = 3.3;
 	pixel_x = 12;
 	pixel_y = 25
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "ai_airlock";
-	layer = 3.3;
 	pixel_y = 25;
 	tag_airpump = "ai_pump";
 	tag_chamber_sensor = "ai_sensor";
@@ -67760,7 +67617,6 @@
 	icon_state = "0-8"
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/power/apc{
@@ -68135,7 +67991,6 @@
 "nFy" = (
 /obj/machinery/mech_bay_recharge_port,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plating,
@@ -68187,8 +68042,7 @@
 /area/gateway)
 "nGQ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/camera{
 	c_tag = "Secure Armory West";
@@ -68406,7 +68260,6 @@
 	icon_state = "0-8"
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/power/apc{
@@ -68554,7 +68407,6 @@
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "robotics_solar_airlock";
-	layer = 3.3;
 	pixel_y = -25;
 	req_access = list(13);
 	tag_airpump = "robotics_solar_pump";
@@ -68564,7 +68416,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "robotics_solar_sensor";
-	layer = 3.3;
 	pixel_x = 12;
 	pixel_y = -25
 	},
@@ -68742,9 +68593,7 @@
 	name = "Xenobiology Abandoned Module";
 	req_access = list(47)
 	},
-/obj/structure/barricade/wooden/crude{
-	layer = 4
-	},
+/obj/structure/barricade/wooden/crude,
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
@@ -69445,7 +69294,6 @@
 	pixel_y = -24
 	},
 /obj/item/storage/firstaid/o2{
-	layer = 2.8;
 	pixel_x = 5;
 	pixel_y = 5
 	},
@@ -69787,7 +69635,6 @@
 /area/quartermaster/qm)
 "ovR" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/machinery/telepad_cargo,
@@ -70102,7 +69949,6 @@
 	dir = 1
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -71654,7 +71500,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/shutters{
 	id_tag = "Warden";
-	layer = 4;
 	name = "Privacy Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -72304,7 +72149,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "ai_airlock";
 	name = "interior access button";
 	pixel_x = -25;
@@ -72675,8 +72519,7 @@
 /area/maintenance/server)
 "pJc" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/shoes/magboots{
 	pixel_x = 2;
@@ -73359,8 +73202,7 @@
 /area/maintenance/asmaint)
 "pYe" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -73564,7 +73406,6 @@
 	pixel_y = 3
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -74128,8 +73969,7 @@
 /area/hallway/secondary/entry/south)
 "qoj" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/tank/jetpack/carbondioxide,
 /obj/effect/decal/warning_stripes/white/hollow,
@@ -74154,7 +73994,6 @@
 "qoD" = (
 /mob/living/simple_animal/pet/dog/corgi/Ian,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/machinery/light{
@@ -74598,7 +74437,6 @@
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "solar_xeno_airlock";
-	layer = 3.3;
 	pixel_x = 25;
 	req_access = list(13);
 	tag_airpump = "solar_xeno_pump";
@@ -74608,7 +74446,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "solar_xeno_sensor";
-	layer = 3.3;
 	pixel_x = 25;
 	pixel_y = 12
 	},
@@ -74747,7 +74584,6 @@
 	dir = 8
 	},
 /obj/machinery/computer/security/telescreen/toxin_chamber{
-	layer = 3.3;
 	pixel_x = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -75895,8 +75731,7 @@
 /area/maintenance/asmaint2)
 "rch" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -78624,7 +78459,6 @@
 /area/maintenance/genetics)
 "spY" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/rack,
@@ -79241,8 +79075,7 @@
 /area/security/prisonershuttle)
 "sDY" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -81359,7 +81192,6 @@
 	dir = 8
 	},
 /obj/machinery/computer/security/telescreen/toxin_chamber{
-	layer = 3.3;
 	pixel_x = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -81513,7 +81345,6 @@
 /area/hallway/primary/starboard/west)
 "tAp" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -82202,7 +82033,6 @@
 /area/medical/cmo)
 "tPZ" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -82265,7 +82095,6 @@
 /area/toxins/xenobiology)
 "tQM" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel,
@@ -83455,9 +83284,7 @@
 /obj/machinery/door/airlock/maintenance{
 	req_access = list(12)
 	},
-/obj/structure/barricade/wooden{
-	layer = 4
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plating,
 /area/maintenance/port)
 "uqj" = (
@@ -83791,7 +83618,6 @@
 	dir = 4
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -84098,9 +83924,7 @@
 	},
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/door/airlock/maintenance,
-/obj/structure/barricade/wooden/crude{
-	layer = 4
-	},
+/obj/structure/barricade/wooden/crude,
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
 /area/maintenance/xenozoo)
@@ -84688,9 +84512,7 @@
 	amount = 50
 	},
 /obj/item/clothing/head/welding,
-/obj/item/clothing/head/welding{
-	layer = 8
-	},
+/obj/item/clothing/head/welding,
 /obj/item/clothing/glasses/welding,
 /obj/item/clothing/glasses/welding,
 /obj/item/stack/sheet/metal{
@@ -84792,7 +84614,6 @@
 	icon_state = "2-4"
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plating/airless,
@@ -85038,7 +84859,6 @@
 "vee" = (
 /obj/structure/bed/psych,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/carpet,
@@ -85067,7 +84887,6 @@
 /obj/structure/dresser,
 /obj/machinery/light_switch/directional/east,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/wood/dark,
@@ -85415,14 +85234,12 @@
 	},
 /obj/machinery/door_control{
 	id = "QMLoaddoor";
-	layer = 4;
 	name = "Loading Doors";
 	pixel_x = -24;
 	pixel_y = -8
 	},
 /obj/machinery/door_control{
 	id = "QMLoaddoor2";
-	layer = 4;
 	name = "Loading Doors";
 	pixel_x = -24;
 	pixel_y = 8
@@ -85443,7 +85260,6 @@
 /area/blueshield)
 "vmw" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/closet/secure_closet/freezer/fridge,
@@ -85898,7 +85714,6 @@
 "vve" = (
 /obj/machinery/vending/cigarette,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -86163,7 +85978,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/shutters{
 	id_tag = "Warden";
-	layer = 4;
 	name = "Privacy Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -86213,8 +86027,7 @@
 /area/atmos/control)
 "vCy" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/wood{
@@ -86489,8 +86302,7 @@
 	pixel_y = 2
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/blue/hollow,
 /turf/simulated/floor/plasteel{
@@ -87121,8 +86933,7 @@
 /area/quartermaster/sorting)
 "vVH" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/toolbox/electrical{
 	pixel_x = 1;
@@ -87207,7 +87018,6 @@
 /obj/effect/decal/warning_stripes/southwestcorner,
 /obj/machinery/light_switch/directional/west,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -87568,7 +87378,6 @@
 	},
 /obj/machinery/door/poddoor/shutters{
 	id_tag = "secrange2";
-	layer = 4;
 	name = "Privacy Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -87866,7 +87675,6 @@
 	dir = 4
 	},
 /obj/machinery/atmospherics/meter{
-	layer = 2;
 	pixel_x = 6
 	},
 /turf/simulated/wall/r_wall/coated,
@@ -88391,8 +88199,7 @@
 /area/security/securearmory)
 "wwy" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/syndicatebomb/training,
 /turf/simulated/floor/plasteel{
@@ -89779,8 +89586,7 @@
 /area/medical/cmo)
 "xaM" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -89970,7 +89776,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_xeno_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -90352,7 +90157,6 @@
 	name = "Privacy Shutters"
 	},
 /obj/machinery/ticket_machine{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/effect/turf_decal/loading_area{
@@ -90486,7 +90290,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "robotics_solar_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -91200,7 +91003,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_xeno_airlock";
 	name = "interior access button";
 	pixel_x = -25;
@@ -91261,7 +91063,6 @@
 /area/maintenance/fpmaint)
 "xGq" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/atmospherics/binary/valve/digital{
@@ -91672,7 +91473,6 @@
 /obj/machinery/airlock_sensor{
 	frequency = 1450;
 	id_tag = "sci_sensor";
-	layer = 3.3;
 	pixel_x = -25;
 	pixel_y = 12
 	},
@@ -91684,7 +91484,6 @@
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	frequency = 1450;
 	id_tag = "sci_maint";
-	layer = 3.3;
 	pixel_x = -25;
 	pixel_y = -6;
 	req_access = list(13);
@@ -91735,8 +91534,7 @@
 /area/maintenance/turbine)
 "xQX" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/tank/jetpack/carbondioxide,
 /obj/effect/decal/warning_stripes/white/hollow,
@@ -91777,8 +91575,7 @@
 /area/hallway/secondary/entry/north)
 "xRQ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1
@@ -92480,8 +92277,7 @@
 /area/space)
 "ygG" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 1

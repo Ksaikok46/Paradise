@@ -5031,9 +5031,7 @@
 /area/awaymission/academy/academyaft)
 "Kd" = (
 /obj/structure/table,
-/obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5
-	},
+/obj/item/reagent_containers/food/condiment/enzyme,
 /obj/item/stack/packageWrap,
 /turf/simulated/floor/plasteel{
 	icon_state = "cafeteria"

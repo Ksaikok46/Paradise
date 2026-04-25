@@ -184,9 +184,7 @@
 	},
 /area/awaymission/UO45/central_hall)
 "aK" = (
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
@@ -1163,9 +1161,7 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/UO45/central_hall)
 "dp" = (
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	icon_state = "greencorner"
@@ -1893,7 +1889,6 @@
 /obj/structure/closet/emcloset,
 /obj/item/clothing/mask/breath,
 /obj/structure/sign/vacuum/external{
-	layer = 4;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plating,
@@ -2851,9 +2846,7 @@
 "hq" = (
 /obj/structure/table,
 /obj/item/stack/packageWrap,
-/obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5
-	},
+/obj/item/reagent_containers/food/condiment/enzyme,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "cafeteria"
@@ -4213,9 +4206,7 @@
 	},
 /area/awaymission/UO45/research)
 "kj" = (
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
@@ -5480,8 +5471,7 @@
 	pixel_y = -28
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/tank/jetpack/carbondioxide,
 /turf/simulated/floor/plating,
@@ -5492,8 +5482,7 @@
 	pixel_y = -24
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/shoes/magboots,
 /turf/simulated/floor/plating,
@@ -5510,8 +5499,7 @@
 	},
 /obj/machinery/light/small,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/shoes/magboots,
 /turf/simulated/floor/plating,
@@ -5596,9 +5584,7 @@
 /area/awaymission/UO45/research)
 "mQ" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "cafeteria"
@@ -6921,9 +6907,7 @@
 	},
 /area/awaymission/UO45/crew_quarters)
 "pl" = (
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	dir = 10;
@@ -7277,7 +7261,6 @@
 /obj/structure/window/full/reinforced,
 /obj/machinery/atmospherics/meter{
 	id = "UO45_mair_out_meter";
-	layer = 3.3;
 	name = "Mixed Air Tank Out"
 	},
 /obj/machinery/atmospherics/pipe/simple/visible/cyan,
@@ -7289,7 +7272,6 @@
 /obj/machinery/atmospherics/pipe/simple/visible/cyan,
 /obj/machinery/atmospherics/meter{
 	id = "UO45_mair_in_meter";
-	layer = 3.3;
 	name = "Mixed Air Tank In"
 	},
 /turf/simulated/floor/plating,
@@ -7828,9 +7810,7 @@
 /turf/simulated/floor/plating,
 /area/awaymission/UO45/crew_quarters)
 "ri" = (
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "yellow"
@@ -8512,9 +8492,7 @@
 /obj/machinery/atmospherics/pipe/simple/visible/yellow{
 	dir = 4
 	},
-/obj/machinery/atmospherics/meter{
-	layer = 3.3
-	},
+/obj/machinery/atmospherics/meter,
 /turf/simulated/floor/plating,
 /area/awaymission/UO45/engineering)
 "sr" = (
@@ -8871,9 +8849,7 @@
 "td" = (
 /obj/structure/grille,
 /obj/structure/window/full/reinforced,
-/obj/machinery/atmospherics/meter{
-	layer = 3.3
-	},
+/obj/machinery/atmospherics/meter,
 /obj/machinery/atmospherics/pipe/simple/visible/green{
 	dir = 4
 	},
@@ -8883,7 +8859,6 @@
 /obj/structure/closet/emcloset,
 /obj/item/clothing/mask/breath,
 /obj/structure/sign/vacuum/external{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/effect/mapping_helpers/turfs/damage,
@@ -9631,18 +9606,14 @@
 "uJ" = (
 /obj/structure/grille,
 /obj/structure/window/full/reinforced,
-/obj/machinery/atmospherics/meter{
-	layer = 3.3
-	},
+/obj/machinery/atmospherics/meter,
 /obj/machinery/atmospherics/pipe/simple/visible/green,
 /turf/simulated/floor/plating,
 /area/awaymission/UO45/engineering)
 "uK" = (
 /obj/structure/grille,
 /obj/structure/window/full/reinforced,
-/obj/machinery/atmospherics/meter{
-	layer = 3.3
-	},
+/obj/machinery/atmospherics/meter,
 /obj/machinery/atmospherics/pipe/simple/visible/cyan,
 /turf/simulated/floor/plating,
 /area/awaymission/UO45/engineering)
@@ -9948,9 +9919,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/obj/item/twohanded/required/kirbyplants{
-	layer = 5
-	},
+/obj/item/twohanded/required/kirbyplants,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
@@ -10981,7 +10950,6 @@
 	dir = 4
 	},
 /obj/structure/sign/vacuum/external{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/effect/decal/cleanable/dirt,

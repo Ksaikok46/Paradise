@@ -41,7 +41,6 @@
 "ar" = (
 /obj/structure/chair/comfy/beige{
 	dir = 4;
-	layer = 5;
 	pixel_y = -2
 	},
 /obj/machinery/ai_status_display{
@@ -869,7 +868,6 @@
 "iK" = (
 /obj/structure/chair/comfy/beige{
 	dir = 4;
-	layer = 5;
 	pixel_y = -2
 	},
 /obj/machinery/ai_status_display{
@@ -1310,7 +1308,6 @@
 "nR" = (
 /obj/machinery/computer/security/telescreen{
 	dir = 8;
-	layer = 4;
 	name = "Camera";
 	network = list("Thunderdome")
 	},
@@ -2296,7 +2293,6 @@
 "Ak" = (
 /obj/structure/chair/comfy/beige{
 	dir = 4;
-	layer = 5;
 	pixel_y = -2
 	},
 /obj/machinery/status_display{
@@ -2892,7 +2888,6 @@
 "He" = (
 /obj/structure/chair/comfy/beige{
 	dir = 4;
-	layer = 5;
 	pixel_y = -2
 	},
 /turf/simulated/floor/plasteel{
@@ -3064,7 +3059,6 @@
 "Jf" = (
 /obj/structure/chair/comfy/beige{
 	dir = 1;
-	layer = 5;
 	pixel_y = -2
 	},
 /turf/simulated/floor/plasteel{
@@ -3327,7 +3321,6 @@
 "MF" = (
 /obj/structure/chair/comfy/beige{
 	dir = 8;
-	layer = 5;
 	pixel_y = -2
 	},
 /turf/simulated/floor/plasteel{
@@ -3588,7 +3581,6 @@
 "QA" = (
 /obj/structure/chair/comfy/beige{
 	dir = 8;
-	layer = 5;
 	pixel_y = -2
 	},
 /obj/item/radio/intercom/syndicate/directional/west,
@@ -4107,7 +4099,6 @@
 "WJ" = (
 /obj/structure/chair/comfy/beige{
 	dir = 4;
-	layer = 5;
 	pixel_y = -2
 	},
 /obj/machinery/status_display{

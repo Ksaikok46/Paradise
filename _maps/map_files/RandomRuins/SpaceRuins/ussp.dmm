@@ -53,7 +53,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
 	id_tag = "rusbridge";
-	layer = 3.4;
 	name = "Blast Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -74,7 +73,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
 	id_tag = "rusbridge";
-	layer = 3.4;
 	name = "Blast Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -86,7 +84,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
 	id_tag = "rusbridge";
-	layer = 3.4;
 	name = "Blast Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -96,7 +93,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslockcom";
-	layer = 3;
 	name = "Bridge Lockdown"
 	},
 /turf/simulated/floor/plating,
@@ -204,7 +200,6 @@
 /obj/structure/safe/floor,
 /obj/item/paper/djstation{
 	info = "<i>Моему дорогому Сергею,<br><br>Я никогда не забуду те ночи, которые мы провели на Cygni, и все те приключения, когда ты возил меня на своем 2452 Vincent. По тому, как ты посмотрел на меня той ночью, я поняла, что мы с тобой родные души.<br><br>Я знаю, что они заставили тебя продать твой Vincent, когда тебя переназначили. Но я не могу позволить что бы такая прекрасная вещь просто ржавела где нибудь. Я договорилась с начальством, и он здесь, ждет тебя.<br><br>В конверте ты найдешь и ключи. Пожалуйста, пусть они всегда служат напоминанием о нашей любви и поводом вернуться. Я умоляю тебя, не позволяй нашей любви тихо уйти в ночь.</i>";
-	layer = 2.9;
 	name = "любовное письмо";
 	pixel_x = -5;
 	pixel_y = -3
@@ -637,7 +632,6 @@
 	},
 /obj/item/cigbutt,
 /obj/item/decorations/flag/soviet{
-	layer = 3.1;
 	pixel_x = -5;
 	pixel_y = 10
 	},
@@ -1393,7 +1387,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslocksec";
-	layer = 2.9;
 	name = "Security Wing Lockdown"
 	},
 /turf/simulated/floor/plating,
@@ -1805,7 +1798,6 @@
 "eJ" = (
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslocksec";
-	layer = 2.9;
 	name = "Security Wing Lockdown"
 	},
 /obj/machinery/door/airlock/multi_tile/glass{
@@ -1819,7 +1811,6 @@
 "eK" = (
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslocksec";
-	layer = 2.9;
 	name = "Security Wing Lockdown"
 	},
 /obj/structure/cable{
@@ -1835,7 +1826,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plating,
@@ -1950,7 +1940,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /obj/machinery/atmospherics/pipe/simple/visible,
@@ -3521,7 +3510,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plasteel{
@@ -3539,7 +3527,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plasteel{
@@ -4051,7 +4038,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plasteel,
@@ -4085,7 +4071,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /obj/machinery/door/airlock/shuttle{
@@ -4140,7 +4125,6 @@
 /obj/item/paper/djstation{
 	info = "Я переживаю за Тотского. Его уже пятый раз за эту неделю отправляют в вытрезвитель, и сколько бы я ни приходил к нему, он может найти Бога только на дне стакана Тунгуски.<br><brВсе это пьянство... я ненавижу плохо думать о СССП, но, не уделять этому никакого внимания? Не уподобляемся ли мы мерзкому ТСФ? Многие даже забыли свое истинную культуру в пользу \"общегалактической\". Такая снисходительность, такое пренебрежение, это не идет на пользу нашему духу, не говоря уже о душе.";
 	language = "Neo-Russkiya";
-	layer = 2;
 	name = "исповедь"
 	},
 /obj/item/storage/bible{
@@ -5381,7 +5365,6 @@
 	},
 /obj/machinery/door_control{
 	id = "ruslocksec";
-	layer = 2.1;
 	name = "suspicious button"
 	},
 /obj/effect/decal/cleanable/dirt,
@@ -5582,7 +5565,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plasteel{
@@ -5714,7 +5696,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plasteel{
@@ -6747,7 +6728,6 @@
 	anchored = 1;
 	desc = "A statue in honour of those who rose against the tyranny of the Trans-Solar Federation in 2443.";
 	icon_state = "russian";
-	layer = 4;
 	name = "Cygni Commemorative Statue";
 	pixel_y = 16
 	},
@@ -7386,7 +7366,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plating,
@@ -8056,7 +8035,6 @@
 /obj/structure/window/full/shuttle,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /turf/simulated/floor/plating,
@@ -9116,7 +9094,6 @@
 "Pq" = (
 /obj/structure/table/wood,
 /obj/item/decorations/flag/soviet{
-	layer = 3.1;
 	pixel_x = -5;
 	pixel_y = 10
 	},
@@ -9660,7 +9637,6 @@
 "VV" = (
 /obj/machinery/door_control{
 	id = "ruslock";
-	layer = 2.1;
 	name = "suspicious button"
 	},
 /obj/machinery/vending/cigarette{
@@ -9688,7 +9664,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslock";
-	layer = 3;
 	name = "Central Annex Lockdown"
 	},
 /obj/machinery/door/airlock/command/glass{
@@ -9791,7 +9766,6 @@
 	},
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "ruslockcom";
-	layer = 3;
 	name = "Bridge Lockdown"
 	},
 /obj/machinery/door/airlock/command/glass{

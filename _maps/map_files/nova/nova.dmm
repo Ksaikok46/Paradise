@@ -745,7 +745,6 @@
 "ags" = (
 /obj/structure/table,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = -2;
 	pixel_y = 9
 	},
@@ -2188,9 +2187,7 @@
 /obj/effect/decal/cleanable/blood/tracks{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/plating,
 /area/maintenance/starboard)
 "asj" = (
@@ -4656,7 +4653,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "permacell2";
-	layer = 5;
 	pixel_x = -24;
 	range = 3
 	},
@@ -5044,8 +5040,7 @@
 	icon_state = "2-8"
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/gun/energy/gun/advtaser{
 	pixel_y = -3
@@ -6948,7 +6943,6 @@
 /obj/effect/turf_decal/caution/red,
 /obj/machinery/door/poddoor/preopen{
 	id_tag = "ailockdown";
-	layer = 2.6;
 	name = "AI Asteroid Lockdown"
 	},
 /obj/machinery/door/firedoor,
@@ -7012,7 +7006,6 @@
 /area/tcommsat/chamber)
 "bcp" = (
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = 30
 	},
@@ -7036,8 +7029,7 @@
 	name = "Cargo Lockdown"
 	},
 /obj/machinery/door/poddoor{
-	id_tag = "miningshuttlebay";
-	layer = 3.1
+	id_tag = "miningshuttlebay"
 	},
 /turf/simulated/floor/plating,
 /area/quartermaster/miningdock)
@@ -7255,8 +7247,7 @@
 /area/maintenance/brig)
 "beJ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/autolathe{
 	pixel_x = 3;
@@ -7453,7 +7444,6 @@
 	},
 /obj/machinery/door/poddoor{
 	id_tag = "transitlock";
-	layer = 3;
 	name = "Transit AI Sattelite Blast Doors"
 	},
 /turf/simulated/floor/plasteel{
@@ -7937,8 +7927,7 @@
 "bjg" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance/double,
 /turf/simulated/floor/plating,
@@ -10001,7 +9990,6 @@
 "bxR" = (
 /obj/structure/table/wood/fancy/blue,
 /obj/item/folder/blue{
-	layer = 3.1;
 	pixel_y = 6
 	},
 /turf/simulated/floor/carpet/blue,
@@ -10508,8 +10496,7 @@
 /area/turret_protected/ai)
 "bBt" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/rdconsole{
 	pixel_x = -4
@@ -10887,8 +10874,7 @@
 	},
 /obj/machinery/conveyor{
 	dir = 8;
-	id = "QMLoad2";
-	layer = 2.494
+	id = "QMLoad2"
 	},
 /turf/simulated/floor/plasteel{
 	dir = 4;
@@ -11181,8 +11167,7 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/random/toolbox,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/tourist)
@@ -11521,9 +11506,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /turf/simulated/floor/wood,
@@ -11556,9 +11539,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/atmospherics)
 "bIO" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
 	},
@@ -11575,9 +11556,7 @@
 	},
 /area/crew_quarters/fitness)
 "bIT" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/machinery/door/airlock/maintenance{
 	req_access = list(12)
 	},
@@ -12155,8 +12134,7 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/item/extinguisher,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/tourist)
@@ -12701,7 +12679,6 @@
 "bRp" = (
 /obj/structure/table/reinforced,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = 7;
 	pixel_y = 12
 	},
@@ -15245,7 +15222,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_xeno_airlock";
 	name = "exterior access button";
 	pixel_x = -25;
@@ -16920,9 +16896,7 @@
 	dir = 4
 	},
 /obj/structure/window/reinforced,
-/obj/item/twohanded/required/kirbyplants{
-	layer = 3.1
-	},
+/obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -17246,9 +17220,7 @@
 /turf/simulated/floor/plating,
 /area/engineering/break_room)
 "cBf" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/grille/broken,
 /obj/effect/decal/cleanable/glass,
 /turf/simulated/floor/plating,
@@ -19979,9 +19951,7 @@
 	req_access = list(12);
 	welded = 1
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plasteel{
 	dir = 1
 	},
@@ -21084,7 +21054,6 @@
 "dgH" = (
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "solar_chapel_airlock";
-	layer = 3.3;
 	pixel_y = 25;
 	req_access = list(13);
 	tag_airpump = "solar_chapel_pump";
@@ -21094,7 +21063,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "solar_chapel_sensor";
-	layer = 3.3;
 	pixel_y = 32
 	},
 /obj/machinery/light/small{
@@ -22407,7 +22375,6 @@
 "dpS" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5;
 	pixel_y = 14
 	},
 /obj/item/reagent_containers/food/snacks/sliceable/flatdough,
@@ -23111,7 +23078,6 @@
 	dir = 1
 	},
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = 30
 	},
@@ -24547,8 +24513,7 @@
 /area/hallway/primary/central/second/east)
 "dHK" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/toolbox/electrical{
 	pixel_x = 1;
@@ -24587,7 +24552,6 @@
 	initialize_directions = 1;
 	internal_pressure_bound = 4000;
 	internal_pressure_bound_default = 4000;
-	layer = 2.4;
 	name = "co2 vent";
 	on = 1;
 	pressure_checks = 2;
@@ -27547,7 +27511,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "n_tool_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -27989,7 +27952,6 @@
 /area/maintenance/medroom)
 "ehF" = (
 /obj/machinery/ticket_machine{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
@@ -28255,8 +28217,7 @@
 /area/security/permabrig)
 "ejJ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -28725,7 +28686,6 @@
 "emp" = (
 /obj/machinery/light,
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = -30
 	},
@@ -29981,7 +29941,6 @@
 "exG" = (
 /obj/machinery/firealarm{
 	dir = 4;
-	layer = 3.25;
 	pixel_x = 24
 	},
 /obj/machinery/camera{
@@ -30551,8 +30510,7 @@
 /area/crew_quarters/captain)
 "eBi" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/decal/warning_stripes/yellow/hollow,
@@ -31819,7 +31777,6 @@
 /obj/structure/table/reinforced,
 /obj/item/stack/packageWrap,
 /obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5;
 	pixel_y = 14
 	},
 /obj/item/reagent_containers/glass/beaker/large{
@@ -32103,7 +32060,6 @@
 /area/maintenance/fpmaint)
 "eNx" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = -32
 	},
 /obj/machinery/light{
@@ -32556,7 +32512,6 @@
 	initialize_directions = 1;
 	internal_pressure_bound = 4000;
 	internal_pressure_bound_default = 4000;
-	layer = 2.4;
 	name = "plasma vent";
 	on = 1;
 	pressure_checks = 2;
@@ -34151,8 +34106,7 @@
 	pixel_y = 8
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/light{
 	dir = 8
@@ -35063,7 +35017,6 @@
 /obj/structure/table/glass,
 /obj/effect/decal/warning_stripes/blue/hollow,
 /obj/item/flashlight/lamp{
-	layer = 3.1;
 	pixel_x = -2;
 	pixel_y = 4
 	},
@@ -37374,7 +37327,6 @@
 "fDM" = (
 /obj/machinery/light,
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = -30
 	},
@@ -37885,8 +37837,7 @@
 /area/medical/sleeper)
 "fHv" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /turf/simulated/floor/plating,
@@ -40281,8 +40232,7 @@
 /area/maintenance/maintcentral)
 "fZC" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	color = "red";
@@ -40819,7 +40769,6 @@
 /obj/machinery/light/small,
 /obj/machinery/firealarm{
 	dir = 4;
-	layer = 3.25;
 	pixel_x = 24
 	},
 /turf/simulated/floor/plasteel,
@@ -40885,9 +40834,7 @@
 "geA" = (
 /obj/effect/decal/warning_stripes/northeast,
 /obj/machinery/computer/roboquest,
-/obj/effect/turf_decal/bot_red{
-	layer = 1.99
-	},
+/obj/effect/turf_decal/bot_red,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
 	},
@@ -41695,9 +41642,7 @@
 /obj/structure/window/reinforced{
 	dir = 8
 	},
-/obj/structure/showcase{
-	layer = 5
-	},
+/obj/structure/showcase,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "vault"
@@ -42711,7 +42656,6 @@
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "robotics_solar_airlock";
-	layer = 3.3;
 	pixel_y = -30;
 	req_access = list(13);
 	tag_airpump = "robotics_solar_pump";
@@ -42725,7 +42669,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "robotics_solar_sensor";
-	layer = 3.3;
 	pixel_y = -23
 	},
 /turf/simulated/floor/plating,
@@ -42920,7 +42863,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "permacell1";
-	layer = 5;
 	pixel_x = 24;
 	range = 3
 	},
@@ -43293,7 +43235,6 @@
 /area/mimeoffice)
 "gwO" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /obj/machinery/light,
@@ -44035,8 +43976,7 @@
 /area/maintenance/fsmaint3)
 "gEx" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/door/window{
@@ -45350,8 +45290,7 @@
 /area/bridge/meeting_room)
 "gOD" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /obj/structure/railing{
 	dir = 8
@@ -45495,8 +45434,7 @@
 /area/engineering/mechanic_workshop/hangar)
 "gPX" = (
 /obj/structure/stairs{
-	dir = 8;
-	layer = 2
+	dir = 8
 	},
 /turf/simulated/floor/plasteel,
 /area/engineering/controlroom)
@@ -46685,8 +46623,7 @@
 /area/hallway/primary/command/west)
 "gYL" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/med_data{
 	pixel_x = 3;
@@ -47994,9 +47931,7 @@
 /obj/structure/window/reinforced{
 	dir = 8
 	},
-/obj/item/twohanded/required/kirbyplants{
-	layer = 3.1
-	},
+/obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -48483,8 +48418,7 @@
 /area/crew_quarters/locker)
 "hlQ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/plating,
@@ -48504,7 +48438,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_xeno_airlock";
 	name = "South-East Solar Panels";
 	pixel_x = 25;
@@ -48660,7 +48593,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "robotics_solar_airlock";
 	name = "interior access button";
 	pixel_x = -25;
@@ -49684,8 +49616,7 @@
 /area/toxins/rdoffice)
 "hwg" = (
 /obj/structure/stairs{
-	dir = 8;
-	layer = 2
+	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint2)
@@ -51429,8 +51360,7 @@
 "hMe" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/plating,
@@ -51631,7 +51561,6 @@
 /obj/machinery/door_control{
 	desc = "A remote control-switch for the pod doors.";
 	id = "secpilot";
-	layer = 3.3;
 	name = "Pod Door Control";
 	pixel_x = 26;
 	req_access = list(3,71)
@@ -52417,8 +52346,7 @@
 /area/quartermaster/qm)
 "hUk" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /obj/structure/railing{
 	dir = 8
@@ -52967,8 +52895,7 @@
 /area/toxins/xenobiology)
 "hYO" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	dir = 5;
@@ -54177,9 +54104,7 @@
 /turf/simulated/floor/plasteel/airless,
 /area/toxins/test_area)
 "ihf" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
@@ -54390,9 +54315,7 @@
 	},
 /area/medical/virology/lab)
 "iik" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/grille,
 /turf/simulated/floor/plating,
 /area/maintenance/garden)
@@ -55480,19 +55403,15 @@
 	pixel_y = 1
 	},
 /obj/item/clothing/mask/cigarette/cigar/havana{
-	layer = 2.8;
 	pixel_x = -3;
 	pixel_y = 3
 	},
-/obj/item/clothing/mask/cigarette/cigar/havana{
-	layer = 2.8
-	},
+/obj/item/clothing/mask/cigarette/cigar/havana,
 /turf/simulated/floor/carpet,
 /area/crew_quarters/captain)
 "iqZ" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/blood/tracks{
-	layer = 3;
 	pixel_y = -8
 	},
 /obj/effect/decal/cleanable/blood/tracks{
@@ -55725,8 +55644,7 @@
 /area/hallway/primary/central/second/east)
 "itp" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/megaphone,
 /obj/item/storage/box/teargas{
@@ -56800,9 +56718,7 @@
 	pixel_x = 26
 	},
 /obj/machinery/roboquest_pad,
-/obj/effect/turf_decal/bot_red{
-	layer = 1.99
-	},
+/obj/effect/turf_decal/bot_red,
 /obj/effect/decal/warning_stripes/southeast,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -56877,9 +56793,7 @@
 	},
 /area/toxins/lab)
 "iBe" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /turf/simulated/floor/plasteel,
 /area/crew_quarters/serviceyard)
 "iBi" = (
@@ -58295,9 +58209,7 @@
 /area/engineering/aienter)
 "iOP" = (
 /obj/structure/window/reinforced,
-/obj/item/twohanded/required/kirbyplants{
-	layer = 3.1
-	},
+/obj/item/twohanded/required/kirbyplants,
 /obj/machinery/light{
 	dir = 1;
 	in_use = 1
@@ -58637,7 +58549,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_chapel_airlock";
 	name = "interior access button";
 	pixel_x = 25;
@@ -58752,8 +58663,7 @@
 	dir = 4
 	},
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1
@@ -59104,7 +59014,6 @@
 	base_state = "right";
 	dir = 2;
 	icon_state = "right";
-	layer = 3;
 	req_access = list(50)
 	},
 /obj/effect/decal/warning_stripes/yellow,
@@ -59330,8 +59239,7 @@
 	dir = 8
 	},
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -59905,9 +59813,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plasteel{
 	icon_state = "yellowfull"
 	},
@@ -59922,8 +59828,7 @@
 /area/toxins/explab)
 "jcp" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/asmaint4)
@@ -61491,8 +61396,7 @@
 /area/hallway/primary/central)
 "jnj" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -63688,9 +63592,7 @@
 	},
 /area/janitor)
 "jDV" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /obj/structure/railing{
 	dir = 4
 	},
@@ -63828,7 +63730,6 @@
 	pixel_x = 5
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/camera{
@@ -64621,7 +64522,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_tool_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -64712,7 +64612,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "ex";
 	name = "exterior access button";
 	pixel_x = -25;
@@ -67599,9 +67498,7 @@
 "kiP" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/spawner/random_barrier/possibly_welded_airlock,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "kiS" = (
@@ -67625,8 +67522,7 @@
 	name = "Cargo Lockdown"
 	},
 /obj/machinery/door/poddoor{
-	id_tag = "miningshuttlebay";
-	layer = 3.1
+	id_tag = "miningshuttlebay"
 	},
 /turf/simulated/floor/plating,
 /area/quartermaster/miningdock)
@@ -68663,8 +68559,7 @@
 "ksd" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/tank/internals/emergency_oxygen,
 /obj/item/clothing/mask/breath,
@@ -69118,7 +69013,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "n_tool_airlock";
 	name = "interior access button";
 	pixel_x = -25;
@@ -69214,7 +69108,6 @@
 "kwv" = (
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/structure/curtain/open/shower,
@@ -69435,7 +69328,6 @@
 "kyc" = (
 /obj/effect/turf_decal/stripes/line,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = -32
 	},
 /obj/structure/disposalpipe/segment{
@@ -70919,8 +70811,7 @@
 	dir = 4
 	},
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1
@@ -72883,12 +72774,8 @@
 	},
 /area/maintenance/trading)
 "lam" = (
-/obj/effect/spawner/random_barrier/possibly_welded_airlock{
-	layer = 2.9
-	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/effect/spawner/random_barrier/possibly_welded_airlock,
+/obj/structure/barricade/wooden,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/structure/cable{
@@ -73216,7 +73103,6 @@
 	},
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /turf/simulated/floor/plasteel{
@@ -74177,8 +74063,7 @@
 /area/medical/cmo)
 "lki" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/asmaint2)
@@ -74238,8 +74123,7 @@
 /area/hydroponics)
 "lkE" = (
 /obj/structure/statue/sandstone/venus{
-	dir = 1;
-	layer = 4.2
+	dir = 1
 	},
 /turf/simulated/floor/beach/water{
 	icon_state = "seadeep"
@@ -74355,7 +74239,6 @@
 /obj/effect/turf_decal/caution/red,
 /obj/machinery/door/poddoor/preopen{
 	id_tag = "ailockdown";
-	layer = 2.6;
 	name = "AI Asteroid Lockdown"
 	},
 /obj/machinery/door/firedoor,
@@ -74747,9 +74630,7 @@
 	name = "Monkey Pen";
 	req_access = list(39)
 	},
-/obj/item/soap{
-	layer = 2.6
-	},
+/obj/item/soap,
 /obj/machinery/door/firedoor,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -75463,7 +75344,6 @@
 "lvX" = (
 /obj/structure/table/wood/fancy/red,
 /obj/item/folder/red{
-	layer = 3.1;
 	pixel_y = 4
 	},
 /turf/simulated/floor/carpet/red,
@@ -75537,7 +75417,6 @@
 /area/crew_quarters/fitness)
 "lxj" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/structure/closet/secure_closet/personal/cabinet,
@@ -77208,8 +77087,7 @@
 /area/medical/chemistry)
 "lKB" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1
@@ -79436,7 +79314,6 @@
 	},
 /obj/machinery/firealarm{
 	dir = 4;
-	layer = 3.25;
 	pixel_x = -26
 	},
 /turf/simulated/floor/plasteel{
@@ -79989,7 +79866,6 @@
 "mfL" = (
 /obj/machinery/computer/robotics,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/machinery/camera{
@@ -80138,8 +80014,7 @@
 /area/toxins/server)
 "mhj" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -82475,8 +82350,7 @@
 /area/medical/genetics)
 "mBv" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/door/window{
 	color = "red";
@@ -82838,9 +82712,7 @@
 /area/maintenance/detectives_office)
 "mEr" = (
 /obj/effect/spawner/window/reinforced,
-/obj/structure/barricade/wooden/crude{
-	layer = 4
-	},
+/obj/structure/barricade/wooden/crude,
 /obj/structure/cable,
 /turf/simulated/floor/plating,
 /area/maintenance/xenozoo)
@@ -84706,9 +84578,7 @@
 /turf/simulated/floor/plasteel,
 /area/engineering/mechanic_workshop/expedition)
 "mRE" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
@@ -85616,8 +85486,7 @@
 /area/maintenance/fpmaint)
 "mYe" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -86064,9 +85933,7 @@
 	name = "Primate Pen";
 	req_access = list(9)
 	},
-/obj/item/grown/bananapeel{
-	layer = 2.5
-	},
+/obj/item/grown/bananapeel,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
 	icon_state = "whitehall"
@@ -88814,7 +88681,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_chapel_airlock";
 	name = "exterior access button";
 	pixel_x = -25;
@@ -90965,8 +90831,7 @@
 	},
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/toolbox/mechanical{
 	pixel_x = -2;
@@ -91492,7 +91357,6 @@
 /area/security/seceqstorage)
 "nRt" = (
 /obj/structure/sink{
-	layer = 4;
 	pixel_y = 26
 	},
 /obj/machinery/light/small,
@@ -94553,8 +94417,7 @@
 	c_tag = "Tech Storage"
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/cyborgrecharger{
 	pixel_x = -4;
@@ -95115,8 +94978,7 @@
 /area/crew_quarters/heads/hop)
 "ovd" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -95198,7 +95060,6 @@
 "ovA" = (
 /obj/structure/table,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_y = 7
 	},
 /turf/simulated/floor/plasteel{
@@ -95366,7 +95227,6 @@
 /obj/structure/table/wood,
 /obj/item/paper_bin,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/item/pen,
@@ -97124,8 +96984,7 @@
 /area/security/processing)
 "oMu" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/door/window{
@@ -97612,7 +97471,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "brigkpp";
-	layer = 5;
 	pixel_y = 55;
 	range = 3
 	},
@@ -97680,9 +97538,7 @@
 /obj/structure/window/reinforced/tinted{
 	dir = 1
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/window/reinforced/tinted,
 /obj/structure/cable,
 /turf/simulated/floor/plating,
@@ -97953,17 +97809,13 @@
 /obj/item/circuitboard/sleeper{
 	pixel_y = -7
 	},
-/obj/structure/table{
-	layer = 3.1
-	},
+/obj/structure/table,
 /obj/structure/cable{
 	d2 = 2;
 	icon_state = "0-2"
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/item/reagent_containers/glass/bottle/saline{
-	layer = 3.2
-	},
+/obj/item/reagent_containers/glass/bottle/saline,
 /obj/machinery/light/small{
 	dir = 1
 	},
@@ -99256,8 +99108,7 @@
 /area/quartermaster/miningstorage)
 "pbD" = (
 /obj/structure/stairs{
-	dir = 4;
-	layer = 2
+	dir = 4
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -99857,9 +99708,7 @@
 	name = "Electrical Maintenance";
 	req_access = list(11)
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /turf/simulated/floor/plasteel{
 	dir = 1
@@ -99893,8 +99742,7 @@
 /area/medical/psych)
 "pgA" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/effect/decal/cleanable/dirt,
@@ -99961,9 +99809,7 @@
 	name = "Detective";
 	req_access = list(4)
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -100935,9 +100781,7 @@
 /area/maintenance/fore2)
 "pnY" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/plating,
 /area/maintenance/starboard)
 "poe" = (
@@ -101044,7 +100888,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 2;
 	id_tag = "ArmorySec";
-	layer = 5;
 	name = "Armory Security Shutters"
 	},
 /turf/simulated/floor/plasteel{
@@ -102154,9 +101997,7 @@
 	},
 /area/hallway/primary/central/sw)
 "pyi" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /turf/simulated/floor/plating,
 /area/maintenance/casino)
 "pyk" = (
@@ -103680,8 +103521,7 @@
 /area/storage/secure)
 "pJk" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/door/window{
 	color = "red";
@@ -104551,8 +104391,7 @@
 	},
 /obj/machinery/conveyor{
 	dir = 8;
-	id = "QMLoad2";
-	layer = 2.494
+	id = "QMLoad2"
 	},
 /turf/simulated/floor/plasteel{
 	dir = 4;
@@ -104692,7 +104531,6 @@
 	pixel_x = 8
 	},
 /obj/item/clothing/mask/cigarette/cigar/havana{
-	layer = 2.8;
 	pixel_x = -3;
 	pixel_y = 3
 	},
@@ -105017,8 +104855,7 @@
 	req_access = list(1)
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/storage/box/chemimp{
@@ -105467,7 +105304,6 @@
 "pWi" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = 7;
 	pixel_y = 14
 	},
@@ -106625,7 +106461,6 @@
 "qeI" = (
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /turf/simulated/floor/plasteel{
@@ -109188,9 +109023,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/apmaint)
 "qzm" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /turf/simulated/floor/plasteel,
 /area/hallway/primary/fore)
 "qzn" = (
@@ -109457,9 +109290,7 @@
 /obj/structure/window/reinforced{
 	dir = 4
 	},
-/obj/structure/showcase{
-	layer = 5
-	},
+/obj/structure/showcase,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "vault"
@@ -110531,8 +110362,7 @@
 /area/crew_quarters/captain/bedroom)
 "qKn" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/storage/box/barrier{
@@ -110904,8 +110734,7 @@
 /area/toxins/xenobiology)
 "qMH" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/gun/energy/ionrifle,
@@ -111438,9 +111267,7 @@
 	},
 /area/hallway/primary/central/ne)
 "qPH" = (
-/obj/item/soap/deluxe{
-	layer = 2
-	},
+/obj/item/soap/deluxe,
 /obj/machinery/door/airlock/silver{
 	name = "Captain's Bathroom"
 	},
@@ -111542,9 +111369,7 @@
 /area/quartermaster/delivery)
 "qQn" = (
 /obj/effect/decal/cleanable/glass,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/grille,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -111947,9 +111772,7 @@
 /obj/structure/window/reinforced{
 	dir = 1
 	},
-/obj/structure/showcase{
-	layer = 5
-	},
+/obj/structure/showcase,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkred"
@@ -112151,9 +111974,7 @@
 	},
 /area/security/medbay)
 "qVr" = (
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/structure/cable{
@@ -113690,8 +113511,7 @@
 /area/security/permabrig)
 "ris" = (
 /obj/machinery/atmospherics/unary/portables_connector{
-	dir = 8;
-	layer = 2
+	dir = 8
 	},
 /obj/machinery/portable_atmospherics/canister/air,
 /turf/simulated/floor/plating,
@@ -114885,7 +114705,6 @@
 	},
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /turf/simulated/floor/plasteel{
@@ -115303,7 +115122,6 @@
 /obj/item/paper_bin,
 /obj/item/pen,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = 5;
 	pixel_y = 9
 	},
@@ -115342,7 +115160,6 @@
 "ruW" = (
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "n_tool_airlock";
-	layer = 3.3;
 	pixel_x = -25;
 	req_access = list(13);
 	tag_airpump = "n_tool_pump";
@@ -115352,7 +115169,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "n_tool_sensor";
-	layer = 3.3;
 	pixel_x = -25;
 	pixel_y = 7
 	},
@@ -117624,8 +117440,7 @@
 /area/maintenance/fsmaint2)
 "rLc" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /obj/structure/railing{
 	dir = 4
@@ -117994,7 +117809,6 @@
 /area/civilian/vacantoffice)
 "rNR" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -118961,7 +118775,6 @@
 "rUN" = (
 /obj/effect/decal/cleanable/dust,
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_x = -26
 	},
@@ -119033,9 +118846,7 @@
 /turf/simulated/floor/plating,
 /area/toxins/xenobiology)
 "rVp" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
 	},
@@ -120409,7 +120220,6 @@
 	dir = 4
 	},
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/structure/chair/sofa{
@@ -120468,8 +120278,7 @@
 /area/maintenance/disposal)
 "sfk" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -121224,7 +121033,6 @@
 /obj/machinery/light/small,
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "solar_xeno_airlock";
-	layer = 3.3;
 	pixel_y = 26;
 	req_access = list(13);
 	tag_airpump = "solar_xeno_pump";
@@ -121234,7 +121042,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "solar_xeno_sensor";
-	layer = 3.3;
 	pixel_y = 33
 	},
 /obj/machinery/atmospherics/unary/vent_pump/high_volume{
@@ -121612,7 +121419,6 @@
 /area/hallway/secondary/entry/eastarrival)
 "spd" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/light{
@@ -122296,7 +122102,6 @@
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "solar_tool_airlock";
-	layer = 3.3;
 	pixel_y = 26;
 	req_access = list(13);
 	tag_airpump = "solar_tool_pump";
@@ -122306,7 +122111,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "solar_tool_sensor";
-	layer = 3.3;
 	pixel_y = 33
 	},
 /obj/effect/decal/warning_stripes/yellow,
@@ -122896,8 +122700,7 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/tourist)
@@ -123057,7 +122860,6 @@
 	initialize_directions = 1;
 	internal_pressure_bound = 4000;
 	internal_pressure_bound_default = 4000;
-	layer = 2.4;
 	name = "n2o vent";
 	on = 1;
 	pressure_checks = 2;
@@ -124299,9 +124101,7 @@
 /area/maintenance/casino)
 "sKl" = (
 /obj/structure/window/reinforced,
-/obj/item/twohanded/required/kirbyplants{
-	layer = 3.1
-	},
+/obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -124525,8 +124325,7 @@
 /area/security/permabrig)
 "sMR" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /obj/structure/railing{
 	dir = 4
@@ -124927,7 +124726,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "robotics_solar_airlock";
 	name = "exterior access button";
 	pixel_x = 25;
@@ -124998,7 +124796,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "solar_tool_airlock";
 	name = "interior access button";
 	pixel_x = -25;
@@ -125540,8 +125337,7 @@
 	color = "red"
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/shield/riot{
 	pixel_x = -3;
@@ -125620,7 +125416,6 @@
 	initialize_directions = 1;
 	internal_pressure_bound = 4000;
 	internal_pressure_bound_default = 4000;
-	layer = 2.4;
 	name = "mix vent";
 	on = 1;
 	pressure_checks = 2;
@@ -127925,7 +127720,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "brigkpp";
-	layer = 5;
 	pixel_x = -55;
 	range = 3
 	},
@@ -128340,9 +128134,7 @@
 	locked = 1;
 	name = "Xenobiology Abandoned Module"
 	},
-/obj/structure/barricade/wooden/crude{
-	layer = 4
-	},
+/obj/structure/barricade/wooden/crude,
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -128378,8 +128170,7 @@
 /area/hallway/secondary/entry/lounge)
 "tpw" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -129181,7 +128972,6 @@
 /obj/effect/turf_decal/caution/red,
 /obj/machinery/door/poddoor/preopen{
 	id_tag = "ailockdown";
-	layer = 2.6;
 	name = "AI Asteroid Lockdown"
 	},
 /obj/machinery/door/firedoor,
@@ -129597,8 +129387,7 @@
 /area/engineering/gravitygenerator)
 "txG" = (
 /obj/structure/stairs{
-	dir = 8;
-	layer = 2
+	dir = 8
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -130925,8 +130714,7 @@
 "tHt" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/reagent_containers/iv_bag,
 /turf/simulated/floor/plating,
@@ -132400,15 +132188,12 @@
 /turf/simulated/floor/plating,
 /area/security/permabrig)
 "tTp" = (
-/obj/machinery/status_display{
-	layer = 4
-	},
+/obj/machinery/status_display,
 /turf/simulated/wall/r_wall,
 /area/engineering/controlroom)
 "tTq" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -132949,14 +132734,12 @@
 /obj/machinery/light,
 /obj/machinery/door_control{
 	id = "QMLoaddoor2";
-	layer = 4;
 	name = "Loading Doors";
 	pixel_x = 8;
 	pixel_y = -24
 	},
 /obj/machinery/door_control{
 	id = "QMLoaddoor";
-	layer = 4;
 	name = "Loading Doors";
 	pixel_x = -8;
 	pixel_y = -24
@@ -133801,7 +133584,6 @@
 /obj/machinery/door/poddoor/shutters/preopen{
 	dir = 1;
 	id_tag = "Virology1";
-	layer = 3.2;
 	name = "Virology Shutters"
 	},
 /obj/effect/spawner/window/reinforced/polarized{
@@ -136003,7 +135785,6 @@
 	dir = 8
 	},
 /obj/machinery/chem_master{
-	layer = 3.3;
 	pixel_x = -1
 	},
 /turf/simulated/floor/engine,
@@ -137883,8 +137664,7 @@
 /area/toxins/xenobiology)
 "uJX" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/window/reinforced{
@@ -137969,9 +137749,7 @@
 /turf/simulated/floor/wood,
 /area/library/game_zone)
 "uKE" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /obj/structure/railing{
 	dir = 8
 	},
@@ -138821,7 +138599,6 @@
 "uRU" = (
 /obj/structure/bed,
 /obj/item/kitchen/knife/glassshiv{
-	layer = 2.9;
 	pixel_y = -5
 	},
 /obj/item/bedsheet/mime{
@@ -138832,7 +138609,6 @@
 "uSi" = (
 /obj/structure/table,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = 7;
 	pixel_y = 14
 	},
@@ -139125,9 +138901,7 @@
 	pixel_x = -1;
 	pixel_y = 1
 	},
-/obj/item/flashlight/lamp{
-	layer = 3.2
-	},
+/obj/item/flashlight/lamp,
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 4
 	},
@@ -141111,8 +140885,7 @@
 	},
 /obj/effect/decal/warning_stripes/yellow/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/toolbox/electrical,
 /obj/item/clothing/gloves/color/fyellow,
@@ -141379,9 +141152,7 @@
 /area/maintenance/tourist)
 "vlu" = (
 /obj/structure/grille/broken,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/plating,
 /area/maintenance/starboard)
 "vlw" = (
@@ -141634,8 +141405,7 @@
 /area/chapel/main)
 "vnM" = (
 /obj/structure/stairs{
-	dir = 4;
-	layer = 2
+	dir = 4
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -141928,7 +141698,6 @@
 /area/maintenance/fsmaint3)
 "vqN" = (
 /obj/structure/sign/securearea{
-	layer = 2.8;
 	pixel_y = 3
 	},
 /turf/simulated/wall/r_wall,
@@ -142082,8 +141851,7 @@
 /area/maintenance/casino)
 "vsB" = (
 /obj/structure/stairs{
-	dir = 1;
-	layer = 2
+	dir = 1
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -142491,7 +142259,6 @@
 /obj/structure/curtain/open/shower/centcom,
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/item/radio/intercom/directional/west,
@@ -143283,7 +143050,6 @@
 	},
 /obj/item/wirecutters,
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_x = 32
 	},
 /obj/item/plant_analyzer,
@@ -144507,9 +144273,7 @@
 /turf/simulated/floor/plating,
 /area/security/permabrig)
 "vKS" = (
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /obj/structure/chair,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
@@ -144561,9 +144325,7 @@
 	locked = 1;
 	welded = 1
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/structure/cable{
@@ -144704,7 +144466,6 @@
 /area/quartermaster/office)
 "vMe" = (
 /obj/structure/sink{
-	layer = 4;
 	pixel_y = 26
 	},
 /obj/machinery/light/small,
@@ -145378,7 +145139,6 @@
 "vSM" = (
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	on = 1;
 	pixel_y = -5
 	},
@@ -145905,9 +145665,7 @@
 /turf/simulated/floor/grass,
 /area/crew_quarters/fitness)
 "vVy" = (
-/obj/structure/stairs{
-	layer = 2
-	},
+/obj/structure/stairs,
 /obj/structure/railing{
 	dir = 4
 	},
@@ -146834,7 +146592,6 @@
 "wcX" = (
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/structure/cable{
@@ -147120,8 +146877,7 @@
 	},
 /obj/machinery/conveyor{
 	dir = 8;
-	id = "QMLoad2";
-	layer = 2.494
+	id = "QMLoad2"
 	},
 /obj/item/radio/intercom/directional/east,
 /turf/simulated/floor/plasteel{
@@ -147831,7 +147587,6 @@
 "wkB" = (
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/structure/mirror{
@@ -149483,7 +149238,6 @@
 	dir = 1
 	},
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = 30
 	},
@@ -151565,7 +151319,6 @@
 "wND" = (
 /obj/structure/table/reinforced,
 /obj/item/enginepicker{
-	layer = 3.1;
 	pixel_y = 3
 	},
 /obj/machinery/light,
@@ -152312,9 +152065,7 @@
 /obj/structure/chair/office/dark{
 	dir = 8
 	},
-/obj/effect/decal/remains/human{
-	layer = 3.1
-	},
+/obj/effect/decal/remains/human,
 /turf/simulated/floor/plasteel{
 	icon_state = "bcarpet05"
 	},
@@ -155819,8 +155570,7 @@
 /area/maintenance/asmaint)
 "xvm" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/decal/warning_stripes/yellow/hollow,
@@ -156926,7 +156676,6 @@
 /obj/effect/decal/warning_stripes/northeast,
 /obj/machinery/firealarm{
 	dir = 4;
-	layer = 3.25;
 	pixel_x = 24
 	},
 /turf/simulated/floor/plating,
@@ -157073,7 +156822,6 @@
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
 	id_tag = "port4";
-	layer = 3.3;
 	pixel_x = 25;
 	tag_airpump = "port4_pump";
 	tag_chamber_sensor = "port4_sensor";
@@ -157082,7 +156830,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "port4_sensor";
-	layer = 3.3;
 	pixel_x = 25;
 	pixel_y = 7
 	},
@@ -157498,7 +157245,6 @@
 /obj/structure/curtain/open/shower/security,
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/item/soap/nanotrasen,
@@ -157689,7 +157435,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "port4";
 	name = "interior access button";
 	pixel_x = 28;
@@ -157793,8 +157538,7 @@
 	pixel_y = 32
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	color = "red";
@@ -158533,8 +158277,7 @@
 /area/maintenance/casino)
 "xQx" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/circuitboard/camera{
 	pixel_x = 1;
@@ -159290,7 +159033,6 @@
 /area/hallway/secondary/entry/commercial)
 "xUQ" = (
 /obj/machinery/status_display{
-	layer = 4;
 	pixel_y = 32
 	},
 /obj/machinery/atmospherics/pipe/multiz,
@@ -161411,7 +161153,6 @@
 "yjR" = (
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/effect/decal/warning_stripes/yellow/hollow,

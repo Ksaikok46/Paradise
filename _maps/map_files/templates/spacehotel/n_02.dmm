@@ -12,9 +12,7 @@
 "c" = (
 /obj/effect/decal/cleanable/pie_smudge,
 /obj/effect/decal/cleanable/flour,
-/obj/item/grown/bananapeel{
-	layer = 2.6
-	},
+/obj/item/grown/bananapeel,
 /turf/template_noop,
 /area/template_noop)
 "d" = (

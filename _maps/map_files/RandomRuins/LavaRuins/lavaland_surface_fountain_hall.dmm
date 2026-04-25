@@ -20,16 +20,12 @@
 /turf/simulated/mineral/random/volcanic/hard/double/high_chance,
 /area/lavaland/surface/outdoors)
 "dC" = (
-/obj/effect/decal/cleanable/blood/old{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/old,
 /obj/structure/sacrificealtar,
 /turf/simulated/floor/engine/cult,
 /area/ruin/unpowered/misc_lavaruin)
 "eq" = (
-/obj/effect/decal/cleanable/blood/old{
-	layer = 3.1
-	},
+/obj/effect/decal/cleanable/blood/old,
 /turf/simulated/floor/engine/cult,
 /area/ruin/unpowered/misc_lavaruin)
 "eM" = (
@@ -133,9 +129,7 @@
 /area/ruin/unpowered/misc_lavaruin)
 "xL" = (
 /obj/item/trash/candle,
-/obj/effect/decal/cleanable/blood/old{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/old,
 /turf/simulated/floor/engine/cult,
 /area/ruin/unpowered/misc_lavaruin)
 "Ay" = (
@@ -289,9 +283,7 @@
 /turf/simulated/floor/engine/cult,
 /area/ruin/unpowered/misc_lavaruin)
 "UO" = (
-/obj/effect/decal/cleanable/blood/old{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/old,
 /turf/simulated/floor/engine/cult,
 /area/ruin/unpowered/misc_lavaruin)
 "VM" = (

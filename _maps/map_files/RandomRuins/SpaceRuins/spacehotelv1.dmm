@@ -6999,7 +6999,6 @@
 /area/ruin/space/spacehotelv1/bar)
 "YD" = (
 /obj/structure/sink{
-	layer = 4;
 	pixel_y = 26
 	},
 /mob/living/simple_animal/mouse{

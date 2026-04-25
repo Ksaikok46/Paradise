@@ -126,9 +126,7 @@
 /area/template_noop)
 "pi" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/iv_drip{
-	layer = 3.5
-	},
+/obj/machinery/iv_drip,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "whiteblue"

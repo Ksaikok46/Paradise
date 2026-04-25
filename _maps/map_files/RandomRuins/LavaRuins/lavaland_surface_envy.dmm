@@ -44,9 +44,7 @@
 	broken = 1
 	},
 /obj/structure/kitchenspike,
-/obj/effect/decal/cleanable/blood{
-	layer = 2.5
-	},
+/obj/effect/decal/cleanable/blood,
 /obj/item/reagent_containers/food/snacks/meat/humanoid/human,
 /turf/simulated/floor/wood{
 	broken = 1;

@@ -232,7 +232,6 @@
 /area/shuttle/escape)
 "aT" = (
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_x = 28
 	},
@@ -275,7 +274,6 @@
 "aZ" = (
 /obj/structure/table,
 /obj/item/storage/firstaid/o2{
-	layer = 2.8;
 	pixel_x = 4;
 	pixel_y = 6
 	},

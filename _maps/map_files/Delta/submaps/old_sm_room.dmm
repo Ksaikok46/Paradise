@@ -1145,9 +1145,7 @@
 	},
 /area/template_noop)
 "yW" = (
-/obj/structure/sign/vacuum/external{
-	layer = 4
-	},
+/obj/structure/sign/vacuum/external,
 /turf/simulated/wall/r_wall,
 /area/template_noop)
 "yX" = (
@@ -1358,7 +1356,6 @@
 "Gu" = (
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/effect/decal/cleanable/dust,

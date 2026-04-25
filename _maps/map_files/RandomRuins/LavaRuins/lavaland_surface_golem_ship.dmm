@@ -120,7 +120,6 @@
 "fo" = (
 /obj/machinery/light{
 	dir = 1;
-	layer = 1;
 	on = 1
 	},
 /turf/simulated/floor/pod/dark,
@@ -171,12 +170,10 @@
 /obj/structure/table/reinforced,
 /obj/item/bedsheet/rd/royal_cape,
 /obj/item/bedsheet/rd/royal_cape{
-	layer = 3;
 	pixel_x = 5;
 	pixel_y = 9
 	},
 /obj/item/bedsheet/rd/royal_cape{
-	layer = 3;
 	pixel_x = 5;
 	pixel_y = 9
 	},
@@ -195,7 +192,6 @@
 "kj" = (
 /obj/machinery/light{
 	dir = 1;
-	layer = 1;
 	on = 1
 	},
 /obj/structure/table/reinforced,
@@ -715,7 +711,6 @@
 /obj/structure/closet/crate/golemgear,
 /obj/machinery/light{
 	dir = 1;
-	layer = 1;
 	on = 1
 	},
 /turf/simulated/floor/pod/dark,

@@ -125,8 +125,7 @@
 /area/shuttle/transport)
 "T" = (
 /obj/structure/toilet{
-	dir = 1;
-	layer = 4
+	dir = 1
 	},
 /mob/living/simple_animal/hostile/megafauna/hierophant{
 	faction = list("syndicate")

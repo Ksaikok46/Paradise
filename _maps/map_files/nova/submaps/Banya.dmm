@@ -54,8 +54,7 @@
 /area/maintenance/tourist)
 "bK" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /obj/random/tool,
@@ -178,8 +177,7 @@
 /area/maintenance/consarea)
 "gw" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /obj/effect/spawner/lootdrop/maintenance,
@@ -557,9 +555,7 @@
 	name = "Abandoned Club"
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/machinery/door/firedoor,
 /turf/simulated/floor/plasteel{
 	icon_state = "Dark"
@@ -1396,8 +1392,7 @@
 /area/maintenance/abandonedclub)
 "Oz" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/stack/sheet/metal{
 	amount = 25
@@ -1421,8 +1416,7 @@
 "OK" = (
 /obj/effect/decal/warning_stripes/northeast,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/weldingtool/largetank,
 /obj/item/clothing/glasses/welding,

@@ -228,18 +228,14 @@
 	},
 /area/syndicate_depot/core)
 "aN" = (
-/obj/item/stack/sheet/metal{
-	layer = 4.1
-	},
+/obj/item/stack/sheet/metal,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/syndicate_depot/core)
 "aO" = (
 /obj/effect/spawner/random_spawners/syndicate/trap/mine,
-/obj/item/stack/sheet/metal{
-	layer = 4.1
-	},
+/obj/item/stack/sheet/metal,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -249,9 +245,7 @@
 	dir = 1;
 	on = 1
 	},
-/obj/item/stack/sheet/metal{
-	layer = 4.1
-	},
+/obj/item/stack/sheet/metal,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

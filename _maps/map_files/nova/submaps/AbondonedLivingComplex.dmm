@@ -72,8 +72,7 @@
 /area/maintenance/abandonedwarehouse)
 "bA" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/defibrillator,
 /turf/simulated/floor/pod,
@@ -85,8 +84,7 @@
 /area/maintenance/abandonedwarehouse)
 "bT" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/tank/internals/anesthetic,
 /obj/effect/decal/cleanable/dirt,
@@ -215,8 +213,7 @@
 /area/maintenance/livingcomplex)
 "fE" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/pod,
@@ -351,9 +348,7 @@
 /area/maintenance/livingcomplex)
 "iU" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/spawner/random_spawners/rodent,
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
@@ -371,8 +366,7 @@
 /area/maintenance/livingcomplex)
 "jk" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/broken_bottle,
 /turf/simulated/floor/pod,
@@ -423,8 +417,7 @@
 /area/maintenance/livingcomplex)
 "kY" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/decal/cleanable/dirt,
@@ -460,9 +453,7 @@
 /area/maintenance/fsmaint3)
 "mj" = (
 /obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/wood{
 	broken = 1;
 	icon_state = "wood-broken"
@@ -475,8 +466,7 @@
 /area/maintenance/abandonedwarehouse)
 "mz" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/pod,
 /area/maintenance/abandonedwarehouse)
@@ -717,8 +707,7 @@
 /area/maintenance/livingcomplex)
 "sx" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/cleanable/dirt,
 /obj/item/trash/popcorn,
@@ -1009,8 +998,7 @@
 /area/maintenance/abandonedwarehouse)
 "Bp" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/gloves/color/latex/nitrile,
 /obj/item/clothing/accessory/stethoscope,
@@ -1057,9 +1045,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/wood{
 	broken = 1;
 	icon_state = "wood-broken"
@@ -1109,8 +1095,7 @@
 /area/maintenance/abandonedwarehouse)
 "El" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance/tripple,
 /turf/simulated/floor/pod,
@@ -1196,9 +1181,7 @@
 /area/maintenance/abandonedwarehouse)
 "Hp" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/plating,
 /area/maintenance/livingcomplex)
 "HA" = (
@@ -1321,8 +1304,7 @@
 /area/maintenance/livingcomplex)
 "Kq" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/kitchen_machine/microwave{
@@ -1389,8 +1371,7 @@
 /area/maintenance/fsmaint3)
 "Lc" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/clothing/head/welding/bigbrother,
 /turf/simulated/floor/pod,
@@ -1520,8 +1501,7 @@
 /area/maintenance/abandonedwarehouse)
 "Pr" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/reagent_containers/food/drinks/bottle/jagermeister{
 	pixel_x = 9
@@ -1541,9 +1521,7 @@
 /area/maintenance/livingcomplex)
 "Px" = (
 /obj/effect/decal/cleanable/glass,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/structure/grille,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -1583,8 +1561,7 @@
 /area/maintenance/abandonedwarehouse)
 "RY" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/wrench,
 /obj/item/crowbar,
@@ -1733,9 +1710,7 @@
 /area/maintenance/fsmaint3)
 "Wx" = (
 /obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /obj/effect/spawner/random_spawners/blood_5,
 /turf/simulated/floor/wood{
 	icon_state = "wood-broken3"
@@ -1761,8 +1736,7 @@
 /area/maintenance/fsmaint3)
 "Xo" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/crowbar/red,
 /turf/simulated/floor/pod,
@@ -1841,9 +1815,7 @@
 /area/maintenance/abandonedwarehouse)
 "Zh" = (
 /obj/effect/decal/cleanable/dust,
-/obj/effect/decal/cleanable/blood/tracks{
-	layer = 3
-	},
+/obj/effect/decal/cleanable/blood/tracks,
 /turf/simulated/floor/wood/fancy,
 /area/maintenance/livingcomplex)
 "Zn" = (

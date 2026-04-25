@@ -772,8 +772,7 @@
 /area/awaymission/centcomAway/cafe)
 "ck" = (
 /turf/simulated/wall/shuttle{
-	icon_state = "swall_f10";
-	layer = 2
+	icon_state = "swall_f10"
 	},
 /area/awaymission/centcomAway/hangar)
 "cl" = (

@@ -202,9 +202,7 @@
 /obj/structure/closet/crate/freezer,
 /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis,
 /obj/item/reagent_containers/iv_bag/bloodsynthetic/oxygenis,
-/obj/machinery/iv_drip{
-	layer = 3.5
-	},
+/obj/machinery/iv_drip,
 /obj/machinery/atmospherics/unary/vent_pump{
 	pixel_x = 4
 	},
@@ -1463,7 +1461,6 @@
 /obj/item/bikehorn/rubberducky,
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/effect/decal/cleanable/dust,

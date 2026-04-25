@@ -656,9 +656,7 @@
 /obj/structure/railing{
 	dir = 1
 	},
-/obj/structure/railing{
-	layer = 4.3
-	},
+/obj/structure/railing,
 /obj/item/trash/broken_ashtray,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/remains/xeno,
@@ -1260,9 +1258,7 @@
 	dir = 4
 	},
 /obj/structure/table/glass,
-/obj/item/folder/blue{
-	layer = 3.1
-	},
+/obj/item/folder/blue,
 /turf/simulated/floor/carpet/black,
 /area/maintenance/abandonedoffices)
 "pl" = (
@@ -2186,7 +2182,6 @@
 "zr" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood/tracks{
-	layer = 3;
 	pixel_y = -10
 	},
 /obj/effect/spawner/lootdrop/spentcasing,
@@ -2350,9 +2345,7 @@
 /obj/structure/railing{
 	dir = 1
 	},
-/obj/structure/railing{
-	layer = 4.3
-	},
+/obj/structure/railing,
 /obj/item/trash/waffles,
 /obj/item/trash/spacetwinkie,
 /obj/effect/decal/cleanable/dirt,
@@ -2882,7 +2875,6 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood/tracks{
-	layer = 3;
 	pixel_y = -10
 	},
 /turf/simulated/floor/wood{
@@ -2998,9 +2990,7 @@
 	pixel_x = -5;
 	pixel_y = -1
 	},
-/obj/item/folder/blue{
-	layer = 3.1
-	},
+/obj/item/folder/blue,
 /turf/simulated/floor/carpet/royalblack,
 /area/maintenance/abandonedoffices)
 "Hh" = (
@@ -4678,7 +4668,6 @@
 "YZ" = (
 /obj/effect/decal/cleanable/dust,
 /obj/effect/decal/cleanable/blood/tracks{
-	layer = 3;
 	pixel_y = -10
 	},
 /obj/effect/spawner/lootdrop/spentcasing{

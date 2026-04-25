@@ -189,7 +189,6 @@
 "aP" = (
 /obj/effect/forcefield{
 	desc = "You can't get in. Heh.";
-	layer = 1;
 	name = "Blocker";
 	lifetime = 0;
 	icon = 'icons/mob/actions/actions.dmi';

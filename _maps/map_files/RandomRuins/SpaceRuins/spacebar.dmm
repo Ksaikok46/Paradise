@@ -822,7 +822,6 @@
 /obj/machinery/computer/security/telescreen{
 	desc = "Used for watching camera near bar asteroid and inside its areas.";
 	dir = 8;
-	layer = 4;
 	name = "Camera Telescreen";
 	network = list("spacebar")
 	},

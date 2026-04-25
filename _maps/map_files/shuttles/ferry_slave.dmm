@@ -32,7 +32,6 @@
 "l" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /obj/structure/window/reinforced/survival_pod/unhittable{
@@ -79,7 +78,6 @@
 "A" = (
 /obj/machinery/door/window/survival_pod{
 	dir = 1;
-	layer = 3;
 	req_access = list(104,106,63,19)
 	},
 /obj/structure/window/plasmareinforced{

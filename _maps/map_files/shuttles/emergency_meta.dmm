@@ -163,7 +163,6 @@
 /area/shuttle/escape)
 "aG" = (
 /obj/structure/dispenser/oxygen{
-	layer = 2.7;
 	pixel_x = -1;
 	pixel_y = 2
 	},
@@ -312,7 +311,6 @@
 /obj/machinery/hologram/holopad,
 /obj/machinery/status_display{
 	dir = 4;
-	layer = 4;
 	pixel_x = 32
 	},
 /turf/simulated/floor/shuttle,

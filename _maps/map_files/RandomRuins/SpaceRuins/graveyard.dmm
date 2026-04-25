@@ -346,7 +346,6 @@
 	dir = 2;
 	id_tag = "devilroom";
 	name = "Graveyard shutters";
-	layer = 2.9;
 	color = "#442d15"
 	},
 /obj/structure/curtain{
@@ -977,8 +976,7 @@
 	},
 /obj/item/card/id/gorky17{
 	name = "Key card";
-	access = list(666);
-	layer = 2.7
+	access = list(666)
 	},
 /obj/item/clothing/suit/hooded/chaplain_hoodie/no_name,
 /turf/simulated/floor/plating,
@@ -1540,8 +1538,7 @@
 	},
 /obj/item/card/id/gorky17{
 	name = "Key card";
-	access = list(666);
-	layer = 2.7
+	access = list(666)
 	},
 /turf/simulated/floor/carpet/black,
 /area/ruin/space/graveyard/church)

@@ -1604,8 +1604,7 @@
 "ZU" = (
 /obj/machinery/atmospherics/pipe/simple/hidden,
 /obj/structure/chair/office{
-	dir = 1;
-	layer = 4.2
+	dir = 1
 	},
 /turf/simulated/floor/engine,
 /area/maintenance/incinerator)

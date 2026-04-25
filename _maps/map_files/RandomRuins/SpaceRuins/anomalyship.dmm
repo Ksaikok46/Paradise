@@ -123,7 +123,6 @@
 	amount = 5000
 	},
 /obj/item/gun/energy/gun/mini{
-	layer = 2.8;
 	pixel_x = 6;
 	pixel_y = -8
 	},
@@ -192,8 +191,7 @@
 /area/ae13/miner)
 "fW" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/pickaxe/diamond{
 	pixel_x = -5;

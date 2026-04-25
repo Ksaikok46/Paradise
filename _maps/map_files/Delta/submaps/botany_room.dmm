@@ -276,9 +276,7 @@
 /area/maintenance/garden)
 "kV" = (
 /obj/effect/spawner/window/reinforced,
-/obj/structure/barricade/wooden/crude{
-	layer = 4
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plating,
 /area/maintenance/garden)
 "le" = (
@@ -815,9 +813,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /turf/simulated/floor/plating,
 /area/template_noop)
 "Lq" = (
@@ -828,9 +824,7 @@
 /obj/structure/window/reinforced{
 	dir = 4
 	},
-/obj/structure/barricade/wooden{
-	layer = 3.5
-	},
+/obj/structure/barricade/wooden,
 /obj/effect/decal/cleanable/glass,
 /turf/simulated/floor/plating,
 /area/template_noop)

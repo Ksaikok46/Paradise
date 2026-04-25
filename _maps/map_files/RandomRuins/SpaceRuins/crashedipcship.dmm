@@ -563,8 +563,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/crashedipcship/engine)
@@ -1301,8 +1300,7 @@
 /area/ruin/space/crashedipcship/asteroid)
 "ws" = (
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/crashedipcship/engine)
@@ -2228,8 +2226,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/crashedipcship/engine)
@@ -2613,8 +2610,7 @@
 	dir = 4
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/crashedipcship/engine)

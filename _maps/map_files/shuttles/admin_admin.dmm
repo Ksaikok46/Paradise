@@ -48,8 +48,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -156,8 +155,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -380,8 +378,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -496,8 +493,7 @@
 /area/shuttle/administration)
 "mq" = (
 /obj/machinery/bodyscanner{
-	dir = 4;
-	layer = 3.5
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "floor3"
@@ -940,8 +936,7 @@
 /area/shuttle/administration)
 "Ki" = (
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"

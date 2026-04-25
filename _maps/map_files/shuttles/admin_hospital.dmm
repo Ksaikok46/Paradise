@@ -76,8 +76,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -85,8 +84,7 @@
 /area/shuttle/administration)
 "aC" = (
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -213,9 +211,7 @@
 	},
 /area/shuttle/administration)
 "bm" = (
-/obj/machinery/bodyscanner{
-	layer = 3.5
-	},
+/obj/machinery/bodyscanner,
 /turf/simulated/floor/shuttle{
 	icon = 'icons/turf/floors.dmi';
 	icon_state = "titanium_blue"
@@ -600,8 +596,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -845,8 +840,7 @@
 	dir = 8
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"

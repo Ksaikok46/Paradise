@@ -185,8 +185,7 @@
 /area/awaymission/spacehotel/undersea)
 "aZ" = (
 /obj/structure/ladder/unbreakable/dive_point/anchor{
-	id = "weirddive";
-	layer = 4.5
+	id = "weirddive"
 	},
 /turf/simulated/floor/indestructible/beach/water/deep/wood_floor{
 	icon = 'icons/turf/shuttle/shuttle.dmi';
@@ -813,9 +812,7 @@
 	},
 /area/awaymission/spacehotel/undersea)
 "dA" = (
-/obj/structure/ladder/unbreakable/dive_point/anchor{
-	layer = 4.5
-	},
+/obj/structure/ladder/unbreakable/dive_point/anchor,
 /turf/simulated/floor/indestructible/beach/water/deep/wood_floor{
 	icon = 'icons/turf/shuttle/shuttle.dmi';
 	icon_state = "floor";
@@ -1790,9 +1787,7 @@
 /area/awaymission/spacehotel)
 "gL" = (
 /obj/structure/table,
-/obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5
-	},
+/obj/item/reagent_containers/food/condiment/enzyme,
 /turf/simulated/floor/indestructible{
 	icon_state = "cafeteria"
 	},

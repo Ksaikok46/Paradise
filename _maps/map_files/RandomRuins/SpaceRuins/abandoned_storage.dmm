@@ -456,9 +456,7 @@
 	simulated = 0
 	},
 /obj/structure/shuttle/engine/heater,
-/obj/structure/shuttle/engine/platform{
-	layer = 2.9
-	},
+/obj/structure/shuttle/engine/platform,
 /turf/simulated/floor/plating/airless,
 /area/template_noop)
 "ii" = (
@@ -797,9 +795,7 @@
 /area/ruin/unpowered)
 "nf" = (
 /obj/effect/decal/warning_stripes/yellow,
-/obj/effect/decal/cleanable/blood{
-	layer = 2.5
-	},
+/obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "nm" = (
@@ -2765,8 +2761,7 @@
 "TN" = (
 /obj/structure/shuttle/engine/propulsion,
 /obj/structure/shuttle/engine/platform{
-	dir = 1;
-	layer = 2.9
+	dir = 1
 	},
 /turf/simulated/floor/plating/airless,
 /area/template_noop)
@@ -3022,9 +3017,7 @@
 /area/ruin/unpowered)
 "Xe" = (
 /obj/effect/mob_spawn/human/corpse/usspconscript,
-/obj/effect/decal/cleanable/blood{
-	layer = 2.5
-	},
+/obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)
 "Xj" = (

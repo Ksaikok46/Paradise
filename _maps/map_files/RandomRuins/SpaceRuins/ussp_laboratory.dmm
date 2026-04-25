@@ -140,16 +140,10 @@
 /area/ruin/ussp_xeno/dorms_ussp)
 "cR" = (
 /obj/structure/table/reinforced,
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.8
-	},
+/obj/item/stack/sheet/mineral/plasma,
 /obj/item/reagent_containers/glass/beaker,
-/obj/item/reagent_containers/dropper{
-	layer = 2.8
-	},
-/obj/item/organ/internal/xenos/hivenode{
-	layer = 2.9
-	},
+/obj/item/reagent_containers/dropper,
+/obj/item/organ/internal/xenos/hivenode,
 /turf/simulated/floor/plasteel{
 	icon_state = "whitebluecorner"
 	},
@@ -213,7 +207,6 @@
 "dN" = (
 /obj/structure/table/reinforced,
 /obj/machinery/reagentgrinder{
-	layer = 4;
 	pixel_x = -1;
 	pixel_y = 9
 	},
@@ -359,7 +352,6 @@
 "gi" = (
 /obj/structure/disposalpipe/segment,
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_x = -23;
 	pixel_y = -1
@@ -371,7 +363,6 @@
 /area/ruin/ussp_xeno/dorms_ussp)
 "gq" = (
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = -32
 	},
@@ -1074,7 +1065,6 @@
 	pixel_y = -7
 	},
 /obj/item/decorations/sticky_decorations/flammable/skeleton{
-	layer = 4;
 	pixel_x = 1;
 	pixel_y = 7
 	},
@@ -2032,7 +2022,6 @@
 	pixel_x = 32
 	},
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = -32
 	},
@@ -2125,21 +2114,11 @@
 /obj/machinery/light/small{
 	dir = 1
 	},
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.8
-	},
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.8
-	},
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.8
-	},
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.8
-	},
-/obj/item/stack/sheet/mineral/plasma{
-	layer = 2.8
-	},
+/obj/item/stack/sheet/mineral/plasma,
+/obj/item/stack/sheet/mineral/plasma,
+/obj/item/stack/sheet/mineral/plasma,
+/obj/item/stack/sheet/mineral/plasma,
+/obj/item/stack/sheet/mineral/plasma,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "vault"
@@ -2183,7 +2162,6 @@
 /obj/structure/filingcabinet/chestdrawer,
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/photocopier{
-	layer = 3.5;
 	pixel_y = 8
 	},
 /obj/effect/decal/cleanable/cobweb,
@@ -2342,7 +2320,6 @@
 	},
 /obj/machinery/airlock_sensor{
 	id_tag = "SSSP_Xeno_sensor";
-	layer = 3.1;
 	pixel_y = 40
 	},
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller{
@@ -3070,7 +3047,6 @@
 	},
 /obj/machinery/light,
 /obj/machinery/vending/wallmed{
-	layer = 3.3;
 	name = "Emergency NanoMed";
 	pixel_y = -32
 	},
@@ -3663,7 +3639,6 @@
 "Zr" = (
 /obj/structure/dresser,
 /obj/item/toy/plushie/blue_fox{
-	layer = 3.1;
 	pixel_y = 12
 	},
 /turf/simulated/floor/plasteel{

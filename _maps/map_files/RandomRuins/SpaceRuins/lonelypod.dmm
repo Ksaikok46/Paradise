@@ -116,7 +116,6 @@
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "exit_airlock";
 	name = "interior access button";
 	pixel_x = -22;
@@ -317,7 +316,6 @@
 /obj/machinery/access_button{
 	command = "cycle_exterior";
 	frequency = 1379;
-	layer = 3.3;
 	master_tag = "exit_airlock";
 	name = "exterior access button";
 	pixel_x = -12;
@@ -389,9 +387,7 @@
 /obj/machinery/light_construct{
 	dir = 1
 	},
-/obj/machinery/atmospherics/unary/portables_connector{
-	layer = 2
-	},
+/obj/machinery/atmospherics/unary/portables_connector,
 /obj/machinery/portable_atmospherics/canister/air,
 /turf/simulated/floor/plasteel,
 /area/ruin/unpowered)

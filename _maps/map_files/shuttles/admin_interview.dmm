@@ -107,8 +107,7 @@
 	icon_state = "heater3x3_side_inv"
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /obj/structure/window/reinforced/tinted{
 	dir = 8
@@ -219,8 +218,7 @@
 	icon_state = "heater3x3"
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /obj/structure/window/reinforced/tinted{
 	dir = 8
@@ -350,8 +348,7 @@
 /area/shuttle/administration)
 "rt" = (
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -883,8 +880,7 @@
 	icon_state = "heater3x3_side"
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /obj/structure/window/reinforced/tinted{
 	dir = 8

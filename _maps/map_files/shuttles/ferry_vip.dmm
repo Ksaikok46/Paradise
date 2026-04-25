@@ -188,9 +188,7 @@
 /obj/structure/chair/comfy/shuttle{
 	dir = 1
 	},
-/obj/effect/decal/warning_stripes/north{
-	layer = 2.1
-	},
+/obj/effect/decal/warning_stripes/north,
 /turf/simulated/floor/noslip{
 	icon = 'icons/turf/shuttle/floors.dmi';
 	icon_state = "floor"

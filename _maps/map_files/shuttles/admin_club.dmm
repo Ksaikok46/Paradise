@@ -354,7 +354,6 @@
 /area/shuttle/administration)
 "BP" = (
 /obj/structure/railing{
-	layer = 4.3;
 	pixel_y = 32
 	},
 /obj/structure/chair/sofa/corp/right,
@@ -390,8 +389,7 @@
 /area/shuttle/administration)
 "Cx" = (
 /obj/structure/shuttle/engine/platform{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/shuttle{
 	icon_state = "vfloor"
@@ -820,8 +818,7 @@
 	icon_state = "heater3x3"
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /obj/structure/window/reinforced/tinted{
 	dir = 8
@@ -834,8 +831,7 @@
 	icon_state = "heater3x3_side_inv"
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /obj/structure/window/reinforced/tinted{
 	dir = 8
@@ -857,8 +853,7 @@
 	icon_state = "heater3x3_side"
 	},
 /obj/structure/shuttle/engine/platform{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /obj/structure/window/reinforced/tinted{
 	dir = 8
