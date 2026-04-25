@@ -617,14 +617,13 @@ world
 	if(gray <= tone_gray) return BlendRGB("#000000", tone, gray/(tone_gray || 1))
 	else return BlendRGB(tone, "#ffffff", (gray-tone_gray)/((255-tone_gray) || 1))
 
-/*
-Get flat icon by DarkCampainger. As it says on the tin, will return an icon with all the overlays
-as a single icon. Useful for when you want to manipulate an icon via the above as overlays are not normally included.
-The _flatIcons list is a cache for generated icon files.
-*/
-
-// Creates a single icon from a given /atom or /image.  Only the first argument is required.
-/proc/getFlatIcon(image/appearance, defdir, deficon, defstate, defblend, start = TRUE, no_anim = TRUE)
+/// Create a single [/icon] from a given [/atom] or [/image].
+///
+/// Very low-performance. Should usually only be used for HTML, where BYOND's
+/// appearance system (overlays/underlays, etc.) is not available.
+///
+/// Only the first argument is required.
+/proc/getFlatIcon(image/appearance, defdir, deficon, defstate, defblend, start = TRUE, no_anim = FALSE, parentcolor)
 	// Loop through the underlays, then overlays, sorting them into the layers list
 	#define PROCESS_OVERLAYS_OR_UNDERLAYS(flat, process, base_layer) \
 		for(var/i in 1 to length(process)) { \
@@ -642,6 +641,10 @@ The _flatIcons list is a cache for generated icon files.
 				} \
 				current_layer = base_layer + appearance.layer + current_layer / 1000; \
 			} \
+			/* If we are using topdown rendering, chop that part off so things layer together as expected */ \
+			if((current_layer >= TOPDOWN_LAYER && current_layer < EFFECTS_LAYER) || current_layer > TOPDOWN_LAYER + EFFECTS_LAYER) { \
+				current_layer -= TOPDOWN_LAYER; \
+			} \
 			for(var/index_to_compare_to in 1 to length(layers)) { \
 				var/compare_to = layers[index_to_compare_to]; \
 				if(current_layer < layers[compare_to]) { \
@@ -653,9 +656,10 @@ The _flatIcons list is a cache for generated icon files.
 		}
 
 	var/static/icon/flat_template = icon('icons/blanks/32x32.dmi', "nothing")
+	var/icon/flat = icon(flat_template)
 
 	if(!appearance || appearance.alpha <= 0)
-		return icon(flat_template)
+		return flat
 
 	if(start)
 		if(!defdir)
@@ -674,24 +678,28 @@ The _flatIcons list is a cache for generated icon files.
 	var/render_icon = curicon
 
 	if(render_icon)
-		var/curstates = icon_states_fast(curicon)
-		if(!(icon_exists(curicon, curstate)))
-			if("" in curstates)
+		if(!icon_exists(curicon, curstate))
+			if(icon_exists(curicon, ""))
 				curstate = ""
 			else
 				render_icon = FALSE
 
 	var/base_icon_dir //We'll use this to get the icon state to display if not null BUT NOT pass it to overlays as the dir we have
 
-	//Try to remove/optimize this section ASAP, CPU hog.
-	//Determines if there's directionals.
-	if(render_icon && curdir != SOUTH)
-		if(
-			!length(icon_states_fast(icon(curicon, curstate, NORTH))) \
-			&& !length(icon_states_fast(icon(curicon, curstate, EAST))) \
-			&& !length(icon_states_fast(icon(curicon, curstate, WEST))) \
-		)
-			base_icon_dir = SOUTH
+	if(render_icon)
+		//Try to remove/optimize this section if you can, it's a CPU hog.
+		//Determines if there're directionals.
+		if (curdir != SOUTH)
+			// icon states either have 1, 4 or 8 dirs. We only have to check
+			// one of NORTH, EAST or WEST to know that this isn't a 1-dir icon_state since they just have SOUTH.
+			if(!length(icon_states(icon(curicon, curstate, NORTH))))
+				base_icon_dir = SOUTH
+
+		var/list/icon_dimensions = get_icon_dimensions(curicon)
+		var/icon_width = icon_dimensions["width"]
+		var/icon_height = icon_dimensions["height"]
+		if(icon_width != 32 || icon_height != 32)
+			flat.Scale(icon_width, icon_height)
 
 	if(!base_icon_dir)
 		base_icon_dir = curdir
@@ -699,7 +707,6 @@ The _flatIcons list is a cache for generated icon files.
 	var/curblend = appearance.blend_mode || defblend
 
 	if(length(appearance.overlays) || length(appearance.underlays))
-		var/icon/flat = icon(flat_template)
 		// Layers will be a sorted list of icons/overlays, based on the order in which they are displayed
 		var/list/layers = list()
 		var/image/copy
@@ -726,6 +733,20 @@ The _flatIcons list is a cache for generated icon files.
 		var/addY1 = 0
 		var/addY2 = 0
 
+		if(appearance.color)
+			if(islist(appearance.color))
+				flat.MapColors(arglist(appearance.color))
+			else
+				flat.Blend(appearance.color, ICON_MULTIPLY)
+
+		if(parentcolor && !(appearance.appearance_flags & RESET_COLOR))
+			if(islist(parentcolor))
+				flat.MapColors(arglist(parentcolor))
+			else
+				flat.Blend(parentcolor, ICON_MULTIPLY)
+
+		var/next_parentcolor = appearance.color || parentcolor
+
 		for(var/image/layer_image as anything in layers)
 			if(layer_image.alpha == 0)
 				continue
@@ -733,8 +754,13 @@ The _flatIcons list is a cache for generated icon files.
 			if(layer_image == copy) // 'layer_image' is an /image based on the object being flattened.
 				curblend = BLEND_OVERLAY
 				add = icon(layer_image.icon, layer_image.icon_state, base_icon_dir)
+				if(appearance.color)
+					if(islist(appearance.color))
+						add.MapColors(arglist(appearance.color))
+					else
+						add.Blend(appearance.color, ICON_MULTIPLY)
 			else // 'I' is an appearance object.
-				add = getFlatIcon(image(layer_image), curdir, curicon, curstate, curblend, FALSE, no_anim)
+				add = getFlatIcon(image(layer_image), curdir, curicon, curstate, curblend, FALSE, no_anim, next_parentcolor)
 			if(!add)
 				continue
 
@@ -765,12 +791,6 @@ The _flatIcons list is a cache for generated icon files.
 
 			// Blend the overlay into the flattened icon
 			flat.Blend(add, blendMode2iconMode(curblend), layer_image.pixel_x + layer_image.pixel_w + 2 - flatX1, layer_image.pixel_y + layer_image.pixel_z + 2 - flatY1)
-
-		if(appearance.color)
-			if(islist(appearance.color))
-				flat.MapColors(arglist(appearance.color))
-			else
-				flat.Blend(appearance.color, ICON_MULTIPLY)
 
 		if(appearance.alpha < 255)
 			flat.Blend(rgb(255, 255, 255, appearance.alpha), ICON_MULTIPLY)
