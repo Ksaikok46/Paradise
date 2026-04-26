@@ -422,6 +422,10 @@ SECURITY
 		SPECIES_STOK = 'icons/mob/clothing/species/monkey/eyes.dmi',
 	)
 
+/obj/item/clothing/glasses/hud/security/sunglasses/tacticool/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/right_click_mapper/attack_self, "Переключить [declent_ru(ACCUSATIVE)]")
+
 /obj/item/clothing/glasses/hud/security/sunglasses/tacticool/attack_self(mob/user)
 	weldingvisortoggle(user)
 
@@ -685,6 +689,10 @@ SKILLS
 		INSTRUMENTAL = "много-режимными HUD-очками",
 		PREPOSITIONAL = "много-режимных HUD-очках",
 	)
+
+/obj/item/clothing/glasses/hud/blueshield/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/right_click_mapper/attack_self, "Переключить [declent_ru(ACCUSATIVE)]")
 
 /obj/item/clothing/glasses/hud/blueshield/cap
 	name = "Gold multi-mod HUD glasses"

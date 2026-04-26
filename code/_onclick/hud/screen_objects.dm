@@ -199,23 +199,6 @@
 		storage_master.attempt_insert(item)
 	return TRUE
 
-/atom/movable/screen/storage/proc/is_item_accessible(obj/item/I, mob/user)
-	if(!user || !I)
-		return FALSE
-
-	var/storage_depth = I.storage_depth(user)
-	if((I in user.loc) || (storage_depth != -1))
-		return TRUE
-
-	if(!isturf(user.loc))
-		return FALSE
-
-	var/storage_depth_turf = I.storage_depth_turf()
-	if(isturf(I.loc) || (storage_depth_turf != -1))
-		if(I.Adjacent(user))
-			return TRUE
-	return FALSE
-
 /atom/movable/screen/storage/mouse_drop_receive(obj/item/I, mob/user, params)
 	if(!user || !master || !istype(I) || user.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || ismecha(user.loc))
 		return FALSE
@@ -225,10 +208,6 @@
 
 	var/obj/item/storage/S = master
 	if(!S)
-		return FALSE
-
-	if(!is_item_accessible(I, user))
-		add_game_logs("tried to abuse storage remote drag&drop with '[I]' at [atom_loc_line(I)] into '[S]' at [atom_loc_line(S)]", user)
 		return FALSE
 
 	if(I in S.contents) // If the item is already in the storage, move them to the end of the list
@@ -471,7 +450,9 @@
 	M.check_languages()
 
 /atom/movable/screen/inventory
-	var/slot_id	//The indentifier for the slot. It has nothing to do with ID cards.
+	/// The identifier for the slot. It has nothing to do with ID cards.
+	var/slot_id
+	/// The overlay when hovering over with an item in your hand
 	var/image/object_overlay
 
 /atom/movable/screen/inventory/MouseEntered(location, control, params)
@@ -569,7 +550,7 @@
 	I.pickup(user)
 
 /atom/movable/screen/inventory/hand
-	interaction_flags_atom = NONE //so dragging objects into hands icon don't skip adjacency & other checks
+	//interaction_flags_atom = NONE //so dragging objects into hands icon don't skip adjacency & other checks
 	/// Previous UI style, used by user. Requires to properly update user's active hand overlay.
 	var/prev_ui_style
 	/// Currently used overlay for active hand. It's icon switches with user's theme.
@@ -660,7 +641,7 @@
 #undef HAND_GRAB_KILL
 #undef HAND_GRAB_SUPPRESS_BLOODLOSS
 
-/atom/movable/screen/inventory/hand/Click()
+/atom/movable/screen/inventory/hand/Click(location, control, params)
 	// At this point in client Click() code we have passed the 1/10 sec check and little else
 	// We don't even know if it's a middle click
 	var/mob/user = hud?.mymob

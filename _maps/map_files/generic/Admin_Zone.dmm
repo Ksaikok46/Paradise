@@ -3374,7 +3374,7 @@
 /area/admin)
 "Nt" = (
 /obj/structure/table/wood,
-/obj/item/gun/projectile/automatic/pistol/deagle/camo,
+/obj/item/gun/projectile/automatic/pistol/deagle,
 /turf/simulated/floor/wood,
 /area/admin)
 "NA" = (
@@ -3686,7 +3686,7 @@
 /area/admin)
 "Sq" = (
 /obj/structure/table/wood,
-/obj/item/gun/projectile/automatic/pistol/deagle/gold,
+/obj/item/gun/projectile/automatic/pistol/deagle,
 /turf/simulated/floor/wood,
 /area/admin)
 "Su" = (

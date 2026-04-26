@@ -1597,12 +1597,9 @@
 /turf/simulated/floor/plating,
 /area/awaymission/centcomAway/cafe)
 "eC" = (
-/obj/machinery/power/apc/noalarm{
+/obj/machinery/power/apc/noalarm/directional/east{
 	cell_type = 15000;
-	dir = 4;
 	locked = 0;
-	name = "Maint APC";
-	pixel_x = 25;
 	req_access = list();
 	start_charge = 100
 	},
@@ -1669,12 +1666,9 @@
 	},
 /area/awaymission/centcomAway/hangar)
 "eR" = (
-/obj/machinery/power/apc/noalarm{
+/obj/machinery/power/apc/noalarm/directional/east{
 	cell_type = 15000;
-	dir = 4;
 	locked = 0;
-	name = "Kitchen APC";
-	pixel_x = 25;
 	req_access = list();
 	start_charge = 100
 	},
@@ -2839,12 +2833,9 @@
 /turf/simulated/floor/plating,
 /area/awaymission/centcomAway/courtroom)
 "ij" = (
-/obj/machinery/power/apc/noalarm{
+/obj/machinery/power/apc/noalarm/directional/east{
 	cell_type = 15000;
-	dir = 4;
 	locked = 0;
-	name = "Court APC";
-	pixel_x = 25;
 	req_access = list();
 	start_charge = 100
 	},
@@ -2907,12 +2898,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/centcomAway/general)
 "ir" = (
-/obj/machinery/power/apc/noalarm{
+/obj/machinery/power/apc/noalarm/directional/east{
 	cell_type = 15000;
-	dir = 4;
 	locked = 0;
-	name = "Control APC";
-	pixel_x = 25;
 	req_access = list();
 	start_charge = 100
 	},
@@ -3248,12 +3236,9 @@
 	},
 /area/awaymission/centcomAway/hangar)
 "jl" = (
-/obj/machinery/power/apc/noalarm{
+/obj/machinery/power/apc/noalarm/directional/east{
 	cell_type = 15000;
-	dir = 4;
 	locked = 0;
-	name = "Hangar APC";
-	pixel_x = 25;
 	req_access = list();
 	start_charge = 100
 	},
@@ -5180,12 +5165,9 @@
 	},
 /area/awaymission/centcomAway/thunderdome)
 "on" = (
-/obj/machinery/power/apc/noalarm{
+/obj/machinery/power/apc/noalarm/directional/east{
 	cell_type = 15000;
-	dir = 4;
 	locked = 0;
-	name = "Kitchen APC";
-	pixel_x = 25;
 	req_access = list();
 	start_charge = 100
 	},

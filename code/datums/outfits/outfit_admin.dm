@@ -219,7 +219,7 @@
 	id = /obj/item/card/id/centcom
 
 	backpack_contents = list(
-		/obj/item/gun/projectile/automatic/pistol/sp8/sp8ar = 1,
+		/obj/item/gun/projectile/automatic/pistol/sp8 = 1,
 		/obj/item/ammo_box/magazine/sp8 = 2,
 		/obj/item/storage/box/survival/responseteam = 1,
 		/obj/item/gun/energy/gun/blueshield = 1,
@@ -397,7 +397,10 @@
 		/obj/item/reagent_containers/applicator/abductor/industrial = 1,
 	)
 
-	implants = list(/obj/item/implant/mindshield/ert)
+	implants = list(
+		/obj/item/implant/mindshield/ert,
+		/obj/item/implant/explosive/macro,
+	)
 
 	cybernetic_implants = list(
 		/obj/item/organ/internal/cyberimp/eyes/map/ert,
