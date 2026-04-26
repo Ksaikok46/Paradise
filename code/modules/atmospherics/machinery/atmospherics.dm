@@ -14,7 +14,7 @@ Pipelines + Other Objects -> Pipe network
 	power_channel = ENVIRON
 	on_blueprints = TRUE
 	armor = list(MELEE = 25, BULLET = 10, LASER = 10, ENERGY = 100, BOMB = 0, BIO = 100, FIRE = 100, ACID = 70)
-	layer = GAS_PIPE_HIDDEN_LAYER + TOPDOWN_LAYER // TODO ksaikok multiple piping layers
+	layer = GAS_PIPE_HIDDEN_LAYER // TODO ksaikok multiple piping layers
 	interaction_flags_atom = parent_type::interaction_flags_atom | INTERACT_ATOM_IGNORE_MOBILITY
 
 	/// Generic over VISIBLE and HIDDEN, should be less than 0.01, or you'll reorder non-pipe things.
@@ -465,3 +465,9 @@ Pipelines + Other Objects -> Pipe network
 
 /obj/machinery/atmospherics/proc/get_data()
 	return list()
+
+/**
+ * Update the layer in which the pipe/device is in, that way pipes have consistent layer depending on piping_layer
+ */
+/obj/machinery/atmospherics/proc/update_layer()
+	return

@@ -64,7 +64,9 @@
 /obj/item/lipstick/update_overlays()
 	. = ..()
 	if(open)
-		. += mutable_appearance(icon, icon_state = "lipstick_uncap_color", color = lipstick_colors[colour])
+		var/mutable_appearance/mutable_appearance = mutable_appearance(icon, icon_state = "lipstick_uncap_color")
+		mutable_appearance.color = lipstick_colors[colour]
+		. += mutable_appearance
 
 /obj/item/lipstick/attack_self(mob/user)
 	user.balloon_alert(user, "колпачок [open ? "надет" : "снят"]")

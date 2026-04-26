@@ -63,7 +63,7 @@
 	update_icon()
 
 /obj/machinery/atmospherics/pipe/cap/visible
-	layer = GAS_PIPE_VISIBLE_LAYER
+	layer = GAS_PIPE_VISIBLE_LAYER + TOPDOWN_LAYER
 
 /obj/machinery/atmospherics/pipe/cap/visible/scrubbers
 	name = "scrubbers pipe endcap"
@@ -84,7 +84,7 @@
 /obj/machinery/atmospherics/pipe/cap/hidden
 	level = 1
 	alpha = 128
-	layer = GAS_PIPE_HIDDEN_LAYER
+	layer = GAS_PIPE_HIDDEN_LAYER + TOPDOWN_LAYER
 
 /obj/machinery/atmospherics/pipe/cap/hidden/scrubbers
 	name = "scrubbers pipe endcap"

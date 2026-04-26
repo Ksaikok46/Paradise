@@ -60,7 +60,9 @@
 /obj/item/reagent_containers/applicator/update_overlays()
 	. = ..()
 	if(reagents.total_volume)
-		. += mutable_appearance(icon, "mender-fluid", color = get_color_matrix_from_reagents(reagents.reagent_list))
+		var/mutable_appearance/mutable_appearance = mutable_appearance(icon, "mender-fluid")
+		mutable_appearance.color = get_color_matrix_from_reagents(reagents.reagent_list)
+		. += mutable_appearance
 	var/reag_pct = round((reagents.total_volume / volume) * 100)
 	var/mutable_appearance/applicator_bar = mutable_appearance('icons/goonstation/objects/objects.dmi', "app_e")
 	switch(reag_pct)

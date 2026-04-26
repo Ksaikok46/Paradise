@@ -25,7 +25,9 @@
 
 /obj/item/reagent_containers/food/snacks/icecream/update_overlays()
 	. = ..()
-	. += mutable_appearance('icons/obj/kitchen.dmi', "icecream_color", color = get_color_matrix_from_reagents(reagents.reagent_list))
+	var/mutable_appearance/mutable_appearance = mutable_appearance('icons/obj/kitchen.dmi', "icecream_color")
+	mutable_appearance.color = get_color_matrix_from_reagents(reagents.reagent_list)
+	. += mutable_appearance
 
 /obj/item/reagent_containers/food/snacks/icecream/icecreamcone
 	name = "ice cream cone"

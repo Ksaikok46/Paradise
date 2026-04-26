@@ -92,7 +92,9 @@
 
 /obj/item/hair_dye_bottle/update_overlays()
 	. = ..()
-	. += mutable_appearance(icon, icon_state = "hairdyebottle-overlay", color = hair_dye_color)
+	var/mutable_appearance/mutable_appearance = mutable_appearance(icon, icon_state = "hairdyebottle-overlay")
+	mutable_appearance.color = hair_dye_color
+	. += mutable_appearance
 
 /obj/item/hair_dye_bottle/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	if(!ishuman(target) || user.a_intent != INTENT_HELP || !(target in view(1)))

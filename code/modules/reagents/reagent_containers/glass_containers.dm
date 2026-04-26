@@ -621,7 +621,10 @@
 					feed_overlay.icon_state = "petfood_15"
 			. += feed_overlay
 		else
-			. += mutable_appearance(icon, "liquid_overlay", color = mix_color_from_reagents(reagents.reagent_list), appearance_flags = RESET_COLOR)
+			var/mutable_appearance/mutable_appearance = mutable_appearance(icon, "liquid_overlay", appearance_flags = RESET_COLOR)
+			mutable_appearance.color = mix_color_from_reagents(reagents.reagent_list)
+			. += mutable_appearance
+
 
 /obj/item/reagent_containers/glass/pet_bowl/attack_animal(mob/living/simple_animal/pet)
 	if(!pet.client || !pet.safe_respawn(pet, check_station_level = FALSE) || !reagents.total_volume)

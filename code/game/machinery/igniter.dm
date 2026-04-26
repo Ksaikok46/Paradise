@@ -2,6 +2,7 @@
 	name = "igniter"
 	desc = "It's useful for igniting plasma."
 	icon_state = "igniter1"
+	layer = ABOVE_OPEN_TURF_LAYER
 	plane = FLOOR_PLANE
 	max_integrity = 300
 	armor = list(melee = 50, bullet = 30, laser = 70, energy = 50, bomb = 20, bio = 0, fire = 100, acid = 70)

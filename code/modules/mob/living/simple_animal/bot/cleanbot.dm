@@ -66,7 +66,9 @@
 	. += mutable_appearance(icon, "[icon_state][overlay_state]", appearance_flags = RESET_COLOR)
 
 	if(mask_color)
-		. += mutable_appearance(icon, "cleanbot_mask", appearance_flags = RESET_COLOR, color = mask_color)
+		var/mutable_appearance/mutable_appearance = mutable_appearance(icon, "cleanbot_mask", appearance_flags = RESET_COLOR)
+		mutable_appearance.color = mask_color
+		. += mutable_appearance
 
 /mob/living/simple_animal/bot/cleanbot/bot_reset()
 	..()
