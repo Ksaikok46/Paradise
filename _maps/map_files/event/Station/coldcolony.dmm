@@ -501,8 +501,7 @@
 /area/coldcolony/malta/resid_serv/crew_quarters/theatre)
 "aiv" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/storage/box/teargas,
@@ -1098,8 +1097,7 @@
 "ate" = (
 /obj/effect/decal/warning_stripes/blue,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/firstaid/doctor,
 /obj/item/storage/firstaid/fire{
@@ -2492,7 +2490,6 @@
 /area/coldcolony/malta/hallway/service/south)
 "aSq" = (
 /obj/machinery/ticket_machine{
-	layer = 4;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -2989,7 +2986,6 @@
 "bbZ" = (
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /turf/simulated/floor/plasteel/white,
@@ -3378,8 +3374,7 @@
 "bjA" = (
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -4202,7 +4197,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/shutters/preopen{
 	id_tag = "restaurant";
-	layer = 2;
 	name = "Restaurant Shutters"
 	},
 /obj/machinery/door/poddoor/shutters/preopen{
@@ -5486,9 +5480,7 @@
 	pixel_y = 8
 	},
 /obj/effect/mapping_helpers/turfs/burn,
-/obj/structure/inflatable{
-	layer = 3.1
-	},
+/obj/structure/inflatable,
 /turf/simulated/floor/plasteel,
 /area/shuttle/pirate_corvette)
 "bWt" = (
@@ -6043,9 +6035,7 @@
 	welded = 1
 	},
 /obj/machinery/door/firedoor,
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
@@ -6433,9 +6423,7 @@
 "cpt" = (
 /obj/structure/grille,
 /obj/structure/window/full/reinforced/ice,
-/obj/structure/barricade/wooden/crude/snow{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude/snow,
 /obj/machinery/door/poddoor/shutters/preopen{
 	dir = 1;
 	id_tag = "Second Surgery Window";
@@ -6999,8 +6987,7 @@
 	dir = 8
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/door/window{
@@ -7145,8 +7132,7 @@
 /area/coldcolony/malta/maintenance/garden)
 "cCm" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/clothing/suit/armor/bulletproof,
@@ -8253,8 +8239,7 @@
 	dir = 4
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/machinery/door/window{
 	dir = 2;
@@ -9021,7 +9006,6 @@
 /obj/machinery/door/poddoor/shutters/preopen{
 	dir = 8;
 	id_tag = "restaurant";
-	layer = 2;
 	name = "Restaurant Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -10657,9 +10641,7 @@
 "dTT" = (
 /obj/structure/grille,
 /obj/structure/window/full/reinforced/ice,
-/obj/structure/barricade/wooden/crude/snow{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude/snow,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/quartermaster/ore_production)
 "dTY" = (
@@ -11934,7 +11916,6 @@
 	pixel_x = 3
 	},
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = -2;
 	pixel_y = 9
 	},
@@ -14700,9 +14681,7 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/casino)
 "fwn" = (
@@ -15647,7 +15626,6 @@
 "fPd" = (
 /obj/structure/table,
 /obj/item/flashlight/lamp{
-	layer = 4;
 	pixel_x = 7;
 	pixel_y = 14
 	},
@@ -18288,8 +18266,7 @@
 /area/coldcolony/malta/maintenance/bar)
 "gNW" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/toolbox,
 /turf/simulated/floor/plating,
@@ -18319,8 +18296,7 @@
 	dir = 4
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/clothing/suit/armor/bulletproof,
@@ -18386,9 +18362,7 @@
 "gPa" = (
 /obj/structure/mineral_door/wood,
 /obj/effect/decal/cleanable/blood/tracks,
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/wood/cherry/cold,
 /area/coldcolony/ruin/abandoned_banya)
 "gPb" = (
@@ -20172,9 +20146,7 @@
 /area/shuttle/pirate_corvette)
 "hAq" = (
 /obj/structure/table/reinforced,
-/obj/item/kitchen/knife{
-	layer = 3.2
-	},
+/obj/item/kitchen/knife,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 10
 	},
@@ -20372,7 +20344,6 @@
 	dir = 8
 	},
 /obj/machinery/computer/cryopod{
-	layer = 4;
 	pixel_y = -32
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
@@ -20459,9 +20430,7 @@
 	},
 /obj/machinery/door/firedoor,
 /obj/structure/fans/tiny,
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plasteel,
 /area/coldcolony/ruin/sm_division)
 "hFD" = (
@@ -21255,8 +21224,7 @@
 	dir = 4
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/door/window{
@@ -22076,8 +22044,7 @@
 /area/coldcolony/ruin/abandoned_banya)
 "ioQ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/machinery/door/window{
@@ -22903,9 +22870,7 @@
 	},
 /area/coldcolony/malta/security/warden)
 "iFc" = (
-/obj/structure/barricade/wooden/crude/snow{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude/snow,
 /obj/structure/fans/tiny,
 /obj/machinery/door/airlock/maintenance/external{
 	req_access = list(26,32)
@@ -24287,7 +24252,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "brigkpp";
-	layer = 5;
 	pixel_y = 55;
 	range = 3
 	},
@@ -26452,7 +26416,6 @@
 /area/coldcolony/malta/bridge/vip)
 "jVh" = (
 /obj/structure/sign/securearea{
-	layer = 2.8;
 	pixel_y = 3
 	},
 /turf/simulated/wall/r_wall,
@@ -26524,7 +26487,6 @@
 /obj/structure/curtain/open/shower,
 /obj/machinery/shower{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /obj/effect/mist,
@@ -26980,9 +26942,7 @@
 /area/coldcolony/malta/maintenance/incinerator)
 "kdg" = (
 /obj/effect/mapping_helpers/turfs/damage,
-/obj/structure/inflatable{
-	layer = 3.1
-	},
+/obj/structure/inflatable,
 /obj/effect/turf_decal/weather/snow/corner{
 	dir = 8
 	},
@@ -27206,8 +27166,7 @@
 /area/coldcolony/malta/bridge/vip)
 "khn" = (
 /obj/structure/toilet{
-	dir = 8;
-	layer = 4
+	dir = 8
 	},
 /obj/machinery/light/small{
 	dir = 1
@@ -27712,8 +27671,7 @@
 /area/coldcolony/malta/medical/sleeper)
 "ksp" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/stack/sheet/metal{
 	amount = 50
@@ -27805,7 +27763,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "permacell2";
-	layer = 5;
 	pixel_x = 24;
 	range = 3
 	},
@@ -28648,7 +28605,6 @@
 "kJn" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5;
 	pixel_y = 14
 	},
 /turf/simulated/floor/plasteel{
@@ -28657,8 +28613,7 @@
 /area/coldcolony/malta/maintenance/kitchen)
 "kJp" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /obj/random/tool,
@@ -29633,8 +29588,7 @@
 	dir = 8
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/item/clothing/suit/armor/bulletproof,
@@ -30101,7 +30055,6 @@
 	initialize_directions = 1;
 	internal_pressure_bound = 4000;
 	internal_pressure_bound_default = 4000;
-	layer = 2.4;
 	name = "mix vent";
 	on = 1;
 	pressure_checks = 2;
@@ -33520,8 +33473,7 @@
 	dir = 9
 	},
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /obj/effect/spawner/lootdrop/maintenance,
@@ -35714,8 +35666,7 @@
 /area/coldcolony/malta/engineering/teg)
 "nAk" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -37151,8 +37102,7 @@
 "oab" = (
 /obj/item/flashlight,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/bridge)
@@ -37334,9 +37284,7 @@
 /obj/machinery/door/firedoor,
 /obj/structure/fans/tiny,
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plasteel,
 /area/coldcolony/ruin/sm_division)
 "odg" = (
@@ -37897,8 +37845,7 @@
 "ooG" = (
 /obj/item/stack/cable_coil,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/perma)
@@ -39937,7 +39884,6 @@
 /obj/machinery/door/poddoor/shutters{
 	dir = 8;
 	id_tag = "ArmorySec";
-	layer = 5;
 	name = "Armory Security Shutters"
 	},
 /turf/simulated/floor/plasteel{
@@ -40582,9 +40528,7 @@
 "pmH" = (
 /obj/structure/grille,
 /obj/structure/window/full/reinforced/ice,
-/obj/structure/barricade/wooden/crude/snow{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude/snow,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/quartermaster/miningbar)
 "pmQ" = (
@@ -41317,7 +41261,6 @@
 "pBo" = (
 /obj/structure/table/reinforced,
 /obj/item/reagent_containers/food/condiment/enzyme{
-	layer = 5;
 	pixel_y = 14
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
@@ -41433,7 +41376,6 @@
 /obj/machinery/door/poddoor/shutters/preopen{
 	dir = 2;
 	id_tag = "restaurant";
-	layer = 2;
 	name = "Restaurant Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -43497,9 +43439,7 @@
 /area/coldcolony/ruin/sm_chamber)
 "qrT" = (
 /obj/machinery/door/airlock/maintenance,
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /turf/simulated/floor/plating,
@@ -43961,8 +43901,7 @@
 /area/coldcolony/malta/chapel/main)
 "qAX" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/spawner/lootdrop/maintenance,
@@ -46274,8 +46213,7 @@
 /area/coldcolony/malta/maintenance/science)
 "rpY" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /obj/random/tool,
@@ -51323,7 +51261,6 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/sink{
 	dir = 1;
-	layer = 5;
 	pixel_y = -5
 	},
 /turf/simulated/floor/plasteel/white,
@@ -53198,7 +53135,6 @@
 /obj/machinery/flasher{
 	desc = "A floor-mounted flashbulb device.";
 	id = "permacell1";
-	layer = 5;
 	pixel_x = -24;
 	range = 3
 	},
@@ -53376,8 +53312,7 @@
 "ufy" = (
 /obj/effect/decal/warning_stripes/blue,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/firstaid/o2,
 /obj/machinery/alarm/directional/north,
@@ -54906,9 +54841,7 @@
 /obj/machinery/door/firedoor,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
 	},
@@ -57282,14 +57215,12 @@
 "vDR" = (
 /obj/machinery/door_control{
 	id = "QMLoaddoor";
-	layer = 4;
 	name = "Loading Doors";
 	pixel_x = 24;
 	pixel_y = -8
 	},
 /obj/machinery/door_control{
 	id = "QMLoaddoor2";
-	layer = 4;
 	name = "Loading Doors";
 	pixel_x = 24;
 	pixel_y = 8
@@ -57798,8 +57729,7 @@
 "vNV" = (
 /obj/effect/decal/warning_stripes/blue,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/item/storage/firstaid/brute,
 /obj/item/storage/firstaid/toxin{
@@ -58962,7 +58892,6 @@
 /obj/effect/spawner/window/reinforced,
 /obj/machinery/door/poddoor/shutters/preopen{
 	id_tag = "restaurant";
-	layer = 2;
 	name = "Restaurant Shutters"
 	},
 /turf/simulated/floor/plating,
@@ -60314,9 +60243,7 @@
 /area/coldcolony/malta/hallway/service/south)
 "wLO" = (
 /obj/effect/mapping_helpers/turfs/damage,
-/obj/structure/inflatable{
-	layer = 3.1
-	},
+/obj/structure/inflatable,
 /obj/effect/turf_decal/weather/snow/corner{
 	dir = 1
 	},
@@ -61360,9 +61287,7 @@
 /area/coldcolony/malta/quartermaster/office)
 "xgE" = (
 /obj/effect/mapping_helpers/turfs/burn,
-/obj/structure/inflatable{
-	layer = 3.1
-	},
+/obj/structure/inflatable,
 /obj/effect/turf_decal/weather/snow/corner{
 	dir = 1
 	},
@@ -61609,7 +61534,6 @@
 	pixel_y = 1
 	},
 /obj/item/clothing/mask/cigarette/cigar/havana{
-	layer = 2.8;
 	pixel_x = -3;
 	pixel_y = 3
 	},
@@ -62050,8 +61974,7 @@
 /area/coldcolony/malta/maintenance/dormitory)
 "xtJ" = (
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/random/tool,
 /turf/simulated/floor/plating,
@@ -63244,9 +63167,7 @@
 	req_access = list(12);
 	welded = 1
 	},
-/obj/structure/barricade/wooden/crude{
-	layer = 3.3
-	},
+/obj/structure/barricade/wooden/crude,
 /turf/simulated/floor/plating,
 /area/coldcolony/malta/maintenance/dormitory)
 "xRg" = (

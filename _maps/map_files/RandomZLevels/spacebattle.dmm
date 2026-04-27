@@ -638,8 +638,7 @@
 	},
 /obj/structure/shuttle/engine/heater{
 	dir = 1;
-	icon_state = "heater3x3_side_inv";
-	layer = 3.5
+	icon_state = "heater3x3_side_inv"
 	},
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/syndicate2)
@@ -755,8 +754,7 @@
 /obj/item/storage/box/syndidonkpockets,
 /obj/item/gps{
 	gpstag = "SPYBUG";
-	icon_state = "gps-b";
-	layer = 2.9
+	icon_state = "gps-b"
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -1094,7 +1092,6 @@
 "dz" = (
 /obj/structure/table/reinforced,
 /obj/machinery/reagentgrinder{
-	layer = 4;
 	pixel_x = -1;
 	pixel_y = 9
 	},
@@ -1239,15 +1236,13 @@
 /area/awaymission/spacebattle/syndicate2)
 "ea" = (
 /obj/machinery/gateway/centeraway{
-	calibrated = 0;
-	layer = 4
+	calibrated = 0
 	},
 /turf/simulated/floor/fakespace,
 /area/awaymission/spacebattle/cruiser)
 "eb" = (
 /obj/machinery/gateway{
-	dir = 4;
-	layer = 4
+	dir = 4
 	},
 /obj/structure/lattice,
 /turf/simulated/floor/fakespace,
@@ -1379,8 +1374,7 @@
 	req_access = list(150)
 	},
 /obj/machinery/door/poddoor/impassable{
-	id_tag = "GATE";
-	layer = 2.8
+	id_tag = "GATE"
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/spacebattle/cruiser)
@@ -1594,9 +1588,7 @@
 	id_tag = "spacebattlestorage";
 	name = "Secure Storage"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "fg" = (
@@ -3994,9 +3986,7 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway6)
 "lU" = (
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutral"
 	},
@@ -4248,9 +4238,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway3)
 "mD" = (
@@ -4269,9 +4257,7 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/door/airlock/maintenance,
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/pod/dark,
 /area/awaymission/spacebattle/hallway11)
 "mF" = (
@@ -4369,8 +4355,7 @@
 	},
 /obj/structure/shuttle/engine/heater{
 	dir = 1;
-	icon_state = "heater3x3_side_inv";
-	layer = 3.5
+	icon_state = "heater3x3_side_inv"
 	},
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/syndicate3)
@@ -4555,9 +4540,7 @@
 	desc = "It's black and greasy. Looks like Beepsky made another mess.";
 	drydesc = "It's dry and crusty. Someone is not doing their job."
 	},
-/obj/structure/fans/tiny{
-	layer = 2
-	},
+/obj/structure/fans/tiny,
 /obj/machinery/door/window/brigdoor{
 	dir = 1
 	},
@@ -4941,12 +4924,10 @@
 /area/awaymission/spacebattle/sec_storage)
 "oG" = (
 /obj/structure/cryofeed{
-	layer = 2.8;
 	pixel_x = -6
 	},
 /obj/machinery/power/energy_accumulator/grounding_rod{
 	anchored = 1;
-	layer = 2.7;
 	pixel_x = -9;
 	pixel_y = 6
 	},
@@ -5051,8 +5032,7 @@
 /area/awaymission/spacebattle/syndicate2)
 "oS" = (
 /obj/machinery/gateway{
-	dir = 8;
-	layer = 4
+	dir = 8
 	},
 /obj/structure/lattice,
 /turf/simulated/floor/fakespace,
@@ -5346,9 +5326,7 @@
 	id_tag = "SpaceBattlePodbaySpace";
 	name = "Hangar Gate"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutral"
 	},
@@ -5752,8 +5730,7 @@
 /obj/effect/decal/cleanable/blood/tracks{
 	basecolor = "#030303";
 	desc = "It's black and greasy. Looks like Beepsky made another mess.";
-	drydesc = "It's dry and crusty. Someone is not doing their job.";
-	layer = 2.2
+	drydesc = "It's dry and crusty. Someone is not doing their job."
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -5970,9 +5947,7 @@
 /area/awaymission/spacebattle/hallway5)
 "rH" = (
 /obj/effect/mapping_helpers/turfs/damage,
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "neutral"
@@ -6013,9 +5988,7 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/hallway3)
 "rN" = (
@@ -6114,8 +6087,7 @@
 /obj/effect/decal/cleanable/blood/tracks{
 	basecolor = "#030303";
 	desc = "It's black and greasy. Looks like Beepsky made another mess.";
-	drydesc = "It's dry and crusty. Someone is not doing their job.";
-	layer = 2.2
+	drydesc = "It's dry and crusty. Someone is not doing their job."
 	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -6133,9 +6105,7 @@
 "sd" = (
 /obj/machinery/light_construct,
 /obj/machinery/constructable_frame/machine_frame,
-/obj/effect/decal/cleanable/blood/gibs{
-	layer = 3.5
-	},
+/obj/effect/decal/cleanable/blood/gibs,
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/living)
 "sf" = (
@@ -6245,9 +6215,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway1)
 "sw" = (
@@ -6419,8 +6387,7 @@
 	},
 /obj/structure/shuttle/engine/heater{
 	dir = 1;
-	icon_state = "heater3x3";
-	layer = 3.7
+	icon_state = "heater3x3"
 	},
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/syndicate2)
@@ -6635,8 +6602,7 @@
 "tz" = (
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -6854,12 +6820,10 @@
 "uf" = (
 /obj/machinery/power/energy_accumulator/grounding_rod{
 	anchored = 1;
-	layer = 2.8;
 	pixel_x = -1;
 	pixel_y = 8
 	},
 /obj/structure/cryofeed/right{
-	layer = 2.8;
 	pixel_x = 6;
 	pixel_y = 5
 	},
@@ -6965,8 +6929,7 @@
 "ux" = (
 /obj/effect/turf_decal/stripes,
 /obj/effect/decal/cleanable/blood/tracks{
-	dir = 8;
-	layer = 2.1
+	dir = 8
 	},
 /obj/effect/turf_decal/stripes/corner{
 	dir = 1
@@ -7011,9 +6974,7 @@
 	},
 /area/awaymission/spacebattle/engine)
 "uD" = (
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "neutral"
@@ -7025,9 +6986,7 @@
 	id_tag = "SpaceBattlePodbay";
 	name = "Hangar Gate"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/pod/dark,
 /area/awaymission/spacebattle/hallway5)
 "uG" = (
@@ -7243,9 +7202,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/pod/dark,
 /area/awaymission/spacebattle/hallway10)
 "vo" = (
@@ -7255,9 +7212,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway8)
 "vp" = (
@@ -7608,9 +7563,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway12)
 "wn" = (
@@ -7618,8 +7571,7 @@
 /obj/structure/transit_tube,
 /obj/machinery/constructable_frame{
 	icon = 'icons/obj/engines_and_power/singularity.dmi';
-	icon_state = "TheSingGen";
-	layer = 4
+	icon_state = "TheSingGen"
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/spacebattle/hallway3)
@@ -8203,9 +8155,7 @@
 /turf/simulated/floor/wood,
 /area/awaymission/spacebattle)
 "xL" = (
-/obj/item/ammo_box/shotgun{
-	layer = 2.7
-	},
+/obj/item/ammo_box/shotgun,
 /obj/item/twohanded/required/kirbyplants,
 /obj/structure/table,
 /turf/simulated/floor/plasteel{
@@ -9124,9 +9074,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway11)
 "At" = (
@@ -9150,9 +9098,7 @@
 "Aw" = (
 /obj/machinery/firealarm/directional/north,
 /obj/machinery/constructable_frame/machine_frame,
-/obj/effect/decal/cleanable/blood/gibs{
-	layer = 3.5
-	},
+/obj/effect/decal/cleanable/blood/gibs,
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/living)
 "Ax" = (
@@ -9520,9 +9466,7 @@
 	id_tag = "SpaceBattlePodbaySpace";
 	name = "Hangar Gate"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "neutral"
@@ -9566,8 +9510,7 @@
 	},
 /obj/structure/shuttle/engine/heater{
 	dir = 1;
-	icon_state = "heater3x3";
-	layer = 3.7
+	icon_state = "heater3x3"
 	},
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/syndicate3)
@@ -9825,9 +9768,7 @@
 /area/awaymission/spacebattle/hallway10)
 "Cm" = (
 /obj/structure/showcase/machinery/oldpod/used,
-/obj/effect/decal/cleanable/blood/gibs{
-	layer = 3.5
-	},
+/obj/effect/decal/cleanable/blood/gibs,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "neutral"
@@ -9866,9 +9807,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/prhallway5)
 "Cu" = (
@@ -10132,9 +10071,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "neutral"
@@ -10199,9 +10136,7 @@
 /obj/machinery/door/window/brigdoor{
 	dir = 1
 	},
-/obj/structure/fans/tiny{
-	layer = 2
-	},
+/obj/structure/fans/tiny,
 /turf/simulated/floor/plasteel/dark,
 /area/awaymission/spacebattle/hallway6)
 "Dw" = (
@@ -10481,8 +10416,7 @@
 "Ek" = (
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -10819,8 +10753,7 @@
 /obj/structure/transit_tube,
 /obj/machinery/constructable_frame{
 	icon = 'icons/obj/engines_and_power/singularity.dmi';
-	icon_state = "TheSingGen";
-	layer = 4
+	icon_state = "TheSingGen"
 	},
 /turf/simulated/floor/plating,
 /area/awaymission/spacebattle/hallway11)
@@ -10884,8 +10817,7 @@
 /area/awaymission/spacebattle/sec_storage)
 "Fp" = (
 /obj/machinery/gateway{
-	dir = 1;
-	layer = 4
+	dir = 1
 	},
 /obj/structure/lattice,
 /turf/simulated/floor/fakespace,
@@ -11027,9 +10959,7 @@
 /obj/structure/sign/cargo{
 	pixel_x = -32
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "neutral"
@@ -11235,8 +11165,7 @@
 "Gm" = (
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -11386,8 +11315,7 @@
 "GK" = (
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -11540,9 +11468,7 @@
 	},
 /area/awaymission/spacebattle/hallway11)
 "Hg" = (
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutral"
 	},
@@ -11732,8 +11658,7 @@
 /area/awaymission/spacebattle/hallway1)
 "HH" = (
 /obj/machinery/gateway{
-	dir = 5;
-	layer = 4
+	dir = 5
 	},
 /obj/machinery/field/generator{
 	anchored = 1;
@@ -11763,12 +11688,10 @@
 /area/awaymission/spacebattle/prhallway5)
 "HK" = (
 /obj/structure/cryofeed/right{
-	layer = 2.8;
 	pixel_x = 6
 	},
 /obj/machinery/power/energy_accumulator/grounding_rod{
 	anchored = 1;
-	layer = 2.7;
 	pixel_x = 9;
 	pixel_y = 6
 	},
@@ -11832,9 +11755,7 @@
 /turf/space,
 /area/space)
 "HX" = (
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "neutral"
@@ -12129,8 +12050,7 @@
 "IU" = (
 /obj/structure/shuttle/engine/heater{
 	dir = 1;
-	icon_state = "heater3x3";
-	layer = 3.7
+	icon_state = "heater3x3"
 	},
 /obj/structure/window/plasmareinforced,
 /turf/simulated/floor/shuttle/plating,
@@ -12490,8 +12410,7 @@
 /area/awaymission/spacebattle/hallway11)
 "Kc" = (
 /obj/structure/shuttle/engine/huge{
-	dir = 4;
-	layer = 2.9
+	dir = 4
 	},
 /turf/space,
 /area/awaymission/spacebattle/syndicate4)
@@ -13503,8 +13422,7 @@
 /area/space)
 "Nb" = (
 /obj/effect/decal/cleanable/blood/tracks{
-	dir = 8;
-	layer = 2.1
+	dir = 8
 	},
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -13591,9 +13509,7 @@
 /area/awaymission/spacebattle/hallway12)
 "Nn" = (
 /obj/machinery/door/airlock,
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/prhallway5)
 "No" = (
@@ -13627,9 +13543,7 @@
 /obj/machinery/door/airlock/security{
 	name = "Turret Room"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway7)
 "Nt" = (
@@ -14635,9 +14549,7 @@
 	id_tag = "SpaceBattlePodbaySpace";
 	name = "Hangar Gate"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway10)
 "Qe" = (
@@ -14671,9 +14583,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/prhallway4)
 "Qi" = (
@@ -14966,9 +14876,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/engine)
 "QS" = (
@@ -15172,9 +15080,7 @@
 /area/awaymission/spacebattle/syndicate1)
 "Rx" = (
 /obj/effect/mapping_helpers/turfs/damage,
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/sec_storage)
 "Ry" = (
@@ -15193,12 +15099,10 @@
 	},
 /obj/machinery/power/energy_accumulator/grounding_rod{
 	anchored = 1;
-	layer = 2.8;
 	pixel_x = 1;
 	pixel_y = 8
 	},
 /obj/structure/cryofeed{
-	layer = 2.8;
 	pixel_x = -6;
 	pixel_y = 5
 	},
@@ -15336,9 +15240,7 @@
 	dir = 1
 	},
 /obj/effect/mapping_helpers/turfs/burn,
-/obj/structure/fans/tiny{
-	layer = 2
-	},
+/obj/structure/fans/tiny,
 /obj/structure/windoor_assembly{
 	dir = 2
 	},
@@ -15630,8 +15532,7 @@
 /area/awaymission/spacebattle/hallway13)
 "SO" = (
 /obj/machinery/gateway{
-	dir = 9;
-	layer = 4
+	dir = 9
 	},
 /obj/machinery/field/generator{
 	anchored = 1;
@@ -15861,9 +15762,7 @@
 /area/awaymission/spacebattle/kitchen)
 "Tv" = (
 /obj/effect/mapping_helpers/turfs/damage,
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutral"
 	},
@@ -15877,8 +15776,7 @@
 "Tx" = (
 /obj/effect/decal/warning_stripes/red/hollow,
 /obj/structure/rack{
-	dir = 8;
-	layer = 2.9
+	dir = 8
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -16041,9 +15939,7 @@
 /obj/structure/sign/cargo{
 	pixel_x = -32
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "neutral"
@@ -16328,9 +16224,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/gibs{
-	layer = 3.5
-	},
+/obj/effect/decal/cleanable/blood/gibs,
 /turf/simulated/floor/plasteel{
 	dir = 4;
 	icon_state = "neutral"
@@ -16741,9 +16635,7 @@
 /area/awaymission/spacebattle/syndicate3)
 "VQ" = (
 /obj/machinery/constructable_frame/machine_frame,
-/obj/effect/decal/cleanable/blood/gibs{
-	layer = 3.5
-	},
+/obj/effect/decal/cleanable/blood/gibs,
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/living)
 "VR" = (
@@ -16946,9 +16838,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/living)
 "WA" = (
@@ -16992,9 +16882,7 @@
 /area/awaymission/spacebattle/engineering)
 "WH" = (
 /obj/machinery/door/airlock,
-/obj/machinery/door/firedoor/closed{
-	layer = 2.8
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "WI" = (
@@ -17236,9 +17124,7 @@
 	id_tag = "spacebattlestorage";
 	name = "Secure Storage"
 	},
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Xt" = (
@@ -17353,9 +17239,7 @@
 /area/space)
 "XL" = (
 /obj/machinery/door/airlock,
-/obj/machinery/door/firedoor/closed{
-	layer = 3.2
-	},
+/obj/machinery/door/firedoor/closed,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/prhallway4)
 "XM" = (
@@ -17611,9 +17495,7 @@
 /area/awaymission/spacebattle/prhallway4)
 "Yx" = (
 /obj/machinery/constructable_frame/machine_frame,
-/obj/effect/decal/cleanable/blood/gibs{
-	layer = 3.5
-	},
+/obj/effect/decal/cleanable/blood/gibs,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "neutral"
