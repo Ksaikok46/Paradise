@@ -22,6 +22,7 @@
 #include "test_greyscale_config.dm"
 #include "test_init_sanity.dm"
 #include "test_map_templates.dm"
+#include "test_mapping_nearstation.dm"
 #include "test_modsuit.dm"
 #include "test_missing_icons.dm"
 #include "test_orphaned_genturf.dm"

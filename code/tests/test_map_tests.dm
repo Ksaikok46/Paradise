@@ -39,22 +39,6 @@
 	if(center_nodes > 1)
 		Fail(T, "tile has multiple center cable nodes")
 
-/datum/map_per_tile_test/nearspace_checker
-	var/allowed_turfs = list(
-		/turf/space,
-		/turf/simulated/floor/plating/airless,
-		/turf/simulated/floor/plasteel/airless,
-		/turf/simulated/wall,
-	)
-
-/datum/map_per_tile_test/nearspace_checker/New()
-	..()
-	allowed_turfs = typecacheof(allowed_turfs)
-
-/datum/map_per_tile_test/nearspace_checker/CheckTile(turf/T)
-	if(T.loc.type == /area/space/nearstation && !is_type_in_list(T, allowed_turfs))
-		Fail(T, "nearspace area contains a non-space turf: [T], ([T.type])")
-
 /datum/map_per_tile_test/cable_adjacency_checker
 
 /datum/map_per_tile_test/cable_adjacency_checker/CheckTile(turf/T)
