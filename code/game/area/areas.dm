@@ -145,7 +145,6 @@
 		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
 
 	icon_state = ""
-	layer = AREA_LAYER
 	uid = ++global_uid
 
 	map_name = name // Save the initial (the name set in the map) name of the area.

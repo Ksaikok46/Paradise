@@ -12,7 +12,8 @@
 	icon_state = "stairs"
 	anchored = TRUE
 	move_resist = INFINITY
-
+	plane = FLOOR_PLANE
+	layer = ABOVE_OPEN_TURF_LAYER
 	var/force_open_above = FALSE // replaces the turf above this stair obj with /turf/simulated/openspace
 	var/terminator_mode = STAIR_TERMINATOR_AUTOMATIC
 	var/turf/listeningTo

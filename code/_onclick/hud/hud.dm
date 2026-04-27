@@ -24,7 +24,6 @@
 	var/atom/movable/screen/ninja_focus_display
 	var/atom/movable/screen/wind_up_timer
 	var/atom/movable/screen/alien_plasma_display
-	var/atom/movable/screen/nightvisionicon
 	var/atom/movable/screen/action_intent
 	var/atom/movable/screen/zone_select
 	var/atom/movable/screen/move_intent
@@ -157,7 +156,6 @@
 	QDEL_NULL(ninja_energy_display)
 	QDEL_NULL(ninja_focus_display)
 	QDEL_NULL(wind_up_timer)
-	QDEL_NULL(nightvisionicon)
 	QDEL_NULL(devilsouldisplay)
 	QDEL_NULL(combo_display)
 

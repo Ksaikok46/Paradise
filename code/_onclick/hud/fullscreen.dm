@@ -36,7 +36,7 @@
 			continue
 		observe.screens -= category
 
-	if(animated)
+	if(!QDELETED(src) && animated)
 		animate(screen, alpha = 0, time = animated)
 		addtimer(CALLBACK(src, PROC_REF(clear_fullscreen_after_animate), screen), animated, TIMER_CLIENT_TIME)
 	else

@@ -77,70 +77,6 @@
 	if(istype(mymob) && mymob.canon_client?.prefs?.toggles & PREFTOGGLE_AMBIENT_OCCLUSION)
 		add_filter("AO", 1, drop_shadow_filter(x = 0, y = -2, size = 4, color = "#04080FAA"))
 
-/atom/movable/screen/plane_master/rendering_plate/lighting/proc/set_light_cutoff(light_cutoff, list/color_cutoffs)
-	var/list/new_cutoffs = list(light_cutoff)
-	new_cutoffs += color_cutoffs
-	if(new_cutoffs ~= light_cutoffs)
-		return
-
-	remove_filter(list("light_cutdown", "light_cutup"))
-
-	var/ratio = light_cutoff/100
-	if(!color_cutoffs)
-		color_cutoffs = list(0, 0, 0)
-
-	var/red = color_cutoffs[1] / 100
-	var/green = color_cutoffs[2] / 100
-	var/blue = color_cutoffs[3] / 100
-	add_filter("light_cutdown", 3, color_matrix_filter(list(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, -(ratio + red),-(ratio+green),-(ratio+blue),0)))
-	add_filter("light_cutup", 4, color_matrix_filter(list(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, ratio+red,ratio+green,ratio+blue,0)))
-
-/atom/movable/screen/plane_master/rendering_plate/light_mask
-	name = "Light Mask"
-	documentation = "Any part of this plane that is transparent will be black below it on the game rendering plate.\
-		<br>This is done to ensure emissives and overlay lights don't light things up \"through\" the darkness that normally sits at the bottom of the lighting plane.\
-		<br>We relay copies of the space, floor and wall planes to it, so we can use them as masks. Then we just boost any existing alpha to 100% and we're done.\
-		<br>If we ever switch to a sight setup that shows say, mobs but not floors, we instead mask just overlay lighting and emissives.\
-		<br>This avoids dumb seethrough without breaking stuff like thermals."
-	plane = RENDER_PLANE_LIGHT_MASK
-	appearance_flags = PLANE_MASTER|NO_CLIENT_COLOR
-	// Fullwhite where there's anything, no color otherwise
-	color = list(255,255,255,255, 255,255,255,255, 255,255,255,255, 255,255,255,255, 0,0,0,0)
-	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	render_target = LIGHT_MASK_RENDER_TARGET
-	// We blend against the game plane, so she's gotta multiply!
-	blend_mode = BLEND_MULTIPLY
-	render_relay_planes = list(RENDER_PLANE_GAME)
-
-/atom/movable/screen/plane_master/rendering_plate/light_mask/show_to(mob/mymob)
-	. = ..()
-	if(!.)
-		return
-
-	RegisterSignal(mymob, COMSIG_MOB_SIGHT_CHANGE, PROC_REF(handle_sight), override = TRUE)
-	handle_sight(mymob, mymob.sight, NONE)
-
-/atom/movable/screen/plane_master/rendering_plate/light_mask/hide_from(mob/oldmob)
-	. = ..()
-	var/atom/movable/screen/plane_master/emissive = home.get_plane(GET_NEW_PLANE(RENDER_PLANE_EMISSIVE, offset))
-	emissive.remove_filter("lighting_mask")
-	remove_relay_from(GET_NEW_PLANE(RENDER_PLANE_GAME, offset))
-	UnregisterSignal(oldmob, COMSIG_MOB_SIGHT_CHANGE)
-
-/atom/movable/screen/plane_master/rendering_plate/light_mask/proc/handle_sight(datum/source, new_sight, old_sight)
-	// If we can see something that shows "through" blackness, and we can't see turfs, disable our draw to the game plane
-	// And instead mask JUST the overlay lighting plane, since that will look fuckin wrong
-	var/atom/movable/screen/plane_master/emissive = home.get_plane(GET_NEW_PLANE(RENDER_PLANE_EMISSIVE, offset))
-	if(new_sight & SEE_AVOID_TURF_BLACKNESS && !(new_sight & SEE_TURFS))
-		remove_relay_from(GET_NEW_PLANE(RENDER_PLANE_GAME, offset))
-		emissive.add_filter("lighting_mask", 1, alpha_mask_filter(render_source = OFFSET_RENDER_TARGET(LIGHT_MASK_RENDER_TARGET, offset)))
-	// If we CAN'T see through the black, then draw er down brother!
-	else
-		emissive.remove_filter("lighting_mask")
-		// We max alpha here, so our darkness is actually.. dark
-		// Can't do it before cause it fucks with the filter
-		add_relay_to(GET_NEW_PLANE(RENDER_PLANE_GAME, offset), relay_color = list(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, 0,0,0,1))
-
 /atom/movable/screen/plane_master/rendering_plate/unlit_game_plate
 	name = "Unlit Game rendering plate"
 	documentation = "Feeds the bits of the game plate which want to be effected by lighting into RENDER_PLANE_GAME and the emissive bloom pipeline (the reason this exists)."
@@ -328,6 +264,70 @@
 		disable_alpha()
 	else
 		enable_alpha()
+
+/atom/movable/screen/plane_master/rendering_plate/lighting/proc/set_light_cutoff(light_cutoff, list/color_cutoffs)
+	var/list/new_cutoffs = list(light_cutoff)
+	new_cutoffs += color_cutoffs
+	if(new_cutoffs ~= light_cutoffs)
+		return
+
+	remove_filter(list("light_cutdown", "light_cutup"))
+
+	var/ratio = light_cutoff/100
+	if(!color_cutoffs)
+		color_cutoffs = list(0, 0, 0)
+
+	var/red = color_cutoffs[1] / 100
+	var/green = color_cutoffs[2] / 100
+	var/blue = color_cutoffs[3] / 100
+	add_filter("light_cutdown", 3, color_matrix_filter(list(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, -(ratio + red),-(ratio+green),-(ratio+blue),0)))
+	add_filter("light_cutup", 4, color_matrix_filter(list(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, ratio+red,ratio+green,ratio+blue,0)))
+
+/atom/movable/screen/plane_master/rendering_plate/light_mask
+	name = "Light Mask"
+	documentation = "Any part of this plane that is transparent will be black below it on the game rendering plate.\
+		<br>This is done to ensure emissives and overlay lights don't light things up \"through\" the darkness that normally sits at the bottom of the lighting plane.\
+		<br>We relay copies of the space, floor and wall planes to it, so we can use them as masks. Then we just boost any existing alpha to 100% and we're done.\
+		<br>If we ever switch to a sight setup that shows say, mobs but not floors, we instead mask just overlay lighting and emissives.\
+		<br>This avoids dumb seethrough without breaking stuff like thermals."
+	plane = RENDER_PLANE_LIGHT_MASK
+	appearance_flags = PLANE_MASTER|NO_CLIENT_COLOR
+	// Fullwhite where there's anything, no color otherwise
+	color = list(255,255,255,255, 255,255,255,255, 255,255,255,255, 255,255,255,255, 0,0,0,0)
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	render_target = LIGHT_MASK_RENDER_TARGET
+	// We blend against the game plane, so she's gotta multiply!
+	blend_mode = BLEND_MULTIPLY
+	render_relay_planes = list(RENDER_PLANE_GAME)
+
+/atom/movable/screen/plane_master/rendering_plate/light_mask/show_to(mob/mymob)
+	. = ..()
+	if(!.)
+		return
+
+	RegisterSignal(mymob, COMSIG_MOB_SIGHT_CHANGE, PROC_REF(handle_sight), override = TRUE)
+	handle_sight(mymob, mymob.sight, NONE)
+
+/atom/movable/screen/plane_master/rendering_plate/light_mask/hide_from(mob/oldmob)
+	. = ..()
+	var/atom/movable/screen/plane_master/emissive = home.get_plane(GET_NEW_PLANE(RENDER_PLANE_EMISSIVE, offset))
+	emissive.remove_filter("lighting_mask")
+	remove_relay_from(GET_NEW_PLANE(RENDER_PLANE_GAME, offset))
+	UnregisterSignal(oldmob, COMSIG_MOB_SIGHT_CHANGE)
+
+/atom/movable/screen/plane_master/rendering_plate/light_mask/proc/handle_sight(datum/source, new_sight, old_sight)
+	// If we can see something that shows "through" blackness, and we can't see turfs, disable our draw to the game plane
+	// And instead mask JUST the overlay lighting plane, since that will look fuckin wrong
+	var/atom/movable/screen/plane_master/emissive = home.get_plane(GET_NEW_PLANE(RENDER_PLANE_EMISSIVE, offset))
+	if(new_sight & SEE_AVOID_TURF_BLACKNESS && !(new_sight & SEE_TURFS))
+		remove_relay_from(GET_NEW_PLANE(RENDER_PLANE_GAME, offset))
+		emissive.add_filter("lighting_mask", 1, alpha_mask_filter(render_source = OFFSET_RENDER_TARGET(LIGHT_MASK_RENDER_TARGET, offset)))
+	// If we CAN'T see through the black, then draw er down brother!
+	else
+		emissive.remove_filter("lighting_mask")
+		// We max alpha here, so our darkness is actually.. dark
+		// Can't do it before cause it fucks with the filter
+		add_relay_to(GET_NEW_PLANE(RENDER_PLANE_GAME, offset), relay_color = list(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, 0,0,0,1))
 
 ///renders in character game objects
 /atom/movable/screen/plane_master/rendering_plate/game_plate

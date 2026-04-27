@@ -122,6 +122,15 @@ GLOBAL_LIST_EMPTY(starlight)
 		return
 	AddComponent(/datum/component/blob_turf_consuming, 4)
 
+/turf/space/ChangeTurf(path, defer_change, keep_icon, after_flags, copy_existing_baseturf)
+	. = ..()
+	if (!. || isspaceturf(.))
+		return
+
+	var/area/new_turf_area = get_area(.)
+	if(istype(new_turf_area, /area/space) && !istype(new_turf_area, /area/space/nearstation))
+		set_turf_to_area(., GLOB.areas_by_type[/area/space/nearstation])
+
 /turf/space/BeforeChange()
 	..()
 	var/datum/space_level/S = GLOB.space_manager.get_zlev(z)
