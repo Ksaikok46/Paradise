@@ -334,3 +334,29 @@
 			if(area_to_check.type == areatype)
 				areas += area_to_check
 	return areas
+
+/proc/set_turfs_to_area(list/turf/turfs, area/new_area, list/area/affected_areas = list())
+	for(var/turf/the_turf as anything in turfs)
+		set_turf_to_area(the_turf, new_area, affected_areas)
+
+/proc/set_turf_to_area(turf/the_turf, area/new_area, list/area/affected_areas = list())
+	var/area/old_area = the_turf.loc
+
+	//keep rack of all areas affected by turf changes
+	affected_areas[old_area.name] = old_area
+
+	//move the turf to its new area and unregister it from the old one
+	the_turf.change_area(old_area, new_area)
+
+	//inform atoms on the turf that their area has changed
+	for(var/atom/stuff as anything in the_turf)
+		//unregister the stuff from its old area
+		SEND_SIGNAL(stuff, COMSIG_EXIT_AREA, old_area)
+
+		//register the stuff to its new area. special exception for apc as its not registered to this signal
+		if(istype(stuff, /obj/machinery/power/apc))
+			var/obj/machinery/power/apc/area_apc = stuff
+			area_apc.area = new_area
+		else
+			SEND_SIGNAL(stuff, COMSIG_ENTER_AREA, new_area)
+

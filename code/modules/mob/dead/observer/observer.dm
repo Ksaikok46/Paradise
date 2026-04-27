@@ -766,8 +766,8 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	set category = VERB_CATEGORY_GHOST
 	var/list/ghost_darkness_levels = list(
 		"Стандартное освещение" = LIGHTING_CUTOFF_VISIBLE,
-		"Темнее" = LIGHTING_CUTOFF_MEDIUM,
-		"Ярче" = LIGHTING_CUTOFF_HIGH,
+		"Светло" = LIGHTING_CUTOFF_MEDIUM,
+		"Очень светло" = LIGHTING_CUTOFF_HIGH,
 		"Полное освещение" = LIGHTING_CUTOFF_FULLBRIGHT,
 	)
 	var/desired_dark = tgui_input_list(usr, "Выберите, на сколько хорошо вы хотите видеть", "Выбор освещения", ghost_darkness_levels)
