@@ -125,9 +125,11 @@
 	fitting = "bulb"
 	light_type = /obj/item/light/bulb
 	deconstruct_type = /obj/machinery/light_construct/floor
-	brightness_range = 6
-	nightshift_light_range = 6
-	layer = ABOVE_OPEN_TURF_LAYER
+	brightness_range = 4
+	nightshift_light_range = 4
+	fire_brightness = 4.5
+	light_angle = 360
+	layer = BELOW_CATWALK_LAYER
 	plane = FLOOR_PLANE
 
 /obj/machinery/light/built

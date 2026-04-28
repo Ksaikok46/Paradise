@@ -3,6 +3,7 @@
 	desc = "Don't jump on it... Or do, I'm not your mom."
 	icon = 'icons/turf/floors/glass.dmi'
 	icon_state = "unsmooth"
+	layer = GLASS_FLOOR_LAYER
 	smooth = SMOOTH_BITMASK
 	base_icon_state = "glass"
 	canSmoothWith = SMOOTH_GROUP_FLOOR_TRANSPARENT_GLASS

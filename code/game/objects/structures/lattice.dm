@@ -32,6 +32,17 @@
 	if(istype(new_turf_area, /area/space) && !istype(new_turf_area, /area/space/nearstation))
 		set_turf_to_area(loc, GLOB.areas_by_type[/area/space/nearstation])
 
+/obj/structure/lattice/Destroy(force)
+	var/turf/turfloc = loc
+	. = ..()
+	if(isturf(turfloc))
+		for(var/thing_that_falls in turfloc)
+			turfloc.zFall(thing_that_falls)
+
+	var/area/turf_area = get_area(turfloc)
+	if(isspaceturf(turfloc) && istype(turf_area, /area/space/nearstation))
+		set_turf_to_area(turfloc, GLOB.areas_by_type[/area/space])
+
 /obj/structure/lattice/examine(mob/user)
 	. = ..()
 	. += deconstruction_hints(user)
@@ -118,7 +129,6 @@
 	icon = 'icons/obj/smooth_structures/catwalk.dmi'
 	icon_state = "catwalk-0"
 	base_icon_state = "catwalk"
-	layer = CATWALK_LAYER
 	number_of_rods = 2
 	canSmoothWith = SMOOTH_GROUP_CATWALK
 	smoothing_groups = SMOOTH_GROUP_CATWALK

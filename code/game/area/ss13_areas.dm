@@ -1723,8 +1723,6 @@ This applies to all STANDARD station areas
 	valid_territory = FALSE
 	ambientsounds = ENGINEERING_SOUNDS
 	sound_environment = SOUND_AREA_SPACE
-	static_lighting = FALSE
-	base_lighting_alpha = 255
 
 /area/solar/auxport
 	name = "North-West Solar Array"
