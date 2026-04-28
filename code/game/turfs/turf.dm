@@ -73,8 +73,11 @@
 	var/directional_opacity = NONE
 	/// Lazylist of movable atoms providing opacity sources.
 	var/list/atom/movable/opacity_sources
+
 	/// Bool, whether this turf will always be illuminated no matter what area it is in
-	var/always_lit = FALSE
+	/// Makes it look blue, be warned
+	var/space_lit = FALSE
+
 	var/tmp/lighting_corners_initialised = FALSE
 	/// Our lighting object.
 	var/tmp/datum/lighting_object/lighting_object
@@ -167,7 +170,7 @@
 		Entered(content)
 
 	var/area/our_area = loc
-	if(!our_area.area_has_base_lighting && always_lit) //Only provide your own lighting if the area doesn't for you
+	if(!our_area.area_has_base_lighting && space_lit) //Only provide your own lighting if the area doesn't for you
 		add_overlay(GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1])
 
 	if(light_power && light_range)
@@ -458,7 +461,7 @@
 
 	if(SSlighting.initialized)
 		// Space tiles should never have lighting objects
-		if(!always_lit)
+		if(!space_lit)
 			// Should have a lighting object if we never had one
 			lighting_object = old_lighting_object || new /datum/lighting_object(src)
 		else if(old_lighting_object)

@@ -143,7 +143,7 @@
 /turf/simulated/floor/indestructible/abductor
 	name = "alien floor"
 	icon_state = "alienpod1"
-	always_lit = TRUE
+	space_lit = TRUE
 
 /turf/simulated/floor/indestructible/abductor/Initialize(mapload)
 	. = ..()
@@ -310,7 +310,7 @@
 	icon = null
 	icon_state = null
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	always_lit = TRUE
+	space_lit = TRUE
 
 /turf/simulated/floor/indestructible/view_portal/dense
 	density = TRUE

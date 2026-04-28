@@ -93,7 +93,7 @@
 
 ///Transfer the lighting of one area to another
 /turf/proc/transfer_area_lighting(area/old_area, area/new_area)
-	if(SSlighting.initialized && !always_lit)
+	if(SSlighting.initialized && !space_lit)
 		if(new_area.static_lighting != old_area.static_lighting)
 			if(new_area.static_lighting)
 				lighting_build_overlay()
@@ -111,7 +111,7 @@
 			add_overlay(new_area.lighting_effects[index])
 
 	// Manage removing/adding starlight overlays, we'll inherit from the area so we can drop it if the area has it already
-	if(always_lit)
+	if(space_lit)
 		if(!new_area.lighting_effects && old_area.lighting_effects)
 			overlays += GLOB.starlight_overlays[GET_TURF_PLANE_OFFSET(src) + 1]
 		else if(new_area.lighting_effects && !old_area.lighting_effects)

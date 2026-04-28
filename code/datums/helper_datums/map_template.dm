@@ -72,7 +72,7 @@
 		throw e
 
 	for(var/turf/unlit as anything in turfs)
-		if(unlit.always_lit)
+		if(unlit.space_lit)
 			continue
 		var/area/loc_area = unlit.loc
 		if(!loc_area.static_lighting)

@@ -61,7 +61,7 @@ GLOBAL_LIST_EMPTY(starlight)
 	light_color = COLOR_STARLIGHT
 	light_height = LIGHTING_HEIGHT_SPACE
 	light_on = FALSE
-	always_lit = TRUE
+	space_lit = TRUE
 	intact = FALSE
 	underfloor_accessibility = UNDERFLOOR_INTERACTABLE
 	// We do NOT want atmos adjacent turfs
@@ -99,7 +99,7 @@ GLOBAL_LIST_EMPTY(starlight)
 		plane = PLANE_SPACE - (PLANE_RANGE * SSmapping.z_level_to_plane_offset[z])
 
 	var/area/our_area = loc
-	if(!our_area.area_has_base_lighting && always_lit) //Only provide your own lighting if the area doesn't for you
+	if(!our_area.area_has_base_lighting && space_lit) //Only provide your own lighting if the area doesn't for you
 		// Intentionally not add_overlay for performance reasons.
 		// add_overlay does a bunch of generic stuff, like creating a new list for overlays,
 		// queueing compile, cloning appearance, etc etc etc that is not necessary here.
