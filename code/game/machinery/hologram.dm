@@ -44,26 +44,33 @@ GLOBAL_LIST_EMPTY(holopads)
 	max_integrity = 300
 	layer = ABOVE_OPEN_TURF_LAYER
 	plane = FLOOR_PLANE
-	light_on = FALSE
-	light_range = 2
+	// Blue, dim light
+	light_power = 0.8
+	light_color = LIGHT_COLOR_BLUE
 	armor = list(melee = 50, bullet = 20, laser = 20, energy = 20, bomb = 0, bio = 0, fire = 50, acid = 0)
 	interaction_flags_atom = parent_type::interaction_flags_atom | INTERACT_ATOM_IGNORE_MOBILITY
 	interaction_flags_click = ALLOW_SILICON_REACH
-	var/list/masters //List of living mobs that use the holopad
-	var/list/holorays //Holoray-mob link.
-	var/last_request = 0 //to prevent request spam. ~Carn
-	var/holo_range = 5 // Change to change how far the AI can move away from the holopad before deactivating.
+	/// Associative lazylist of the form: list(owner of a hologram = hologram representing that owner).
+	var/list/masters
+	/// Holoray-owner link
+	var/list/holorays
+	/// To prevent request spam.
+	var/last_request = 0
+	/// Change to change how far the AI can move away from the holopad before deactivating.
+	var/holo_range = 5
 	var/temp = ""
 	/// Array of /datum/holocalls that are calling US. this is only filled for holopads answering calls from another holopad
 	var/list/holo_calls
 	/// Currently outgoing holocall, cannot call any other holopads unless this is null.
 	/// creating a new holocall from us to another holopad sets this var to that holocall datum
 	var/datum/holocall/outgoing_call
-	var/static/force_answer_call = FALSE	//Calls will be automatically answered after a couple rings, here for debugging
+	/// Calls will be automatically answered after a couple rings, here for debugging
+	var/static/force_answer_call = FALSE
 	var/obj/effect/overlay/holoray/ray
 	var/ringing = FALSE
-	var/dialling_input = FALSE //The user is currently selecting where to send their call
-	///bitfield. used to turn on and off hearing sensitivity depending on if we can act on Hear() at all - meant for lowering the number of unessesary hearable atoms
+	/// The user is currently selecting where to send their call
+	var/dialling_input = FALSE
+	/// Bitfield. Used to turn on and off hearing sensitivity depending on if we can act on Hear() at all - meant for lowering the number of unessesary hearable atoms
 	var/can_hear_flags = NONE
 
 /obj/machinery/hologram/holopad/Initialize(mapload)
@@ -405,59 +412,59 @@ GLOBAL_LIST_EMPTY(holopads)
 	return FALSE
 
 /obj/machinery/hologram/holopad/proc/move_hologram(mob/living/user, turf/new_turf)
-	if(LAZYACCESS(masters, user))
-		var/obj/effect/overlay/holo_pad_hologram/holo = masters[user]
-		var/transfered = FALSE
-		if(!validate_location(new_turf))
-			if(!transfer_to_nearby_pad(new_turf,user))
-				clear_holo(user)
-				return FALSE
-			else
-				transfered = TRUE
-		//All is good.
-		holo.setDir(get_dir(holo.loc, new_turf))
-		holo.forceMove(new_turf)
-		if(!transfered)
-			update_holoray(user,new_turf)
-	return TRUE
+	if(!LAZYLEN(masters) || !masters[user])
+		return TRUE
+
+	var/obj/effect/overlay/holo_pad_hologram/holo = masters[user]
+	var/transfered = FALSE
+	if(!validate_location(new_turf))
+		if(!transfer_to_nearby_pad(new_turf, user))
+			return FALSE
+		else
+			transfered = TRUE
+	// All is good.
+	holo.abstract_move(new_turf)
+	SET_PLANE(holo, ABOVE_GAME_PLANE, new_turf)
+	if(!transfered)
+		update_holoray(user, new_turf)
 
 /obj/machinery/hologram/holopad/proc/activate_holo(mob/living/user, force = 0)
+	if(!is_operational())
+		to_chat(user, span_warning("ОШИБКА: Невозможно спроецировать голограмму."))
+		return
+
 	var/mob/living/silicon/ai/AI = user
 	if(!istype(AI))
 		AI = null
-	if(AI && !force && AI.eyeobj.loc != loc) // allows holopads to pass off holograms to the next holopad in the chain
-		to_chat(user, "<font color='red'>ERROR:</font> Unable to project hologram.")
-	if(!(stat & NOPOWER) && (!AI || force))
-		if(AI && (istype(AI.current, /obj/machinery/hologram/holopad)))
-			to_chat(user, "[span_danger("ERROR:")] Image feed in progress.")
-			return
 
-		var/obj/effect/overlay/holo_pad_hologram/hologram = new(loc)//Spawn a blank effect at the location.
-		if(isAI(user))
-			hologram.icon = AI.holo_icon
-		else	//make it like real life
-			hologram.icon = getHologramIcon(get_id_photo(user))
-			hologram.icon_state = user.icon_state
-			hologram.alpha = 100
-			hologram.Impersonation = user
+	if(AI && (istype(AI.current, /obj/machinery/hologram/holopad)))
+		to_chat(user, "[span_danger("ERROR:")] Image feed in progress.")
+		return
 
-		hologram.mouse_opacity = MOUSE_OPACITY_TRANSPARENT//So you can't click on it.
-		hologram.layer = FLY_LAYER//Above all the other objects/mobs. Or the vast majority of them.
-		SET_PLANE_EXPLICIT(hologram, ABOVE_GAME_PLANE, src)
-		hologram.set_anchored(TRUE)	//So space wind cannot drag it.
-		hologram.name = "[user.name] (hologram)"//If someone decides to right click.
-		hologram.set_light(2)	//hologram lighting
-		move_hologram()
+	// What to pull our appearance out of
+	var/obj/effect/overlay/holo_pad_hologram/hologram = new(loc)//Spawn a blank effect at the location.
+	var/atom/work_off = AI?.holo_icon || user
 
-		set_holo(user, hologram)
+	hologram.icon = work_off.icon
+	hologram.icon_state = work_off.icon_state
+	hologram.copy_overlays(work_off, TRUE)
+	hologram.make_hologram()
 
-		if(!LAZYACCESS(masters, user))//If there is not already a hologram.
-			visible_message("A holographic image of [user] flicks to life right before your eyes!")
+	if(AI)
+		AI.eyeobj.setLoc(get_turf(src)) // Ensure the AI camera moves to the holopad
+	else // Make it like real life
+		hologram.Impersonation = user
 
-		return hologram
+	hologram.mouse_opacity = MOUSE_OPACITY_TRANSPARENT // So you can't click on it.
+	hologram.layer = FLY_LAYER // Above all the other objects/mobs. Or the vast majority of them.
+	SET_PLANE_EXPLICIT(hologram, ABOVE_GAME_PLANE, src)
+	hologram.set_anchored(TRUE)// So space wind cannot drag it.
+	hologram.name = "[user.name] (Hologram)"// If someone decides to right click.
+	set_holo(user, hologram)
 
-	to_chat(user, span_danger("ERROR: ") + "Hologram Projection Malfunction.")
-	clear_holo(user)//safety check
+	visible_message(span_notice("A holographic image of [user] flickers to life before your eyes!"))
+
+	return hologram
 
 /*This is the proc for special two-way communication between AI and holopad/people talking near holopad.
 For the other part of the code, check silicon say.dm. Particularly robot talk.*/
@@ -538,6 +545,8 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 		ray.transform = turn(M.Scale(1, sqrt(distx*distx+disty*disty)), newangle)
 
 /obj/effect/overlay/holo_pad_hologram
+	// Adds KEEP_TOGETHER to ensure we render overlays right
+	appearance_flags = TILE_BOUND|PIXEL_SCALE|LONG_GLIDE|KEEP_TOGETHER
 	var/mob/living/Impersonation
 	var/datum/holocall/HC
 
@@ -545,6 +554,7 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 	Impersonation = null
 	if(!QDELETED(HC))
 		HC.Disconnect(HC.calling_holopad)
+	HC = null
 	return ..()
 
 /obj/effect/overlay/holo_pad_hologram/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
@@ -561,9 +571,27 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 	icon = 'icons/effects/96x96.dmi'
 	icon_state = "holoray"
 	layer = FLY_LAYER
+	plane = ABOVE_GAME_PLANE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	pixel_x = -32
 	pixel_y = -32
 	alpha = 100
+	var/atom/movable/render_step/emissive/glow
+
+/obj/effect/overlay/holoray/Initialize(mapload)
+	. = ..()
+	if(!render_target)
+		var/static/uid = 0
+		render_target = "holoray#[uid]"
+		uid++
+	// Let's GLOW BROTHER! (Doing it like this is the most robust option compared to duped overlays)
+	glow = new(null, src)
+	add_overlay(glow)
+	LAZYADD(update_overlays_on_z, glow)
+
+/obj/effect/overlay/holoray/Destroy(force)
+	QDEL_NULL(glow)
+	return ..()
 
 #undef HOLOPAD_PASSIVE_POWER_USAGE
 #undef HOLOGRAM_POWER_USAGE

@@ -52,8 +52,6 @@
 
 	current_user = null
 	user.unset_machine()
-	for(var/atom/movable/screen/plane_master/plane_static in user.hud_used?.get_true_plane_masters(CAMERA_STATIC_PLANE))
-		plane_static.hide_plane(user)
 	playsound(src, 'sound/machines/terminal_off.ogg', 25, FALSE)
 
 /obj/machinery/computer/camera_advanced/check_eye(mob/user)
@@ -111,9 +109,6 @@
 	eyeobj.name = "Camera Eye ([user.name])"
 	user.remote_control = eyeobj
 	user.reset_perspective(eyeobj)
-	// Who passes control like this god I hate static code
-	for(var/atom/movable/screen/plane_master/plane_static in user.hud_used?.get_true_plane_masters(CAMERA_STATIC_PLANE))
-		plane_static.unhide_plane(user)
 
 /mob/camera/aiEye/remote
 	name = "Inactive Camera Eye"

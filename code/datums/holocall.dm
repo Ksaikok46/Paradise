@@ -4,23 +4,33 @@
 #define CAN_HEAR_ALL_FLAGS (CAN_HEAR_MASTERS|CAN_HEAR_ACTIVE_HOLOCALLS|CAN_HEAR_RECORD_MODE)
 
 /mob/camera/aiEye/remote/holo/setLoc(turf/destination, force_update = FALSE)
-	. = ..()
+	// If we're moving outside the space of our projector, then just... don't
 	var/obj/machinery/hologram/holopad/H = origin
-	H?.move_hologram(eye_user, loc)
+	if(!H?.move_hologram(eye_user, destination))
+		sprint = initial(sprint) // Reset sprint so it doesn't balloon in our calling proc
+		return
 	ai_detector_visible = FALSE // Holocalls dont trigger the Ai Detector
+	return ..()
 
 //this datum manages it's own references
 
 /datum/holocall
-	var/mob/living/user //the one that called
-	var/obj/machinery/hologram/holopad/calling_holopad //the one that sent the call
-	var/obj/machinery/hologram/holopad/connected_holopad //the one that answered the call (may be null)
-	var/list/dialed_holopads //all things called, will be cleared out to just connected_holopad once answered
+	/// The one that called
+	var/mob/living/user
+	/// The one that sent the call
+	var/obj/machinery/hologram/holopad/calling_holopad
+	/// The one that answered the call (may be null)
+	var/obj/machinery/hologram/holopad/connected_holopad
+	/// All things called, will be cleared out to just connected_holopad once answered
+	var/list/dialed_holopads
+	/// User's eye, once connected
+	var/mob/camera/aiEye/remote/holo/eye
+	/// User's hologram, once connected
+	var/obj/effect/overlay/holo_pad_hologram/hologram
+	/// Hangup action
+	var/datum/action/innate/end_holocall/hangup
 
-	var/mob/camera/aiEye/remote/holo/eye //user's eye, once connected
-	var/obj/effect/overlay/holo_pad_hologram/hologram //user's hologram, once connected
-	var/datum/action/innate/end_holocall/hangup //hangup action
-
+	/// The worldtime when the holocall started
 	var/call_start_time
 
 //creates a holocall made by `requester` from `calling_pad` to `callees`

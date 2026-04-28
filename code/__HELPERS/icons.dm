@@ -600,18 +600,6 @@ world
 	mask_icon.MapColors(0,0,0,0, 0,0,0,0, 0,0,0,0, 255,255,255,-255, 1,1,1,1)
 	return mask_icon
 
-/proc/getHologramIcon(icon/holo_icon, safety = TRUE, opacity = 0.5)//If safety is on, a new icon is not created.
-	var/icon/flat_icon = safety ? holo_icon : new(holo_icon)//Has to be a new icon to not constantly change the same icon.
-	var/icon/alpha_mask
-	flat_icon.ColorTone(rgb(125,180,225))//Let's make it bluish.
-	flat_icon.ChangeOpacity(opacity)//Make it half transparent.
-	if(holo_icon.Height() == 64)
-		alpha_mask = new('icons/mob/ancient_machine.dmi', "scanline2")//Scaline for tall icons.
-	else
-		alpha_mask = new('icons/effects/effects.dmi', "scanline")//Scanline effect.
-	flat_icon.AddAlphaMask(alpha_mask)//Finally, let's mix in a distortion effect.
-	return flat_icon
-
 /proc/adjust_brightness(color, value)
 	if(!color)
 		return "#FFFFFF"
