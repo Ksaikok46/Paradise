@@ -157,6 +157,7 @@
 	desc = "Wait, was space always that color?"
 	icon = 'icons/turf/floors/plasmaglass.dmi'
 	base_icon_state = "plasmaglass"
+	starlight_color = COLOR_STRONG_VIOLET
 	thermal_conductivity = 0.030
 	heat_capacity = 32000
 
@@ -165,6 +166,7 @@
 	desc = "For when you REALLY don't want your floor choice to suffocate everyone."
 	icon = 'icons/turf/floors/reinf_plasmaglass.dmi'
 	base_icon_state = "reinf_plasmaglass"
+	starlight_color = COLOR_STRONG_VIOLET
 	thermal_conductivity = 0.025
 	heat_capacity = 325000
 
@@ -173,6 +175,7 @@
 	desc = "Stylish AND strong!"
 	icon = 'icons/turf/floors/titaniumglass.dmi'
 	base_icon_state = "titaniumglass"
+	starlight_color = COLOR_COMMAND_BLUE
 	thermal_conductivity = 0.025
 	heat_capacity = 1600
 	explosion_vertical_block = 2
@@ -181,3 +184,4 @@
 	name = "plastitanium glass floor"
 	icon = 'icons/turf/floors/plastitaniumglass.dmi'
 	base_icon_state = "plastitaniumglass"
+	starlight_color = COLOR_CENTCOM_BLUE
