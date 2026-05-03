@@ -42,6 +42,7 @@ GLOBAL_LIST_EMPTY(pillars_by_z)
 /// Otherwise the lower turf might get shifted around, which is dumb. do this instead.
 /obj/effect/abstract/z_holder
 	name = null
+	appearance_flags = PIXEL_SCALE
 	plane = HUD_PLANE
 	anchored = TRUE
 	move_resist = INFINITY

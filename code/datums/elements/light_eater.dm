@@ -140,8 +140,8 @@
 			//var/obj/smacking = target
 			//if(smacking.obj_flags & CAN_BE_HIT)
 			//	return NONE
-		//else if(!isturf(target))
-			//return NONE
+		else if(!isturf(target))
+			return NONE
 		user.do_attack_animation(target)
 		user.changeNext_move(CLICK_CD_RAPID)
 		//target.play_attack_sound()
