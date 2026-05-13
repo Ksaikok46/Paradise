@@ -166,9 +166,10 @@
 
 /obj/item/organ/internal/eyes/night_vision/Initialize(mapload)
 	. = ..()
-	//if(PERFORM_ALL_TESTS(focus_only/nightvision_color_cutoffs))
+#ifdef GAME_TESTS
 	if(type != /obj/item/organ/internal/eyes/night_vision && (length(low_light_cutoff) != 3 || length(medium_light_cutoff) != 3 || length(high_light_cutoff) != 3))
 		stack_trace("[type] did not have fully filled out color cutoff lists")
+#endif
 	if(low_light_cutoff)
 		color_cutoffs = low_light_cutoff.Copy()
 	light_level = NIGHTVISION_LIGHT_LOW
