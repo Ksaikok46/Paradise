@@ -334,10 +334,9 @@ GLOBAL_LIST_EMPTY(lighting_sheets)
 /datum/light_source/proc/remove_lum()
 	SETUP_CORNERS_REMOVAL_CACHE(src)
 	applied = FALSE
-	for (var/datum/lighting_corner/corner as anything in effect_str)
+	for(var/datum/lighting_corner/corner as anything in effect_str)
 		REMOVE_CORNER(corner)
 		LAZYREMOVE(corner.affecting, src)
-
 	effect_str = null
 
 /datum/light_source/proc/recalc_corner(datum/lighting_corner/corner)

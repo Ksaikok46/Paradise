@@ -403,8 +403,8 @@
 		PREPOSITIONAL = "красном кубе",
 	)
 
-/obj/item/warp_cube/red/New()
-	..()
+/obj/item/warp_cube/red/Initialize(mapload)
+	. = ..()
 	if(!linked)
 		var/obj/item/warp_cube/blue = new(src.loc)
 		linked = blue
@@ -519,8 +519,8 @@
 /obj/effect/immortality_talisman/singularity_act()
 	return
 
-/obj/effect/immortality_talisman/singularity_pull()
-	return 0
+/obj/effect/immortality_talisman/singularity_pull(atom/singularity, current_size)
+	return
 
 /obj/effect/immortality_talisman/Destroy(force)
 	if(!can_destroy && !force)

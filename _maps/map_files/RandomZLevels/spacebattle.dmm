@@ -260,7 +260,7 @@
 /turf/simulated/floor/shuttle/plating,
 /area/awaymission/spacebattle/syndicate2)
 "aU" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/shuttle{
 	icon_state = "floor13"
 	},
@@ -672,7 +672,9 @@
 	},
 /area/awaymission/spacebattle/syndicate2)
 "ck" = (
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
@@ -708,7 +710,7 @@
 /obj/item/mecha_parts/mecha_equipment/hydraulic_clamp,
 /obj/item/mecha_parts/mecha_equipment/extinguisher,
 /obj/item/mecha_parts/mecha_equipment/drill,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "cs" = (
@@ -721,7 +723,9 @@
 	},
 /area/awaymission/spacebattle/hallway12)
 "ct" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
@@ -749,7 +753,7 @@
 /obj/structure/closet/crate/freezer{
 	opened = 1
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/item/storage/box/syndidonkpockets,
 /obj/item/storage/box/syndidonkpockets,
 /obj/item/gps{
@@ -943,7 +947,7 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "dc" = (
@@ -1098,7 +1102,9 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/awaymission/spacebattle/kitchen)
 "dA" = (
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /obj/item/clothing/gloves/color/fyellow,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -1271,7 +1277,7 @@
 	amount = 11
 	},
 /obj/structure/closet/crate/radiation,
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/shuttle{
 	icon_state = "floor13"
 	},
@@ -2048,7 +2054,7 @@
 /area/awaymission/spacebattle/storage)
 "gn" = (
 /obj/structure/table/reinforced,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "go" = (
@@ -2057,7 +2063,7 @@
 	},
 /area/awaymission/spacebattle/storage)
 "gp" = (
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "gq" = (
@@ -2070,7 +2076,7 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "gr" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -2165,11 +2171,11 @@
 "gB" = (
 /obj/structure/table/reinforced,
 /obj/machinery/cell_charger,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "gD" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /mob/living/simple_animal/hostile/syndicate/melee/autogib/spacebattle,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -2247,7 +2253,7 @@
 /obj/item/clothing/head/helmet,
 /obj/item/clothing/head/helmet,
 /obj/item/clothing/head/helmet,
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "gP" = (
@@ -2375,7 +2381,7 @@
 /turf/simulated/floor/shuttle/plating,
 /area/awaymission/spacebattle/syndicate7)
 "hi" = (
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "hj" = (
@@ -2624,7 +2630,7 @@
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/hallway5)
 "hW" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "hX" = (
@@ -2771,7 +2777,7 @@
 /obj/machinery/light_construct{
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/sign/poster/official/work_for_a_future{
 	pixel_x = -32
 	},
@@ -3195,7 +3201,7 @@
 /area/space)
 "jB" = (
 /obj/structure/reagent_dispensers/fueltank,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "jC" = (
@@ -3449,7 +3455,7 @@
 /area/awaymission/spacebattle/syndicate3)
 "km" = (
 /obj/structure/rack,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "kn" = (
@@ -3825,7 +3831,9 @@
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/syndicate2)
 "ln" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -3903,7 +3911,7 @@
 "lC" = (
 /obj/structure/rack,
 /obj/effect/spawner/lootdrop/maintenance,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "lD" = (
@@ -4533,7 +4541,9 @@
 	},
 /area/awaymission/spacebattle/hallway11)
 "nv" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/arrows,
 /obj/effect/decal/cleanable/blood/tracks{
 	basecolor = "#030303";
@@ -4825,7 +4835,7 @@
 "on" = (
 /obj/effect/decal/cleanable/blood/oil,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/closet/crate/secure,
 /turf/simulated/floor/plasteel{
 	icon_state = "neutralfull"
@@ -5267,7 +5277,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "pF" = (
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /obj/effect/mapping_helpers/turfs/damage,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
@@ -5281,7 +5293,7 @@
 /area/awaymission/spacebattle/hallway13)
 "pH" = (
 /obj/machinery/portable_atmospherics/canister/air,
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /obj/machinery/light/small{
 	dir = 4
 	},
@@ -5609,7 +5621,7 @@
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/suit/armor/vest,
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "qL" = (
@@ -5914,7 +5926,7 @@
 	},
 /area/awaymission/spacebattle/prhallway1)
 "rC" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/effect/spawner/lootdrop/maintenance,
 /mob/living/simple_animal/hostile/mimic/crate{
@@ -6001,7 +6013,9 @@
 	},
 /area/awaymission/spacebattle/hallway10)
 "rP" = (
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /obj/effect/mapping_helpers/turfs/damage,
 /obj/structure/window/reinforced,
 /obj/structure/window/reinforced{
@@ -6025,7 +6039,9 @@
 	},
 /area/awaymission/spacebattle/hallway13)
 "rS" = (
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /obj/effect/mapping_helpers/turfs/burn,
 /obj/item/shard,
 /turf/simulated/floor/plasteel/dark,
@@ -6438,7 +6454,7 @@
 	},
 /area/awaymission/spacebattle/hallway9)
 "td" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/light/small{
 	dir = 4
 	},
@@ -6600,7 +6616,7 @@
 /turf/simulated/floor/pod,
 /area/awaymission/spacebattle/cruiser)
 "tz" = (
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/rack{
 	dir = 8
 	},
@@ -6990,7 +7006,9 @@
 /turf/simulated/floor/pod/dark,
 /area/awaymission/spacebattle/hallway5)
 "uG" = (
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /obj/effect/mapping_helpers/turfs/damage,
 /turf/simulated/floor/plasteel/dark,
 /area/space)
@@ -7031,7 +7049,7 @@
 /turf/simulated/floor/shuttle/objective_check/vox,
 /area/awaymission/spacebattle/syndicate2)
 "uM" = (
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -7191,7 +7209,9 @@
 /turf/simulated/floor/pod/dark,
 /area/awaymission/spacebattle/hallway5)
 "vm" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/mapping_helpers/turfs/burn,
 /turf/simulated/floor/plasteel/dark,
 /area/space)
@@ -7260,7 +7280,7 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/awaymission/spacebattle/freezing)
 "vv" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/closet/crate/secure/weapon{
 	opened = 1
 	},
@@ -7515,7 +7535,9 @@
 /area/awaymission/spacebattle/prhallway1)
 "wg" = (
 /obj/machinery/light,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "wh" = (
@@ -7673,12 +7695,12 @@
 /area/awaymission/spacebattle/syndicate3)
 "wz" = (
 /obj/machinery/portable_atmospherics/canister/air,
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "wB" = (
 /obj/machinery/portable_atmospherics/canister/nitrogen,
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "wC" = (
@@ -7705,7 +7727,7 @@
 	lootcount = 2;
 	name = "2maintenance loot spawner"
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "wG" = (
@@ -8061,7 +8083,9 @@
 /turf/simulated/floor/plasteel/airless,
 /area/awaymission/spacebattle/engineering)
 "xy" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/item/multitool,
 /obj/structure/window/reinforced{
 	dir = 4
@@ -8080,7 +8104,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/prhallway1)
 "xA" = (
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /obj/structure/window/reinforced{
 	dir = 1
 	},
@@ -8264,7 +8290,7 @@
 /area/awaymission/spacebattle/bridge)
 "ya" = (
 /obj/machinery/portable_atmospherics/canister/toxins,
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "yb" = (
@@ -8339,7 +8365,7 @@
 	},
 /area/awaymission/spacebattle/hallway8)
 "yi" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/ore_box,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -8436,14 +8462,16 @@
 	},
 /area/awaymission/spacebattle/syndicate4)
 "yv" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/crate/secure/syndicate,
 /turf/simulated/floor/shuttle{
 	icon_state = "floor13"
 	},
 /area/awaymission/spacebattle/syndicate3)
 "yx" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/machinery/portable_atmospherics/canister/air{
 	filled = 0.1
@@ -9078,7 +9106,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway11)
 "At" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/item/wirecutters,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -9108,7 +9138,7 @@
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/awaymission/spacebattle/syndicate2)
 "Ay" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/closet/emcloset,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
@@ -9165,7 +9195,7 @@
 	lootcount = 3;
 	name = "3maintenance loot spawner"
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "AI" = (
@@ -9228,7 +9258,9 @@
 	},
 /area/awaymission/spacebattle/engine)
 "AR" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 8
 	},
@@ -9691,7 +9723,7 @@
 /area/awaymission/spacebattle/prhallway4)
 "BZ" = (
 /obj/structure/reagent_dispensers/watertank,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Ca" = (
@@ -9752,7 +9784,9 @@
 "Ck" = (
 /obj/structure/rack,
 /obj/item/wrench,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "Cl" = (
@@ -10131,7 +10165,9 @@
 /turf/simulated/floor/plating,
 /area/awaymission/spacebattle/sec_storage)
 "Dv" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/arrows,
 /obj/machinery/door/window/brigdoor{
 	dir = 1
@@ -10322,7 +10358,9 @@
 /turf/simulated/wall/shuttle,
 /area/space)
 "DV" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /mob/living/simple_animal/hostile/syndicate/melee/space/autogib/spacebattle,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
@@ -10414,7 +10452,7 @@
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/syndicate2)
 "Ek" = (
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/rack{
 	dir = 8
 	},
@@ -10437,7 +10475,9 @@
 	},
 /area/awaymission/spacebattle/cruiser)
 "El" = (
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /obj/effect/decal/cleanable/blood,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
@@ -10772,7 +10812,9 @@
 	},
 /area/awaymission/spacebattle/cruiser)
 "Fj" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/structure/bed/roller{
 	color = "gray"
 	},
@@ -11056,7 +11098,9 @@
 	},
 /area/awaymission/spacebattle/hallway3)
 "FZ" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/item/crowbar/large,
 /obj/structure/window/reinforced{
 	dir = 4
@@ -11163,7 +11207,7 @@
 	},
 /area/awaymission/spacebattle/syndicate1)
 "Gm" = (
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/rack{
 	dir = 8
 	},
@@ -11246,7 +11290,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/server)
 "Gw" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/inflatable,
 /turf/simulated/floor/plasteel/dark,
 /area/space)
@@ -11287,7 +11333,7 @@
 /obj/machinery/light_construct{
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /obj/structure/closet/crate/secure/weapon,
 /obj/item/ammo_box/shotgun,
 /turf/simulated/floor/plasteel,
@@ -11313,7 +11359,7 @@
 	},
 /area/awaymission/spacebattle/hallway12)
 "GK" = (
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/rack{
 	dir = 8
 	},
@@ -11405,7 +11451,9 @@
 /area/awaymission)
 "GW" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "GX" = (
@@ -11543,7 +11591,7 @@
 /obj/item/storage/box/masks,
 /obj/item/storage/box/pillbottles,
 /obj/item/storage/box/iv_bags,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Hq" = (
@@ -11610,7 +11658,9 @@
 /turf/simulated/floor/plating/airless,
 /area/awaymission/spacebattle/cruiser)
 "HA" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -11702,7 +11752,7 @@
 /area/awaymission/spacebattle/hallway3)
 "HL" = (
 /obj/structure/mecha_wreckage/ripley/firefighter,
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "HM" = (
@@ -11848,7 +11898,7 @@
 /area/awaymission/spacebattle/turret3)
 "Im" = (
 /obj/mecha/working/ripley/firefighter,
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Io" = (
@@ -12090,7 +12140,7 @@
 /area/awaymission/spacebattle/syndicate4)
 "Jd" = (
 /obj/structure/ore_box,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Je" = (
@@ -12377,12 +12427,14 @@
 /turf/simulated/floor/mineral/titanium,
 /area/awaymission/spacebattle/storage)
 "JX" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/radiation,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "JY" = (
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /obj/structure/window/reinforced{
 	dir = 1
 	},
@@ -12458,7 +12510,9 @@
 /area/awaymission/spacebattle/hallway11)
 "Km" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "Kn" = (
@@ -12563,7 +12617,9 @@
 	},
 /area/awaymission/spacebattle/hallway7)
 "KB" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 4
 	},
@@ -12573,7 +12629,7 @@
 /turf/simulated/floor/plasteel/dark,
 /area/awaymission/spacebattle/hallway6)
 "KE" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/closet/crate{
 	icon_state = "crateopen";
 	opened = 1
@@ -12681,7 +12737,7 @@
 	lootcount = 3;
 	name = "3maintenance loot spawner"
 	},
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "KT" = (
@@ -12716,7 +12772,9 @@
 "KX" = (
 /obj/structure/cable,
 /obj/machinery/power/apc/directional/south,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "KY" = (
@@ -12805,7 +12863,9 @@
 	},
 /area/awaymission/spacebattle/medbay)
 "Lj" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/structure/cable{
 	d2 = 2;
 	icon_state = "0-2"
@@ -12900,7 +12960,7 @@
 	},
 /area/awaymission/spacebattle/medbay)
 "Ly" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/effect/spawner/lootdrop/maintenance,
 /mob/living/simple_animal/hostile/mimic/crate{
 	faction = list("syndicate");
@@ -12935,7 +12995,7 @@
 /area/awaymission/spacebattle/syndicate2)
 "LC" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
-/obj/effect/turf_decal/bot/right,
+/obj/effect/turf_decal/delivery/hollow/right,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "LE" = (
@@ -13144,7 +13204,7 @@
 	},
 /area/awaymission/spacebattle/hallway13)
 "Mj" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/reagent_dispensers/beerkeg,
 /turf/simulated/floor/shuttle{
 	icon_state = "floor13"
@@ -13289,7 +13349,7 @@
 	},
 /area/awaymission/spacebattle/syndicate1)
 "MG" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/secure_closet/freezer/fridge/open,
 /obj/machinery/light/small,
 /turf/simulated/floor/shuttle{
@@ -13443,7 +13503,7 @@
 	lootcount = 2;
 	name = "2maintenance loot spawner"
 	},
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Nf" = (
@@ -13461,7 +13521,9 @@
 /turf/simulated/floor/shuttle/objective_check/vox,
 /area/awaymission/spacebattle/syndicate2)
 "Nh" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 1
 	},
@@ -13637,7 +13699,7 @@
 /area/awaymission/spacebattle/engineering)
 "NE" = (
 /obj/structure/closet/crate/plastic,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "NG" = (
@@ -13650,7 +13712,7 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/hallway7)
 "NJ" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/effect/spawner/lootdrop/maintenance/double,
 /mob/living/simple_animal/hostile/mimic/crate{
 	faction = list("syndicate");
@@ -13727,7 +13789,7 @@
 /area/awaymission/spacebattle/syndicate2)
 "NS" = (
 /obj/structure/reagent_dispensers/beerkeg,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "NT" = (
@@ -13987,7 +14049,7 @@
 /turf/simulated/floor/shuttle,
 /area/awaymission/spacebattle/hallway1)
 "OC" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/crate/secure/large/reinforced,
 /obj/effect/spawner/lootdrop/maintenance,
 /obj/machinery/light/small{
@@ -14208,7 +14270,9 @@
 	},
 /area/awaymission/spacebattle/prhallway3)
 "Pk" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 8
 	},
@@ -14627,7 +14691,7 @@
 	lootcount = 2;
 	name = "2maintenance loot spawner"
 	},
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /mob/living/simple_animal/hostile/syndicate/melee/autogib/spacebattle,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -14719,7 +14783,9 @@
 	},
 /area/awaymission/spacebattle/hallway3)
 "Qz" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/item/shard{
 	icon_state = "medium";
@@ -14899,7 +14965,9 @@
 /obj/machinery/light_construct{
 	dir = 1
 	},
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /obj/effect/mapping_helpers/turfs/damage,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
@@ -15235,7 +15303,9 @@
 /turf/simulated/mineral,
 /area/awaymission)
 "RW" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/arrows{
 	dir = 1
 	},
@@ -15422,7 +15492,7 @@
 /area/awaymission/spacebattle)
 "Sx" = (
 /obj/structure/closet/crate/secure/loot,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/light/small,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
@@ -15475,7 +15545,9 @@
 /turf/simulated/mineral/iron,
 /area/awaymission)
 "SF" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/item/weldingtool,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -15485,7 +15557,7 @@
 "SG" = (
 /obj/structure/rack,
 /obj/effect/spawner/lootdrop/maintenance,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "SH" = (
@@ -15774,7 +15846,7 @@
 	},
 /area/awaymission/spacebattle/prhallway5)
 "Tx" = (
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/rack{
 	dir = 8
 	},
@@ -15829,7 +15901,9 @@
 	},
 /area/awaymission/spacebattle/syndicate2)
 "TF" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/decal/remains/robot,
 /obj/structure/window/reinforced{
 	dir = 4
@@ -15842,7 +15916,7 @@
 	lootcount = 3;
 	name = "3maintenance loot spawner"
 	},
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "TH" = (
@@ -15881,7 +15955,7 @@
 /area/awaymission/spacebattle/prhallway4)
 "TO" = (
 /obj/structure/reagent_dispensers/watertank,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "TP" = (
@@ -16000,7 +16074,7 @@
 /obj/structure/closet/crate,
 /obj/item/gun/energy/plasmacutter,
 /obj/item/mining_scanner,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Uf" = (
@@ -16091,7 +16165,7 @@
 /area/awaymission/spacebattle/syndicate1)
 "Us" = (
 /obj/structure/reagent_dispensers/beerkeg,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Ut" = (
@@ -16103,7 +16177,9 @@
 	},
 /area/space)
 "Uv" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 4
 	},
@@ -16296,7 +16372,7 @@
 	},
 /area/awaymission/spacebattle/syndicate1)
 "UX" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/body_bag,
 /obj/effect/decal/remains/human,
 /turf/simulated/floor/shuttle{
@@ -16311,7 +16387,9 @@
 	},
 /area/awaymission/spacebattle/hallway11)
 "UZ" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/item/spacepod_equipment/weaponry/mining_laser,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -17009,7 +17087,7 @@
 	},
 /area/awaymission/spacebattle/syndicate1)
 "WZ" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/closet/crate/secure/engineering,
 /obj/item/clothing/mask/gas{
 	pixel_x = 2;
@@ -17023,7 +17101,9 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Xa" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/mapping_helpers/turfs/burn,
 /turf/simulated/floor/plasteel/dark,
 /area/awaymission/spacebattle/hallway9)
@@ -17576,7 +17656,7 @@
 /area/awaymission/spacebattle/syndicate5)
 "YH" = (
 /obj/machinery/space_heater,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "YI" = (
@@ -17682,7 +17762,9 @@
 "YZ" = (
 /obj/effect/decal/cleanable/blood,
 /obj/effect/mapping_helpers/turfs/damage,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/cruiser)
 "Zb" = (
@@ -17741,7 +17823,7 @@
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Zm" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/awaymission/spacebattle/sec_storage)
 "Zn" = (
@@ -17788,7 +17870,9 @@
 	},
 /area/awaymission/spacebattle/syndicate2)
 "Zu" = (
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /obj/item/wrench,
 /obj/structure/window/reinforced{
 	dir = 1
@@ -17870,7 +17954,9 @@
 	},
 /area/awaymission/spacebattle/syndicate2)
 "ZH" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel/dark,
 /area/space)
 "ZI" = (
@@ -17963,7 +18049,9 @@
 /turf/simulated/floor/plating,
 /area/awaymission/spacebattle/turret7)
 "ZT" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/effect/mapping_helpers/turfs/burn,
 /turf/simulated/floor/plasteel/dark,
 /area/awaymission/spacebattle/hallway9)

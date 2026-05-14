@@ -425,11 +425,11 @@
 	block_chance = 50
 	var/active = 0
 
-/obj/item/holo/esword/green/New()
+/obj/item/holo/esword/green/Initialize(mapload)
 	. = ..()
 	item_color = "green"
 
-/obj/item/holo/esword/red/New()
+/obj/item/holo/esword/red/Initialize(mapload)
 	. = ..()
 	item_color = "red"
 
@@ -438,7 +438,7 @@
 		return ..()
 	return 0
 
-/obj/item/holo/esword/New()
+/obj/item/holo/esword/Initialize(mapload)
 	. = ..()
 	item_color = pick("red","blue","green","purple")
 

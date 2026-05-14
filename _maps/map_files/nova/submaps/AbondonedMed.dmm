@@ -288,7 +288,7 @@
 /area/maintenance/apmaint)
 "cW" = (
 /obj/structure/table/reinforced,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/item/reagent_containers/food/condiment/peppermill{
 	pixel_x = 4;
 	pixel_y = 6
@@ -3449,7 +3449,7 @@
 /area/maintenance/medroom)
 "HD" = (
 /obj/structure/bookcase/random,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/maintenance/apmaint)
 "HO" = (
@@ -3780,7 +3780,7 @@
 /area/maintenance/kitchen)
 "JR" = (
 /obj/structure/bookcase,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/maintenance/apmaint)
 "Ka" = (
@@ -3920,7 +3920,7 @@
 /area/maintenance/apmaint)
 "LQ" = (
 /obj/structure/table/reinforced,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/effect/spawner/lootdrop/maintenance,
 /turf/simulated/floor/plasteel{
 	dir = 8;
@@ -4886,7 +4886,7 @@
 /area/maintenance/abandonedhangar)
 "WG" = (
 /obj/structure/table/reinforced,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/item/reagent_containers/food/snacks/meat/humanoid,
 /obj/item/reagent_containers/food/snacks/meat/humanoid{
 	pixel_y = 6;

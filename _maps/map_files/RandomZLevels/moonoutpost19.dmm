@@ -543,7 +543,9 @@
 /obj/item/radio/off{
 	pixel_x = 2
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/syndicateoutpost)
 "br" = (
@@ -560,7 +562,9 @@
 	info = "Log 1:<br>We got our promised supply drop today. We were only meant to get it, what, a week ago? This bloody gateway keeps desyncing itself, and that means subsisting off recycled water and carb packs. No clue where the damn thing connects to on its off days, and HQ say we are 'not to touch it if it isn't linking to command.' We dumped off the assload of crates Jim filled, got our boxes of oxygen, food and drink, and closed the portal.<br><br>Log 2:<br>Damn thing is acting up again. Three days no contact this time. I thought I heard clanking noises from it yesterday. Jim is going on about the NT base or some shit. We've been over this before &ndash; They don't know we're here, that engineer was too drunk to recognise his suit, especially since I had it painted orange. He's starting to get annoying. We're safe.<br><br>Log 3:<br>Gateway synced itself up automatically today. I opened it for an instant to spy through it, got a glimpse of the inside of a transport container. Either HQ's redecorating or something, or there's more than two of these things.";
 	name = "Personal Log"
 	},
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/syndicateoutpost)
 "bs" = (
@@ -572,7 +576,9 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/syndicateoutpost)
 "bt" = (
@@ -582,7 +588,9 @@
 /obj/structure/table,
 /obj/item/storage/firstaid/regular,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/syndicateoutpost)
 "bu" = (
@@ -594,7 +602,9 @@
 	pixel_y = 4
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/syndicateoutpost)
 "bv" = (
@@ -765,7 +775,9 @@
 	},
 /obj/item/clothing/gloves/color/yellow,
 /obj/item/multitool,
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "bS" = (
@@ -790,7 +802,9 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "bU" = (
@@ -798,12 +812,16 @@
 /obj/machinery/alarm/monitor/directional/north{
 	req_access = list(150)
 	},
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "bV" = (
 /obj/machinery/portable_atmospherics/canister/air,
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "bW" = (
@@ -829,7 +847,9 @@
 /obj/machinery/conveyor{
 	id = "awaysyndie"
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "bZ" = (
@@ -839,10 +859,10 @@
 /obj/structure/sign/poster/contraband/syndicate_recruitment{
 	pixel_y = 32
 	},
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/arrow{
+/obj/effect/turf_decal/arrows/black{
 	dir = 8
 	},
 /turf/simulated/floor/plasteel/airless{
@@ -894,7 +914,9 @@
 	pixel_y = 32
 	},
 /obj/structure/alien/weeds/node,
-/obj/effect/decal/warning_stripes/northeastcorner,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel/airless{
 	name = "floor"
 	},
@@ -904,7 +926,9 @@
 	icon_state = "1-2"
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -933,7 +957,9 @@
 /obj/structure/sign/securearea{
 	pixel_y = 32
 	},
-/obj/effect/decal/warning_stripes/northwestcorner,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 1
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -955,7 +981,9 @@
 	info = "Alright, listen up. If you're reading this, I'm either taking a shit or I've been recalled back to Command. Either way, you'll need to know how to restore power. We've stolen this stuff from Nanotrasen, so all the equipment is jury-rigged. We have generators that work on both plasma and uranium, about 50 sheets should power the outpost for quite a while. If the generators aren't working, which is very likely, take the power cell on the desk and put it into the APC in the hallway. That should get the place running, at least for a little while.";
 	name = "Engineering Instructions"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cj" = (
@@ -966,7 +994,9 @@
 	d2 = 2;
 	icon_state = "0-2"
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "ck" = (
@@ -976,7 +1006,9 @@
 /area/moonoutpost19/syndicateoutpost)
 "cl" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/northwestcorner,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 1
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cm" = (
@@ -986,7 +1018,9 @@
 /obj/structure/sign/poster/contraband/hacking_guide{
 	pixel_x = 32
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cn" = (
@@ -1003,7 +1037,9 @@
 	},
 /area/moonoutpost19/syndicateoutpost)
 "cp" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -1125,7 +1161,9 @@
 "cA" = (
 /obj/machinery/space_heater,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cB" = (
@@ -1139,7 +1177,9 @@
 /obj/machinery/mineral/processing_unit{
 	dir = 1
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/machinery/conveyor{
 	id = "awaysyndie"
 	},
@@ -1153,7 +1193,9 @@
 /area/moonoutpost19/syndicateoutpost)
 "cE" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -1241,7 +1283,9 @@
 "cM" = (
 /obj/item/storage/box/lights/mixed,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cN" = (
@@ -1250,7 +1294,9 @@
 	desc = "A portable generator for emergency backup power.";
 	name = "P.A.C.M.A.N.-type portable generator"
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cO" = (
@@ -1260,12 +1306,16 @@
 	desc = "A portable generator for emergency backup power.";
 	name = "S.U.P.E.R.P.A.C.M.A.N.-type portable generator"
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cP" = (
 /obj/machinery/portable_atmospherics/scrubber,
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plating,
 /area/moonoutpost19/syndicateoutpost)
 "cQ" = (
@@ -1273,7 +1323,9 @@
 	id = "awaysyndie";
 	name = "mining conveyor"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -1350,7 +1402,9 @@
 /area/moonoutpost19/syndicateoutpost)
 "cW" = (
 /obj/structure/alien/weeds/node,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel/airless{
 	name = "floor"
 	},
@@ -1364,7 +1418,7 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel/airless{
 	name = "floor"
 	},
@@ -1437,7 +1491,9 @@
 	input_dir = 1;
 	output_dir = 2
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/machinery/conveyor{
 	id = "awaysyndie"
 	},
@@ -1454,7 +1510,9 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -1505,7 +1563,7 @@
 	amount = 10
 	},
 /obj/structure/alien/weeds,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel/airless{
 	name = "floor"
 	},
@@ -1515,16 +1573,20 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds1"
 	},
-/obj/effect/decal/warning_stripes/yellow/partial,
-/obj/effect/decal/warning_stripes/arrow,
-/obj/effect/decal/warning_stripes/northeastcorner,
+/obj/effect/turf_decal/delivery/partial,
+/obj/effect/turf_decal/arrows/black,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel/airless{
 	name = "floor"
 	},
 /area/moonoutpost19/syndicateoutpost)
 "dn" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -1615,7 +1677,9 @@
 	},
 /area/moonoutpost19/syndicateoutpost)
 "dx" = (
-/obj/effect/decal/warning_stripes/northwestcorner,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 1
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -1633,7 +1697,9 @@
 	icon_state = "bulb-broken";
 	status = 2
 	},
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plating/airless{
 	name = "plating"
 	},
@@ -1661,7 +1727,9 @@
 /obj/item/clothing/mask/gas,
 /obj/item/pickaxe/drill,
 /obj/item/clothing/head/helmet/space/syndicate/orange,
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/plating/airless{
 	name = "plating"
 	},
@@ -1673,7 +1741,9 @@
 	pixel_y = -32
 	},
 /obj/machinery/portable_atmospherics/canister/oxygen,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plating/airless{
 	name = "plating"
 	},
@@ -1852,7 +1922,9 @@
 "eb" = (
 /obj/structure/rack,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plating/airless{
 	name = "plating"
 	},
@@ -1918,7 +1990,9 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -2083,7 +2157,9 @@
 	name = "xenobiology monitor";
 	network = list("MO19X")
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -2244,7 +2320,9 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -2434,7 +2512,9 @@
 "fk" = (
 /obj/machinery/door/firedoor,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -2463,7 +2543,9 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds1"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -2631,7 +2713,9 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -2673,7 +2757,9 @@
 /obj/item/shard{
 	icon_state = "small"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -3078,7 +3164,9 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -3090,7 +3178,9 @@
 	},
 /obj/structure/closet/l3closet/scientist,
 /obj/structure/alien/weeds,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -3107,14 +3197,18 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
 /area/moonoutpost19/mo19research)
 "gs" = (
 /obj/structure/alien/weeds/node,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -3133,7 +3227,9 @@
 	},
 /area/moonoutpost19/mo19research)
 "gu" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
@@ -3201,7 +3297,9 @@
 /obj/item/mmi,
 /obj/item/mmi,
 /obj/structure/alien/weeds,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -3232,7 +3330,9 @@
 	name = "Acid-Proof disposal pipe"
 	},
 /obj/structure/alien/weeds,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -3352,7 +3452,9 @@
 	},
 /obj/item/pen,
 /obj/item/radio/off,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -3501,7 +3603,9 @@
 /obj/structure/alien/weeds{
 	icon_state = "weeds2"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -3904,7 +4008,7 @@
 	id_tag = "Awaybiohazard";
 	name = "Acid-Proof biohazard containment door"
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "whitepurplecorner"
@@ -4054,7 +4158,7 @@
 	name = "Acid-Proof biohazard containment door"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4066,7 +4170,7 @@
 	id_tag = "Awaybiohazard";
 	name = "Acid-Proof biohazard containment door"
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "whitepurplecorner"
 	},
@@ -4077,7 +4181,9 @@
 	dir = 8
 	},
 /obj/item/circuitboard/teleporter,
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4176,7 +4282,9 @@
 /obj/item/paicard{
 	pixel_x = 4
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4211,7 +4319,9 @@
 /area/moonoutpost19/mo19arrivals)
 "it" = (
 /obj/structure/rack,
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4225,7 +4335,9 @@
 	},
 /area/moonoutpost19/mo19research)
 "iv" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4240,7 +4352,9 @@
 	info = "<i>19 06 2554</i><br><br><i>I fucking knew it. There was a major breach, that idiotic force field failed, and the xenomorphs rushed out and took out the scientists. I've managed to make it to my office and closed the blast doors. I can hear them trying to pry open the doors. Probably don't have long. I have no clue what has happened to the rest of the crew, for all I know they've been killed to produce more of the fucks.</i>";
 	name = "Hastily Written Note"
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4385,14 +4499,18 @@
 	dir = 4;
 	name = "emergency shower"
 	},
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
 /area/moonoutpost19/mo19research)
 "iN" = (
 /obj/structure/closet/firecloset,
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4403,14 +4521,18 @@
 	},
 /obj/structure/table,
 /obj/machinery/computer/id_upgrader,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
 /area/moonoutpost19/mo19research)
 "iP" = (
 /obj/machinery/light/small,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4512,7 +4634,9 @@
 /obj/item/taperecorder{
 	pixel_x = -3
 	},
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4524,7 +4648,9 @@
 	pixel_y = 2
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -4591,7 +4717,9 @@
 "jn" = (
 /obj/structure/closet/emcloset,
 /obj/machinery/light/small,
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -6211,7 +6339,9 @@
 /obj/structure/chair{
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/southeastcorner,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "ns" = (
@@ -6232,7 +6362,9 @@
 /turf/simulated/floor/plating,
 /area/moonoutpost19/mo19arrivals)
 "nv" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "nx" = (
@@ -6311,18 +6443,24 @@
 /area/moonoutpost19/mo19arrivals)
 "nF" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/effect/decal/warning_stripes/southeastcorner,
+/obj/effect/turf_decal/stripes/corner{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "nG" = (
 /obj/structure/table,
 /obj/item/storage/fancy/cigarettes/dromedaryco,
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "nH" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "nI" = (
@@ -6355,7 +6493,9 @@
 "nK" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "nL" = (
@@ -6463,7 +6603,9 @@
 	network = list("MO19")
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "nY" = (
@@ -6589,7 +6731,9 @@
 	dir = 1;
 	on = 1
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "op" = (
@@ -6650,12 +6794,16 @@
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "ov" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "ow" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel,
 /area/moonoutpost19/mo19arrivals)
 "ox" = (

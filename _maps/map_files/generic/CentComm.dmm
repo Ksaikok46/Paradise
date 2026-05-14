@@ -150,6 +150,7 @@
 /obj/structure/sign/poster/official/space_cops{
 	pixel_x = -32
 	},
+/obj/machinery/recharge_station/ert,
 /turf/simulated/floor/indestructible{
 	dir = 9;
 	icon_state = "darkgreynavyblue"
@@ -188,7 +189,7 @@
 /area/centcom/specops)
 "acz" = (
 /obj/structure/reagent_dispensers/watertank,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -222,7 +223,7 @@
 /area/syndicate_mothership/outside)
 "ads" = (
 /obj/machinery/portable_atmospherics/canister/nitrogen,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -389,15 +390,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/shuttle/administration)
-"agn" = (
-/obj/item/radio/intercom/specops/directional/north,
-/obj/structure/chair/comfy/shuttle{
-	dir = 1
-	},
-/turf/simulated/floor/shuttle{
-	icon_state = "floor4"
-	},
-/area/shuttle/specops)
 "agB" = (
 /obj/machinery/computer/shuttle/ert,
 /obj/machinery/computer/security/telescreen{
@@ -413,7 +405,7 @@
 "ahk" = (
 /obj/machinery/portable_atmospherics/canister/nitrogen,
 /obj/effect/decal/cleanable/blood/oil,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -427,7 +419,7 @@
 /obj/item/clothing/mask/breath/vox,
 /obj/item/tank/internals/nitrogen,
 /obj/structure/table/reinforced/brass,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -1186,7 +1178,7 @@
 	},
 /area/syndicate_mothership/jail)
 "azG" = (
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -1238,7 +1230,7 @@
 /area/syndicate_mothership)
 "aBj" = (
 /obj/effect/decal/cleanable/blood/oil,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -1381,7 +1373,7 @@
 /area/trader_station/sol)
 "aEP" = (
 /obj/machinery/door/airlock/multi_tile/glass,
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -1650,10 +1642,14 @@
 	},
 /area/vox_station)
 "aLg" = (
-/obj/structure/extinguisher_cabinet/directional/north,
-/turf/simulated/floor/shuttle{
-	icon_state = "floor4"
+/obj/machinery/door/airlock/external{
+	id_tag = "s_docking_airlock";
+	name = "Shuttle Hatch";
+	req_access = list(109)
 	},
+/obj/structure/fans/tiny,
+/obj/structure/extinguisher_cabinet/directional/north,
+/turf/simulated/floor/shuttle/plating,
 /area/shuttle/specops)
 "aLk" = (
 /obj/structure/bed/roller,
@@ -1663,7 +1659,7 @@
 	},
 /area/shuttle/escape)
 "aLo" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/conveyor{
 	dir = 1;
 	id = "CO2"
@@ -2050,8 +2046,8 @@
 /area/centcom/specops)
 "aUX" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -2116,7 +2112,7 @@
 	opacity = 1;
 	req_access = list(104)
 	},
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	dir = 6;
 	icon_state = "darkredaltstrip"
@@ -2936,7 +2932,7 @@
 	},
 /area/syndicate_mothership/control)
 "but" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/vending/gun_mods/advanced,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -3385,7 +3381,7 @@
 /obj/item/ammo_box/magazine/ik60mag,
 /obj/item/ammo_box/magazine/ik60mag,
 /obj/structure/table/reinforced,
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -3938,12 +3934,12 @@
 	},
 /area/syndicate_mothership/control)
 "bVg" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/engineer{
 	req_access = list(101,104,109)
 	},
 /obj/machinery/light,
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -4005,7 +4001,7 @@
 	dir = 1
 	},
 /obj/structure/holohoop,
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /obj/effect/turf_decal/siding/white{
 	dir = 1
 	},
@@ -4432,7 +4428,7 @@
 /area/ninja/holding)
 "ciK" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/poddoor/impassable/preopen{
 	id_tag = "ERT_Quarantine";
 	name = "ERT Quarantine"
@@ -4677,11 +4673,11 @@
 	},
 /area/centcom/zone1)
 "clC" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/janitor{
 	req_access = list(101,104,109)
 	},
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -4879,7 +4875,7 @@
 /turf/simulated/floor/shuttle,
 /area/shuttle/pod_4)
 "cqv" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/blue{
 	req_access = list(104,109)
 	},
@@ -4921,7 +4917,7 @@
 	locked = 1;
 	name = "Central Command Jail"
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -5063,7 +5059,7 @@
 /obj/item/clothing/suit/space/vox/carapace,
 /obj/item/clothing/head/helmet/space/vox/carapace,
 /obj/item/clothing/head/helmet/space/vox/carapace,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5098,7 +5094,7 @@
 /obj/item/clothing/suit/space/vox/medic,
 /obj/item/clothing/head/helmet/space/vox/medic,
 /obj/item/clothing/head/helmet/space/vox/medic,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5110,7 +5106,7 @@
 /obj/item/clothing/suit/space/vox/pressure,
 /obj/item/clothing/head/helmet/space/vox/pressure,
 /obj/item/clothing/head/helmet/space/vox/pressure,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5133,7 +5129,7 @@
 /obj/machinery/teleport/hub/upgraded{
 	admin_usage = 1
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -5171,7 +5167,7 @@
 /obj/item/clothing/suit/space/vox/stealth,
 /obj/item/clothing/head/helmet/space/vox/stealth,
 /obj/item/clothing/head/helmet/space/vox/stealth,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5191,7 +5187,7 @@
 /obj/item/clothing/glasses/hud/security/sunglasses/fluff/voxxyhud{
 	pixel_x = -5
 	},
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/item/clothing/glasses/hud/security/sunglasses/fluff/voxxyhud{
 	pixel_x = -5
 	},
@@ -5208,7 +5204,7 @@
 /area/vox_station)
 "cyi" = (
 /obj/structure/table/reinforced/brass,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/item/clothing/glasses/meson{
 	pixel_x = 5
 	},
@@ -5378,7 +5374,7 @@
 	},
 /area/centcom/specops)
 "cBu" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/light{
 	dir = 1
 	},
@@ -5627,7 +5623,7 @@
 "cIA" = (
 /obj/structure/ore_box,
 /obj/effect/decal/cleanable/blood/oil,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5649,7 +5645,7 @@
 	opened = 1
 	},
 /obj/effect/decal/cleanable/blood/oil,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5761,7 +5757,7 @@
 /obj/item/soap,
 /obj/item/soap/ducttape,
 /obj/item/storage/backpack,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -5936,7 +5932,7 @@
 /area/syndicate_mothership/control)
 "cPH" = (
 /obj/machinery/door/airlock/multi_tile/glass,
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -6117,7 +6113,7 @@
 /obj/structure/window/reinforced{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -6159,7 +6155,7 @@
 	pixel_x = -32
 	},
 /obj/item/radio/off,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -6190,13 +6186,13 @@
 	opacity = 1;
 	req_access = list(104)
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
 /area/centcom/jail)
 "cWM" = (
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /obj/machinery/door/airlock/centcom{
 	name = "Artillery Control";
 	opacity = 1;
@@ -6211,12 +6207,12 @@
 	},
 /area/centcom/specops)
 "cWR" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/medical{
 	dir = 4;
 	req_access = list(103,104,109)
 	},
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -6284,14 +6280,16 @@
 	pixel_x = 32
 	},
 /obj/effect/decal/cleanable/blood/oil,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
 	},
 /area/vox_station)
 "cYV" = (
-/obj/effect/decal/warning_stripes/northwestsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 8
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_lvl2";
@@ -6304,7 +6302,9 @@
 "cZc" = (
 /obj/effect/landmark/marauder_exit,
 /obj/structure/fans/tiny,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 220;
 	color = "black";
@@ -6880,13 +6880,15 @@
 /obj/machinery/door/airlock/multi_tile/glass{
 	dir = 2
 	},
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/centcom/zone1)
 "dqf" = (
-/obj/effect/decal/warning_stripes/northwestsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 8
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
 	id_tag = "ERT_armory_lvl3";
@@ -7341,8 +7343,12 @@
 /turf/simulated/floor/plating,
 /area/syndicate_mothership/cargo)
 "dAl" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
@@ -7412,7 +7418,7 @@
 /obj/structure/sign/poster/contraband/smoke{
 	pixel_y = -32
 	},
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -7437,7 +7443,7 @@
 /area/centcom/supply)
 "dCs" = (
 /obj/item/trash/chips,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -7463,7 +7469,7 @@
 /obj/item/crowbar/large,
 /obj/item/wrench,
 /obj/item/screwdriver,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/indestructible/vox{
 	icon_state = "darkfull";
 	name = "floor"
@@ -7558,7 +7564,7 @@
 /obj/item/grenade/clusterbuster/mega_bang,
 /obj/item/grenade/clusterbuster/mega_bang,
 /obj/item/grenade/clusterbuster/mega_bang,
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -7639,7 +7645,7 @@
 	name = "Supply Blastdoor"
 	},
 /obj/structure/fans/tiny,
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -7708,7 +7714,9 @@
 /turf/simulated/floor/carpet/black,
 /area/centcom/specops)
 "dGB" = (
-/obj/effect/decal/warning_stripes/northwestsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 8
+	},
 /obj/machinery/door/poddoor/shutters/preopen/invincible{
 	dir = 2;
 	id_tag = "ERT_armory_lvl1";
@@ -7945,7 +7953,7 @@
 /turf/simulated/floor/engine,
 /area/centcom/specops)
 "dMq" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock{
 	id_tag = "CC_toilet_unit4";
 	name = "Toilet"
@@ -8247,7 +8255,7 @@
 /turf/simulated/floor/indestructible/beach/water/deep/dense,
 /area/ninja/outside)
 "dVa" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/centcom{
 	aiControlDisabled = 1;
 	hackProof = 1;
@@ -8725,7 +8733,7 @@
 /turf/simulated/floor/shuttle,
 /area/shuttle/mining)
 "eeU" = (
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -9036,7 +9044,7 @@
 /area/ninja/outside)
 "epo" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/computer/cryopod{
 	pixel_y = -30
 	},
@@ -9139,7 +9147,7 @@
 /area/ninja/outside)
 "erD" = (
 /obj/structure/closet/secure_closet/brig,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	dir = 5;
 	icon_state = "darkredalt"
@@ -9207,7 +9215,9 @@
 	},
 /area/syndicate_mothership)
 "esL" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 180;
 	color = "black";
@@ -9372,7 +9382,9 @@
 	color = "#444444";
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/machinery/light,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -9403,7 +9415,9 @@
 /obj/effect/turf_decal/loading_area/white{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 100;
 	color = "black";
@@ -9935,7 +9949,7 @@
 	},
 /area/syndicate_mothership)
 "eMo" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock/public/glass,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -10056,7 +10070,9 @@
 	},
 /area/syndicate_mothership)
 "ePq" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 180;
 	color = "black";
@@ -10365,7 +10381,9 @@
 /turf/simulated/floor/carpet/blue,
 /area/ninja/outpost)
 "eUo" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 200;
 	color = "black";
@@ -10394,7 +10412,7 @@
 	},
 /area/centcom/jail)
 "eWv" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -10633,7 +10651,7 @@
 /area/centcom/specops)
 "fdZ" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/item/gun/projectile/automatic/arg{
 	pixel_x = -6
 	},
@@ -10697,7 +10715,9 @@
 /obj/effect/turf_decal/loading_area/white{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 100;
 	color = "black";
@@ -10825,8 +10845,12 @@
 	},
 /area/syndicate_mothership/control)
 "fim" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 1
 	},
@@ -10965,7 +10989,7 @@
 	name = "Central Command Jail";
 	opacity = 0
 	},
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -11037,7 +11061,9 @@
 	color = "#444444";
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -11548,7 +11574,7 @@
 /turf/simulated/floor/plating,
 /area/centcom/jail)
 "fBc" = (
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -11691,7 +11717,7 @@
 /area/centcom/specops)
 "fCZ" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /obj/item/gun/projectile/automatic/m90{
 	name = "DAE 5.56 Compact GL";
 	pixel_x = -6
@@ -11758,7 +11784,7 @@
 /area/centcom/specops)
 "fDP" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -11953,7 +11979,7 @@
 /turf/simulated/floor/carpet/black,
 /area/shuttle/administration)
 "fJn" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/green{
 	req_access = list(104,109)
 	},
@@ -12263,7 +12289,7 @@
 	pixel_x = 3;
 	pixel_y = 9
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkyellowfull"
 	},
@@ -12374,7 +12400,7 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "fTZ" = (
@@ -12576,7 +12602,7 @@
 	opacity = 1;
 	req_access = list(109)
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -12762,7 +12788,7 @@
 /area/centcom/evac)
 "gcZ" = (
 /obj/structure/closet/secure_closet/brig,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/window/reinforced,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkredalt"
@@ -12968,7 +12994,7 @@
 	pixel_y = 1
 	},
 /obj/item/card/id/syndicate/anyone,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkyellowfull"
 	},
@@ -13058,7 +13084,7 @@
 /turf/simulated/floor/carpet/black,
 /area/centcom/specops)
 "gjP" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock{
 	id_tag = "CC_toilet_unit11";
 	name = "Toilet"
@@ -13770,12 +13796,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/ninja/outpost)
-"gFx" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/centcom/supply)
 "gFC" = (
 /obj/structure/window/reinforced{
 	dir = 4
@@ -13800,7 +13820,7 @@
 	opacity = 1;
 	req_access = list(109)
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -13915,7 +13935,7 @@
 /obj/machinery/door/airlock/multi_tile/glass{
 	dir = 2
 	},
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -14107,7 +14127,7 @@
 	opacity = 1;
 	req_access = list(104)
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -14283,8 +14303,8 @@
 	products = list(/obj/item/grenade/flashbang=4,/obj/item/flash=5,/obj/item/flashlight/seclite=4,/obj/item/restraints/legcuffs/bola/energy=8,/obj/item/ammo_box/shotgun=4,/obj/item/ammo_box/shotgun/buck=4,/obj/item/ammo_box/shotgun/rubbershot=4,/obj/item/ammo_casing/shotgun/stunslug=35,/obj/item/ammo_casing/shotgun/ion=14,/obj/item/ammo_casing/shotgun/laserslug=35,/obj/item/ammo_box/speedloader/shotgun=8,/obj/item/ammo_box/magazine/lr30mag=12,/obj/item/ammo_box/magazine/enforcer=18,/obj/item/ammo_box/magazine/enforcer/lethal=28,/obj/item/ammo_box/magazine/sp8=8,/obj/item/ammo_box/magazine/ik60mag=12,/obj/item/ammo_box/magazine/wt550m9=20,/obj/item/ammo_box/magazine/m556=12,/obj/item/ammo_box/a40mm=4,/obj/item/ammo_box/c46x30mm=8,/obj/item/ammo_box/inc46x30mm=4,/obj/item/ammo_box/tox46x30mm=4,/obj/item/ammo_box/ap46x30mm=4,/obj/item/ammo_box/laserammobox=4);
 	req_access = list(104,109)
 	},
-/obj/effect/decal/warning_stripes/white/hollow,
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -14716,7 +14736,7 @@
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
-/obj/item/gun/projectile/automatic/proto,
+/obj/item/gun/projectile/automatic/smg/saber,
 /obj/item/gun/energy/gun/blueshield,
 /obj/item/clothing/glasses/hud/security/sunglasses/aviators,
 /obj/item/reagent_containers/food/snacks/candy/mre,
@@ -15207,7 +15227,7 @@
 	locked = 1;
 	name = "Central Command Jail"
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -15633,7 +15653,7 @@
 /turf/simulated/floor/wood/fancy/light,
 /area/ninja/outpost)
 "hFX" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock{
 	id_tag = "CC_toilet_unit1";
 	name = "Toilet"
@@ -15671,7 +15691,7 @@
 	},
 /area/syndicate_mothership)
 "hHt" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/structure/fans/tiny,
 /obj/machinery/door/airlock/shuttle{
 	aiControlDisabled = 1;
@@ -16265,7 +16285,9 @@
 	},
 /area/syndicate_mothership/cargo)
 "hYY" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/preopen/invincible{
 	dir = 2;
 	id_tag = "ERT_armory_lvl1";
@@ -16370,7 +16392,7 @@
 	pixel_x = -24;
 	pixel_y = -11
 	},
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/item/gun/energy/gun/advtaser{
 	pixel_x = -6
 	},
@@ -16543,7 +16565,9 @@
 /turf/simulated/floor/indestructible/grass,
 /area/ninja/outside)
 "igz" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 150;
 	color = "black";
@@ -16923,7 +16947,7 @@
 /area/wizard_station)
 "ism" = (
 /obj/effect/landmark/spawner/ert,
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -17534,7 +17558,9 @@
 	},
 /area/syndicate_mothership)
 "iED" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
 	id_tag = "CC_Armory_DURAND"
@@ -18155,7 +18181,7 @@
 /turf/simulated/floor/indestructible/asteroid,
 /area/syndicate_mothership/outside)
 "iUt" = (
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /obj/effect/landmark/spawner/death_squard,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -18368,7 +18394,7 @@
 /obj/item/ammo_box/shotgun,
 /obj/item/ammo_box/shotgun,
 /obj/item/ammo_box/shotgun,
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -18389,7 +18415,7 @@
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
-/obj/item/gun/projectile/automatic/proto,
+/obj/item/gun/projectile/automatic/smg/saber,
 /obj/item/gun/energy/gun/blueshield,
 /obj/item/clothing/glasses/hud/security/sunglasses/aviators,
 /obj/item/reagent_containers/food/snacks/candy/mre,
@@ -18507,7 +18533,7 @@
 /area/centcom/zone1)
 "jdl" = (
 /obj/structure/rack,
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /obj/item/ammo_box/a40mm,
 /obj/item/ammo_box/a40mm,
 /obj/item/ammo_box/magazine/m556,
@@ -19362,7 +19388,7 @@
 /obj/structure/holohoop{
 	dir = 1
 	},
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/effect/turf_decal/siding/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -19914,7 +19940,9 @@
 /obj/effect/turf_decal/loading_area/white{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -19930,7 +19958,7 @@
 	},
 /area/ninja/outpost)
 "jHF" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/window/reinforced{
 	dir = 4
 	},
@@ -20009,7 +20037,7 @@
 	opacity = 1;
 	req_access = list(109)
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -20182,7 +20210,7 @@
 /turf/simulated/floor/wood/fancy/cherry,
 /area/centcom/bridge)
 "jLx" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/structure/mineral_door/wood,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -20211,7 +20239,7 @@
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
-/obj/item/gun/projectile/automatic/proto,
+/obj/item/gun/projectile/automatic/smg/saber,
 /obj/item/gun/energy/gun/blueshield,
 /obj/item/clothing/glasses/hud/security/sunglasses/aviators,
 /obj/item/reagent_containers/food/snacks/candy/mre,
@@ -20279,7 +20307,9 @@
 /turf/simulated/floor/indestructible/beach/sand,
 /area/syndicate_mothership/outside)
 "jNk" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/machinery/door/window/brigdoor/eastleft{
 	dir = 8;
 	name = "CentComm Chemical lab"
@@ -20503,7 +20533,7 @@
 /turf/simulated/floor/indestructible/grass,
 /area/syndicate_mothership/outside)
 "jTW" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/structure/mirror{
 	pixel_y = -32
 	},
@@ -20806,7 +20836,7 @@
 /obj/structure/closet/syndicate/sst,
 /obj/item/ammo_box/magazine/l6saw/bleeding,
 /obj/item/ammo_box/magazine/l6saw,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "kcI" = (
@@ -21213,7 +21243,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 2000;
@@ -21299,7 +21329,9 @@
 	},
 /area/centcom/zone1)
 "kmM" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/wall/indestructible/fakeglass,
 /area/centcom/specops)
 "kmQ" = (
@@ -21383,7 +21415,7 @@
 	req_access = list(114)
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "navybluealt"
 	},
@@ -21396,7 +21428,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -21560,7 +21592,9 @@
 /turf/simulated/floor/shuttle/transparent_floor,
 /area/shuttle/syndicate)
 "krh" = (
-/obj/effect/decal/warning_stripes/northwestsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 8
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_lvl4";
@@ -21698,7 +21732,7 @@
 	locked = 1;
 	name = "Central Command Jail"
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -21758,7 +21792,7 @@
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
-/obj/item/gun/projectile/automatic/proto,
+/obj/item/gun/projectile/automatic/smg/saber,
 /obj/item/gun/energy/gun/blueshield,
 /obj/item/clothing/glasses/hud/security/sunglasses/aviators,
 /obj/item/reagent_containers/food/snacks/candy/mre,
@@ -22062,7 +22096,7 @@
 	},
 /area/centcom/zone3)
 "kDg" = (
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /obj/machinery/door/airlock/centcom{
 	name = "CentCom DoES";
 	opacity = 1;
@@ -22359,7 +22393,9 @@
 "kNk" = (
 /obj/effect/landmark/marauder_exit,
 /obj/structure/fans/tiny,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 220;
 	color = "black";
@@ -23143,8 +23179,12 @@
 	},
 /area/centcom/zone1)
 "ldS" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
@@ -23324,7 +23364,7 @@
 	locked = 1;
 	name = "CentCom SOO"
 	},
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -23666,7 +23706,7 @@
 /obj/item/ammo_box/magazine/sfg9mm,
 /obj/item/ammo_box/magazine/sfg9mm,
 /obj/item/ammo_box/magazine/sfg9mm,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/item/ammo_box/magazine/sfg9mm{
 	pixel_x = 8
 	},
@@ -23816,7 +23856,7 @@
 /obj/item/clothing/accessory/holster,
 /obj/item/clothing/accessory/holster,
 /obj/item/clothing/accessory/holster,
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -23828,7 +23868,9 @@
 /turf/simulated/floor/indestructible/abductor,
 /area/abductor_ship)
 "lur" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 200;
 	color = "black";
@@ -23946,8 +23988,12 @@
 	},
 /area/centcom/supplypod/loading/two)
 "lwX" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "CC_Armory_GYGAX"
@@ -24019,7 +24065,7 @@
 	},
 /area/shuttle/trade/sol)
 "lzS" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -24757,7 +24803,7 @@
 /turf/simulated/floor/wood/fancy/cherry,
 /area/centcom/bridge)
 "lRD" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/fans/tiny,
 /turf/simulated/floor/plating,
 /area/centcom/specops)
@@ -24870,7 +24916,7 @@
 	},
 /area/centcom/jail)
 "lUK" = (
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /obj/effect/landmark/spawner/ert,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -24936,7 +24982,9 @@
 	},
 /area/syndicate_mothership/outside)
 "lWt" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_lvl2";
@@ -25430,35 +25478,35 @@
 /area/ninja/outpost)
 "mhA" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/red/hollow,
-/obj/item/gun/projectile/automatic/sfg{
+/obj/effect/turf_decal/delivery/red/hollow,
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = -6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = -6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = -6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = -6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = -6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = 6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = 6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = 6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = 6
 	},
-/obj/item/gun/projectile/automatic/sfg{
+/obj/item/gun/projectile/automatic/smg/sfg{
 	pixel_x = 6
 	},
 /turf/simulated/floor/plasteel{
@@ -25728,12 +25776,7 @@
 /area/centcom/specops)
 "mpt" = (
 /obj/structure/falsewall/reinforced,
-/obj/effect/decal/warning_stripes/blue{
-	desc = "Куда же ведет эта лестница?";
-	icon = 'icons/obj/structures.dmi';
-	icon_state = "ladder11";
-	name = "Ladder"
-	},
+/obj/effect/turf_decal/delivery/blue,
 /obj/effect/step_trigger/teleporter{
 	icon = 'icons/mob/screen_gen.dmi';
 	icon_state = "x2";
@@ -25747,7 +25790,7 @@
 	},
 /area/centcom/specops)
 "mpK" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/centcom{
 	name = "Gamma Armory";
 	opacity = 1;
@@ -25852,15 +25895,6 @@
 	name = "floor"
 	},
 /area/syndicate_mothership)
-"mqK" = (
-/obj/effect/decal/warning_stripes/red/hollow{
-	pixel_x = 16;
-	pixel_y = 8
-	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
-/area/centcom/jail)
 "mqL" = (
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 8;
@@ -26896,7 +26930,7 @@
 /obj/item/ammo_box/shotgun/buck,
 /obj/item/ammo_box/shotgun/buck,
 /obj/item/ammo_box/shotgun/buck,
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -27144,7 +27178,7 @@
 /obj/effect/turf_decal/box/white/corners{
 	dir = 8
 	},
-/obj/machinery/disco/immobile,
+/obj/machinery/jukebox/disco/indestructible,
 /turf/simulated/floor/mineral/abductor,
 /area/centcom/zone1)
 "mTh" = (
@@ -27174,7 +27208,7 @@
 	},
 /area/centcom/zone2)
 "mUc" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -27305,7 +27339,7 @@
 /area/syndicate_mothership)
 "mXf" = (
 /obj/machinery/bsa/full/admin/east,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plating,
 /area/centcom/specops)
 "mXv" = (
@@ -27398,7 +27432,7 @@
 /turf/simulated/floor/plating,
 /area/centcom/zone2)
 "mZo" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plating,
 /area/centcom/specops)
 "mZp" = (
@@ -27609,7 +27643,9 @@
 	},
 /area/syndicate_mothership/elite_squad)
 "ndF" = (
-/obj/effect/decal/warning_stripes/northwestsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 8
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "CC_Armory_Grenade"
@@ -28053,7 +28089,7 @@
 /area/centcom/jail)
 "nnW" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/item/gun/energy/gun/nuclear{
 	pixel_x = -6
 	},
@@ -28228,7 +28264,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -28304,7 +28340,9 @@
 	},
 /area/centcom/evac)
 "ntN" = (
-/obj/effect/decal/warning_stripes/northwestsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 8
+	},
 /obj/machinery/door/poddoor/shutters/preopen/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_vkd";
@@ -28779,7 +28817,7 @@
 	name = "Central Command Jail";
 	opacity = 0
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -29069,7 +29107,7 @@
 /area/syndicate_mothership)
 "nIL" = (
 /obj/machinery/vending/tool,
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -29225,7 +29263,7 @@
 	operation_req_access = list(109)
 	},
 /obj/item/mecha_parts/mecha_equipment/repair_droid,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/engine,
 /area/centcom/specops)
 "nMb" = (
@@ -29691,7 +29729,7 @@
 /area/centcom/zone1)
 "nWU" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/poddoor/impassable/preopen{
 	id_tag = "ERT_Quarantine";
 	name = "ERT Quarantine"
@@ -29824,7 +29862,7 @@
 /obj/machinery/vending/engivend{
 	req_access = list()
 	},
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -29851,8 +29889,12 @@
 	},
 /area/ninja/outpost)
 "obc" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 1
 	},
@@ -29921,7 +29963,9 @@
 /turf/simulated/floor/grass,
 /area/centcom/evac)
 "ocf" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/tile/neutral{
 	alpha = 150;
 	color = "black";
@@ -30006,7 +30050,7 @@
 	},
 /area/syndicate_mothership/elite_squad)
 "oeJ" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/gold/glass{
 	frequency = 2000;
 	hackable = 0;
@@ -30127,7 +30171,7 @@
 	req_access = list(109)
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "white"
 	},
@@ -30594,7 +30638,7 @@
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
-/obj/item/gun/projectile/automatic/proto,
+/obj/item/gun/projectile/automatic/smg/saber,
 /obj/item/gun/energy/gun/blueshield,
 /obj/item/clothing/glasses/hud/security/sunglasses/aviators,
 /obj/item/reagent_containers/food/snacks/candy/mre,
@@ -31043,7 +31087,7 @@
 	},
 /area/syndicate_mothership/jail)
 "oDO" = (
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/rack/holorack,
 /obj/item/gun/projectile/bombarda/secgl,
 /obj/item/gun/projectile/bombarda/secgl,
@@ -31075,7 +31119,7 @@
 /obj/item/ammo_box/secgl/exp,
 /obj/item/ammo_box/secgl/exp,
 /obj/item/ammo_box/secgl/exp,
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -31155,7 +31199,7 @@
 /area/centcom/evac)
 "oGQ" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /obj/item/gun/energy/gun/pdw9{
 	pixel_x = -6
 	},
@@ -31276,7 +31320,7 @@
 /turf/simulated/floor/lava/lava_land_surface,
 /area/ruin/space/bubblegum_arena)
 "oKa" = (
-/obj/machinery/recharge_station/ert,
+/obj/structure/dispenser/oxygen,
 /turf/simulated/floor/plasteel{
 	dir = 10;
 	icon_state = "navybluealt"
@@ -31297,8 +31341,10 @@
 	},
 /area/centcom/zone1)
 "oKH" = (
-/obj/effect/decal/warning_stripes/white/hollow,
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/delivery/white/hollow,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -31420,7 +31466,7 @@
 	},
 /area/centcom/jail)
 "oNF" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock/shuttle{
 	aiControlDisabled = 1;
 	frequency = 1379;
@@ -31569,7 +31615,7 @@
 /area/centcom/zone1)
 "oOX" = (
 /obj/structure/closet/secure_closet/brig,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -31729,7 +31775,9 @@
 /turf/simulated/floor/indestructible/grass,
 /area/syndicate_mothership/outside)
 "oTI" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
 	id_tag = "ERT_armory_lvl3";
@@ -32067,7 +32115,9 @@
 	},
 /area/centcom/zone1)
 "pcr" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "CC_Armory_Grenade"
@@ -32088,7 +32138,7 @@
 "pdl" = (
 /obj/machinery/vending/toyliberationstation{
 	contraband = null;
-	products = list(/obj/item/gun/projectile/automatic/toy=10,/obj/item/gun/projectile/automatic/toy/pistol=10,/obj/item/gun/projectile/shotgun/toy=10,/obj/item/toy/sword=10,/obj/item/ammo_box/foambox=20,/obj/item/toy/foamblade=10,/obj/item/toy/syndicateballoon=10,/obj/item/clothing/suit/syndicatefake=5,/obj/item/clothing/head/syndicatefake=5,/obj/item/gun/projectile/shotgun/toy/crossbow=10,/obj/item/gun/projectile/automatic/c20r/toy/riot=10,/obj/item/gun/projectile/automatic/l6_saw/toy/riot=10,/obj/item/gun/projectile/automatic/sniper_rifle/toy=10,/obj/item/ammo_box/foambox/riot=20,/obj/item/toy/katana=10,/obj/item/twohanded/dualsaber/toy=5,/obj/item/deck/cards/syndicate=10)
+	products = list(/obj/item/gun/projectile/automatic/toy=10,/obj/item/gun/projectile/automatic/toy/pistol=10,/obj/item/gun/projectile/shotgun/toy=10,/obj/item/toy/sword=10,/obj/item/ammo_box/foambox=20,/obj/item/toy/foamblade=10,/obj/item/toy/syndicateballoon=10,/obj/item/clothing/suit/syndicatefake=5,/obj/item/clothing/head/syndicatefake=5,/obj/item/gun/projectile/shotgun/toy/crossbow=10,/obj/item/gun/projectile/automatic/smg/c20r/toy/riot=10,/obj/item/gun/projectile/automatic/l6_saw/toy/riot=10,/obj/item/gun/projectile/automatic/sniper_rifle/toy=10,/obj/item/ammo_box/foambox/riot=20,/obj/item/toy/katana=10,/obj/item/twohanded/dualsaber/toy=5,/obj/item/deck/cards/syndicate=10)
 	},
 /obj/machinery/light/small{
 	dir = 1
@@ -32165,7 +32215,7 @@
 	desc = "A heavily modified 5.56 light machine gun, designated 'M249 SAW'.";
 	name = "M249 SAW"
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkyellowfull"
 	},
@@ -32608,7 +32658,7 @@
 	},
 /area/shuttle/ninja)
 "psn" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/portable_atmospherics/canister/oxygen{
 	maximum_pressure = 50000
 	},
@@ -32641,7 +32691,7 @@
 	},
 /area/syndicate_mothership)
 "psK" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/window/reinforced{
 	dir = 4
 	},
@@ -32813,7 +32863,7 @@
 	},
 /area/shuttle/ninja)
 "pvx" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -33745,7 +33795,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 2000;
@@ -33808,7 +33858,7 @@
 	id_tag = "CC_ERT2"
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/wood{
 	icon_state = "light-fancy-wood"
 	},
@@ -33845,7 +33895,7 @@
 /obj/item/ammo_box/magazine/m556,
 /obj/item/ammo_box/magazine/m556,
 /obj/item/ammo_box/magazine/m556,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/item/ammo_box/c12_dot_7X55,
 /obj/item/ammo_box/c12_dot_7X55,
 /obj/item/ammo_box/c12_dot_7X55,
@@ -33938,7 +33988,7 @@
 /turf/simulated/floor/wood,
 /area/centcom/zone1)
 "pXf" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/red{
 	dir = 4;
 	req_access = list(104,109)
@@ -34260,7 +34310,7 @@
 	opacity = 1;
 	req_access = list(104)
 	},
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -34402,7 +34452,7 @@
 /turf/simulated/floor/wood/fancy/cherry,
 /area/centcom/bridge)
 "qjA" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/window/reinforced{
 	dir = 4
 	},
@@ -34473,8 +34523,12 @@
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership)
 "qkU" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear,
 /obj/machinery/door/poddoor/shutters/preopen/invincible{
 	dir = 2;
@@ -34607,7 +34661,9 @@
 /turf/simulated/floor/carpet/black,
 /area/syndicate_mothership/control)
 "qog" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/machinery/door/window/brigdoor{
 	base_state = "rightsecure";
 	dir = 8;
@@ -34885,7 +34941,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 2000;
@@ -34971,7 +35027,7 @@
 /turf/simulated/floor/plating/airless,
 /area/centcom/jail)
 "quA" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/conveyor{
 	dir = 1;
 	id = "CO2"
@@ -35847,7 +35903,7 @@
 "qOP" = (
 /obj/mecha/combat/gygax/ert/loaded,
 /obj/item/mecha_parts/mecha_equipment/repair_droid,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/engine,
 /area/centcom/specops)
 "qPh" = (
@@ -35926,7 +35982,7 @@
 	},
 /area/syndicate_mothership/elite_squad)
 "qTo" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/gold/glass{
 	frequency = 2000;
 	hackable = 0;
@@ -36015,7 +36071,7 @@
 /obj/item/gun/projectile/automatic/shotgun/bulldog,
 /obj/item/gun/projectile/automatic/shotgun/bulldog,
 /obj/item/gun/projectile/automatic/shotgun/bulldog,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkyellowfull"
 	},
@@ -36028,7 +36084,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /obj/machinery/access_button{
 	command = "cycle_interior";
 	frequency = 2000;
@@ -36504,7 +36560,7 @@
 /area/centcom/specops)
 "rcN" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -36825,7 +36881,7 @@
 	pixel_x = 6
 	},
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -37135,7 +37191,7 @@
 	},
 /obj/effect/landmark/spawner/aroomwarp,
 /obj/effect/turf_decal/plaque,
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /obj/effect/turf_decal/stripes/gold{
 	dir = 4
 	},
@@ -37333,7 +37389,7 @@
 /area/centcom/zone1)
 "rvc" = (
 /obj/machinery/door/airlock/public/glass,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/centcom/zone1)
 "rve" = (
@@ -37534,7 +37590,7 @@
 /obj/machinery/mech_bay_recharge_port/upgraded/unsimulated{
 	dir = 8
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "rAu" = (
@@ -37887,14 +37943,14 @@
 /turf/simulated/floor/engine,
 /area/centcom/specops)
 "rIb" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/centcom/specops)
 "rId" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /obj/item/gun/projectile/automatic/ik60{
 	pixel_x = -6
 	},
@@ -38124,7 +38180,7 @@
 	},
 /area/centcom/specops)
 "rNf" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/window/reinforced{
 	dir = 4
 	},
@@ -38276,7 +38332,7 @@
 /area/shuttle/syndicate)
 "rRR" = (
 /obj/structure/closet/secure_closet/brig,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -38495,7 +38551,7 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "rVH" = (
@@ -38761,7 +38817,7 @@
 /turf/simulated/floor/carpet/black,
 /area/syndicate_mothership/infteam)
 "sdw" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -38890,7 +38946,7 @@
 /obj/structure/window/reinforced{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/conveyor{
 	dir = 1;
 	id = "Toxin"
@@ -38907,7 +38963,7 @@
 /area/syndicate_mothership/jail)
 "shc" = (
 /obj/structure/reagent_dispensers/fueltank,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "shl" = (
@@ -39020,7 +39076,7 @@
 /obj/structure/chair/comfy/brown{
 	dir = 1
 	},
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/effect/landmark/spawner/aroomwarp,
 /turf/simulated/floor/carpet/arcade,
 /area/centcom/specops)
@@ -39080,8 +39136,10 @@
 /turf/simulated/floor/carpet/black,
 /area/syndicate_mothership/jail)
 "smB" = (
-/obj/effect/decal/warning_stripes/white/hollow,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/delivery/white/hollow,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -39675,7 +39733,7 @@
 /area/centcom/zone1)
 "sAZ" = (
 /obj/effect/turf_decal/caution/red,
-/obj/effect/turf_decal/bot_red,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "cafeteria"
 	},
@@ -39687,8 +39745,12 @@
 	},
 /area/centcom/zone2)
 "sBk" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
 	id_tag = "CC_Armory_DURAND"
@@ -39842,7 +39904,7 @@
 	name = "Supply Blastdoor"
 	},
 /obj/structure/fans/tiny,
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock/external{
 	hackProof = 1;
 	id_tag = "supply_away";
@@ -39901,7 +39963,7 @@
 /turf/simulated/floor/glass/reinforced,
 /area/centcom/evac)
 "sGZ" = (
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/mecha/combat/durand/rover/loaded,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
@@ -40201,7 +40263,7 @@
 /area/centcom/bridge)
 "sPd" = (
 /obj/mecha/combat/gygax/dark/loaded,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "sPi" = (
@@ -40215,7 +40277,7 @@
 	pixel_x = 3;
 	pixel_y = -3
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "sQx" = (
@@ -40355,7 +40417,7 @@
 	pixel_x = 3;
 	pixel_y = -3
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "sSK" = (
@@ -40801,7 +40863,7 @@
 /area/syndicate_mothership)
 "taC" = (
 /obj/structure/closet/secure_closet/brig,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "darkredalt"
@@ -41150,8 +41212,12 @@
 /turf/simulated/floor/mineral/plastitanium/red,
 /area/syndicate_mothership/elite_squad)
 "tig" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 1
 	},
@@ -41278,7 +41344,7 @@
 /turf/simulated/floor/carpet/black,
 /area/shuttle/administration)
 "tlp" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/portable_atmospherics/canister/sleeping_agent{
 	maximum_pressure = 50000
 	},
@@ -41585,7 +41651,7 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "tqT" = (
@@ -41652,7 +41718,7 @@
 /obj/machinery/light/small{
 	dir = 4
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "tte" = (
@@ -41771,8 +41837,10 @@
 	},
 /area/syndicate_mothership/infteam)
 "txJ" = (
-/obj/effect/decal/warning_stripes/white/hollow,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/delivery/white/hollow,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -41893,7 +41961,9 @@
 /turf/simulated/floor/shuttle/objective_check/vox,
 /area/shuttle/vox)
 "tzC" = (
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/wall/indestructible/fakeglass,
 /area/centcom/zone3)
 "tzJ" = (
@@ -42148,12 +42218,7 @@
 	},
 /area/syndicate_mothership)
 "tEi" = (
-/obj/effect/decal/warning_stripes/blue{
-	desc = "Лестница в кабинет СОО";
-	icon = 'icons/obj/structures.dmi';
-	icon_state = "ladder10";
-	name = "Ladder"
-	},
+/obj/effect/turf_decal/delivery/blue,
 /obj/effect/step_trigger/teleporter{
 	icon = 'icons/mob/screen_gen.dmi';
 	icon_state = "x2";
@@ -42222,7 +42287,7 @@
 /area/centcom/zone1)
 "tFQ" = (
 /obj/structure/rack,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/item/storage/firstaid/tactical/sst{
 	pixel_x = -3;
 	pixel_y = 3
@@ -42245,7 +42310,7 @@
 	pixel_x = 3;
 	pixel_y = -3
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "tFV" = (
@@ -42324,7 +42389,9 @@
 /turf/simulated/floor/plating/airless,
 /area/shuttle/syndicate_elite)
 "tHy" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "CC_Armory_GYGAX"
@@ -42347,7 +42414,7 @@
 /turf/simulated/floor/glass,
 /area/centcom/bridge)
 "tHQ" = (
-/obj/effect/decal/warning_stripes/red,
+/obj/effect/turf_decal/delivery/red,
 /obj/machinery/door/airlock/centcom{
 	damage_deflection = 999;
 	name = "Prison Customs";
@@ -42805,7 +42872,7 @@
 	id_tag = "CC_ERT1"
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	dir = 1;
 	icon_state = "navybluealt"
@@ -42895,7 +42962,7 @@
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
 /obj/item/ammo_box/magazine/smgm9mm,
-/obj/item/gun/projectile/automatic/proto,
+/obj/item/gun/projectile/automatic/smg/saber,
 /obj/item/gun/energy/gun/blueshield,
 /obj/item/clothing/glasses/hud/security/sunglasses/aviators,
 /obj/item/reagent_containers/food/snacks/candy/mre,
@@ -43443,7 +43510,7 @@
 	},
 /area/centcom/specops)
 "ugS" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock/centcom{
 	name = "Bridge 1-1";
 	opacity = 1;
@@ -43659,7 +43726,7 @@
 /area/shuttle/escape)
 "umN" = (
 /obj/mecha/combat/marauder/mauler/loaded,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "unf" = (
@@ -43700,12 +43767,12 @@
 	},
 /area/centcom/zone1)
 "unV" = (
-/obj/item/gun/projectile/automatic/c20r{
+/obj/item/gun/projectile/automatic/smg/c20r{
 	pixel_x = -3;
 	pixel_y = 3
 	},
-/obj/item/gun/projectile/automatic/c20r,
-/obj/item/gun/projectile/automatic/c20r{
+/obj/item/gun/projectile/automatic/smg/c20r,
+/obj/item/gun/projectile/automatic/smg/c20r{
 	pixel_x = 3;
 	pixel_y = -3
 	},
@@ -43713,7 +43780,7 @@
 /obj/item/storage/backpack/duffel/syndie/ammo/smg,
 /obj/item/storage/backpack/duffel/syndie/ammo/smg,
 /obj/item/storage/backpack/duffel/syndie/ammo/smg,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/structure/rack/gunrack,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
@@ -43751,7 +43818,7 @@
 /obj/item/storage/backpack/duffel/syndie/ammo/shotgun,
 /obj/item/storage/backpack/duffel/syndie/ammo/shotgun,
 /obj/item/storage/backpack/duffel/syndie/ammo/shotgun,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/structure/rack/gunrack,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
@@ -43775,7 +43842,7 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
 "uqg" = (
@@ -43813,7 +43880,7 @@
 /obj/item/ammo_box/magazine/m556,
 /obj/item/ammo_box/magazine/m556,
 /obj/item/ammo_box/magazine/m556,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/structure/rack/gunrack,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
@@ -43981,7 +44048,7 @@
 	pixel_y = -7
 	},
 /obj/machinery/light/small,
-/obj/effect/turf_decal/bot_white,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/structure/rack/gunrack,
 /turf/simulated/floor/mineral/plastitanium,
 /area/syndicate_mothership/elite_squad)
@@ -44388,7 +44455,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -44488,7 +44555,7 @@
 	opacity = 1;
 	req_access = list(113)
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -44604,7 +44671,9 @@
 	},
 /area/shuttle/escape)
 "uKU" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/preopen/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_vkd";
@@ -44709,8 +44778,12 @@
 	},
 /area/syndicate_mothership/elite_squad)
 "uLr" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/machinery/door/poddoor/shutters/preopen/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_vkd";
@@ -44944,7 +45017,7 @@
 /area/syndicate_mothership)
 "uPb" = (
 /obj/structure/closet/secure_closet/brig,
-/obj/effect/decal/warning_stripes/red/hollow,
+/obj/effect/turf_decal/delivery/red/hollow,
 /obj/structure/window/reinforced,
 /turf/simulated/floor/plasteel{
 	dir = 6;
@@ -45054,7 +45127,7 @@
 /obj/structure/window/reinforced{
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/green/hollow,
+/obj/effect/turf_decal/delivery/green/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -45094,7 +45167,7 @@
 /area/syndicate_mothership)
 "uSA" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -45168,7 +45241,7 @@
 "uUC" = (
 /obj/structure/table/wood,
 /obj/item/card/id/prisoner/random,
-/obj/item/camera_bug,
+/obj/item/camera_bug/syndicate,
 /turf/simulated/floor/carpet/black,
 /area/syndicate_mothership/jail)
 "uVc" = (
@@ -45246,7 +45319,7 @@
 /turf/simulated/floor/carpet/black,
 /area/centcom/specops)
 "uWv" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock{
 	id_tag = "CC_toilet_unit3";
 	name = "Toilet"
@@ -45421,7 +45494,7 @@
 /turf/simulated/floor/carpet/black,
 /area/shuttle/administration)
 "vbO" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/structure/fans/tiny,
 /obj/machinery/door/airlock/external{
 	id_tag = "shit_rain_home";
@@ -45522,7 +45595,7 @@
 	},
 /area/syndicate_mothership)
 "vem" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 2;
 	id_tag = "Drop"
@@ -45640,7 +45713,7 @@
 /area/shuttle/syndicate)
 "vhP" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/poddoor/impassable/preopen{
 	id_tag = "ERT_Quarantine";
 	name = "ERT Quarantine"
@@ -46440,7 +46513,7 @@
 /area/syndicate_mothership/control)
 "vCo" = (
 /obj/structure/rack/gunrack,
-/obj/effect/decal/warning_stripes/blue/hollow,
+/obj/effect/turf_decal/delivery/blue/hollow,
 /obj/item/gun/projectile/shotgun/automatic/combat{
 	pixel_x = -6
 	},
@@ -46502,7 +46575,7 @@
 /area/syndicate_mothership)
 "vDP" = (
 /obj/structure/fans/tiny,
-/obj/effect/turf_decal/stripes/full,
+/obj/effect/turf_decal/stripes,
 /obj/machinery/door/poddoor/impassable{
 	id_tag = "Admin_shuttle_access"
 	},
@@ -47030,7 +47103,7 @@
 	req_access = list(114)
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/wood{
 	icon_state = "light-fancy-wood"
 	},
@@ -47080,7 +47153,7 @@
 /area/shuttle/escape)
 "vRS" = (
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/public/glass,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -47220,7 +47293,7 @@
 	},
 /area/centcom/supplypod/loading/three)
 "vUy" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/gold/glass{
 	frequency = 2000;
 	hackable = 0;
@@ -47276,7 +47349,7 @@
 /turf/simulated/floor/wood/fancy/light,
 /area/centcom/specops)
 "vVE" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/vending/gun_mods/advanced,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -47573,12 +47646,7 @@
 /area/syndicate_mothership/infteam)
 "wch" = (
 /obj/structure/falsewall/reinforced,
-/obj/effect/decal/warning_stripes/blue{
-	desc = "Куда же ведет эта лестница?";
-	icon = 'icons/obj/structures.dmi';
-	icon_state = "ladder11";
-	name = "Ladder"
-	},
+/obj/effect/turf_decal/delivery/blue,
 /obj/effect/step_trigger/teleporter{
 	icon = 'icons/mob/screen_gen.dmi';
 	icon_state = "x2";
@@ -47682,7 +47750,9 @@
 	color = "#444444";
 	dir = 8
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -48082,7 +48152,7 @@
 /turf/simulated/floor/carpet/black,
 /area/syndicate_mothership/jail)
 "wsP" = (
-/obj/effect/decal/warning_stripes/white,
+/obj/effect/turf_decal/delivery/white,
 /obj/machinery/door/airlock{
 	id_tag = "CC_toilet_unit2";
 	name = "Toilet"
@@ -48693,7 +48763,7 @@
 	locked = 1;
 	name = "Zone 2"
 	},
-/obj/effect/decal/warning_stripes/blue,
+/obj/effect/turf_decal/delivery/blue,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -48839,8 +48909,12 @@
 	},
 /area/centcom/jail)
 "wOD" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 1
 	},
@@ -49136,7 +49210,7 @@
 	},
 /area/shuttle/assault_pod)
 "wWh" = (
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /obj/machinery/vending/nta/ertarmory/yellow{
 	req_access = list(104,109)
 	},
@@ -49471,7 +49545,7 @@
 	},
 /area/shuttle/syndicate)
 "xcV" = (
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /obj/machinery/door/airlock/gold/glass{
 	frequency = 2000;
 	hackable = 0;
@@ -49799,7 +49873,7 @@
 	},
 /area/syndicate_mothership/infteam)
 "xjM" = (
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/portable_atmospherics/canister/air{
 	maximum_pressure = 50000
 	},
@@ -49990,7 +50064,7 @@
 	id_tag = "CC_ERT1"
 	},
 /obj/machinery/door/firedoor,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -50164,7 +50238,7 @@
 	dir = 8
 	},
 /obj/effect/landmark/spawner/aroomwarp,
-/obj/effect/decal/warning_stripes/white/hollow,
+/obj/effect/turf_decal/delivery/white/hollow,
 /turf/simulated/floor/carpet/arcade,
 /area/centcom/specops)
 "xsI" = (
@@ -50453,7 +50527,9 @@
 /obj/effect/turf_decal/loading_area/white{
 	dir = 4
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -50503,7 +50579,9 @@
 	},
 /area/syndicate_mothership)
 "xAy" = (
-/obj/effect/decal/warning_stripes/northeastsouth,
+/obj/effect/turf_decal/stripes/end{
+	dir = 4
+	},
 /obj/machinery/door/poddoor/shutters/invincible{
 	dir = 1;
 	id_tag = "ERT_armory_lvl4";
@@ -50709,8 +50787,12 @@
 /turf/simulated/floor/shuttle/objective_check/vox,
 /area/shuttle/vox)
 "xFY" = (
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /obj/effect/turf_decal/caution/stand_clear{
 	dir = 1
 	},
@@ -89625,7 +89707,7 @@ sdw
 sdw
 myp
 mxj
-mqK
+fBc
 trB
 fWR
 myp
@@ -107066,7 +107148,7 @@ gbo
 fon
 jHX
 jVq
-gFx
+lzS
 xjM
 xjM
 xjM
@@ -107323,7 +107405,7 @@ dZk
 fon
 jHX
 xOy
-gFx
+lzS
 psK
 psn
 psn
@@ -107580,7 +107662,7 @@ dZk
 fon
 jHX
 oUw
-gFx
+lzS
 jHF
 jHF
 rNf
@@ -107837,7 +107919,7 @@ dZk
 fon
 jHX
 cgv
-gFx
+lzS
 sgW
 sgW
 sgW
@@ -108094,7 +108176,7 @@ vsV
 fon
 jHX
 riL
-gFx
+lzS
 qjA
 qjA
 tlp
@@ -108130,7 +108212,7 @@ dTg
 usR
 usR
 tKr
-sZA
+aLg
 sZA
 tKr
 usR
@@ -108351,7 +108433,7 @@ dlT
 aDR
 jHX
 hAX
-gFx
+lzS
 aLo
 quA
 quA
@@ -108385,9 +108467,9 @@ nAN
 nAN
 usR
 usR
-agn
 taZ
-aLg
+taZ
+woV
 evp
 fDh
 vpr
@@ -108899,7 +108981,7 @@ jMD
 nAN
 usR
 usR
-taZ
+dbW
 taZ
 taZ
 taZ

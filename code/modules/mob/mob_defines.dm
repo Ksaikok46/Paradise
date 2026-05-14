@@ -352,6 +352,9 @@
 	/// This is what actually gets applied to the mob, it's modified by things like glasses
 	var/list/lighting_color_cutoffs
 
+	/// A ref of the area we're taking our ambient loop from.
+	var/area/ambience_tracked_area
+
 	var/shift_to_open_context_menu = TRUE
 
 	///Cursor icon used when holding shift over things

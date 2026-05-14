@@ -11,3 +11,4 @@
 	update_admin_actions()
 	lighting_cutoff = default_lighting_cutoff()
 	update_sight()
+	client?.set_right_click_menu_mode(FALSE)

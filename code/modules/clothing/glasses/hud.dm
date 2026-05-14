@@ -64,20 +64,22 @@
 	var/datum/atom_hud/oldHUD = GLOB.huds[HUDType]
 	var/hudMode = null
 
-	// DATA_HUD_MEDICAL_ADVANCED ->  DATA_HUD_SECURITY_BASIC -> DATA_HUD_SECURITY_ADVANCED
+	// DATA_HUD_MEDICAL_ADVANCED ->  DATA_HUD_SECURITY_ADVANCED
 	switch(HUDType)
 		if(DATA_HUD_MEDICAL_ADVANCED)
 			HUDType = DATA_HUD_SECURITY_BASIC
 			examine_extensions = EXAMINE_HUD_SKILLS
-			glass_colour_type = /datum/client_colour/glass_colour/lightblue
+			glass_colour_type = /datum/client_colour/glass_colour/red
 			hudMode = "навыков"
 		if(DATA_HUD_SECURITY_BASIC)
 			HUDType = DATA_HUD_SECURITY_ADVANCED
 			examine_extensions = EXAMINE_HUD_SECURITY_READ | EXAMINE_HUD_SECURITY_WRITE
+			glass_colour_type = /datum/client_colour/glass_colour/darkred
 			hudMode = "охраны"
 		if(DATA_HUD_SECURITY_ADVANCED)
 			HUDType = DATA_HUD_MEDICAL_ADVANCED
 			examine_extensions = EXAMINE_HUD_MEDICAL
+			glass_colour_type = /datum/client_colour/glass_colour/lightblue
 			hudMode = "здоровья"
 
 	if(user.glasses == src)

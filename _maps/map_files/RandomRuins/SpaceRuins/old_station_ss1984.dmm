@@ -31,7 +31,9 @@
 /obj/machinery/door/window/westleft{
 	dir = 2
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -131,7 +133,7 @@
 /area/ruin/space/ancientstation/charlie_engi)
 "ax" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow,
+/obj/effect/turf_decal/delivery,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_docks)
 "ay" = (
@@ -647,7 +649,9 @@
 /area/ruin/space/ancientstation/charlie_restroom)
 "ck" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/northwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 9
+	},
 /obj/machinery/r_n_d/protolathe,
 /obj/machinery/light/small{
 	dir = 8
@@ -1699,7 +1703,7 @@
 /area/ruin/space/ancientstation/beta_atmos)
 "gb" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/ore_box,
 /obj/machinery/light/small{
 	dir = 8
@@ -1747,7 +1751,9 @@
 /area/ruin/space/ancientstation/theta_experi)
 "gn" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/machinery/computer/rdconsole/public,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -1962,7 +1968,7 @@
 /area/ruin/space/ancientstation/charlie_engi)
 "ha" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 1
 	},
 /obj/structure/railing,
@@ -2554,7 +2560,7 @@
 /area/ruin/space/ancientstation/beta_atmos)
 "jn" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_docks)
 "jq" = (
@@ -3340,7 +3346,7 @@
 /area/ruin/space/ancientstation/hivebot)
 "lW" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/ore_box,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_storage)
@@ -3586,7 +3592,7 @@
 /area/ruin/space/ancientstation/beta_atmos)
 "mK" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/turf_decal/delivery/partial,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_docks)
 "mM" = (
@@ -3838,7 +3844,7 @@
 /area/ruin/space/ancientstation/hivebot)
 "nS" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/constructable_frame/machine_frame,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_storage)
@@ -4517,7 +4523,7 @@
 "qf" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/light/small,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /mob/living/simple_animal/hostile/hivebot/range,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_corridor)
@@ -4925,7 +4931,7 @@
 /area/ruin/space/ancientstation/charlie_corridor)
 "rE" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/crate,
 /obj/machinery/atmospherics/unary/vent_scrubber/on_tox{
 	dir = 1
@@ -4935,7 +4941,9 @@
 /area/ruin/space/ancientstation/theta_storage)
 "rF" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -4956,7 +4964,7 @@
 /area/ruin/space/ancientstation/charlie_kitchen)
 "rL" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/crate,
 /obj/machinery/light_construct/small,
 /turf/simulated/floor/plasteel,
@@ -5263,7 +5271,9 @@
 /obj/machinery/door/window/westleft{
 	dir = 2
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /mob/living/simple_animal/hostile/hivebot/strong,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -5336,7 +5346,7 @@
 /area/ruin/space/ancientstation/hivebot)
 "tj" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/item/stack/sheet/metal/fifty,
 /obj/structure/closet/crate/large,
 /obj/item/stack/sheet/glass/fifty,
@@ -5712,7 +5722,7 @@
 /area/ruin/space/ancientstation/charlie_corridor)
 "ut" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/closet/crate,
 /obj/item/spacepod_equipment/sec_cargo/chair,
 /obj/item/spacepod_equipment/sec_cargo/chair,
@@ -5842,7 +5852,9 @@
 "uQ" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/window/reinforced,
-/obj/effect/decal/warning_stripes/southwest,
+/obj/effect/turf_decal/stripes/line{
+	dir = 10
+	},
 /obj/machinery/r_n_d/circuit_imprinter,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -5863,7 +5875,7 @@
 /area/ruin/space/ancientstation/theta_exit)
 "uT" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/light_construct/small{
 	dir = 4
 	},
@@ -5922,7 +5934,7 @@
 /area/ruin/space/ancientstation/theta_corridor)
 "vk" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 1
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
@@ -6018,7 +6030,7 @@
 /area/ruin/space/ancientstation/hivebot)
 "vx" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 1
 	},
 /obj/structure/spacepod_frame,
@@ -6155,7 +6167,7 @@
 /area/ruin/space/ancientstation/charlie_comm)
 "wa" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/turf_decal/delivery/partial,
 /obj/item/pod_parts/pod_frame/aft_starboard,
 /turf/simulated/floor/plating,
 /area/ruin/space/ancientstation/theta_docks)
@@ -6631,7 +6643,7 @@
 /area/template_noop)
 "xG" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/cable{
 	icon_state = "0-8"
 	},
@@ -7374,7 +7386,7 @@
 /area/ruin/space/ancientstation/charlie_dininghall)
 "At" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/turf_decal/delivery/partial,
 /turf/simulated/floor/plating,
 /area/ruin/space/ancientstation/theta_docks)
 "Av" = (
@@ -7681,7 +7693,7 @@
 /area/template_noop)
 "Bs" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/structure/ore_box,
 /obj/machinery/light_switch/directional/east,
 /obj/item/paintkit/firefighter_zairjah,
@@ -7909,7 +7921,9 @@
 /obj/machinery/door/window/westleft{
 	dir = 2
 	},
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -7919,7 +7933,7 @@
 /area/ruin/space/ancientstation/cowasteroid)
 "Ch" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 1
 	},
 /turf/simulated/floor/plating,
@@ -8561,7 +8575,7 @@
 /area/ruin/space/ancientstation/hivebot)
 "EC" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/item/pod_parts/pod_frame/fore_starboard,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_corridor)
@@ -8610,7 +8624,7 @@
 /area/ruin/space/ancientstation/hivebot)
 "EL" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 1
 	},
 /obj/structure/railing,
@@ -8909,7 +8923,7 @@
 /area/ruin/space/ancientstation/charlie_cryo)
 "FT" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/machinery/firealarm/directional/east,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_storage)
@@ -9437,7 +9451,7 @@
 /area/ruin/space/ancientstation/charlie_dininghall)
 "HC" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial{
+/obj/effect/turf_decal/delivery/partial{
 	dir = 1
 	},
 /obj/item/pod_parts/pod_frame/fore_port,
@@ -9693,7 +9707,9 @@
 "Iu" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/window/reinforced,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 2
+	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -10239,7 +10255,7 @@
 "KH" = (
 /obj/effect/decal/cleanable/dirt,
 /mob/living/simple_animal/hostile/hivebot/range,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_corridor)
 "KK" = (
@@ -10789,7 +10805,7 @@
 /area/ruin/space/ancientstation/charlie_warden)
 "MM" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/turf_decal/delivery/partial,
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 4
 	},
@@ -12595,7 +12611,7 @@
 /area/ruin/space/ancientstation/charlie_engi)
 "Tg" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/partial,
+/obj/effect/turf_decal/delivery/partial,
 /obj/item/pod_parts/pod_frame/aft_port,
 /turf/simulated/floor/plating,
 /area/ruin/space/ancientstation/theta_docks)
@@ -13543,7 +13559,9 @@
 "Xe" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/autolathe,
-/obj/effect/decal/warning_stripes/northeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 5
+	},
 /obj/machinery/light_construct/small{
 	dir = 4
 	},
@@ -13686,7 +13704,7 @@
 /area/ruin/space/ancientstation/theta_experi)
 "XR" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/ancientstation/theta_storage)
 "XS" = (
@@ -13936,7 +13954,7 @@
 /area/ruin/space/ancientstation/charlie_cryo)
 "Zj" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/yellow/hollow,
+/obj/effect/turf_decal/delivery/hollow,
 /obj/item/stack/sheet/metal/fifty,
 /obj/structure/closet/crate/large,
 /obj/item/stack/sheet/glass/fifty,

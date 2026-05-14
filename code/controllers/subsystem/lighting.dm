@@ -1,7 +1,12 @@
 SUBSYSTEM_DEF(lighting)
 	name = "Lighting"
-	wait = 2
-	flags = SS_TICKER
+	dependencies = list(
+		/datum/controller/subsystem/atoms,
+		/datum/controller/subsystem/mapping,
+	)
+	wait = 1
+	ss_flags = SS_TICKER
+
 	/// List of lighting sources queued for update.
 	var/static/list/sources_queue = list()
 	/// List of lighting corners queued for update.
@@ -15,9 +20,16 @@ SUBSYSTEM_DEF(lighting)
 	var/allow_duped_corners = FALSE
 #endif
 
-/datum/controller/subsystem/lighting/stat_entry(msg)
-	msg = "\n  Sources:[length(sources_queue)]|Corners:[length(corners_queue)]|Objects:[length(objects_queue)]"
-	return ..()
+/datum/controller/subsystem/lighting/get_stat_details()
+	return "L:[length(sources_queue)]|C:[length(corners_queue)]|O:[length(objects_queue)]"
+
+/datum/controller/subsystem/lighting/get_metrics()
+	. = ..()
+	var/list/custom_data = list()
+	custom_data["sources_queue"] = length(sources_queue)
+	custom_data["corners_queue"] = length(corners_queue)
+	custom_data["objects_queue"] = length(objects_queue)
+	.["custom"] = custom_data
 
 /datum/controller/subsystem/lighting/Initialize()
 	if(!initialized)

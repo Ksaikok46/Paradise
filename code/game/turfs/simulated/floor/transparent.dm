@@ -109,6 +109,7 @@
 /turf/simulated/floor/glass/proc/setup_glow()
 	if(GET_TURF_PLANE_OFFSET(src) != GET_LOWEST_STACK_OFFSET(z)) // We ain't the bottom brother
 		return
+
 	// We assume no parallax means no space means no light
 	if(check_level_trait(z, ZTRAIT_NOPARALLAX))
 		return

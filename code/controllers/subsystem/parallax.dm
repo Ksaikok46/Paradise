@@ -4,12 +4,13 @@
 SUBSYSTEM_DEF(parallax)
 	name = "Parallax"
 	wait = 2
-	flags = SS_POST_FIRE_TIMING | SS_BACKGROUND | SS_NO_INIT
+	ss_flags = SS_POST_FIRE_TIMING | SS_BACKGROUND | SS_NO_INIT
 	priority = FIRE_PRIORITY_PARALLAX
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
-	offline_implications = "Space parallax will no longer move around. No immediate action is needed."
-	cpu_display = SS_CPUDISPLAY_HIGH
-	ss_id = "parallax"
+	dependencies = list(
+		/datum/controller/subsystem/atoms,
+	)
+
 	var/list/currentrun
 	var/planet_x_offset = 128
 	var/planet_y_offset = 128
@@ -32,6 +33,7 @@ SUBSYSTEM_DEF(parallax)
 	planet_x_offset = rand(100, 160)
 
 /datum/controller/subsystem/parallax/fire(resumed = FALSE)
+/datum/controller/subsystem/parallax/fire(resumed = FALSE)
 	if(!resumed)
 		src.currentrun = GLOB.clients.Copy()
 
@@ -39,7 +41,7 @@ SUBSYSTEM_DEF(parallax)
 	var/list/currentrun = src.currentrun
 
 	while(length(currentrun))
-		var/client/processing_client = currentrun[currentrun.len]
+		var/client/processing_client = currentrun[length(currentrun)]
 		currentrun.len--
 		if(QDELETED(processing_client) || !processing_client.eye)
 			if(MC_TICK_CHECK)

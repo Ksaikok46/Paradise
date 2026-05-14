@@ -52,9 +52,10 @@ This applies to all STANDARD station areas
 	power_environ = FALSE
 	valid_territory = FALSE
 	outdoors = TRUE
-	ambientsounds = SPACE_SOUNDS
+	ambience_index = AMBIENCE_SPACE
 	sound_environment = SOUND_AREA_SPACE
 	area_flags = UNIQUE_AREA
+	ambient_buzz = null // Space is deafeningly quiet
 
 /area/space/nearstation
 	icon_state = "space_near"
@@ -65,7 +66,7 @@ This applies to all STANDARD station areas
 /area/space/planetary
 	icon_state = "space_planet"
 	static_lighting = TRUE
-	ambientsounds = list('sound/ambience/ambimine.ogg')
+	ambientsounds = list('sound/ambience/ruin/ambimine.ogg')
 	sound_environment = SOUND_AREA_ASTEROID
 
 /area/space/atmosalert()
@@ -77,8 +78,8 @@ This applies to all STANDARD station areas
 /area/space/firereset(obj/source)
 	return
 
-/area/game_test
-	name = "Game Test Area"
+/area/unit_test
+	name = "Unit Test Area"
 	icon_state = "test_room"
 	requires_power = FALSE
 
@@ -411,17 +412,13 @@ This applies to all STANDARD station areas
 	static_lighting = FALSE
 	base_lighting_alpha = 255
 
-/area/airtunnel1/ // referenced in airtunnel.dm:759
-
-/area/dummy/ // Referenced in engine.dm:261
-
 /area/start // will be unused once kurper gets his login interface patch done
 	name = "start area"
 	icon_state = "start"
 	requires_power = FALSE
 	static_lighting = FALSE
 	has_gravity = STANDARD_GRAVITY
-	ambientsounds = null
+	ambient_buzz = null
 
 // === end remove
 
@@ -549,7 +546,7 @@ This applies to all STANDARD station areas
 	static_lighting = FALSE
 	base_lighting_alpha = 255
 	nad_allowed = TRUE
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 	area_flags = NONE
 
 /area/syndicate_mothership/outside
@@ -584,7 +581,7 @@ This applies to all STANDARD station areas
 	has_gravity = STANDARD_GRAVITY
 	static_lighting = FALSE
 	base_lighting_alpha = 255
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 	area_flags = NONE
 
 // Chrono
@@ -616,14 +613,12 @@ This applies to all STANDARD station areas
 	icon_state = "asteroid"
 	requires_power = FALSE
 	valid_territory = FALSE
-	ambientsounds = MINING_SOUNDS
+	ambience_index = AMBIENCE_MINING
 
 /area/asteroid/cave				// -- TLE
 	name = "Asteroid - Underground"
 	icon_state = "cave"
 	outdoors = TRUE
-	min_ambience_cooldown = 70 SECONDS
-	max_ambience_cooldown = 220 SECONDS
 
 /area/asteroid/artifactroom
 	name = "Asteroid - Artifact"
@@ -710,7 +705,6 @@ This applies to all STANDARD station areas
 /area/ninja/holding
 	name = "SpiderClan Holding Facility"
 	icon_state = "ninja_holding"
-	ambientsounds = list('sound/ambience/ambifailure.ogg', 'sound/ambience/ambigen4.ogg', 'sound/ambience/ambimaint2.ogg', 'sound/ambience/ambimystery.ogg', 'sound/ambience/ambitech2.ogg')
 
 /area/ninja/outside
 	name = "SpiderClan Territory"
@@ -776,10 +770,32 @@ This applies to all STANDARD station areas
 
 // MAINTENANCE
 /area/maintenance
-	ambientsounds = MAINTENANCE_SOUNDS
+	name = "Generic Maintenance"
+	ambience_index = AMBIENCE_MAINT
 	valid_territory = FALSE
 	sound_environment = SOUND_AREA_TUNNEL_ENCLOSED
 	holomap_color = HOLOMAP_AREACOLOR_MAINTENANCE
+	forced_ambience = TRUE
+	ambient_buzz = 'sound/ambience/maintenance/source_corridor2.ogg'
+	ambient_buzz_vol = 20
+	///A list of rare sound effects to fuck with players. No, it does not contain actual minecraft sounds anymore.
+	var/static/list/minecraft_cave_noises = list(
+		'sound/machines/airlock_open.ogg',
+		'sound/effects/snap.ogg',
+		'sound/effects/clownstep1.ogg',
+		'sound/effects/clownstep2.ogg',
+		'sound/items/welder.ogg',
+		'sound/items/welder2.ogg',
+		'sound/items/crowbar.ogg',
+		'sound/items/deconstruct.ogg',
+		'sound/ambience/misc/source_holehit3.ogg',
+		'sound/ambience/misc/cavesound3.ogg',
+	)
+
+/area/maintenance/play_ambience(mob/target, sound/override_sound, volume)
+	if(!target.has_light_nearby() && prob(0.5))
+		return ..(target, pick(minecraft_cave_noises))
+	return ..()
 
 /area/maintenance/ai
 	name = "AI Maintenance"
@@ -987,7 +1003,10 @@ This applies to all STANDARD station areas
 /area/maintenance/detectives_office
 	name = "Abandoned Detective's Office"
 	icon_state = "detective"
-	ambientsounds = list('sound/ambience/ambidet1.ogg', 'sound/ambience/ambidet2.ogg')
+	ambientsounds = list(
+		'sound/ambience/security/ambidet1.ogg',
+		'sound/ambience/security/ambidet2.ogg',
+	)
 
 /area/maintenance/engrooms
 	name = "Abandoned Engineers Rooms"
@@ -1017,7 +1036,7 @@ This applies to all STANDARD station areas
 /area/maintenance/chapel
 	name = "Abandoned Chapel"
 	icon_state = "chapel"
-	ambientsounds = list('sound/ambience/ambimo2.ogg', 'sound/ambience/spooky/moan1.ogg', 'sound/ambience/spooky/muffled_cry1.ogg', 'sound/ambience/spooky/scared_breathing1.ogg', 'sound/ambience/spooky/scared_breathing2.ogg', 'sound/ambience/spooky/scared_sob1.ogg', 'sound/ambience/spooky/scared_sob2.ogg')
+	ambience_index = AMBIENCE_HOLY
 	is_haunted = TRUE
 
 /area/maintenance/livingcomplex
@@ -1286,7 +1305,9 @@ This applies to all STANDARD station areas
 /area/bridge
 	name = "Bridge"
 	icon_state = "bridge"
-	ambientsounds = list('sound/ambience/signal.ogg')
+	ambientsounds = list(
+		'sound/ambience/misc/signal.ogg',
+	)
 	sound_environment = SOUND_AREA_STANDARD_STATION
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
@@ -1525,7 +1546,7 @@ This applies to all STANDARD station areas
 
 /area/chapel
 	icon_state = "chapel"
-	ambientsounds = HOLY_SOUNDS
+	ambience_index = AMBIENCE_HOLY
 	is_haunted = TRUE
 	holomap_color = HOLOMAP_AREACOLOR_SERVICE
 
@@ -1655,7 +1676,7 @@ This applies to all STANDARD station areas
 
 //Engineering
 /area/engineering
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	sound_environment = SOUND_AREA_LARGE_ENCLOSED
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 
@@ -1721,7 +1742,7 @@ This applies to all STANDARD station areas
 /area/solar //i hate this macaroni areas
 	requires_power = FALSE
 	valid_territory = FALSE
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	sound_environment = SOUND_AREA_SPACE
 
 /area/solar/auxport
@@ -1819,7 +1840,7 @@ This applies to all STANDARD station areas
 /area/teleporter
 	name = "Teleporter"
 	icon_state = "teleporter"
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/teleporter/research
@@ -1827,7 +1848,6 @@ This applies to all STANDARD station areas
 
 /area/teleporter/abandoned
 	name = "Abandoned Teleporter"
-	ambientsounds = ENGINEERING_SOUNDS
 	holomap_color = HOLOMAP_AREACOLOR_MAINTENANCE
 
 /area/teleporter/quantum
@@ -1860,23 +1880,24 @@ This applies to all STANDARD station areas
 /area/gateway
 	name = "Gateway"
 	icon_state = "teleporter"
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/AIsattele
 	name = "Unknown Teleporter"
 	icon_state = "teleporter"
-	ambientsounds = list('sound/ambience/ambimalf.ogg', 'sound/ambience/signal.ogg')
+	ambientsounds = list(
+		'sound/ambience/misc/ambimalf.ogg',
+		'sound/ambience/misc/signal.ogg',
+	)
 	area_flags = UNIQUE_AREA
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 //MedBay
 
 /area/medical
-	ambientsounds = MEDICAL_SOUNDS
+	ambience_index = AMBIENCE_MEDICAL
 	sound_environment = SOUND_AREA_STANDARD_STATION
-	min_ambience_cooldown = 90 SECONDS
-	max_ambience_cooldown = 180 SECONDS
 	holomap_color = HOLOMAP_AREACOLOR_MEDICAL
 
 /area/medical/medbay
@@ -1966,6 +1987,7 @@ This applies to all STANDARD station areas
 /area/medical/virology
 	name = "Virology"
 	icon_state = "virology"
+	ambience_index = AMBIENCE_VIROLOGY
 
 /area/medical/virology/lab
 	name = "Virology Laboratory"
@@ -1973,7 +1995,7 @@ This applies to all STANDARD station areas
 /area/medical/morgue
 	name = "Morgue"
 	icon_state = "morgue"
-	ambientsounds = SPOOKY_SOUNDS
+	ambience_index = AMBIENCE_SPOOKY
 	is_haunted = TRUE
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
 
@@ -2028,7 +2050,7 @@ This applies to all STANDARD station areas
 //Security
 
 /area/security
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 	sound_environment = SOUND_AREA_STANDARD_STATION
 	holomap_color = HOLOMAP_AREACOLOR_SECURITY
 
@@ -2185,7 +2207,10 @@ This applies to all STANDARD station areas
 /area/security/detectives_office
 	name = "Detective's Office"
 	icon_state = "detective"
-	ambientsounds = list('sound/ambience/ambidet1.ogg', 'sound/ambience/ambidet2.ogg')
+	ambientsounds = list(
+		'sound/ambience/security/ambidet1.ogg',
+		'sound/ambience/security/ambidet2.ogg',
+	)
 
 /area/security/range
 	name = "Firing Range"
@@ -2405,13 +2430,13 @@ This applies to all STANDARD station areas
 /area/storage/eva
 	name = "EVA Storage"
 	icon_state = "eva"
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/storage/secure
 	name = "Secure Storage"
 	icon_state = "storage"
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 
 /area/storage/emergency
@@ -2608,7 +2633,7 @@ This applies to all STANDARD station areas
 /area/construction
 	name = "Construction Area"
 	icon_state = "yellow"
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	sound_environment = SOUND_AREA_STANDARD_STATION
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 
@@ -2626,7 +2651,12 @@ This applies to all STANDARD station areas
 
 //AI
 /area/turret_protected
-	ambientsounds = list('sound/ambience/ambimalf.ogg', 'sound/ambience/ambitech.ogg', 'sound/ambience/ambitech2.ogg', 'sound/ambience/ambiatmos.ogg', 'sound/ambience/ambiatmos2.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambitech.ogg',
+		'sound/ambience/engineering/ambitech2.ogg',
+		'sound/ambience/engineering/ambiatmos.ogg',
+		'sound/ambience/engineering/ambiatmos2.ogg',
+	)
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/turret_protected/ai_upload
@@ -2655,7 +2685,7 @@ This applies to all STANDARD station areas
 
 /area/aisat/aihallway
 	name = "AI Satellite Exterior Hallway"
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	sound_environment = SOUND_AREA_STANDARD_STATION
 
 /area/aisat/entrance
@@ -2681,8 +2711,16 @@ This applies to all STANDARD station areas
 // Telecommunications Satellite
 
 /area/tcommsat
-	ambientsounds = list('sound/ambience/ambisin2.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/ambigen10.ogg', 'sound/ambience/ambitech.ogg',\
-											'sound/ambience/ambitech2.ogg', 'sound/ambience/ambitech3.ogg', 'sound/ambience/ambimystery.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambisin2.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/general/ambigen9.ogg',
+		'sound/ambience/engineering/ambitech.ogg',
+		'sound/ambience/engineering/ambitech2.ogg',
+		'sound/ambience/engineering/ambitech3.ogg',
+		'sound/ambience/misc/ambimystery.ogg',
+	)
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/tcommsat/chamber
@@ -2693,22 +2731,42 @@ This applies to all STANDARD station areas
 /area/turret_protected/tcomsat
 	name = "Telecoms Satellite"
 	icon_state = "tcomms"
-	ambientsounds = list('sound/ambience/ambisin2.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/ambigen10.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambisin2.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/general/ambigen9.ogg',
+	)
 
 /area/turret_protected/tcomfoyer
 	name = "Telecoms Foyer"
 	icon_state = "tcomms"
-	ambientsounds = list('sound/ambience/ambisin2.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/ambigen10.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambisin2.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/general/ambigen9.ogg',
+	)
 
 /area/turret_protected/tcomwest
 	name = "Telecoms West Wing"
 	icon_state = "tcomms"
-	ambientsounds = list('sound/ambience/ambisin2.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/ambigen10.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambisin2.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/general/ambigen9.ogg',
+	)
 
 /area/turret_protected/tcomeast
 	name = "Telecoms East Wing"
 	icon_state = "tcomms"
-	ambientsounds = list('sound/ambience/ambisin2.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/ambigen10.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambisin2.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/general/ambigen9.ogg',
+	)
 
 /area/tcommsat/computer
 	name = "Telecoms Control Room"
@@ -2733,7 +2791,7 @@ This applies to all STANDARD station areas
 	icon_state = "away"
 	report_alerts = FALSE
 	has_gravity = STANDARD_GRAVITY
-	ambientsounds = AWAY_MISSION_SOUNDS
+	ambience_index = AMBIENCE_AWAY
 	sound_environment = SOUND_ENVIRONMENT_ROOM
 	area_flags = NONE
 
@@ -2749,7 +2807,14 @@ This applies to all STANDARD station areas
 	static_lighting = FALSE
 	base_lighting_alpha = 255
 	requires_power = FALSE
-	ambientsounds = list('sound/ambience/shore.ogg', 'sound/ambience/seag1.ogg', 'sound/ambience/seag2.ogg', 'sound/ambience/seag2.ogg', 'sound/ambience/ambiodd.ogg', 'sound/ambience/ambinice.ogg')
+	ambientsounds = list(
+		'sound/ambience/beach/shore.ogg',
+		'sound/ambience/beach/seag1.ogg',
+		'sound/ambience/beach/seag2.ogg',
+		'sound/ambience/beach/seag3.ogg',
+		'sound/ambience/misc/ambiodd.ogg',
+		'sound/ambience/medical/ambinice.ogg',
+	)
 
 /area/awaymission/undersea
 	name = "Undersea"
@@ -2775,7 +2840,9 @@ This applies to all STANDARD station areas
 	name = "Khonsu 19"
 	icon_state = "awaycontent3"
 	always_unpowered = TRUE
-	ambientsounds = list('sound/ambience/ambimine.ogg')
+	ambientsounds = list(
+		'sound/ambience/ruin/ambimine.ogg',
+	)
 	power_environ = FALSE
 	power_equip = FALSE
 	power_light = FALSE
@@ -3193,7 +3260,7 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 //Malta Other
 /area/coldcolony/malta/chapel
 	icon_state = "chapel"
-	ambientsounds = HOLY_SOUNDS
+	ambience_index = AMBIENCE_HOLY
 	is_haunted = TRUE
 	holomap_color = HOLOMAP_AREACOLOR_SERVICE
 
@@ -3361,7 +3428,7 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 
 //Malta Maintenance
 /area/coldcolony/malta/maintenance
-	ambientsounds = MAINTENANCE_SOUNDS
+	ambience_index = AMBIENCE_MAINT
 	valid_territory = FALSE
 	sound_environment = SOUND_AREA_TUNNEL_ENCLOSED
 	holomap_color = HOLOMAP_AREACOLOR_MAINTENANCE
@@ -3434,9 +3501,7 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 
 //Malta Medical
 /area/coldcolony/malta/medical
-	ambientsounds = MEDICAL_SOUNDS
-	min_ambience_cooldown = 90 SECONDS
-	max_ambience_cooldown = 180 SECONDS
+	ambience_index = AMBIENCE_MEDICAL
 	holomap_color = HOLOMAP_AREACOLOR_MEDICAL
 
 /area/coldcolony/malta/medical/morgue
@@ -3494,10 +3559,11 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 /area/coldcolony/malta/medical/virology
 	name = "Virology Laboratory"
 	icon_state = "virology"
+	ambience_index = AMBIENCE_VIROLOGY
 
 //Malta Security
 /area/coldcolony/malta/security
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 	holomap_color = HOLOMAP_AREACOLOR_SECURITY
 
 /area/coldcolony/malta/security/lobby
@@ -3546,7 +3612,10 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 /area/coldcolony/malta/security/detectives_office
 	name = "Detective's Office"
 	icon_state = "detective"
-	ambientsounds = list('sound/ambience/ambidet1.ogg', 'sound/ambience/ambidet2.ogg')
+	ambientsounds = list(
+		'sound/ambience/security/ambidet1.ogg',
+		'sound/ambience/security/ambidet2.ogg',
+	)
 
 /area/coldcolony/malta/security/brigstaff
 	name = "Brig Staff Room"
@@ -3604,7 +3673,9 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 /area/coldcolony/malta/bridge
 	name = "Bridge"
 	icon_state = "bridge"
-	ambientsounds = list('sound/ambience/signal.ogg')
+	ambientsounds = list(
+		'sound/ambience/misc/signal.ogg',
+	)
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/coldcolony/malta/bridge/nuke_storage
@@ -3641,7 +3712,16 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 	name = "Captain's Bedroom"
 
 /area/coldcolony/malta/bridge/tcomm
-	ambientsounds = list('sound/ambience/ambisin2.ogg', 'sound/ambience/signal.ogg', 'sound/ambience/ambigen10.ogg', 'sound/ambience/ambitech.ogg', 'sound/ambience/ambitech2.ogg', 'sound/ambience/ambitech3.ogg', 'sound/ambience/ambimystery.ogg')
+	ambientsounds = list(
+		'sound/ambience/engineering/ambisin2.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/misc/signal.ogg',
+		'sound/ambience/general/ambigen9.ogg',
+		'sound/ambience/engineering/ambitech.ogg',
+		'sound/ambience/engineering/ambitech2.ogg',
+		'sound/ambience/engineering/ambitech3.ogg',
+		'sound/ambience/misc/ambimystery.ogg',
+	)
 	name = "Telecoms Central Compartment"
 	icon_state = "tcomms"
 
@@ -3650,7 +3730,13 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 
 //Malta AI
 /area/coldcolony/malta/turret_protected
-	ambientsounds = list('sound/ambience/ambimalf.ogg', 'sound/ambience/ambitech.ogg', 'sound/ambience/ambitech2.ogg', 'sound/ambience/ambiatmos.ogg', 'sound/ambience/ambiatmos2.ogg')
+	ambientsounds = list(
+		'sound/ambience/misc/ambimalf.ogg',
+		'sound/ambience/engineering/ambitech.ogg',
+		'sound/ambience/engineering/ambitech2.ogg',
+		'sound/ambience/engineering/ambiatmos.ogg',
+		'sound/ambience/engineering/ambiatmos2.ogg',
+	)
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
 /area/coldcolony/malta/turret_protected/ai_upload
@@ -3717,7 +3803,7 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 
 //Malta Engineering
 /area/coldcolony/malta/engineering
-	ambientsounds = ENGINEERING_SOUNDS
+	ambience_index = AMBIENCE_ENGI
 	sound_environment = SOUND_AREA_LARGE_ENCLOSED
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 
@@ -3746,7 +3832,7 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 /area/coldcolony/malta/engineering/storage
 	name = "Secure Storage"
 	icon_state = "storage"
-	ambientsounds = HIGHSEC_SOUNDS
+	ambience_index = AMBIENCE_DANGER
 
 /area/coldcolony/malta/engineering/chief
 	name = "Chief Engineer's Office"

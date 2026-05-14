@@ -18,7 +18,7 @@
 	light_system = OVERLAY_LIGHT_DIRECTIONAL
 	light_range = 4
 	light_on = FALSE
-	light_color = COLOR_LIGHT_YELLOW
+	light_color = COLOR_LIGHT_ORANGE
 	toolbox_radial_menu_compatibility = TRUE
 	/// Should the flashlight start turned on?
 	var/on = FALSE
@@ -58,8 +58,8 @@
 
 /obj/item/flashlight/Initialize(mapload)
 	. = ..()
-	if(icon_state == "[initial(icon_state)]-on")
-		on = TRUE
+	if(on)
+		set_light_on(TRUE)
 	update_brightness()
 
 /obj/item/flashlight/update_icon_state()
@@ -72,7 +72,7 @@
 	if(light_system == COMPLEX_LIGHT)
 		update_light()
 	set_light_on(on)
-	update_icon()
+	update_appearance(UPDATE_ICON)
 
 /obj/item/flashlight/attack_self(mob/user)
 	if(!isturf(user.loc))
@@ -359,6 +359,7 @@
 
 /obj/item/flashlight/flare/proc/turn_on()
 	on = TRUE
+	START_PROCESSING(SSobj, src)
 	update_brightness()
 	force = on_damage
 	damtype = FIRE
@@ -377,7 +378,6 @@
 		balloon_alert_to_viewers("медленно тускнеет")
 
 /obj/item/flashlight/flare/attack_self(mob/user)
-	// Usual checks
 	if(!fuel)
 		balloon_alert(user, "израсходовано!")
 		return
@@ -587,6 +587,8 @@
 	item_state = "torch"
 	light_color = LIGHT_COLOR_ORANGE
 	on_damage = 10
+	fuel_lower = 60
+	fuel_upp = 70
 
 /obj/item/flashlight/flare/torch/get_ru_names()
 	return list(
@@ -688,15 +690,28 @@
 
 /obj/item/flashlight/spotlight //invisible lighting source
 	name = "disco light"
-	desc = "Groovy..."
+	desc = "Заводной..."
 	icon_state = null
-	light_system = COMPLEX_LIGHT
-	light_color = null
-	light_range = 0
-	light_power = 10
+	light_system = OVERLAY_LIGHT
+	light_range = 4
+	light_power = 2
 	alpha = 0
-	layer = 0
-	on = TRUE
+	layer = ABOVE_OPEN_TURF_LAYER
+	plane = FLOOR_PLANE
 	anchored = TRUE
-	var/range = null
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+	on = TRUE
+	///Boolean that switches when a full color flip ends, so the light can appear in all colors.
+	var/even_cycle = FALSE
+	///Base light_range that can be set on Initialize to use in smooth light range expansions and contractions.
+	var/base_light_range = 4
+
+/obj/item/flashlight/spotlight/Initialize(mapload, _light_range, _light_power, _light_color)
+	. = ..()
+	if(!isnull(_light_range))
+		base_light_range = _light_range
+		set_light_range(_light_range)
+	if(!isnull(_light_power))
+		set_light_power(_light_power)
+	if(!isnull(_light_color))
+		set_light_color(_light_color)

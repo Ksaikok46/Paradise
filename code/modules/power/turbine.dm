@@ -291,10 +291,10 @@
 	if(rpm > 1000)
 		suck_in()
 
-/obj/machinery/power/compressor/proc/leave_inlet_turf(turf/source, atom/movable/entered)
+/obj/machinery/power/compressor/proc/leave_inlet_turf(turf/source, atom/movable/leaving, direction)
 	SIGNAL_HANDLER  //COMSIG_ATOM_EXIT
 
-	var/list/things = list(entered)
+	var/list/things = list(leaving)
 	while(length(things))
 		var/atom/movable/thing = things[1]
 		things -= thing
