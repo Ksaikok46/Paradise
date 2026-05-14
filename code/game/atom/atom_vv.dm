@@ -140,28 +140,28 @@
 	var/old_light_flags = light_flags
 	switch(var_name)
 		if(NAMEOF(src, light_range))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_range = var_value)
 			else
 				set_light_range(var_value)
 			. = TRUE
 
 		if(NAMEOF(src, light_power))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_power = var_value)
 			else
 				set_light_power(var_value)
 			. = TRUE
 
 		if(NAMEOF(src, light_color))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_color = var_value)
 			else
 				set_light_color(var_value)
 			. = TRUE
 
 		if(NAMEOF(src, light_on))
-			if(light_system == STATIC_LIGHT)
+			if(light_system == COMPLEX_LIGHT)
 				set_light(l_on = var_value)
 			else
 				set_light_on(var_value)
